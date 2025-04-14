@@ -1,25 +1,79 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
+
+{% block title %}
+{% if category %}{{ category.name }}{% else %}Today's Deals{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <h2 class="text-center mb-4">🔥 Today’s Deals</h2>
     <div class="row">
-        {% for deal in deals %}
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-                {% if deal.product.image %}
-                <img src="{{ deal.product.image.url }}" class="card-img-top" alt="{{ deal.product.name }}">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ deal.product.name }}</h5>
-                    <p class="card-text text-danger font-weight-bold">$ {{ deal.deal_price }}</p>
-                    <p class="card-text"><del>$ {{ deal.product.price }}</del></p>
-                    <p class="text-muted small">Offer ends soon!</p>
-                    <a href="{% url 'shop:product_detail' deal.product.id deal.product.slug %}" class="btn btn-primary btn-block">Shop Now</a>
-                </div>
+
+        <!-- Compact Sidebar (Categories) -->
+        <div class="col-md-2">
+            <div class="border p-3 rounded mb-4 bg-white">
+                <h5 class="mb-3 text-uppercase text-black">Categories</h5>
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-2 {% if not category %}fw-bold{% endif %}">
+                        <a href="{% url 'deals:todays_deals' %}" class="text-decoration-none">All</a>
+                    </li>
+                    {% for c in categories %}
+                    <li class="mb-2 {% if category and category.slug == c.slug %}fw-bold{% endif %}">
+                        <a href="{% url 'deals:todays_deals_by_category' category_slug=c.slug %}" class="text-decoration-none">{{ c.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-        {% endfor %}
+
+        <!-- Deals Section -->
+        <div class="col-md-10">
+            <div class="row">
+                {% for deal in deals %}
+                <div class="col-md-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100 deal-card">
+                        {% if deal.product.image %}
+                        <img src="{{ deal.product.image.url }}" class="card-img-top" alt="{{ deal.product.name }}">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-truncate">{{ deal.product.name }}</h5>
+                            <p class="card-text text-danger fw-bold fs-5">$ {{ deal.deal_price }}</p>
+                            <p class="card-text text-muted"><del>$ {{ deal.product.price }}</del></p>
+                            <p class="text-muted small">Hurry, ends soon!</p>
+                            <a href="{% url 'shop:product_detail' deal.product.id deal.product.slug %}" class="btn btn-sm btn-primary mt-auto">Shop Now</a>
+
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p class="text-center">No deals available today. Check back later!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
     </div>
 </div>
+
+<style>
+    /* Optional custom styling */
+    .deal-card img {
+        object-fit: cover;
+        height: 200px;
+    }
+
+    .deal-card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .deal-card:hover {
+        transform: scale(1.02);
+    }
+
+    .card-title {
+        min-height: 40px;
+    }
+</style>
 {% endblock %}

@@ -1,80 +1,87 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
+
 {% block title %}
-{% if category %}{{ category.name }}{% else %}Products{% endif %}
+  {% if category %}{{ category.name }}{% else %}Products{% endif %}
 {% endblock %}
+
 {% block content %}
+<!-- Breadcrumb -->
 <div class="bg-light py-3">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12 mb-0"><a href="index.html">Home</a> <span class="mx-2 mb-0">/</span> <strong
-                    class="text-black">Shop</strong></div>
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 mb-0">
+        <a href="{% url 'shop:product_list' %}">Home</a>
+        <span class="mx-2 mb-0">/</span>
+        <strong class="text-black">Shop</strong>
+      </div>
     </div>
+  </div>
 </div>
 
+<!-- Main Section -->
 <div class="site-section">
-    <div class="container">
+  <div class="container">
+    <div class="row mb-5">
+      
+      <!-- Product List -->
+      <div class="col-md-9 order-2">
         <div class="row mb-5">
-            <div class="col-md-9 order-2">
-                <div class="row mb-5">
-                    {% for product in products %}
-                    <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                        <div class="block-4 text-center border">
-                            <figure class="block-4-image">
-                                <a href="{{ product.get_absolute_url }}"><img src="{{ product.image.url }}"
-                                        alt="Image placeholder" class="img-fluid" style="width: 100%; "></a>
-                            </figure>
-                            <div class="block-4-text p-4">
-                                <h3><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                                <!-- From admin: description is safe -->
-                                <p class="mb-0">{{ product.description|safe }}</p>
-
-                                <!-- From user: no safe needed -->
-                                <p>{{ review.text }}</p>
-
-
-
-                                <p class="text-primary font-weight-bold">${{ product.price }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <div class="row" data-aos="fade-up">
-                    <div class="col-md-12 text-center">
-                        <div class="site-block-27">
-                            <ul>
-                                <li><a href="#">&lt;</a></li>
-                                <li class="active"><span>1</span></li>
-                                <li><a href="#">2</a></li>
-                                <li><a href="#">3</a></li>
-                                <li><a href="#">4</a></li>
-                                <li><a href="#">5</a></li>
-                                <li><a href="#">&gt;</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+          {% for product in products %}
+          <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
+            <div class="block-4 text-center border">
+              <figure class="block-4-image">
+                <a href="{{ product.get_absolute_url }}">
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid" style="width: 100%; height: 200px; object-fit: cover;">
+                </a>
+              </figure>
+              <div class="block-4-text p-4">
+                <h3 class="text-truncate"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+                <p class="mb-2 small text-muted">{{ product.description|truncatewords:10 }}</p>
+                <p class="text-primary font-weight-bold">${{ product.price }}</p>
+              </div>
             </div>
-            <div class="col-md-3 order-1 mb-5 mb-md-0">
-                <div class="border p-4 rounded mb-4">
-                    <h3 class="mb-3 h6 text-uppercase text-black d-block">Categories</h3>
-                    <ul class="list-unstyled mb-0">
-                        <li {% if not category %} class="mb-1" {% endif %}>
-                            <a href="{% url 'shop:product_list' %}" class="d-flex"><span>All</a>
-                        </li>
-                        {% for c in categories %}
-                        <li {% if category.slug == c.slug %} {% endif %} class="mb-1" >
-                            <a href="{{ c.get_absolute_url }}" class="d-flex">{{ c.name }}</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    
-                </div>
-            </div>
+          </div>
+          {% empty %}
+          <div class="col-12">
+            <p class="text-center">No products available in this category.</p>
+          </div>
+          {% endfor %}
         </div>
+
+        <!-- Pagination (Optional: wire it with actual page numbers) -->
+        <div class="row" data-aos="fade-up">
+          <div class="col-md-12 text-center">
+            <div class="site-block-27">
+              <ul class="pagination justify-content-center">
+                <li><a href="#">&lt;</a></li>
+                <li class="active"><span>1</span></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">&gt;</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar: Categories -->
+      <div class="col-md-3 order-1 mb-5 mb-md-0">
+        <div class="border p-4 rounded mb-4 bg-white">
+          <h3 class="mb-3 h6 text-uppercase text-black">Categories</h3>
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2 {% if not category %}fw-bold{% endif %}">
+              <a href="{% url 'shop:product_list' %}" class="text-decoration-none">All</a>
+            </li>
+            {% for c in categories %}
+            <li class="mb-2 {% if category and category.slug == c.slug %}fw-bold{% endif %}">
+              <a href="{{ c.get_absolute_url }}" class="text-decoration-none">{{ c.name }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
