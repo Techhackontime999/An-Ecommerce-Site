@@ -1,0 +1,45 @@
+{% extends 'shop/base/base.html' %}
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">About Us</h1>
+        <p class="lead">Empowering small businesses with modern tech solutions.</p>
+    </div>
+
+    {% for section in sections %}
+    <div class="row mb-5 align-items-center">
+        {% if section.image %}
+        <div class="col-md-6 {% cycle '' 'order-md-2' %}">
+            <img src="{{ section.image.url }}" class="img-fluid rounded shadow" alt="{{ section.title }}">
+        </div>
+        {% endif %}
+        <div class="col-md-6">
+            <h3>{{ section.title }}</h3>
+            <p class="lead">{{ section.content }}</p>
+        </div>
+    </div>
+    {% endfor %}
+
+    <hr class="my-5">
+
+    <div class="text-center">
+        <h2 class="mb-4">Our Team</h2>
+        <div class="row">
+            {% for member in team %}
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow h-100 text-center">
+                    <img src="{{ member.photo.url }}" class="card-img-top rounded-circle mx-auto mt-3" style="width:150px; height:150px;" alt="{{ member.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ member.name }}</h5>
+                        <p class="text-muted">{{ member.role }}</p>
+                        <p>{{ member.bio }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

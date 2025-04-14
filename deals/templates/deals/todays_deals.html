@@ -1,0 +1,25 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">🔥 Today’s Deals</h2>
+    <div class="row">
+        {% for deal in deals %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                {% if deal.product.image %}
+                <img src="{{ deal.product.image.url }}" class="card-img-top" alt="{{ deal.product.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ deal.product.name }}</h5>
+                    <p class="card-text text-danger font-weight-bold">$ {{ deal.deal_price }}</p>
+                    <p class="card-text"><del>$ {{ deal.product.price }}</del></p>
+                    <p class="text-muted small">Offer ends soon!</p>
+                    <a href="{% url 'shop:product_detail' deal.product.id deal.product.slug %}" class="btn btn-primary btn-block">Shop Now</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

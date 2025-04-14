@@ -1,0 +1,244 @@
+.
+├── about
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── static
+│   ├── templates
+│   │   └── about
+│   │       └── about.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── accounts
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── signals.py
+│   ├── templates
+│   │   ├── logout.html
+│   │   └── registration
+│   │       ├── forgot_password.html
+│   │       ├── login.html
+│   │       ├── profile.html
+│   │       └── signup.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── cart
+│   ├── apps.py
+│   ├── cart.py
+│   ├── context_processors.py
+│   ├── forms.py
+│   ├── __init__.py
+│   ├── templates
+│   │   └── cart
+│   │       └── detail.html
+│   ├── tests
+│   │   ├── test_models.py
+│   │   ├── test_urls.py
+│   │   └── test_views.py
+│   ├── urls.py
+│   └── views.py
+├── config
+│   ├── asgi.py
+│   ├── db.sqlite3
+│   ├── __init__.py
+│   ├── media
+│   │   ├── about
+│   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │   └── images.jpeg
+│   │   ├── products
+│   │   │   └── 2025
+│   │   │       └── 04
+│   │   │           ├── 06
+│   │   │           │   └── Screenshot_from_2025-04-04_20-06-56.png
+│   │   │           ├── 13
+│   │   │           │   ├── 71qVMXxky8L._AC_UL320__7hMHmdG.jpg
+│   │   │           │   ├── 71qVMXxky8L._AC_UL320_.jpg
+│   │   │           │   ├── 71qVMXxky8L._AC_UL320__xln9JnA.jpg
+│   │   │           │   ├── 91orz3r1jLL._AC_SR405405__a4MJu0u.jpg
+│   │   │           │   ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │           │   ├── images.jpeg
+│   │   │           │   ├── Screenshot_from_2025-04-04_20-06-56.png
+│   │   │           │   ├── third.jpeg
+│   │   │           │   └── Untitled.jpeg
+│   │   │           └── 14
+│   │   │               └── images.jpeg
+│   │   ├── services
+│   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │   ├── 71qVMXxky8L._AC_UL320_.jpg
+│   │   │   └── images.jpeg
+│   │   └── team
+│   │       ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │       └── third.jpeg
+│   ├── settings
+│   │   ├── __init__.py
+│   │   ├── local.py
+│   │   └── production.py
+│   ├── urls.py
+│   └── wsgi.py
+├── contact
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   └── contact
+│   │       └── contact.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── coupons
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── urls.py
+│   └── views.py
+├── deals
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   └── deals
+│   │       └── todays_deals.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── LICENSE
+├── manage.py
+├── notifications
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+├── order
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   └── order
+│   │       ├── created.html
+│   │       └── create.html
+│   ├── tests
+│   │   ├── test_models.py
+│   │   ├── test_urls.py
+│   │   └── test_views.py
+│   ├── urls.py
+│   └── views.py
+├── payments
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+├── Procfile
+├── project_tree.txt
+├── README.md
+├── requirements.txt
+├── reviews
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+├── runtime.txt
+├── search
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+├── services
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   └── services
+│   │       ├── service_detail.html
+│   │       └── services_list.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── shipping
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+└── shop
+    ├── admin.py
+    ├── apps.py
+    ├── __init__.py
+    ├── models.py
+    ├── static
+    │   ├── css
+    │   │   ├── aos.css
+    │   │   ├── bootstrap
+    │   │   │   ├── bootstrap-grid.css
+    │   │   │   └── bootstrap-reboot.css
+    │   │   ├── bootstrap.min.css
+    │   │   ├── jquery-ui.css
+    │   │   ├── magnific-popup.css
+    │   │   ├── owl.carousel.min.css
+    │   │   ├── owl.theme.default.min.css
+    │   │   └── style.css
+    │   ├── fonts
+    │   │   └── icomoon
+    │   │       ├── demo-files
+    │   │       │   ├── demo.css
+    │   │       │   └── demo.js
+    │   │       ├── demo.html
+    │   │       ├── fonts
+    │   │       │   ├── icomoon.eot
+    │   │       │   ├── icomoon.svg
+    │   │       │   ├── icomoon.ttf
+    │   │       │   └── icomoon.woff
+    │   │       ├── Read Me.txt
+    │   │       ├── selection.json
+    │   │       └── style.css
+    │   └── js
+    │       ├── aos.js
+    │       ├── bootstrap.min.js
+    │       ├── jquery-3.3.1.min.js
+    │       ├── jquery.magnific-popup.min.js
+    │       ├── jquery-ui.js
+    │       ├── main.js
+    │       ├── owl.carousel.min.js
+    │       ├── popper.min.js
+    │       └── slick.min.js
+    ├── templates
+    │   └── shop
+    │       ├── base
+    │       │   ├── base.html
+    │       │   ├── footer.html
+    │       │   └── navbar.html
+    │       ├── home.html
+    │       └── product
+    │           ├── detail.html
+    │           └── list.html
+    ├── tests
+    │   ├── __init__.py
+    │   ├── test_models.py
+    │   ├── test_urls.py
+    │   └── test_views.py
+    ├── urls.py
+    └── views.py
+
+56 directories, 185 files

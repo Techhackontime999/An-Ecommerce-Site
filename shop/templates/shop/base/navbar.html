@@ -1,0 +1,99 @@
+<header class="site-navbar" role="banner">
+    <div class="site-navbar-top">
+        <div class="container">
+            <div class="row align-items-center">
+
+                <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
+                    <form action="" class="site-block-top-search">
+                        <span class="icon icon-search2"></span>
+                        <input type="text" class="form-control border-0" placeholder="Search">
+                    </form>
+                </div>
+
+                <div class="col-12 mb-3 mb-md-0 col-md-4 order-1 order-md-2 text-center">
+                    <div class="site-logo">
+                        <a href="#" class="js-logo-clone">Shop-Seed</a>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 order-3 order-md-3 text-right">
+                    <div class="site-top-icons">
+                        <ul class="navbar-nav ml-auto mt-2 d-flex gap-10 flex-row">
+
+
+                            <!-- Cart -->
+                            <li class="nav-item">
+                                <a href="{% url 'cart:cart_detail' %}" class="nav-link ">
+                                    <span class="icon icon-shopping_cart"></span>
+                                    <span class="count mt-1">
+                                        {% with total_items=cart|length %}
+                                        {% if total_items > 0 %}
+                                        {{ total_items }}
+                                        {% else %}
+                                        0
+                                        {% endif %}
+                                        {% endwith %}
+
+                                    </span>
+                                </a>
+                            </li>
+
+                            <!-- User Profile / Login -->
+                            <li class="nav-item dropdown">
+                                {% if user.is_authenticated %}
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="icon icon-person"></span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-left" aria-labelledby="userDropdown">
+                                    <a class="dropdown-item" href="#">Your Profile</a>
+                                    <a class="dropdown-item" href="#">Returns & Orders </a>
+
+                                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+
+                                </div>
+                                {% else %}
+                                <a href="{% url 'login' %}" class="btn btn-white px-3 py-2">
+                                    Login Now
+                                </a>
+                                {% endif %}
+                            </li>
+                   
+                            
+                            <li class="d-inline-block d-md-none ml-md-0"><a href="#"
+                                class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li>
+                        </ul>
+
+
+                        <!-- ✅ Add this script at the bottom of the page -->
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <nav class="site-navigation text-right text-md-center" role="navigation">
+        <div class="container">
+            <ul class="site-menu js-clone-nav d-none d-md-block">
+                <li><a href="#">Home</a></li>
+                <li><a href="{% url 'shop:product_list' %}">Shop</a></li>
+                <li><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
+                <li><a href="#">Best Product</a></li>
+                <li><a href="{% url 'about:about' %}">About</a></li>
+                <li><a href="#">Big Billion Day's</a></li>
+                <li><a href="#">Shop-Seeds Best sellers</a></li>
+
+                <li><a href="{% url 'services:services_list' %}">Customer Services</a></li>
+                <li><a href="contact.html">Market Blog</a></li>
+                <li><a href="#">Sellers Ragistration</a></li>
+
+                <li><a href="{% url 'contact:contact' %}">Contact us</a></li>
+                <li><a href="#">Join Shop-Seed</a></li>
+
+
+            </ul>
+        </div>
+    </nav>
+</header>

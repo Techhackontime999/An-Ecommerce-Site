@@ -1,0 +1,19 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ service.title }}</h2>
+    <div class="row">
+        <div class="col-md-6">
+            {% if service.image %}
+            <img src="{{ service.image.url }}" class="img-fluid" alt="{{ service.title }}">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h4>Details</h4>
+            <p>{{ service.details|safe }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
