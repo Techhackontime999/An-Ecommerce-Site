@@ -9,3 +9,9 @@ def add_user_to_customers_group(sender, instance, created, **kwargs):
         group = Group.objects.get(name='customers')  # Retrieve the 'customers' group
         instance.groups.add(group)  # Add the user to the group
         instance.save()
+@receiver(post_save, sender=User)
+def add_user_to_sellers_group(sender, instance, created, **kwargs):
+    if created:  # only run this when a new user is created
+        group = Group.objects.get(name='sellers')  # Retrieve the 'customers' group
+        instance.groups.add(group)  # Add the user to the group
+        instance.save()

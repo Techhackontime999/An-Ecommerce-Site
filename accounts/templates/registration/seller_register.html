@@ -1,0 +1,14 @@
+{% extends "shop/base/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>Welcome Seller  Register here !</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <p>Don't worry about GST this is optional , if your income is less than 20 LPA & they varry based on state. </p>
+      <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+  </div>
+{% endblock %}

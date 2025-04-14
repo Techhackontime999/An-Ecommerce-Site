@@ -1,0 +1,61 @@
+{% extends "shop/base/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Your Profile</h2>
+    
+    <!-- Profile Section -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Personal Information</h5>
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Display the form fields with custom Bootstrap styling -->
+                <div class="mb-3">
+                    <label for="shop_name" class="form-label">Shop Name</label>
+                    {{ form.shop_name }}
+                </div>
+                <div class="mb-3">
+                    <label for="gst_number" class="form-label">GST Number</label>
+                    {{ form.gst_number }}
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone</label>
+                    {{ form.phone }}
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    {{ form.address }}
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    {{ form.description }}
+                </div>
+                
+                <!-- Save Changes Button -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Picture Section (Optional) -->
+    <div class="mt-4">
+        <h5 class="mb-3">Profile Picture</h5>
+        <div class="text-center">
+            <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}/static/default-avatar.png{% endif %}" alt="Profile Picture" class="img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mt-2">
+                    <label for="profile_picture" class="form-label">Change Profile Picture</label>
+                    <input type="file" name="profile_picture" id="profile_picture" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Upload New Picture</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

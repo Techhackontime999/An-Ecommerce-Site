@@ -46,7 +46,11 @@
                                     <span class="icon icon-person"></span>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="userDropdown">
-                                    <a class="dropdown-item" href="#">Your Profile</a>
+                                    {% if user.is_authenticated %}
+
+                                    <a class="dropdown-item" href="{% url 'auth:profile_view' %}">Your Profile</a>
+                                    {% endif %}
+
                                     <a class="dropdown-item" href="#">Returns & Orders </a>
 
                                     <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
@@ -58,10 +62,10 @@
                                 </a>
                                 {% endif %}
                             </li>
-                   
-                            
+
+
                             <li class="d-inline-block d-md-none ml-md-0"><a href="#"
-                                class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li>
+                                    class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li>
                         </ul>
 
 
@@ -87,7 +91,7 @@
 
                 <li><a href="{% url 'services:services_list' %}">Customer Services</a></li>
                 <li><a href="contact.html">Market Blog</a></li>
-                <li><a href="#">Sellers Ragistration</a></li>
+                <li><a href="{% url 'auth:seller_register' %}">Sellers Ragistration</a></li>
 
                 <li><a href="{% url 'contact:contact' %}">Contact us</a></li>
                 <li><a href="#">Join Shop-Seed</a></li>
