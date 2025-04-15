@@ -49,6 +49,8 @@
 │   ├── db.sqlite3
 │   ├── __init__.py
 │   ├── media
+│   │   ├── documentation_images
+│   │   │   └── 91orz3r1jLL._AC_SR405405_.jpg
 │   │   ├── products
 │   │   │   └── 2025
 │   │   │       └── 04
@@ -104,6 +106,18 @@
 │   ├── templates
 │   │   └── deals
 │   │       └── todays_deals.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── documentation
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   └── documentation
+│   │       ├── documentation.html
+│   │       └── pdf_template.html
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
@@ -236,4 +250,4 @@
     ├── urls.py
     └── views.py
 
-55 directories, 181 files
+59 directories, 191 files
