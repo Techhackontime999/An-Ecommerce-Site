@@ -1,9 +1,9 @@
 {% extends 'shop/base/base.html' %}
 {% block content %}
 <div class="container-fluid my-5 px-4">
-  <div class="d-flex justify-content-end mb-3">
-    <a href="{% url 'doc:download_pdf' %}" class="btn btn-danger mx-2">Download as PDF</a>
-    <a href="{% url 'doc:download_word' %}" class="btn btn-primary">Download as Word</a>
+  <div class="d-flex justify-content-end mb-3 mx-auto">
+    <a style="color: #7971ea;" href="{% url 'doc:download_pdf' %}" class="btn btn-white mr-3"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#999999"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg> pdf</a>
+    <a style="color: #7971ea;" href="{% url 'doc:download_word' %}" class="btn btn-white "><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#999999"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg> Word doc</a>
   </div>
 
   <div class="row">
@@ -19,22 +19,21 @@
    <!-- Content -->
 <div class="col-md-9">
   {% for section in documentation_sections %}
-  <section style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;" id="{{ section.slug }}">
-    
-    <!-- Content on the left -->
-    <div style="flex: 1; padding-right: 20px;">
+  <section class="row align-items-start mb-5" id="{{ section.slug }}">
+    <!-- Content Left -->
+    <div class="col-12 col-md-8 mb-3 mb-md-0">
       <h2>{{ section.icon|safe }} {{ section.title }}</h2>
       <pre>{{ section.content|safe }}</pre>
     </div>
-
-    <!-- Display the image on the right if it exists -->
+  
+    <!-- Image Right -->
     {% if section.image %}
-    <div style="flex-shrink: 0;">
-      <img src="{{ section.image.url }}" alt="{{ section.title }}" class="img-fluid my-3">
+    <div class="col-12 col-md-4">
+      <img src="{{ section.image.url }}" alt="{{ section.title }}" class="img-fluid rounded shadow-sm">
     </div>
     {% endif %}
-    
   </section>
+  
   <hr>
   {% endfor %}
 </div>

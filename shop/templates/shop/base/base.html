@@ -30,12 +30,25 @@
     transition: all 0.3s ease-in-out;
 }
 
+/* for nav in small device */
+
+@media (max-width: 768px) {
+  .scrollable-nav {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+  }
+}
+/* for nav in small device close*/
+
+
 /*  */
 /* Optional: Highlight active sidebar link */
 .list-group-item.active {
   background-color: #002fff;
   color: white;
 }
+
 
     </style>
 </head>

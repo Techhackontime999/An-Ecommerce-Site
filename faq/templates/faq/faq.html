@@ -1,0 +1,102 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5 px-3">
+  <h2 class="text-center mb-5 font-weight-bold">Frequently Asked Questions
+    <hr>
+  </h2>
+
+  <div class="accordion" id="faqAccordion">
+    {% for faq in faqs %}
+    <div class="card mb-3 border-0 shadow-sm">
+      <div class="card-header bg-white p-0" id="heading{{ forloop.counter }}">
+        <h3 class="mb-0">
+          <button
+            class="btn btn-link btn-block text-left text-dark font-weight-bold d-flex justify-content-between align-items-center py-3 px-4 collapsed"
+            style="text-decoration: none; white-space: normal;"
+            type="button"
+            data-toggle="collapse"
+            data-target="#collapse{{ forloop.counter }}"
+            aria-expanded="false"
+            aria-controls="collapse{{ forloop.counter }}"
+          >
+            <span class="faq-question-text flex-grow-1 text-break">{{ faq.question }}</span>
+            <span class="faq-icon ml-3">+</span>
+          </button>
+        </h3>
+      </div>
+
+      <div
+        id="collapse{{ forloop.counter }}"
+        class="collapse"
+        aria-labelledby="heading{{ forloop.counter }}"
+        data-parent="#faqAccordion"
+      >
+        <div class="card-body text-muted px-4">
+          {{ faq.answer|safe|linebreaks }}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-center text-muted">No FAQs found.</p>
+    {% endfor %}
+  </div>
+</div>
+<!-- success stories starts -->
+<hr class="my-5">
+
+<h3 class="mb-4 text-center font-weight-bold">Successful Stories</h3>
+
+<div class="container-fluid px-0">
+  <div class="d-flex overflow-auto pb-3 px-3">
+    {% for story in stories %}
+    <div class="card mx-2 flex-shrink-0 shadow-sm" style="width: 280px; min-width: 280px;">
+      {% if story.image %}
+      <img class="card-img-top" src="{{ story.image.url }}" alt="{{ story.title }}" style="height: 160px; object-fit: cover;">
+      {% endif %}
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">{{ story.title }}</h5>
+        <p class="card-text text-muted" style="font-size: 0.9rem; flex-grow: 1;">{{ story.description|truncatewords:20 }}</p>
+        <a href="{{ story.url }}" class="btn btn-sm btn-outline-primary mt-2 align-self-start">Read More</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+ <!-- success stories close -->
+<style>
+    /* faq start */
+  .faq-question-text {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+
+  @media (max-width: 576px) {
+    .faq-question-text {
+      font-size: 1rem;
+    }
+
+    .faq-icon {
+      font-size: 1.2rem;
+    }
+  }
+  /* faq end */
+  /* success story start */
+  .overflow-auto::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .overflow-auto::-webkit-scrollbar-thumb {
+    background-color: #999;
+    border-radius: 4px;
+  }
+
+  .overflow-auto::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+  }
+  /* success story close */
+</style>
+{% endblock %}

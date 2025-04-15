@@ -121,6 +121,18 @@
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
+├── faq
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   └── faq
+│   │       └── faq.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
 ├── LICENSE
 ├── manage.py
 ├── notifications
@@ -250,4 +262,4 @@
     ├── urls.py
     └── views.py
 
-59 directories, 191 files
+62 directories, 200 files

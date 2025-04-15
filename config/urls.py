@@ -38,7 +38,7 @@ urlpatterns = [
     path('order/', include('order.urls', namespace='order')),
     path('services/', include('services.urls', namespace='services')),  # keep above shop
    path('documentation/', include('documentation.urls',namespace='doc')),
-
+    path('faq/', include('faq.urls',namespace='faq')),  # Include the FAQ app's URLs
 
     path('about/', include('about.urls', namespace='about')),
     path('contact/', include('contact.urls', namespace='contact')),

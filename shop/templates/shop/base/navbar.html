@@ -1,7 +1,11 @@
+{% load static %}
+
 <header class="site-navbar" role="banner">
+
     <div class="site-navbar-top">
         <div class="container">
-            <div class="row align-items-center">
+
+            <div class="row align-items-center mx-auto">
 
                 <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
                     <form action="" class="site-block-top-search">
@@ -24,6 +28,7 @@
                             <!-- Cart -->
                             <li class="nav-item">
                                 <a href="{% url 'cart:cart_detail' %}" class="nav-link ">
+
                                     <span class="icon icon-shopping_cart"></span>
                                     <span class="count mt-1">
                                         {% with total_items=cart|length %}
@@ -78,30 +83,44 @@
             </div>
         </div>
     </div>
-    <nav class="site-navigation text-right text-md-center" role="navigation">
-        <div class="container">
-            <ul class="site-menu js-clone-nav d-none d-md-block">
-                <li><a href="#">Home</a></li>
-                <li><a href="{% url 'shop:product_list' %}">Shop</a></li>
-                <li><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
-                <li><a href="#">Best Product</a></li>
-                <li><a href="{% url 'about:about' %}">About</a></li>
-                <li><a href="#">Big Billion Day's</a></li>
-                <li><a href="#">Shop-Seeds Best sellers</a></li>
+    <div class="scrollable-nav">
 
-                <li><a href="{% url 'services:services_list' %}">Customer Services</a></li>
-                <li><a href="contact.html">Market Blog</a></li>
-                <li><a href="{% url 'auth:seller_register' %}">Sellers Ragistration</a></li>
+        <nav class="site-navigation text-right text-md-center my-3" role="navigation">
 
-                <li><a href="{% url 'contact:contact' %}">Contact us</a></li>
-                <li><a href="#">Join Shop-Seed</a></li>
-                <li><a href="#">FAQ Room</a></li>
-                <li><a href="{% url 'doc:documentation' %}">Documentation</a></li>
+            <div class="container">
+                <div class="d-none d-md-block col-lg-block">
+                    <a href="{% url 'shop:product_list' %} ">
+                        <img style="border-radius: 12px; box-shadow: 5px 10px 10px 1px #212529;"
+                            src="{% static 'images/shop-seed_logo.jpeg' %}" width="90" alt="Shop-Seed logo">
+                    </a>
+                </div>
+
+                <ul class="site-menu js-clone-nav d-none d-md-block">
+
+                    <li><a href="{% url 'shop:product_list' %}">Home</a></li>
+                    <li><a href="{% url 'shop:product_list' %}">Shop</a></li>
+                    <li><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
+                    <li><a href="#">Best Product</a></li>
+                    <li><a href="{% url 'about:about' %}">About</a></li>
+                    <li><a href="#">Big Billion Day's</a></li>
+                    <li><a href="#">Shop-Seeds Best sellers</a></li>
+
+                    <li><a href="{% url 'services:services_list' %}">Customer Services</a></li>
+                    <li><a href="contact.html">Market Blog</a></li>
+                    <li><a href="{% url 'auth:seller_register' %}">Sellers Ragistration</a></li>
+
+                    <li><a href="{% url 'contact:contact' %}">Contact us</a></li>
+                    <li><a href="#">Join Shop-Seed</a></li>
+                    <li><a href="{% url 'faq:faq' %}">FAQ Room</a></li>
+                    <li><a href="{% url 'doc:documentation' %}">Documentation</a></li>
 
 
 
 
-            </ul>
-        </div>
-    </nav>
+                </ul>
+            </div>
+
+        </nav>
+    </div>
+
 </header>
