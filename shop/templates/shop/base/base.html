@@ -68,7 +68,37 @@
     <script src="{% static "js/jquery.magnific-popup.min.js" %}"></script>
     <script src="{% static "js/aos.js" %}"></script>
     <script src="{% static "js/main.js" %}"></script>
-
+    <script>
+      const scrollContainer = document.getElementById('success-scroll');
+      let autoScroll;
+    
+      function startAutoScroll() {
+        autoScroll = setInterval(() => {
+          // If scroll reaches the end, reset to start (infinite loop)
+          if (scrollContainer.scrollLeft + scrollContainer.offsetWidth >= scrollContainer.scrollWidth) {
+            scrollContainer.scrollLeft = 0;
+          } else {
+            scrollContainer.scrollLeft += 5;  // control speed here
+          }
+        }, 20);  // smaller value = faster scroll
+      }
+    
+      function stopAutoScroll() {
+        clearInterval(autoScroll);
+      }
+    
+      // Start scrolling when page loads
+      startAutoScroll();
+    
+      // Pause on mouse enter / click / touch
+      scrollContainer.addEventListener('mouseenter', stopAutoScroll);
+      scrollContainer.addEventListener('click', stopAutoScroll);
+      scrollContainer.addEventListener('touchstart', stopAutoScroll);
+    
+      // Resume when mouse leaves (optional)
+      scrollContainer.addEventListener('mouseleave', startAutoScroll);
+    </script>
+    
 
     
 </body>
