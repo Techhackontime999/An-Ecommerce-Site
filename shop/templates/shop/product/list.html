@@ -37,7 +37,7 @@
               </figure>
               <div class="block-4-text p-4">
                 <h3 class="text-truncate"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                <p class="mb-2 small text-muted">{{ product.description|truncatewords:10 }}</p>
+                <p class="mb-2 small text-muted">{{ product.description|safe|truncatewords:10 }}</p>
                 <p class="text-primary font-weight-bold">${{ product.price }}</p>
               </div>
             </div>
