@@ -37,7 +37,8 @@ urlpatterns = [
     path('cart/', include('cart.urls', namespace='cart')),
     path('order/', include('order.urls', namespace='order')),
     path('services/', include('services.urls', namespace='services')),  # keep above shop
-   
+   path('documentation/', include('documentation.urls',namespace='doc')),
+
 
     path('about/', include('about.urls', namespace='about')),
     path('contact/', include('contact.urls', namespace='contact')),

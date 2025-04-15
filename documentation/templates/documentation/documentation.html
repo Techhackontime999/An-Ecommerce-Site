@@ -1,0 +1,69 @@
+{% extends 'shop/base/base.html' %}
+{% block content %}
+<div class="container-fluid my-5 px-4">
+  <div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'doc:download_pdf' %}" class="btn btn-danger mx-2">Download as PDF</a>
+    <a href="{% url 'doc:download_word' %}" class="btn btn-primary">Download as Word</a>
+  </div>
+
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3 my-3 ">
+      <div class="list-group position-sticky" style="top: 100px;">
+        {% for section in documentation_sections %}
+        <a href="#{{ section.slug }}" class="list-group-item list-group-item-action" data-target="{{ section.slug }}">{{ section.title }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+   <!-- Content -->
+<div class="col-md-9">
+  {% for section in documentation_sections %}
+  <section style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;" id="{{ section.slug }}">
+    
+    <!-- Content on the left -->
+    <div style="flex: 1; padding-right: 20px;">
+      <h2>{{ section.icon|safe }} {{ section.title }}</h2>
+      <pre>{{ section.content|safe }}</pre>
+    </div>
+
+    <!-- Display the image on the right if it exists -->
+    {% if section.image %}
+    <div style="flex-shrink: 0;">
+      <img src="{{ section.image.url }}" alt="{{ section.title }}" class="img-fluid my-3">
+    </div>
+    {% endif %}
+    
+  </section>
+  <hr>
+  {% endfor %}
+</div>
+
+  </div>
+</div>
+
+<!-- Add this JavaScript at the end of the block to ensure smooth scrolling and active link management -->
+<script>
+  // Smooth scroll behavior
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      // Scroll to the target section
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
+      });
+    });
+  });
+
+  // Add/remove 'active' class when clicking on sidebar links
+  const links = document.querySelectorAll('.list-group-item');
+  
+  links.forEach(link => {
+    link.addEventListener('click', function () {
+      links.forEach(link => link.classList.remove('active'));  // Remove 'active' from all links
+      this.classList.add('active');  // Add 'active' to the clicked link
+    });
+  });
+</script>
+{% endblock %}

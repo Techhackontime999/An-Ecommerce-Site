@@ -4,7 +4,6 @@
 │   ├── apps.py
 │   ├── __init__.py
 │   ├── models.py
-│   ├── static
 │   ├── templates
 │   │   └── about
 │   │       └── about.html
@@ -19,11 +18,13 @@
 │   ├── models.py
 │   ├── signals.py
 │   ├── templates
+│   │   ├── accounts
+│   │   │   └── profile.html
 │   │   ├── logout.html
 │   │   └── registration
 │   │       ├── forgot_password.html
 │   │       ├── login.html
-│   │       ├── profile.html
+│   │       ├── seller_register.html
 │   │       └── signup.html
 │   ├── tests.py
 │   ├── urls.py
@@ -48,32 +49,16 @@
 │   ├── db.sqlite3
 │   ├── __init__.py
 │   ├── media
-│   │   ├── about
-│   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
-│   │   │   └── images.jpeg
 │   │   ├── products
 │   │   │   └── 2025
 │   │   │       └── 04
-│   │   │           ├── 06
-│   │   │           │   └── Screenshot_from_2025-04-04_20-06-56.png
-│   │   │           ├── 13
-│   │   │           │   ├── 71qVMXxky8L._AC_UL320__7hMHmdG.jpg
-│   │   │           │   ├── 71qVMXxky8L._AC_UL320_.jpg
-│   │   │           │   ├── 71qVMXxky8L._AC_UL320__xln9JnA.jpg
-│   │   │           │   ├── 91orz3r1jLL._AC_SR405405__a4MJu0u.jpg
-│   │   │           │   ├── 91orz3r1jLL._AC_SR405405_.jpg
-│   │   │           │   ├── images.jpeg
-│   │   │           │   ├── Screenshot_from_2025-04-04_20-06-56.png
-│   │   │           │   ├── third.jpeg
-│   │   │           │   └── Untitled.jpeg
 │   │   │           └── 14
-│   │   │               └── images.jpeg
-│   │   ├── services
-│   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
-│   │   │   ├── 71qVMXxky8L._AC_UL320_.jpg
-│   │   │   └── images.jpeg
-│   │   └── team
-│   │       ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │               ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │               ├── 71qVMXxky8L._AC_UL320_.jpg
+│   │   │               ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │               └── third.jpeg
+│   │   └── services
+│   │       ├── images.jpeg
 │   │       └── third.jpeg
 │   ├── settings
 │   │   ├── __init__.py
@@ -92,6 +77,16 @@
 │   │       └── contact.html
 │   ├── tests.py
 │   ├── urls.py
+│   └── views.py
+├── core
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   └── admin
+│   │       └── base_site.html
+│   ├── tests.py
 │   └── views.py
 ├── coupons
 │   ├── admin.py
@@ -241,4 +236,4 @@
     ├── urls.py
     └── views.py
 
-56 directories, 185 files
+55 directories, 181 files
