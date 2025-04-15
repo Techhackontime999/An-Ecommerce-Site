@@ -59,9 +59,11 @@
 │   │   │               ├── 71qVMXxky8L._AC_UL320_.jpg
 │   │   │               ├── 91orz3r1jLL._AC_SR405405_.jpg
 │   │   │               └── third.jpeg
-│   │   └── services
-│   │       ├── images.jpeg
-│   │       └── third.jpeg
+│   │   ├── services
+│   │   │   ├── images.jpeg
+│   │   │   └── third.jpeg
+│   │   └── stories
+│   │       └── images.jpeg
 │   ├── settings
 │   │   ├── __init__.py
 │   │   ├── local.py
@@ -234,6 +236,8 @@
     │   │       ├── Read Me.txt
     │   │       ├── selection.json
     │   │       └── style.css
+    │   ├── images
+    │   │   └── shop-seed_logo.jpeg
     │   └── js
     │       ├── aos.js
     │       ├── bootstrap.min.js
@@ -262,4 +266,4 @@
     ├── urls.py
     └── views.py
 
-62 directories, 200 files
+64 directories, 202 files
