@@ -1,0 +1,36 @@
+{% extends 'shop/base/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Your Orders</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order_items %}
+            <tr>
+                <td>{{ item.order.id }}</td>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.order.paid|yesno:"Paid,Pending" }}</td>
+                <td>
+                    {% if not item.order.paid %}
+                        <a href="{% url 'seller:update_order_status' item.order.id %}" class="btn btn-sm btn-success">Mark as Paid</a>
+                    {% else %}
+                        <span class="badge badge-success">Completed</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -5,4 +5,9 @@ app_name = 'seller'
 
 urlpatterns = [
     path('seller_dashboard/', views.seller_dashboard, name='seller_dashboard'),
+        path('product/add/', views.add_product, name='add_product'),
+    path('product/edit/<int:pk>/', views.edit_product, name='edit_product'),
+    path('product/delete/<int:pk>/', views.delete_product, name='delete_product'),
+    path('orders/', views.seller_orders, name='orders'),
+    path('orders/update/<int:order_id>/', views.update_order_status, name='update_order_status'),
 ]

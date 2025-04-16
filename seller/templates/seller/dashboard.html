@@ -1,28 +1,59 @@
-{% extends "shop/base/base.html" %}
-
+{% extends 'shop/base/base.html' %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Hello, {{ request.user.username }}! 👋</h2>
-    <p>Welcome to your seller dashboard.</p>
+<div class="container mt-4">
+    <h2>Welcome, {{ profile.shop_name }}</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Total Products</h5>
+                    <p>{{ total_products }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Total Orders</h5>
+                    <p>{{ total_orders }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Pending Orders</h5>
+                    <p>{{ pending_orders }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'seller:add_product' %}" class="btn btn-primary mb-3">Add Product</a>
+    <a href="{% url 'seller:orders' %}" class="btn btn-primary mb-3">Manage Orders</a>
 
-    <h3 class="mt-4">📦 Your Products</h3>
-    <ul>
-        {% for product in products %}
-            <li>{{ product.name }} - ₹{{ product.price }}</li>
-        {% empty %}
-            <li>No products added yet.</li>
-        {% endfor %}
-    </ul>
-
-    <h3 class="mt-4">🛒 Your Orders</h3>
-    {% if orders %}
-        <ul>
-        {% for order in orders %}
-            <li>Order #{{ order.id }} - {{ order.product.name }} - {{ order.status }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No orders yet.</p>
-    {% endif %}
+    <h3>Your Products</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Available</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.available }}</td>
+                <td>
+                    <a href="{% url 'seller:edit_product' product.pk %}" class="btn btn-sm btn-info">Edit</a>
+                    <a href="{% url 'seller:delete_product' product.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

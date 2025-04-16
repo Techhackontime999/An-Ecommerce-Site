@@ -1,35 +1,117 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from accounts.models import SellerProfile
 from shop.models import Product
-from order.models import Order  # if you have an Order model
+from order.models import OrderItem, Order
+from accounts.models import SellerProfile
+from django.contrib import messages
+from .forms import ProductForm
+
+@login_required
+def seller_dashboard(request):
+    try:
+        profile = request.user.sellerprofile
+    except SellerProfile.DoesNotExist:
+        return redirect('accounts:seller_register')
+
+    if not profile.is_verified:
+        return render(request, 'seller/not_verified.html')
+
+    products = Product.objects.filter(seller=profile)
+    order_items = OrderItem.objects.filter(product__in=products)
+
+    context = {
+        'profile': profile,
+        'total_products': products.count(),
+        'total_orders': order_items.count(),
+        'pending_orders': order_items.filter(order__paid=False).count(),
+        'products': products,
+    }
+    return render(request, 'seller/dashboard.html', context)
+
+@login_required
+def add_product(request):
+    try:
+        profile = request.user.sellerprofile
+    except SellerProfile.DoesNotExist:
+        return redirect('accounts:seller_register')
+
+    if not profile.is_verified:
+        return render(request, 'seller/not_verified.html')
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.seller = profile
+            product.save()
+            messages.success(request, 'Product added successfully!')
+            return redirect('seller:seller_dashboard')
+    else:
+        form = ProductForm()
+
+    return render(request, 'seller/add_product.html', {'form': form})
+
+@login_required
+def edit_product(request, pk):
+    product = get_object_or_404(Product, pk=pk, seller=request.user.sellerprofile)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product updated successfully!')
+            return redirect('seller:seller_dashboard')
+    else:
+        form = ProductForm(instance=product)
+    return render(request, 'seller/edit_product.html', {'form': form})
+
+@login_required
+def delete_product(request, pk):
+    product = get_object_or_404(Product, pk=pk, seller=request.user.sellerprofile)
+    product.delete()
+    messages.success(request, 'Product deleted successfully!')
+    return redirect('seller:seller_dashboard')
+
+@login_required
+def seller_orders(request):
+    profile = request.user.sellerprofile
+    order_items = OrderItem.objects.filter(product__seller=profile).select_related('order')
+    return render(request, 'seller/orders.html', {'order_items': order_items})
+
+@login_required
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id, items__product__seller=request.user.sellerprofile)
+    order.paid = True
+    order.save()
+    messages.success(request, 'Order marked as shipped/paid.')
+    return redirect('seller:orders')
+
+
+
+# from django.shortcuts import render, redirect
+# from django.contrib.auth.decorators import login_required
+# from shop.models import Product
+# from order.models import OrderItem
+# from accounts.models import SellerProfile
+# from django.contrib import messages
 
 # @login_required
 # def seller_dashboard(request):
 #     try:
-#         seller_profile = SellerProfile.objects.get(user=request.user)
+#         profile = request.user.sellerprofile
 #     except SellerProfile.DoesNotExist:
-#         return redirect('accounts:seller_register')  # Redirect if not a seller
+#         return redirect('accounts:seller_register')
 
-#     products = Product.objects.filter(seller=seller_profile)
-#     orders = Order.objects.filter(items__product__seller=seller_profile).distinct() if hasattr(Product, 'seller') else []
-#     if not seller_profile.is_verified:
+#     if not profile.is_verified:
 #         return render(request, 'seller/not_verified.html')
-#     else:
-#         return render(request, 'seller/dashboard.html', {
-#         'seller': seller_profile,
+
+#     products = Product.objects.filter(seller=profile)
+#     order_items = OrderItem.objects.filter(product__in=products)
+
+#     context = {
+#         'profile': profile,
+#         'total_products': products.count(),
+#         'total_orders': order_items.count(),
+#         'pending_orders': order_items.filter(order__paid=False).count(),
 #         'products': products,
-#         'orders': orders,
-#       })
-
-
-
-@login_required
-def seller_dashboard(request):
-    seller_profile = request.user.sellerprofile
-    orders = Order.objects.filter(items__product__seller=seller_profile).distinct()
-
-    return render(request, 'seller/dashboard.html', {
-        'seller_profile': seller_profile,
-        'orders': orders,
-    })
+#     }
+#     return render(request, 'seller/dashboard.html', context)

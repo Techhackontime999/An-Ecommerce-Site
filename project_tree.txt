@@ -60,6 +60,9 @@
 │   │   │           │   ├── 91orz3r1jLL._AC_SR405405_.jpg
 │   │   │           │   └── third.jpeg
 │   │   │           └── 16
+│   │   │               ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │               ├── 51kFpLp93uL._MCnd_AC__xUrzecg.jpg
+│   │   │               ├── images_1l3ELKH.jpeg
 │   │   │               ├── images.jpeg
 │   │   │               └── Untitled.jpeg
 │   │   ├── services
@@ -199,12 +202,16 @@
 ├── seller
 │   ├── admin.py
 │   ├── apps.py
+│   ├── forms.py
 │   ├── __init__.py
 │   ├── models.py
 │   ├── templates
 │   │   └── seller
+│   │       ├── add_product.html
 │   │       ├── dashboard.html
-│   │       └── not_verified.html
+│   │       ├── edit_product.html
+│   │       ├── not_verified.html
+│   │       └── orders.html
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
@@ -288,4 +295,4 @@
     ├── urls.py
     └── views.py
 
-68 directories, 220 files
+68 directories, 227 files
