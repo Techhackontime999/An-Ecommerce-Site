@@ -24,56 +24,58 @@
   <div class="container">
     <div class="row mb-5">
       
-      <!-- Product List -->
-      <div class="col-md-9 order-2">
-        <div class="row mb-5">
-          {% for product in products %}
-          <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-            <div class="block-4 text-center border">
-              <figure class="block-4-image">
-                <a href="{{ product.get_absolute_url }}">
-                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid" style="width: 100%; height: 300px; object-fit: contain;">
-                </a>
-              </figure>
-              <div class="block-4-text p-4">
-                <h3 class="text-truncate"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
-                <p class="mb-2 small text-muted">{{ product.description|safe|truncatewords:10 }}</p>
-                <!-- <p class="text-primary font-weight-bold">${{ product.price }}</p> -->
-                <p>
-                  {% if product.current_price != product.price %}
-                    <del> ${{ product.price }} </del>
-                    <strong style="margin-left:2px; color:red;"> ${{ product.current_price }}</strong>
-                  {% else %}
-                     ${{ product.price }}
-                  {% endif %}
-                </p>
-                
-                
-              </div>
-            </div>
-          </div>
-          {% empty %}
-          <div class="col-12">
-            <p class="text-center">No products available in this category.</p>
-          </div>
-          {% endfor %}
-        </div>
-
-        <!-- Pagination (Optional: wire it with actual page numbers) -->
-        <div class="row" data-aos="fade-up">
-          <div class="col-md-12 text-center">
-            <div class="site-block-27">
-              <ul class="pagination justify-content-center">
-                <li><a href="#">&lt;</a></li>
-                <li class="active"><span>1</span></li>
-                <li><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-                <li><a href="#">&gt;</a></li>
-              </ul>
-            </div>
-          </div>
+   <!-- Product List -->
+<div class="col-md-9 order-2">
+  <div class="row mb-5">
+    {% for product in products %}
+    <div class="col-sm-6 col-lg-4 mb-4" data-aos="zoom-in-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+      <div class="block-4 text-center border product-card shadow-sm rounded-3">
+        <figure class="block-4-image overflow-hidden rounded-top">
+          <a href="{{ product.get_absolute_url }}">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+              class="img-fluid transition-300"
+              style="width: 100%; height: 300px; object-fit: contain;">
+          </a>
+        </figure>
+        <div class="block-4-text p-4">
+          <h3 class="text-truncate">
+            <a href="{{ product.get_absolute_url }}" class="text-dark">{{ product.name }}</a>
+          </h3>
+          <p class="mb-2 small text-muted">{{ product.description|safe|truncatewords:10 }}</p>
+          <p>
+            {% if product.current_price != product.price %}
+              <del>${{ product.price }}</del>
+              <strong class="text-danger ms-2">${{ product.current_price }}</strong>
+            {% else %}
+              ${{ product.price }}
+            {% endif %}
+          </p>
         </div>
       </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <p class="text-center">No products available in this category.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <div class="row" data-aos="fade-up">
+    <div class="col-md-12 text-center">
+      <div class="site-block-27">
+        <ul class="pagination justify-content-center">
+          <li><a href="#">&lt;</a></li>
+          <li class="active"><span>1</span></li>
+          <li><a href="#">2</a></li>
+          <li><a href="#">3</a></li>
+          <li><a href="#">&gt;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
 
       <!-- Sidebar: Categories -->
       <div class="col-md-3 order-1 mb-5 mb-md-0">

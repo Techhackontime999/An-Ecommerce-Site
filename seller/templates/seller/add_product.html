@@ -2,27 +2,30 @@
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
                     <h4 class="mb-0">Add New Product</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
                         {% for field in form %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            <div class="mb-4">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
                                 {{ field }}
+
                                 {% if field.help_text %}
-                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                    <div class="form-text text-muted">{{ field.help_text }}</div>
                                 {% endif %}
                                 {% for error in field.errors %}
                                     <div class="text-danger small">{{ error }}</div>
                                 {% endfor %}
                             </div>
                         {% endfor %}
-                        <button type="submit" class="btn btn-success">Add Product</button>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success px-4 py-2 rounded-pill shadow-sm">Add Product</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -30,5 +33,3 @@
     </div>
 </div>
 {% endblock %}
-
-
