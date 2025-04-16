@@ -54,11 +54,14 @@
 │   │   ├── products
 │   │   │   └── 2025
 │   │   │       └── 04
-│   │   │           └── 14
-│   │   │               ├── 51kFpLp93uL._MCnd_AC_.jpg
-│   │   │               ├── 71qVMXxky8L._AC_UL320_.jpg
-│   │   │               ├── 91orz3r1jLL._AC_SR405405_.jpg
-│   │   │               └── third.jpeg
+│   │   │           ├── 14
+│   │   │           │   ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │           │   ├── 71qVMXxky8L._AC_UL320_.jpg
+│   │   │           │   ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │           │   └── third.jpeg
+│   │   │           └── 16
+│   │   │               ├── images.jpeg
+│   │   │               └── Untitled.jpeg
 │   │   ├── services
 │   │   │   ├── images.jpeg
 │   │   │   └── third.jpeg
@@ -193,6 +196,18 @@
 │   ├── models.py
 │   ├── tests.py
 │   └── views.py
+├── seller
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── models.py
+│   ├── templates
+│   │   └── seller
+│   │       ├── dashboard.html
+│   │       └── not_verified.html
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
 ├── services
 │   ├── admin.py
 │   ├── apps.py
@@ -273,4 +288,4 @@
     ├── urls.py
     └── views.py
 
-64 directories, 209 files
+68 directories, 220 files

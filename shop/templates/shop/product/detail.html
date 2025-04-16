@@ -22,7 +22,15 @@
           <div class="col-md-6">
             <h2 class="text-black mr-2">{{ product.name }}</h2>
             <p>{{ product.description|safe }}</p>
-            <p><strong class="text-primary h4">${{ product.price }}</strong></p>
+            <p>
+              {% if product.current_price != product.price %}
+                <del><strong class="text-primary h5"> ${{ product.price }}</strong></del>
+                <strong class="h2"style="color:red;"> ${{ product.current_price }}</strong>
+              {% else %}
+                ${{ product.price }}
+              {% endif %}
+            </p>
+            
             <div class="mt-5 col-md-5">
               <!-- <form action="{% url "cart:cart_add" product.id %}" method="post">
                 {% csrf_token %}
@@ -36,7 +44,7 @@
     <input type="submit" class="buy-now btn btn-sm btn-primary" value="Add to cart">
   </form>
 {% else %}
-  <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-primary">
+  <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-sm btn-primary">
     Login to add to cart
   </a>
 {% endif %}

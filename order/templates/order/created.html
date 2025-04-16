@@ -1,11 +1,23 @@
 {% extends "shop/base/base.html" %}
-{% block title %}
-Thank you
-{% endblock %}
+{% block title %}Order Confirmation{% endblock %}
+
 {% block content %}
-<div class="container text-center mt-5 mb-5">
-    <h1>Thank you</h1>
-    <h3>Your order has been successfully completed. Your order number is
-    <strong>{{ order.id }}</strong>.</h3>
+<div class="container my-5 text-center">
+    <h1 class="mb-4">🎉 Thank You for Your Order!</h1>
+    <p>Your order has been placed successfully.</p>
+    <p><strong>Order ID:</strong> {{ order.id }}</p>
+
+    {% if order.items.all|length > 0 %}
+  <p>Total items: {{ order.items.count }}</p>
+  <ul>
+    {% for item in order.items.all %}
+      <li>{{ item.quantity }} × {{ item.product.name }} — ₹{{ item.price }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<p>You will receive a confirmation email shortly.</p>
+
+    <a href="{% url 'shop:product_list' %}" class="btn btn-success mt-3">Continue Shopping</a>
 </div>
 {% endblock %}

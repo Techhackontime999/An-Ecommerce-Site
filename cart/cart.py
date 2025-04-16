@@ -46,21 +46,47 @@ class Cart():
             del self.cart[product_id]
             self.save()
 
+    # def __iter__(self):
+    #     """
+    #     Iterate over the items in the cart and get the products
+    #     from the database.
+    #     """
+    #     product_ids = self.cart.keys()
+    #     # get the product objects and add them to the cart
+    #     products = Product.objects.filter(id__in=product_ids)
+    #     cart = self.cart.copy()
+    #     for product in products:
+    #         cart[str(product.id)]['product'] = product
+    #     for item in cart.values():
+    #         item['price'] = Decimal(item['price'])
+    #         item['total_price'] = item['price'] * item['quantity']
+    #         yield item
+
     def __iter__(self):
         """
         Iterate over the items in the cart and get the products
-        from the database.
+        from the database, applying deal prices if available.
         """
         product_ids = self.cart.keys()
-        # get the product objects and add them to the cart
         products = Product.objects.filter(id__in=product_ids)
         cart = self.cart.copy()
+
         for product in products:
-            cart[str(product.id)]['product'] = product
+            product_id = str(product.id)
+
+            # ✅ Use the current price (which includes deal logic)
+            current_price = product.current_price
+
+            # Update the cart's stored price to current price
+            cart[product_id]['product'] = product
+            cart[product_id]['price'] = str(current_price)  # update price string
+            cart[product_id]['total_price'] = current_price * cart[product_id]['quantity']
+
         for item in cart.values():
+            # Convert price to Decimal (again for safety)
             item['price'] = Decimal(item['price'])
-            item['total_price'] = item['price'] * item['quantity']
             yield item
+    
 
     def __len__(self):
         """
@@ -69,10 +95,8 @@ class Cart():
         return sum(item['quantity'] for item in self.cart.values())
 
     def get_total_price(self):
-        """
-        calculate the total cost of the items in the cart
-        """
-        return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
+        return sum(Decimal(item['price']) * item['quantity'] for item in self)
+
 
     def clear(self):
         """

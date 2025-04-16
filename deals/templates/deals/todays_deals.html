@@ -38,7 +38,7 @@
                         {% endif %}
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title text-truncate">{{ deal.product.name }}</h5>
-                            <p class="card-text text-danger fw-bold fs-5">$ {{ deal.deal_price }}</p>
+                            <p style="color: red;" class="card-text  fw-bold fs-5">$ {{ deal.deal_price }}</p>
                             <p class="card-text text-muted"><del>$ {{ deal.product.price }}</del></p>
                             <p class="text-muted small">Hurry, ends soon!</p>
                             <a href="{% url 'shop:product_detail' deal.product.id deal.product.slug %}" class="btn btn-sm btn-primary mt-auto">Shop Now</a>
