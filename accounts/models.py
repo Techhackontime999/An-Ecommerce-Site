@@ -11,7 +11,8 @@ class SellerProfile(models.Model):
     phone = models.CharField(max_length=15)
     address = models.TextField()
     description = models.TextField(blank=True)
-    is_verified = models.BooleanField(default=False)  # Admin verifies sellers
+    # add methods to verify seller make it defaut false for testing i do it true
+    is_verified = models.BooleanField(default=True)  # Admin verifies sellers
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
