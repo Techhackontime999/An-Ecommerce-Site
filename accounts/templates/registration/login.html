@@ -4,19 +4,19 @@
 {% block content %}
 <div class="container mt-5">
   <h2>Login</h2>
-  <form method="post">
+  <form method="post" action="{% url 'accounts:login' %}">
     {% csrf_token %}
     {{ form|crispy }}
 
-    {% if next %}
+    <!-- {% if next %}
       <input type="hidden" name="next" value="{{ next }}">
-    {% endif %}
+    {% endif %} -->
     <p class="mt-3">Forgot Password?  <a href="#">Change now</a></p>
 
     <button type="submit" class="btn btn-primary">Login</button>
   </form>
 
-  <p class="mt-3">Don’t have an account? <a href="{% url 'auth:signup' %}">Sign up</a></p>
+  <p class="mt-3">Don’t have an account? <a href="{% url 'accounts:signup' %}">Sign up</a></p>
 </div>
 {% endblock %}
 

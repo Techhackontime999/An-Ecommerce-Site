@@ -1,0 +1,28 @@
+{% extends "shop/base/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Hello, {{ request.user.username }}! 👋</h2>
+    <p>Welcome to your seller dashboard.</p>
+
+    <h3 class="mt-4">📦 Your Products</h3>
+    <ul>
+        {% for product in products %}
+            <li>{{ product.name }} - ₹{{ product.price }}</li>
+        {% empty %}
+            <li>No products added yet.</li>
+        {% endfor %}
+    </ul>
+
+    <h3 class="mt-4">🛒 Your Orders</h3>
+    {% if orders %}
+        <ul>
+        {% for order in orders %}
+            <li>Order #{{ order.id }} - {{ order.product.name }} - {{ order.status }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

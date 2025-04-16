@@ -34,6 +34,7 @@ INSTALLED_APPS = [
       'core',
       'documentation',
         'faq',
+        'seller'
 ]
 
 MIDDLEWARE = [
@@ -122,10 +123,10 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 CART_SESSION_ID = 'cart'
 
-
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/cart/'
+LOGIN_REDIRECT_URL = '/'  # Not /cart/
 LOGOUT_REDIRECT_URL = '/'
+
 
 # LOGIN_URL = 'login'
 # LOGIN_REDIRECT_URL = 'shop:product_list'  # or your homepage

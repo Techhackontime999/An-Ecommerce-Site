@@ -29,8 +29,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-     path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/', include('accounts.urls', namespace='auth')),
+
+    path('accounts/', include('accounts.urls', namespace='accounts')),
     path('admin/', admin.site.urls),
     path('todays-deals/', include('deals.urls', namespace='deals')),
 
@@ -43,7 +43,10 @@ urlpatterns = [
     path('about/', include('about.urls', namespace='about')),
     path('contact/', include('contact.urls', namespace='contact')),
     path('coupons/', include('coupons.urls', namespace='coupons')),
+    path('seller/', include('seller.urls', namespace='seller')),
+
     path('', include('shop.urls', namespace='shop')),  # always LAST
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

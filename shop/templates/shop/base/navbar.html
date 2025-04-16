@@ -58,11 +58,11 @@
 
                                     <a class="dropdown-item" href="#">Returns & Orders </a>
 
-                                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                                    <a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a>
 
                                 </div>
                                 {% else %}
-                                <a href="{% url 'login' %}" class="btn btn-white px-3 py-2">
+                                <a href="{% url 'accounts:login' %}" class="btn btn-white px-3 py-2">
                                     Login Now
                                 </a>
                                 {% endif %}
@@ -107,7 +107,7 @@
 
                     <li><a href="{% url 'services:services_list' %}">Customer Services</a></li>
                     <li><a href="contact.html">Market Blog</a></li>
-                    <li><a href="{% url 'auth:seller_register' %}">Sellers Ragistration</a></li>
+                    <li><a href="{% url 'accounts:seller_register' %}">Sellers Ragistration</a></li>
 
                     <li><a href="{% url 'contact:contact' %}">Contact us</a></li>
                     <li><a href="#">Join Shop-Seed</a></li>
