@@ -6,7 +6,8 @@ import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = '5yo93-8a^%idwkzxz@6gq67p2ml#sraf4=7#pqg+28mv)koo@m'
+SECRET_KEY = os.getenv("SECRET_KEY")
+
 
 DEBUG = False
 #  '.herokuapp.com'
@@ -73,7 +74,9 @@ if os.path.isfile(dotenv_file):
 
 # load database from the DATABASE_URL environment variable
 DATABASES = {}
-DATABASES['default'] = dj_database_url.config()
+# DATABASES['default'] = dj_database_url.config()
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
 
 
 # Password validation

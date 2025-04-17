@@ -77,8 +77,12 @@
 │   │   │               ├── customerregistration.png
 │   │   │               ├── faq.png
 │   │   │               ├── homepage_g8FPQNF.png
+│   │   │               ├── homepage_kvOL3zJ.png
 │   │   │               ├── homepage.png
 │   │   │               ├── homepage_VpAxhL9.png
+│   │   │               ├── login_8TI8j0z.png
+│   │   │               ├── login.png
+│   │   │               ├── login_wtnlVjT.png
 │   │   │               ├── seller_dashboard.png
 │   │   │               ├── shopseed_adminpanal.png
 │   │   │               └── todays_deals.png
@@ -319,4 +323,4 @@
     ├── urls.py
     └── views.py
 
-72 directories, 247 files
+72 directories, 251 files
