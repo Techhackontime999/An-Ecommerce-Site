@@ -29,6 +29,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    path('search/', include('search.urls', namespace='search')),
 
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('admin/', admin.site.urls),
@@ -44,6 +45,7 @@ urlpatterns = [
     path('contact/', include('contact.urls', namespace='contact')),
     path('coupons/', include('coupons.urls', namespace='coupons')),
     path('seller/', include('seller.urls', namespace='seller')),
+
 
     path('', include('shop.urls', namespace='shop')),  # always LAST
 

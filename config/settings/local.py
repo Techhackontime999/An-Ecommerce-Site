@@ -34,7 +34,8 @@ INSTALLED_APPS = [
       'core',
       'documentation',
         'faq',
-        'seller'
+        'seller',
+        'search',
 ]
 
 MIDDLEWARE = [

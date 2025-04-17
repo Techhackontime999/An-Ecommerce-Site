@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  {% if category %}{{ category.name }}{% else %}Products{% endif %}
+{% if category %}{{ category.name }}{% else %}Products{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -23,58 +23,74 @@
 <div class="site-section">
   <div class="container">
     <div class="row mb-5">
-      
-   <!-- Product List -->
-<div class="col-md-9 order-2">
-  <div class="row mb-5">
-    {% for product in products %}
-    <div class="col-sm-6 col-lg-4 mb-4" data-aos="zoom-in-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
-      <div class="block-4 text-center border product-card shadow-sm rounded-3">
-        <figure class="block-4-image overflow-hidden rounded-top">
-          <a href="{{ product.get_absolute_url }}">
-            <img src="{{ product.image.url }}" alt="{{ product.name }}"
-              class="img-fluid transition-300"
-              style="width: 100%; height: 300px; object-fit: contain;">
-          </a>
-        </figure>
-        <div class="block-4-text p-4">
-          <h3 class="text-truncate">
-            <a href="{{ product.get_absolute_url }}" class="text-dark">{{ product.name }}</a>
-          </h3>
-          <p class="mb-2 small text-muted">{{ product.description|safe|truncatewords:10 }}</p>
-          <p>
-            {% if product.current_price != product.price %}
-              <del>${{ product.price }}</del>
-              <strong class="text-danger ms-2">${{ product.current_price }}</strong>
-            {% else %}
-              ${{ product.price }}
-            {% endif %}
-          </p>
-        </div>
-      </div>
-    </div>
-    {% empty %}
-    <div class="col-12">
-      <p class="text-center">No products available in this category.</p>
-    </div>
-    {% endfor %}
-  </div>
 
-  <!-- Pagination -->
-  <div class="row" data-aos="fade-up">
-    <div class="col-md-12 text-center">
-      <div class="site-block-27">
-        <ul class="pagination justify-content-center">
-          <li><a href="#">&lt;</a></li>
-          <li class="active"><span>1</span></li>
-          <li><a href="#">2</a></li>
-          <li><a href="#">3</a></li>
-          <li><a href="#">&gt;</a></li>
-        </ul>
-      </div>
+      <!-- Product List -->
+      <div class="col-md-9 order-2">
+        <div class="row mb-5">
+          {% for product in products %}
+          <div class="col-sm-6 col-lg-4 mb-4" data-aos="zoom-in-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+            <div class="block-4 text-center border product-card shadow-sm rounded-3">
+              <figure class="block-4-image overflow-hidden rounded-top">
+                <a href="{{ product.get_absolute_url }}">
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid transition-300"
+                    style="width: 100%; height: 270px; object-fit: contain;">
+                </a>
+              </figure>
+              <div class="block-4-text p-4">
+                <h3 class="text-truncate">
+                  <a href="{{ product.get_absolute_url }}" class="text-primary">{{ product.name }}</a>
+                </h3>
+                <p class="mb-2 small text-muted">{{ product.description|safe|truncatewords:10 }}</p>
+                <p class="text-primary">
+                  {% if product.current_price != product.price %}
+                  <del>${{ product.price }}</del>
+                  <strong class="text-danger ms-2">${{ product.current_price }}</strong>
+                  {% else %}
+                  ${{ product.price }}
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-12">
+            <p class="text-center">No products available in this category.</p>
+          </div>
+          {% endfor %}
+        </div>
+
+     <!-- Pagination -->
+{% if products.has_other_pages %}
+<div class="row" data-aos="fade-up">
+  <div class="col-md-12 text-center">
+    <div class="site-block-27">
+      <ul class="pagination justify-content-center">
+        {% if products.has_previous %}
+          <li><a href="?page={{ products.previous_page_number }}">&lt;</a></li>
+        {% else %}
+          <li class="disabled"><span>&lt;</span></li>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+          {% if products.number == num %}
+            <li class="active"><span>{{ num }}</span></li>
+          {% else %}
+            <li><a href="?page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+          <li><a href="?page={{ products.next_page_number }}">&gt;</a></li>
+        {% else %}
+          <li class="disabled"><span>&gt;</span></li>
+        {% endif %}
+      </ul>
     </div>
   </div>
 </div>
+{% endif %}
+
+      </div>
 
 
       <!-- Sidebar: Categories -->

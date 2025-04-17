@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from cart.forms import CartAddProductForm
 from .models import Category, Product
-
+from django.core.paginator import Paginator
 # from django.views import generic
 
 # class IndexView(generic.ListView):
@@ -16,15 +16,60 @@ from .models import Category, Product
 
 
 
+# def product_list(request, category_slug=None):
+#     category = None
+#     categories = Category.objects.all()
+#     products = Product.objects.filter(available=True)
+#     if category_slug:
+#         category = get_object_or_404(Category, slug=category_slug)
+#         products = products.filter(category=category)
+#     context = {'category': category, 'categories': categories, 'products': products}
+#     return render(request, 'shop/product/list.html', context)
+
+# def product_list(request, category_slug=None):
+#     category = None
+#     categories = Category.objects.all()
+#     # products = Product.objects.all()
+#     Product.objects.filter(available=True)
+
+
+#     if category_slug:
+#         category = get_object_or_404(Category, slug=category_slug)
+#         products = products.filter(category=category)
+
+#     paginator = Paginator(products, 9)  # Show 9 products per page
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+
+#     return render(request, 'shop/product/list.html', {
+#         'category': category,
+#         'categories': categories,
+#         'products': page_obj,  # Pass paginated products
+#         'page_obj': page_obj,  # Optional for easier template logic
+#     })
+
+
+
 def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()
-    products = Product.objects.filter(available=True)
+
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
-        products = products.filter(category=category)
-    context = {'category': category, 'categories': categories, 'products': products}
-    return render(request, 'shop/product/list.html', context)
+        products = Product.objects.filter(category=category, available=True)
+    else:
+        products = Product.objects.filter(available=True)
+
+    paginator = Paginator(products, 9)  # 9 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'shop/product/list.html', {
+        'category': category,
+        'categories': categories,
+        'products': page_obj,
+    })
+
 
 
 # class ProductListView(generic.ListView):

@@ -50,7 +50,8 @@
 │   ├── __init__.py
 │   ├── media
 │   │   ├── documentation_images
-│   │   │   └── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │   ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │   └── Untitled.jpeg
 │   │   ├── products
 │   │   │   └── 2025
 │   │   │       └── 04
@@ -59,24 +60,43 @@
 │   │   │           │   ├── 71qVMXxky8L._AC_UL320_.jpg
 │   │   │           │   ├── 91orz3r1jLL._AC_SR405405_.jpg
 │   │   │           │   └── third.jpeg
-│   │   │           └── 16
-│   │   │               ├── 51kFpLp93uL._MCnd_AC_.jpg
-│   │   │               ├── 51kFpLp93uL._MCnd_AC__xUrzecg.jpg
-│   │   │               ├── images_1l3ELKH.jpeg
-│   │   │               ├── images.jpeg
-│   │   │               └── Untitled.jpeg
+│   │   │           ├── 16
+│   │   │           │   ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │           │   ├── 51kFpLp93uL._MCnd_AC__xUrzecg.jpg
+│   │   │           │   ├── images_1l3ELKH.jpeg
+│   │   │           │   ├── images.jpeg
+│   │   │           │   ├── Screenshot_2025-02-23-07-21-47-62_e5d3893ac03954c6bb675ef2555b879b.jpg
+│   │   │           │   ├── Untitled_chfXxY5.jpeg
+│   │   │           │   └── Untitled.jpeg
+│   │   │           └── 17
+│   │   │               ├── 71qVMXxky8L._AC_UL320_.jpg
+│   │   │               ├── 91orz3r1jLL._AC_SR405405__3QTp7UG.jpg
+│   │   │               ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │               ├── cart_detailsandcoupne.png
+│   │   │               ├── checkout.png
+│   │   │               ├── customerregistration.png
+│   │   │               ├── faq.png
+│   │   │               ├── homepage_g8FPQNF.png
+│   │   │               ├── homepage.png
+│   │   │               ├── homepage_VpAxhL9.png
+│   │   │               ├── seller_dashboard.png
+│   │   │               ├── shopseed_adminpanal.png
+│   │   │               └── todays_deals.png
 │   │   ├── services
+│   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
 │   │   │   ├── images.jpeg
 │   │   │   └── third.jpeg
-│   │   └── stories
-│   │       ├── 51kFpLp93uL._MCnd_AC_.jpg
-│   │       ├── 71qVMXxky8L._AC_UL320_.jpg
-│   │       ├── 91orz3r1jLL._AC_SR405405__AHFfkOc.jpg
-│   │       ├── 91orz3r1jLL._AC_SR405405_.jpg
-│   │       ├── 91orz3r1jLL._AC_SR405405__Jr8GAMA.jpg
-│   │       ├── images.jpeg
-│   │       ├── third.jpeg
-│   │       └── Untitled.jpeg
+│   │   ├── stories
+│   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │   ├── 71qVMXxky8L._AC_UL320_.jpg
+│   │   │   ├── 91orz3r1jLL._AC_SR405405__AHFfkOc.jpg
+│   │   │   ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │   ├── 91orz3r1jLL._AC_SR405405__Jr8GAMA.jpg
+│   │   │   ├── images.jpeg
+│   │   │   ├── third.jpeg
+│   │   │   └── Untitled.jpeg
+│   │   └── team
+│   │       └── 91orz3r1jLL._AC_SR405405_.jpg
 │   ├── settings
 │   │   ├── __init__.py
 │   │   ├── local.py
@@ -197,7 +217,11 @@
 │   ├── apps.py
 │   ├── __init__.py
 │   ├── models.py
+│   ├── templates
+│   │   └── search
+│   │       └── search_results.html
 │   ├── tests.py
+│   ├── urls.py
 │   └── views.py
 ├── seller
 │   ├── admin.py
@@ -295,4 +319,4 @@
     ├── urls.py
     └── views.py
 
-68 directories, 227 files
+72 directories, 247 files

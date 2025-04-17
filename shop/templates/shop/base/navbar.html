@@ -8,10 +8,13 @@
             <div class="row align-items-center mx-auto">
 
                 <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
-                    <form action="" class="site-block-top-search">
+<!-- search start -->
+                    <form  class="site-block-top-search" method="GET" action="{% url 'search:product_search' %}">
                         <span class="icon icon-search2"></span>
-                        <input type="text" class="form-control border-0" placeholder="Search">
+                        <input type="text" class="form-control border-0" placeholder="Search"  aria-label="Search" name="q">
                     </form>
+
+<!-- search close -->
                 </div>
 
                 <div class="col-12 mb-3 mb-md-0 col-md-4 order-1 order-md-2 text-center">
@@ -105,10 +108,10 @@
                     <li><a href="{% url 'shop:product_list' %}">Home</a></li>
                     <li><a href="{% url 'shop:product_list' %}">Shop</a></li>
                     <li><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
-                    <li><a href="#">Best Product</a></li>
                     <li><a href="{% url 'about:about' %}">About</a></li>
                     <li><a href="#">Big Billion Day's</a></li>
                     <li><a href="#">Shop-Seeds Best sellers</a></li>
+                    <li><a href="#">Best Product</a></li>
 
                     <li><a href="{% url 'services:services_list' %}">Customer Services</a></li>
                     <li><a href="contact.html">Market Blog</a></li>

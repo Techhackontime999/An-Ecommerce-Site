@@ -20,7 +20,8 @@
                     </li>
                     {% for c in categories %}
                     <li class="mb-2 {% if category and category.slug == c.slug %}fw-bold{% endif %}">
-                        <a href="{% url 'deals:todays_deals_by_category' category_slug=c.slug %}" class="text-decoration-none">{{ c.name }}</a>
+                        <a href="{% url 'deals:todays_deals_by_category' category_slug=c.slug %}"
+                            class="text-decoration-none">{{ c.name }}</a>
                     </li>
                     {% endfor %}
                 </ul>
@@ -41,18 +42,72 @@
                             <p style="color: red;" class="card-text  fw-bold fs-5">$ {{ deal.deal_price }}</p>
                             <p class="card-text text-muted"><del>$ {{ deal.product.price }}</del></p>
                             <p class="text-muted small">Hurry, ends soon!</p>
-                            <a href="{% url 'shop:product_detail' deal.product.id deal.product.slug %}" class="btn btn-sm btn-primary mt-auto">Shop Now</a>
+                            <a href="{% url 'shop:product_detail' deal.product.id deal.product.slug %}"
+                                class="btn btn-sm btn-primary mt-auto">Shop Now</a>
 
                         </div>
                     </div>
+
+
+
+
                 </div>
+
                 {% empty %}
+
                 <div class="col-12">
                     <p class="text-center">No deals available today. Check back later!</p>
                 </div>
                 {% endfor %}
             </div>
         </div>
+
+        <!-- pagination start -->
+<!-- Pagination -->
+{% if deals.has_other_pages %}
+<div class="row mt-4 mx-auto" data-aos="fade-up">
+    <div class="col-md-12 text-center">
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if deals.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ deals.previous_page_number }}">&laquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                {% endif %}
+
+                {% for num in deals.paginator.page_range %}
+                    {% if deals.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if deals.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ deals.next_page_number }}">&raquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- pagination end -->
 
     </div>
 </div>

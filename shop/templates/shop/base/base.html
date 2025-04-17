@@ -65,7 +65,14 @@
   background-color: #002fff;
   color: white;
 }
-
+/* seller add product start */
+/* Add this to your CSS file or inside a <style> block */
+  .cke, .cke_inner, .cke_contents {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+}
+/* seller add products close */
 
     </style>
 </head>
@@ -116,7 +123,16 @@
       scrollContainer.addEventListener('mouseleave', startAutoScroll);
     </script>
     
-
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          const editors = document.querySelectorAll('.cke');
+          editors.forEach(editor => {
+              editor.style.width = '100%';
+              editor.style.maxWidth = '100%';
+          });
+      });
+  </script>
+  
     
 </body>
 </html>

@@ -22,9 +22,9 @@
           <div class="col-md-6">
             <h2 class="text-black mr-2">{{ product.name }}</h2>
             <p>{{ product.description|safe }}</p>
-            <p>
+            <p class="text-primary h5">
               {% if product.current_price != product.price %}
-                <del><strong class="text-primary h5"> ${{ product.price }}</strong></del>
+              <strong class="text-primary h5"><del> ${{ product.price }}</del></strong>
                 <strong class="h2"style="color:red;"> ${{ product.current_price }}</strong>
               {% else %}
                 ${{ product.price }}
