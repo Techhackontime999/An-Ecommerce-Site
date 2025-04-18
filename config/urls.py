@@ -30,6 +30,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('search/', include('search.urls', namespace='search')),
+    path('', include('reviews.urls',namespace='reviews')),
 
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('admin/', admin.site.urls),

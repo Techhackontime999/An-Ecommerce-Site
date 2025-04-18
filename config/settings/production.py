@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = False
 #  '.herokuapp.com'
 ALLOWED_HOSTS = [
-    'localhost',
+    'localhost','mrtechhackontime999.pythonanywhere.com',
    
 ]
 
@@ -25,13 +25,25 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+  
+
     #third-party apps
     'crispy_forms',
-
+    'ckeditor',
     'shop.apps.ShopConfig',
     'cart.apps.CartConfig',
     'order.apps.OrderConfig',
     'coupons.apps.CouponsConfig',
+    'accounts',
+    'about',
+    'contact',
+    'services',
+      'deals',
+      'core',
+      'documentation',
+        'faq',
+        'seller',
+        'search',
 ]
 
 MIDDLEWARE = [

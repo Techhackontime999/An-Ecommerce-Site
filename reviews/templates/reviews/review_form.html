@@ -1,0 +1,29 @@
+<div class="card my-4">
+  <div class="card-header bg-primary text-white">
+    <h4 class="mb-0">Leave a Review for {{ product.name }}</h4>
+  </div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="rating">Rating</label>
+        <select style=" max-width: 200px;" name="rating" id="rating" class="form-control" required>
+          {% for i in "12345" %}
+            <option value="{{ i }}">
+              {{ i }} Star{% if i != '1' %}s{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+        
+      </div>
+
+      <div class="form-group">
+        <label for="comment">Comment</label>
+        <textarea name="comment" id="comment" class="form-control" rows="4" required></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-success">Submit Review</button>
+    </form>
+  </div>
+</div>

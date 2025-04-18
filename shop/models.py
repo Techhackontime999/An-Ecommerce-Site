@@ -51,3 +51,22 @@ class Product(models.Model):
         if active_deal:
             return active_deal.deal_price
         return self.price
+    
+    def average_rating(self):
+        reviews = self.reviews.all()
+        if reviews.exists():
+            return round(sum([r.rating for r in reviews]) / reviews.count(), 1)
+        return 0
+    def rating_count(self):
+        return self.reviews.count()
+
+   
+
+
+
+
+
+
+
+
+

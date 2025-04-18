@@ -1,7 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404 , redirect
 from cart.forms import CartAddProductForm
 from .models import Category, Product
 from django.core.paginator import Paginator
+
+
 # from django.views import generic
 
 # class IndexView(generic.ListView):

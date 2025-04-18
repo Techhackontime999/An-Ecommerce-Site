@@ -38,7 +38,52 @@
                         <img src="{{ deal.product.image.url }}" class="card-img-top" alt="{{ deal.product.name }}">
                         {% endif %}
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title text-truncate">{{ deal.product.name }}</h5>
+                            <h5 class="card-title text-primary text-truncate">{{ deal.product.name }}</h5>
+                              <!-- review start -->
+                  
+    
+
+
+
+
+
+
+      <!-- review start -->
+<!-- review display -->
+<div class="mb-2 ">
+    <strong>{{ deal.product.average_rating }}★</strong>
+    <span class="text-warning">
+      {% for i in "12345" %}
+        {% if forloop.counter <= deal.product.average_rating %}
+          <i class="fas fa-star"></i>
+        {% elif forloop.counter < deal.product.average_rating|add:"1" %}
+          <i class="fas fa-star-half-alt"></i>
+        {% else %}
+          <i class="far fa-star"></i>
+        {% endif %}
+      {% endfor %}
+    </span>
+    <small class="text-muted">({{ deal.product.rating_count }} reviews)</small>
+  </div>
+  
+  <!-- review close -->
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                 <!-- review close -->
                             <p style="color: red;" class="card-text  fw-bold fs-5">$ {{ deal.deal_price }}</p>
                             <p class="card-text text-muted"><del>$ {{ deal.product.price }}</del></p>
                             <p class="text-muted small">Hurry, ends soon!</p>
