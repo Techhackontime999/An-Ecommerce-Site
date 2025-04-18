@@ -1,0 +1,22 @@
+[
+    {
+      "model": "faq.faq",
+      "pk": 1,
+      "fields": {
+        "question": "How can I track my order?",
+        "answer": "<p>You can track your order using the tracking link sent to your email after dispatch.</p>",
+        "created_at": "2025-04-17T10:00:00Z"
+      }
+    },
+    {
+      "model": "faq.faq",
+      "pk": 2,
+      "fields": {
+        "question": "What is the return policy?",
+        "answer": "<p>You can return your product within 7 days of delivery. Please visit our return policy page for more info.</p>",
+        "created_at": "2025-04-17T11:00:00Z"
+      }
+    }
+ 
+  ]
+  

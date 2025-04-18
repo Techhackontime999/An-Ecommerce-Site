@@ -1,0 +1,83 @@
+[
+    {
+      "model": "shop.category",
+      "pk": 1,
+      "fields": {
+        "name": "Electronics",
+        "slug": "electronics"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 2,
+      "fields": {
+        "name": "Fashion",
+        "slug": "fashion"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 3,
+      "fields": {
+        "name": "Books",
+        "slug": "books"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 4,
+      "fields": {
+        "name": "Home Appliances",
+        "slug": "home-appliances"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 5,
+      "fields": {
+        "name": "Mobiles & Tablets",
+        "slug": "mobiles-tablets"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 6,
+      "fields": {
+        "name": "Health & Beauty",
+        "slug": "health-beauty"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 7,
+      "fields": {
+        "name": "Groceries",
+        "slug": "groceries"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 8,
+      "fields": {
+        "name": "Toys & Games",
+        "slug": "toys-games"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 9,
+      "fields": {
+        "name": "Sports & Fitness",
+        "slug": "sports-fitness"
+      }
+    },
+    {
+      "model": "shop.category",
+      "pk": 10,
+      "fields": {
+        "name": "Furniture",
+        "slug": "furniture"
+      }
+    }
+  ]
+  

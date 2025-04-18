@@ -1,0 +1,21 @@
+[
+    {
+      "model": "about.aboutsection",
+      "pk": 1,
+      "fields": {
+        "title": "Our Story",
+        "content": "We are a dedicated team focused on providing the best e-commerce solutions for small businesses. Our journey began in 2020, and we have since helped hundreds of small businesses scale online.",
+        "image": "about/our_story.jpg"
+      }
+    },
+    {
+      "model": "about.aboutsection",
+      "pk": 2,
+      "fields": {
+        "title": "Our Mission",
+        "content": "Our mission is to empower small businesses by providing them with the tools they need to succeed online, from setting up an online store to managing deliveries.",
+        "image": "about/mission.jpg"
+      }
+    }
+  ]
+  

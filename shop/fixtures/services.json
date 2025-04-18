@@ -1,0 +1,47 @@
+[
+    {
+      "model": "services.service",
+      "pk": 1,
+      "fields": {
+        "title": "Website Development",
+        "description": "We build responsive and modern websites tailored to your business needs.",
+        "details": "<p>Our team specializes in creating high-performance, SEO-friendly websites using the latest technologies like Django, React, and Tailwind CSS.</p>",
+        "image": "services/website_development.jpg",
+        "created_at": "2024-04-01T10:00:00Z"
+      }
+    },
+    {
+      "model": "services.service",
+      "pk": 2,
+      "fields": {
+        "title": "Digital Marketing",
+        "description": "Grow your brand visibility and customer base through targeted campaigns.",
+        "details": "<p>We offer end-to-end digital marketing services including SEO, social media, email marketing, and Google Ads to boost your online presence.</p>",
+        "image": "services/digital_marketing.jpg",
+        "created_at": "2024-04-05T14:30:00Z"
+      }
+    },
+    {
+      "model": "services.service",
+      "pk": 3,
+      "fields": {
+        "title": "E-Commerce Integration",
+        "description": "We help you launch your online store with secure payment and delivery systems.",
+        "details": "<p>Our e-commerce solutions are fully customizable and integrated with payment gateways, inventory systems, and delivery APIs like Delhivery.</p>",
+        "image": "services/ecommerce_integration.jpg",
+        "created_at": "2024-04-10T09:15:00Z"
+      }
+    },
+    {
+      "model": "services.service",
+      "pk": 4,
+      "fields": {
+        "title": "Cloud Hosting",
+        "description": "Reliable and scalable cloud hosting for your apps and websites.",
+        "details": "<p>Deploy your applications on powerful and secure cloud platforms like AWS, Azure, and DigitalOcean with 24/7 support and monitoring.</p>",
+        "image": "services/cloud_hosting.jpg",
+        "created_at": "2024-04-12T16:45:00Z"
+      }
+    }
+  ]
+  

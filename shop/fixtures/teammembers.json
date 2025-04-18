@@ -1,0 +1,33 @@
+[
+    {
+      "model": "about.teammember",
+      "pk": 1,
+      "fields": {
+        "name": "Amit Kumar",
+        "role": "Founder & CEO",
+        "photo": "team/john_doe.jpg",
+        "bio": "John is the visionary behind our company. With over 10 years of experience in the e-commerce industry, he has a deep understanding of the challenges faced by small businesses."
+      }
+    },
+    {
+      "model": "about.teammember",
+      "pk": 2,
+      "fields": {
+        "name": "Jane Smith",
+        "role": "Chief Marketing Officer",
+        "photo": "team/jane_smith.jpg",
+        "bio": "Jane is responsible for driving our marketing strategies and building strong relationships with our customers. She brings a wealth of knowledge in digital marketing."
+      }
+    },
+    {
+      "model": "about.teammember",
+      "pk": 3,
+      "fields": {
+        "name": "Sara Johnson",
+        "role": "Head of Development",
+        "photo": "team/sara_johnson.jpg",
+        "bio": "Sara leads our development team, ensuring that we deliver high-quality and user-friendly platforms for our clients. She is passionate about coding and technology."
+      }
+    }
+  ]
+  

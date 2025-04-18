@@ -1,0 +1,46 @@
+[
+{
+    "model": "faq.story",
+    "pk": 1,
+    "fields": {
+      "title": "How We Started",
+      "description": "<p>We began as a small team passionate about helping local businesses grow online.</p>",
+      "image": null,
+      "url": "https://example.com/our-journey",
+      "created_at": "2025-04-16T09:30:00Z"
+    }
+  },
+  {
+    "model": "faq.story",
+    "pk": 2,
+    "fields": {
+      "title": "Our Milestone of 10,000 Orders",
+      "description": "<p>We recently fulfilled our 10,000th order and continue to serve customers with dedication.</p>",
+      "image": null,
+      "url": "https://example.com/milestone-10000-orders",
+      "created_at": "2025-04-16T12:45:00Z"
+    }
+  },
+  {
+    "model": "faq.story",
+    "pk": 3,
+    "fields": {
+      "title": "How We Started",
+      "description": "<p>We began as a small team passionate about helping local businesses grow online.</p>",
+      "image": null,
+      "url": "https://example.com/our-journey",
+      "created_at": "2025-04-16T09:30:00Z"
+    }
+  },
+  {
+    "model": "faq.story",
+    "pk": 4,
+    "fields": {
+      "title": "Our Milestone of 10,000 Orders",
+      "description": "<p>We recently fulfilled our 10,000th order and continue to serve customers with dedication.</p>",
+      "image": null,
+      "url": "https://example.com/milestone-10000-orders",
+      "created_at": "2025-04-16T12:45:00Z"
+    }
+  }
+]

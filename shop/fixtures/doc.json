@@ -1,0 +1,36 @@
+[
+    {
+      "model": "documentation.documentationsection",
+      "pk": 1,
+      "fields": {
+        "title": "Getting Started",
+        "slug": "getting-started",
+        "icon": "🚀",
+        "content": "<p>Welcome to the documentation! Here's how to get started.</p>",
+        "image": null
+      }
+    },
+    {
+      "model": "documentation.documentationsection",
+      "pk": 2,
+      "fields": {
+        "title": "Installation Guide",
+        "slug": "installation-guide",
+        "icon": "💾",
+        "content": "<p>Step-by-step guide to install the system on your server.</p>",
+        "image": null
+      }
+    },
+    {
+      "model": "documentation.documentationsection",
+      "pk": 3,
+      "fields": {
+        "title": "API Reference",
+        "slug": "api-reference",
+        "icon": "🛠️",
+        "content": "<p>Detailed API reference for developers.</p>",
+        "image": null
+      }
+    }
+  ]
+  
