@@ -68,28 +68,48 @@
 │   │   │           │   ├── Screenshot_2025-02-23-07-21-47-62_e5d3893ac03954c6bb675ef2555b879b.jpg
 │   │   │           │   ├── Untitled_chfXxY5.jpeg
 │   │   │           │   └── Untitled.jpeg
-│   │   │           └── 17
+│   │   │           ├── 17
+│   │   │           │   ├── 71qVMXxky8L._AC_UL320_.jpg
+│   │   │           │   ├── 91orz3r1jLL._AC_SR405405__3QTp7UG.jpg
+│   │   │           │   ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │           │   ├── cart_detailsandcoupne.png
+│   │   │           │   ├── checkout.png
+│   │   │           │   ├── customerregistration.png
+│   │   │           │   ├── faq.png
+│   │   │           │   ├── homepage_g8FPQNF.png
+│   │   │           │   ├── homepage_kvOL3zJ.png
+│   │   │           │   ├── homepage.png
+│   │   │           │   ├── homepage_VpAxhL9.png
+│   │   │           │   ├── login_8TI8j0z.png
+│   │   │           │   ├── login.png
+│   │   │           │   ├── login_wtnlVjT.png
+│   │   │           │   ├── seller_dashboard.png
+│   │   │           │   ├── shopseed_adminpanal.png
+│   │   │           │   └── todays_deals.png
+│   │   │           └── 18
+│   │   │               ├── 2.webp
+│   │   │               ├── 51kFpLp93uL._MCnd_AC__b7m0SOH.jpg
+│   │   │               ├── 51kFpLp93uL._MCnd_AC__GYkTfgb.jpg
+│   │   │               ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │               ├── 71qVMXxky8L._AC_UL320__6gzztcD.jpg
+│   │   │               ├── 71qVMXxky8L._AC_UL320__9n2cvOJ.jpg
 │   │   │               ├── 71qVMXxky8L._AC_UL320_.jpg
-│   │   │               ├── 91orz3r1jLL._AC_SR405405__3QTp7UG.jpg
 │   │   │               ├── 91orz3r1jLL._AC_SR405405_.jpg
-│   │   │               ├── cart_detailsandcoupne.png
-│   │   │               ├── checkout.png
-│   │   │               ├── customerregistration.png
-│   │   │               ├── faq.png
-│   │   │               ├── homepage_g8FPQNF.png
-│   │   │               ├── homepage_kvOL3zJ.png
-│   │   │               ├── homepage.png
-│   │   │               ├── homepage_VpAxhL9.png
-│   │   │               ├── login_8TI8j0z.png
-│   │   │               ├── login.png
-│   │   │               ├── login_wtnlVjT.png
-│   │   │               ├── seller_dashboard.png
 │   │   │               ├── shopseed_adminpanal.png
-│   │   │               └── todays_deals.png
+│   │   │               ├── third.jpeg
+│   │   │               ├── Untitled_A5YD1qV.jpeg
+│   │   │               ├── Untitled_eZ9fDce.jpeg
+│   │   │               ├── Untitled.jpeg
+│   │   │               ├── WhatsApp_Image_2025-04-15_at_22.12.57_3JNqTau.jpeg
+│   │   │               └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
 │   │   ├── services
 │   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
 │   │   │   ├── images.jpeg
-│   │   │   └── third.jpeg
+│   │   │   ├── third.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_5w8cn8P.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_w1Z8ad9.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_x2Jdvog.jpeg
 │   │   ├── stories
 │   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
 │   │   │   ├── 71qVMXxky8L._AC_UL320_.jpg
@@ -98,13 +118,19 @@
 │   │   │   ├── 91orz3r1jLL._AC_SR405405__Jr8GAMA.jpg
 │   │   │   ├── images.jpeg
 │   │   │   ├── third.jpeg
-│   │   │   └── Untitled.jpeg
+│   │   │   ├── Untitled.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_5EbHzCA.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_fXPm2UW.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_lSetQ8w.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_wDjKHIV.jpeg
 │   │   └── team
 │   │       └── 91orz3r1jLL._AC_SR405405_.jpg
 │   ├── settings
 │   │   ├── __init__.py
 │   │   ├── local.py
 │   │   └── production.py
+│   ├── static
 │   ├── urls.py
 │   └── wsgi.py
 ├── contact
@@ -213,7 +239,11 @@
 │   ├── apps.py
 │   ├── __init__.py
 │   ├── models.py
+│   ├── templates
+│   │   └── reviews
+│   │       └── review_form.html
 │   ├── tests.py
+│   ├── urls.py
 │   └── views.py
 ├── runtime.txt
 ├── search
@@ -265,6 +295,17 @@
 └── shop
     ├── admin.py
     ├── apps.py
+    ├── fixtures
+    │   ├── About.json
+    │   ├── category.json
+    │   ├── doc.json
+    │   ├── faq.json
+    │   ├── products.json
+    │   ├── sellers.json
+    │   ├── services.json
+    │   ├── stories.json
+    │   ├── teammembers.json
+    │   └── upload.json
     ├── __init__.py
     ├── models.py
     ├── static
@@ -323,4 +364,4 @@
     ├── urls.py
     └── views.py
 
-72 directories, 251 files
+77 directories, 287 files
