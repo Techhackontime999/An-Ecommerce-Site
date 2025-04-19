@@ -127,20 +127,20 @@ def seller_register(request):
 @login_required
 def profile_view(request):
     try:
-        if hasattr(request.user, 'sellerprofile'):
+        if hasattr(request.user, 'accounts:sellerprofile'):
             profile = request.user.sellerprofile
             form_class = SellerProfileForm
         else:
             profile = request.user.customerprofile
             form_class = CustomerProfileForm
     except (SellerProfile.DoesNotExist, CustomerProfile.DoesNotExist):
-        return redirect('home ')  # or wherever you want to handle this
+        return redirect('shop:product_list ')  # or wherever you want to handle this
 
     if request.method == 'POST':
         form = form_class(request.POST, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # reload profile page after saving
+            return redirect('accounts:profile')  # reload profile page after saving
     else:
         form = form_class(instance=profile)
 

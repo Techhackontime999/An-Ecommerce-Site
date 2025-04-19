@@ -49,6 +49,9 @@
 │   ├── db.sqlite3
 │   ├── __init__.py
 │   ├── media
+│   │   ├── about
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_Y9x8Gf3.jpeg
 │   │   ├── documentation_images
 │   │   │   ├── 91orz3r1jLL._AC_SR405405_.jpg
 │   │   │   └── Untitled.jpeg
@@ -86,22 +89,28 @@
 │   │   │           │   ├── seller_dashboard.png
 │   │   │           │   ├── shopseed_adminpanal.png
 │   │   │           │   └── todays_deals.png
-│   │   │           └── 18
-│   │   │               ├── 2.webp
-│   │   │               ├── 51kFpLp93uL._MCnd_AC__b7m0SOH.jpg
-│   │   │               ├── 51kFpLp93uL._MCnd_AC__GYkTfgb.jpg
-│   │   │               ├── 51kFpLp93uL._MCnd_AC_.jpg
-│   │   │               ├── 71qVMXxky8L._AC_UL320__6gzztcD.jpg
-│   │   │               ├── 71qVMXxky8L._AC_UL320__9n2cvOJ.jpg
-│   │   │               ├── 71qVMXxky8L._AC_UL320_.jpg
-│   │   │               ├── 91orz3r1jLL._AC_SR405405_.jpg
-│   │   │               ├── shopseed_adminpanal.png
-│   │   │               ├── third.jpeg
-│   │   │               ├── Untitled_A5YD1qV.jpeg
-│   │   │               ├── Untitled_eZ9fDce.jpeg
-│   │   │               ├── Untitled.jpeg
-│   │   │               ├── WhatsApp_Image_2025-04-15_at_22.12.57_3JNqTau.jpeg
+│   │   │           ├── 18
+│   │   │           │   ├── 2.webp
+│   │   │           │   ├── 51kFpLp93uL._MCnd_AC__b7m0SOH.jpg
+│   │   │           │   ├── 51kFpLp93uL._MCnd_AC__GYkTfgb.jpg
+│   │   │           │   ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │           │   ├── 71qVMXxky8L._AC_UL320__6gzztcD.jpg
+│   │   │           │   ├── 71qVMXxky8L._AC_UL320__9n2cvOJ.jpg
+│   │   │           │   ├── 71qVMXxky8L._AC_UL320_.jpg
+│   │   │           │   ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │   │           │   ├── shopseed_adminpanal.png
+│   │   │           │   ├── third.jpeg
+│   │   │           │   ├── Untitled_A5YD1qV.jpeg
+│   │   │           │   ├── Untitled_eZ9fDce.jpeg
+│   │   │           │   ├── Untitled.jpeg
+│   │   │           │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_3JNqTau.jpeg
+│   │   │           │   └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │           └── 19
+│   │   │               ├── todays_deals.png
 │   │   │               └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   ├── seller_profiles
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_LQszhwv.jpeg
 │   │   ├── services
 │   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
 │   │   │   ├── images.jpeg
@@ -125,7 +134,10 @@
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_lSetQ8w.jpeg
 │   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_wDjKHIV.jpeg
 │   │   └── team
-│   │       └── 91orz3r1jLL._AC_SR405405_.jpg
+│   │       ├── 91orz3r1jLL._AC_SR405405_.jpg
+│   │       ├── WhatsApp_Image_2025-04-15_at_22.12.57_1mYQhEh.jpeg
+│   │       ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │       └── WhatsApp_Image_2025-04-15_at_22.12.57_MPxkRK5.jpeg
 │   ├── settings
 │   │   ├── __init__.py
 │   │   ├── local.py
@@ -269,7 +281,10 @@
 │   │       ├── dashboard.html
 │   │       ├── edit_product.html
 │   │       ├── not_verified.html
-│   │       └── orders.html
+│   │       ├── orders.html
+│   │       ├── seller_edit_profile.html
+│   │       ├── seller_private_profile.html
+│   │       └── seller_public_profile.html
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
@@ -292,76 +307,77 @@
 │   ├── models.py
 │   ├── tests.py
 │   └── views.py
-└── shop
-    ├── admin.py
-    ├── apps.py
-    ├── fixtures
-    │   ├── About.json
-    │   ├── category.json
-    │   ├── doc.json
-    │   ├── faq.json
-    │   ├── products.json
-    │   ├── sellers.json
-    │   ├── services.json
-    │   ├── stories.json
-    │   ├── teammembers.json
-    │   └── upload.json
-    ├── __init__.py
-    ├── models.py
-    ├── static
-    │   ├── css
-    │   │   ├── aos.css
-    │   │   ├── bootstrap
-    │   │   │   ├── bootstrap-grid.css
-    │   │   │   └── bootstrap-reboot.css
-    │   │   ├── bootstrap.min.css
-    │   │   ├── jquery-ui.css
-    │   │   ├── magnific-popup.css
-    │   │   ├── owl.carousel.min.css
-    │   │   ├── owl.theme.default.min.css
-    │   │   └── style.css
-    │   ├── fonts
-    │   │   └── icomoon
-    │   │       ├── demo-files
-    │   │       │   ├── demo.css
-    │   │       │   └── demo.js
-    │   │       ├── demo.html
-    │   │       ├── fonts
-    │   │       │   ├── icomoon.eot
-    │   │       │   ├── icomoon.svg
-    │   │       │   ├── icomoon.ttf
-    │   │       │   └── icomoon.woff
-    │   │       ├── Read Me.txt
-    │   │       ├── selection.json
-    │   │       └── style.css
-    │   ├── images
-    │   │   └── shop-seed_logo.jpeg
-    │   └── js
-    │       ├── aos.js
-    │       ├── bootstrap.min.js
-    │       ├── jquery-3.3.1.min.js
-    │       ├── jquery.magnific-popup.min.js
-    │       ├── jquery-ui.js
-    │       ├── main.js
-    │       ├── owl.carousel.min.js
-    │       ├── popper.min.js
-    │       └── slick.min.js
-    ├── templates
-    │   └── shop
-    │       ├── base
-    │       │   ├── base.html
-    │       │   ├── footer.html
-    │       │   └── navbar.html
-    │       ├── home.html
-    │       └── product
-    │           ├── detail.html
-    │           └── list.html
-    ├── tests
-    │   ├── __init__.py
-    │   ├── test_models.py
-    │   ├── test_urls.py
-    │   └── test_views.py
-    ├── urls.py
-    └── views.py
+├── shop
+│   ├── admin.py
+│   ├── apps.py
+│   ├── fixtures
+│   │   ├── About.json
+│   │   ├── category.json
+│   │   ├── doc.json
+│   │   ├── faq.json
+│   │   ├── products.json
+│   │   ├── sellers.json
+│   │   ├── services.json
+│   │   ├── stories.json
+│   │   ├── teammembers.json
+│   │   └── upload.json
+│   ├── __init__.py
+│   ├── models.py
+│   ├── static
+│   │   ├── css
+│   │   │   ├── aos.css
+│   │   │   ├── bootstrap
+│   │   │   │   ├── bootstrap-grid.css
+│   │   │   │   └── bootstrap-reboot.css
+│   │   │   ├── bootstrap.min.css
+│   │   │   ├── jquery-ui.css
+│   │   │   ├── magnific-popup.css
+│   │   │   ├── owl.carousel.min.css
+│   │   │   ├── owl.theme.default.min.css
+│   │   │   └── style.css
+│   │   ├── fonts
+│   │   │   └── icomoon
+│   │   │       ├── demo-files
+│   │   │       │   ├── demo.css
+│   │   │       │   └── demo.js
+│   │   │       ├── demo.html
+│   │   │       ├── fonts
+│   │   │       │   ├── icomoon.eot
+│   │   │       │   ├── icomoon.svg
+│   │   │       │   ├── icomoon.ttf
+│   │   │       │   └── icomoon.woff
+│   │   │       ├── Read Me.txt
+│   │   │       ├── selection.json
+│   │   │       └── style.css
+│   │   ├── images
+│   │   │   └── shop-seed_logo.jpeg
+│   │   └── js
+│   │       ├── aos.js
+│   │       ├── bootstrap.min.js
+│   │       ├── jquery-3.3.1.min.js
+│   │       ├── jquery.magnific-popup.min.js
+│   │       ├── jquery-ui.js
+│   │       ├── main.js
+│   │       ├── owl.carousel.min.js
+│   │       ├── popper.min.js
+│   │       └── slick.min.js
+│   ├── templates
+│   │   └── shop
+│   │       ├── base
+│   │       │   ├── base.html
+│   │       │   ├── footer.html
+│   │       │   └── navbar.html
+│   │       ├── home.html
+│   │       └── product
+│   │           ├── detail.html
+│   │           └── list.html
+│   ├── tests
+│   │   ├── __init__.py
+│   │   ├── test_models.py
+│   │   ├── test_urls.py
+│   │   └── test_views.py
+│   ├── urls.py
+│   └── views.py
+└── web_screenshots
 
-77 directories, 287 files
+81 directories, 299 files

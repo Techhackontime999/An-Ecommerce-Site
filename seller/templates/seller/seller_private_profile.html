@@ -1,0 +1,47 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-body d-flex align-items-center">
+                    <div class="profile-image me-4 mx-3 text-center">
+                        
+                        {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture"
+                            style="margin-bottom:3px;width: 100px; height: auto; border-radius: 50%;">
+                        {% else %}
+                            <img src="{% static 'images/default-store.png' %}" alt="No Logo" class="img-fluid rounded-circle shadow" style="margin-bottom:3px;width: 100px; height: auto; border-radius: 50%;">
+                            <p class="text-muted small">No logo uploaded</p>
+                        {% endif %}
+                    </div>
+                    <div class="profile-details ml-3 flex-grow-1">
+                        <h3 class="mb-1 text-primary h3">{{ profile.shop_name }}</h3>
+                        <p class="mb-0 text-muted"><strong>GST Number:</strong> {{ profile.gst_number }}</p>
+                        <p class="mb-0 text-muted"><strong>Phone:</strong> {{ profile.phone }}</p>
+                        <p class="mb-0 text-muted"><strong>Address:</strong> {{ profile.address }}</p>
+                        <p class="mb-2 text-muted"><strong>Description:</strong> {{ profile.description }}</p>
+                        <a href="{% url 'seller:edit_profile' %}" class="btn btn-warning mt-3">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optional Section: Stats -->
+            <div class="card mt-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Your Business Insights</h5>
+                    <p class="text-muted">Product listed on search : {{ total_products }}</p>
+
+                    <p class="text-muted">Total Products: {{ total_products }}</p>
+                    <p class="text-muted">Total orders: {{ total_orders }}</p>
+                    <p class="text-muted">Pending orders: {{ pending_orders }}</p>
+                    <!-- You can expand this section further with charts/stats -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

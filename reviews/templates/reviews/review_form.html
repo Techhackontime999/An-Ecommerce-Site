@@ -1,29 +1,41 @@
-<div class="card my-4">
-  <div class="card-header bg-primary text-white">
-    <h4 class="mb-0">Leave a Review for {{ product.name }}</h4>
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="card my-4 shadow-sm rounded-lg container ">
+  <div class="card-header bg-warning text-dark">
+    <h4 class="mb-0 font-weight-bold"><i class="fas fa-star mr-2"></i>Leave a Review for {{ product.name }}</h4>
   </div>
   <div class="card-body">
     <form method="post" novalidate>
       {% csrf_token %}
-      
+
+      <!-- Rating Stars -->
       <div class="form-group">
-        <label for="rating">Rating</label>
-        <select style=" max-width: 200px;" name="rating" id="rating" class="form-control" required>
-          {% for i in "12345" %}
-            <option value="{{ i }}">
-              {{ i }} Star{% if i != '1' %}s{% endif %}
-            </option>
-          {% endfor %}
-        </select>
-        
+        <label for="rating" class="font-weight-bold">Rating</label>
+        <div class="d-flex align-items-center">
+          <select name="rating" id="rating" class="form-control custom-select" style="max-width: 200px;" required>
+            {% for i in "54321" %}
+              <option value="{{ i }}">
+                {{ i }} ⭐{% if i != '1' %}s{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
 
+      <!-- Comment -->
       <div class="form-group">
-        <label for="comment">Comment</label>
-        <textarea name="comment" id="comment" class="form-control" rows="4" required></textarea>
+        <label for="comment" class="font-weight-bold">Your Review</label>
+        <textarea name="comment" id="comment" class="form-control" rows="4" placeholder="Share your thoughts about the product..." required></textarea>
       </div>
 
-      <button type="submit" class="btn btn-success">Submit Review</button>
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-warning font-weight-bold text-dark">
+        <i class="fas fa-paper-plane mr-1"></i>Submit Review
+      </button>
     </form>
   </div>
 </div>
+{% endblock %}

@@ -5,6 +5,7 @@ from order.models import OrderItem, Order
 from accounts.models import SellerProfile
 from django.contrib import messages
 from .forms import ProductForm
+from accounts.forms import SellerProfileForm
 
 @login_required
 def seller_dashboard(request):
@@ -115,3 +116,41 @@ def update_order_status(request, order_id):
 #         'products': products,
 #     }
 #     return render(request, 'seller/dashboard.html', context)
+
+
+
+@login_required
+def private_profile(request):
+    profile = get_object_or_404(SellerProfile, user=request.user)
+    products = Product.objects.filter(seller=profile)
+    order_items = OrderItem.objects.filter(product__in=products)
+
+    context={
+        'profile': profile,
+          'total_products': products.count(),
+        'total_orders': order_items.count(),
+        'pending_orders': order_items.filter(order__paid=False).count(),
+
+    }
+    return render(request, 'seller/seller_private_profile.html',context)
+
+@login_required
+def edit_profile(request):
+    profile = get_object_or_404(SellerProfile, user=request.user)
+    
+    if request.method == 'POST':
+        form = SellerProfileForm(request.POST, request.FILES, instance=profile)
+
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('seller:private_profile')
+    else:
+        form = SellerProfileForm(instance=profile)
+
+    return render(request, 'seller/seller_edit_profile.html', {'form': form})
+
+def public_profile(request, slug):
+    profile = get_object_or_404(SellerProfile, slug=slug, is_verified=True)
+    return render(request, 'seller/seller_public_profile.html', {'profile': profile})

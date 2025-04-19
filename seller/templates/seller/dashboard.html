@@ -1,6 +1,12 @@
 {% extends 'shop/base/base.html' %}
 {% block content %}
 <div class="container mt-4">
+    {% if profile.profile_picture %}
+    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture"
+        style="margin-bottom:3px;width: 100px; height: auto; border-radius: 50%;">
+    {% else %}
+    <p>No profile picture uploaded.</p>
+    {% endif %}
     <h2>Welcome, {{ profile.shop_name }}</h2>
     <div class="row">
         <div class="col-md-4">
@@ -30,6 +36,8 @@
     </div>
     <a href="{% url 'seller:add_product' %}" class="btn btn-primary mb-3">Add Product</a>
     <a href="{% url 'seller:orders' %}" class="btn btn-primary mb-3">Manage Orders</a>
+    <a href="{% url 'seller:private_profile' %}" class="btn btn-primary mb-3">Your Profile</a>
+
 
     <h3>Your Products</h3>
     <table class="table table-striped">

@@ -116,11 +116,14 @@
       {% endfor %}
       
       {% if user.is_authenticated %}
-        <a class="ml-4 bg-dark px-3 py-1 my-3 hover text-white rounded"href="{% url 'reviews:create_review' product.id %}">Leave a review</a>
+        <a class="ml-4 py-1 my-3 "href="{% url 'reviews:create_review' product.id %}">  <button type="submit" class="btn btn-warning font-weight-bold text-dark">
+          <i class="fas fa-paper-plane mr-1"></i>Leave a review
+        </button></a>
       {% else %}
         <p class="ml-4"><a href="{% url 'accounts:login' %}">Login</a> to write a review.</p>
       {% endif %}
-      
+         <!-- Submit Button -->
+       
        <!-- reviews close -->
 
 
