@@ -105,9 +105,11 @@
 │   │   │           │   ├── Untitled.jpeg
 │   │   │           │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_3JNqTau.jpeg
 │   │   │           │   └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
-│   │   │           └── 19
-│   │   │               ├── todays_deals.png
-│   │   │               └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │           ├── 19
+│   │   │           │   ├── todays_deals.png
+│   │   │           │   └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │           └── 20
+│   │   │               └── cart_detailsandcoupne.png
 │   │   ├── seller_profiles
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
 │   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_LQszhwv.jpeg
@@ -175,6 +177,7 @@
 │   ├── models.py
 │   ├── urls.py
 │   └── views.py
+├── db_structure.png
 ├── deals
 │   ├── admin.py
 │   ├── apps.py
@@ -265,26 +268,29 @@
 │   ├── models.py
 │   ├── templates
 │   │   └── search
-│   │       └── search_results.html
+│   │       └── global_search.html
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
 ├── seller
 │   ├── admin.py
 │   ├── apps.py
+│   ├── context_processors.py
 │   ├── forms.py
 │   ├── __init__.py
 │   ├── models.py
 │   ├── templates
 │   │   └── seller
 │   │       ├── add_product.html
+│   │       ├── best_sellers.html
 │   │       ├── dashboard.html
 │   │       ├── edit_product.html
 │   │       ├── not_verified.html
 │   │       ├── orders.html
+│   │       ├── profile_details.html
+│   │       ├── profile_search.html
 │   │       ├── seller_edit_profile.html
-│   │       ├── seller_private_profile.html
-│   │       └── seller_public_profile.html
+│   │       └── seller_private_profile.html
 │   ├── tests.py
 │   ├── urls.py
 │   └── views.py
@@ -310,6 +316,7 @@
 ├── shop
 │   ├── admin.py
 │   ├── apps.py
+│   ├── context_processors.py
 │   ├── fixtures
 │   │   ├── About.json
 │   │   ├── category.json
@@ -370,7 +377,8 @@
 │   │       ├── home.html
 │   │       └── product
 │   │           ├── detail.html
-│   │           └── list.html
+│   │           ├── list.html
+│   │           └── product_search.html
 │   ├── tests
 │   │   ├── __init__.py
 │   │   ├── test_models.py
@@ -380,4 +388,4 @@
 │   └── views.py
 └── web_screenshots
 
-81 directories, 299 files
+82 directories, 306 files
