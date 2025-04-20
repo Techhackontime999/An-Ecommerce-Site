@@ -3,6 +3,8 @@ from django.urls import reverse
 from ckeditor.fields import RichTextField
 from accounts.models import SellerProfile
 from django.utils import timezone
+from django.db.models import Index
+
 class Category(models.Model):
     name = models.CharField(max_length=200, db_index=True)
     slug = models.SlugField(max_length=200, unique=True)
@@ -35,9 +37,17 @@ class Product(models.Model):
     seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
     # add this field
 
+    # class Meta:
+    #     ordering = ('name',)
+    #     index_together = (('id', 'slug'),)
+    
+
     class Meta:
         ordering = ('name',)
-        index_together = (('id', 'slug'),)
+        indexes = [
+        Index(fields=['id', 'slug']),
+        ]
+
 
     def __str__(self):
         return self.name

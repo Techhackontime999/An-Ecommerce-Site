@@ -22,10 +22,16 @@ INSTALLED_APPS = [
     #third-party apps
     'crispy_forms',
     'ckeditor',
+    'django_extensions', #remove this if you not want to generate database gui visualization
     'shop.apps.ShopConfig',
     'cart.apps.CartConfig',
     'order.apps.OrderConfig',
     'coupons.apps.CouponsConfig',
+
+
+
+
+
     'accounts',
     'about',
     'contact',
@@ -50,6 +56,15 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField' #remove this if you not want to generate database visualization
+#for linux first install required system dependency not project 
+
+#1. sudo apt-get install graphviz graphviz-dev pkg-config libgraphviz-dev
+#2. pip install django-extensions
+
+# 3. pip install pygraphviz  this cmd build project dependency for database gui
+
+#4.  python manage.py graph_models -a -o db_structure.png     use this cmd to generate database gui visualization
 
 TEMPLATES = [
     {
@@ -63,6 +78,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart',
+                 'shop.context_processors.search_action_context',
+
+                #  'config.context_processors.page_context',  # global
             ],
         },
     },

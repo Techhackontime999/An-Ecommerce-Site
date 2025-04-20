@@ -3,6 +3,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.text import slugify
+from django.db.models import Avg
+
 class SellerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     shop_name = models.CharField(max_length=100)
@@ -26,6 +28,31 @@ class SellerProfile(models.Model):
 
     def __str__(self):
         return f"{self.shop_name} ({self.user.username})"
+
+
+    # def average_rating(self):
+    #     from shop.models import Product
+    #     from reviews.models import Review
+
+    #     product_ids = Product.objects.filter(seller=self).values_list('id', flat=True)
+    #     avg_rating = Review.objects.filter(product_id__in=product_ids).aggregate(avg=Avg('rating'))['avg']
+
+    #     return round(avg_rating or 0, 2)
+
+    # def total_reviews(self):
+    #     from shop.models import Product
+    #     from reviews.models import Review
+
+    #     product_ids = Product.objects.filter(seller=self).values_list('id', flat=True)
+    #     return Review.objects.filter(product_id__in=product_ids).count()
+
+
+
+
+
+
+
+
 
 class CustomerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

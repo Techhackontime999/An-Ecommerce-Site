@@ -1,0 +1,48 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5 ">
+  <h2 class="text-center text-2xl font-bold mb-5">Search Results for "<span class="text-primary">{{ query }}</span>"</h2>
+
+  {% if profile %}
+  <div class="row g-4">
+    {% for profile in profile %}
+    <div class="col-md-6 col-lg-4 my-3">
+      <div style="box-shadow:5px 5px 5px 1px black"class="card h-100 shadow-md border-0">
+        <div class="card-body d-flex flex-column align-items-center text-center">
+
+          <!-- Profile Picture -->
+          {% if profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" alt="{{ profile.shop_name }} Logo"
+            class="rounded-circle shadow-sm mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+          {% else %}
+          <img src="{% static 'images/default-store.png' %}" alt="Default Store Logo"
+            class="rounded-circle shadow-sm mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+          {% endif %}
+
+          <!-- Seller Info -->
+          <h5 class="card-title mb-1">{{ profile.shop_name }}</h5>
+          <p class="text-muted small mb-2">{{ profile.description|truncatewords:15 }}</p>
+
+          <p class="text-muted small">
+            <i class="fas fa-map-marker-alt me-1 text-danger"></i>
+            {{ profile.address }}
+          </p>
+
+          <a href="{% url 'seller:profile_details' profile.slug %}" class="btn btn-sm btn-outline-primary mt-2">
+            View Profile
+          </a>
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center mt-5">
+    <h5 class="text-muted">No sellers matched your search.</h5>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

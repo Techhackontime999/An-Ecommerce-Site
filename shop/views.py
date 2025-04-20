@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404 , redirect
 from cart.forms import CartAddProductForm
 from .models import Category, Product
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 
 # from django.views import generic
@@ -112,4 +113,23 @@ def product_detail(request, id, slug):
 #         return context
 
 
+def product_search(request):
+    query = request.GET.get('q', '').strip()
+    category_slug = request.GET.get('category', '').strip()
 
+    products = Product.objects.all()
+    product_categories = Category.objects.all()
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+
+    if query:
+        products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
+
+    return render(request, "shop/product/product_search.html", {
+        "results": products,
+        "query": query,
+        "selected_category": category_slug,
+        "product_categories": product_categories,
+        "search_action": "shop:product_search",  # optional, for your navbar
+    })
+  

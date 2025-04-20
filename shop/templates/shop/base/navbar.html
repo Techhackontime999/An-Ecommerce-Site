@@ -8,11 +8,14 @@
             <div class="row align-items-center mx-auto">
 
                 <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
-<!-- search start -->
-                    <form  class="site-block-top-search" method="GET" action="{% url 'search:product_search' %}">
-                        <span class="icon icon-search2"></span>
-                        <input type="text" class="form-control border-0" placeholder="Search"  aria-label="Search" name="q">
-                    </form>
+
+                      
+               <form method="GET" action="{% url search_action %}" class="site-block-top-search">
+    <span class="icon icon-search2"></span>
+    <input type="text" class="form-control border-0" placeholder="Search" name="q" value="{{ query }}">
+</form>
+
+                       
 
 <!-- search close -->
                 </div>
@@ -110,7 +113,7 @@
                     <li><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
                     <li><a href="{% url 'about:about' %}">About</a></li>
                     <li><a href="#">Big Billion Day's</a></li>
-                    <li><a href="#">Best sellers</a></li>
+                    <li><a href="{% url 'seller:best_sellers'  %}">Best sellers</a></li>
                     <li><a href="#">Best Product</a></li>
 
                     <li><a href="{% url 'services:services_list' %}">Customer Services</a></li>

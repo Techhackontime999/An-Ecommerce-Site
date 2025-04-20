@@ -6,6 +6,7 @@ from accounts.models import SellerProfile
 from django.contrib import messages
 from .forms import ProductForm
 from accounts.forms import SellerProfileForm
+from django.db.models import Q
 
 @login_required
 def seller_dashboard(request):
@@ -151,6 +152,57 @@ def edit_profile(request):
 
     return render(request, 'seller/seller_edit_profile.html', {'form': form})
 
-def public_profile(request, slug):
+def profile_details(request, slug):
     profile = get_object_or_404(SellerProfile, slug=slug, is_verified=True)
-    return render(request, 'seller/seller_public_profile.html', {'profile': profile})
+    return render(request, 'seller/profile_details.html', {'profile': profile})
+
+# def best_sellers(request):
+#     profile = SellerProfile.objects.filter(is_verified=True)
+
+
+#     return render(request,'seller/best_sellers.html',{'profile': profile})
+def best_sellers(request):
+    query = request.GET.get("q", "").strip()
+
+    profile = SellerProfile.objects.filter(is_verified=True)
+
+    if query:
+        profile = profile.filter(
+            Q(shop_name__icontains=query) |
+            Q(address__icontains=query) |
+            Q(description__icontains=query)
+        )
+
+    return render(request, "seller/best_sellers.html", {
+        'profile': profile,
+        "query": query,  # 🔍 for input box value
+        "search_action": "seller:best_sellers",
+          # for navbar search action (optional)
+    })
+
+def sellers_profile_search(request):
+    query = request.GET.get('q', '').strip()
+
+    profile = SellerProfile.objects.all()
+   
+
+    if query:
+        profile = profile.filter(Q(shop_name__icontains=query) | Q(description__icontains=query) | Q(address__icontains=query))
+
+    return render(request, "seller/profile_search.html", {
+        "profile": profile,
+        "query": query,
+        "search_action": "seller:sellers_profile_search",  # optional, for your navbar
+    })
+
+
+# seller/views.py
+
+
+
+def seller_detail(request, slug):
+    seller = get_object_or_404(SellerProfile, slug=slug)
+    return render(request, "seller/detail.html", {
+        "seller": seller
+    })
+
