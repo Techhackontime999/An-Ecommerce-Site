@@ -1,9 +1,12 @@
 # accounts/models.py
 
+from django.apps import apps
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.text import slugify
 from django.db.models import Avg
+
+# from shop.models import Product
 
 class SellerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -18,8 +21,16 @@ class SellerProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     profile_picture = models.ImageField(upload_to='seller_profiles/', null=True, blank=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
-  # ⚠️ temporarily remove unique=True
- 
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+
+  
+    def update_rating(self):
+        from reviews.models import SellerReview
+        avg = SellerReview.objects.filter(seller_profile=self).aggregate(avg_rating=Avg('rating'))['avg_rating']
+        self.rating = round(avg or 0.00, 2)
+        self.save()
+
+  
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -27,25 +38,8 @@ class SellerProfile(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.shop_name} ({self.user.username})"
-
-
-    # def average_rating(self):
-    #     from shop.models import Product
-    #     from reviews.models import Review
-
-    #     product_ids = Product.objects.filter(seller=self).values_list('id', flat=True)
-    #     avg_rating = Review.objects.filter(product_id__in=product_ids).aggregate(avg=Avg('rating'))['avg']
-
-    #     return round(avg_rating or 0, 2)
-
-    # def total_reviews(self):
-    #     from shop.models import Product
-    #     from reviews.models import Review
-
-    #     product_ids = Product.objects.filter(seller=self).values_list('id', flat=True)
-    #     return Review.objects.filter(product_id__in=product_ids).count()
-
+        return f"{self.shop_name} ({self.user.username}'s Seller Profile)"
+    
 
 
 

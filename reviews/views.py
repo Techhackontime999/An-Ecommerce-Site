@@ -6,7 +6,7 @@ from order.models import OrderItem  # Adjust based on your actual order app
 
 def create_review(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-
+    # Create a review for a seller
     # Check if user has purchased the product
     has_ordered = OrderItem.objects.filter(
         order__user=request.user,
@@ -32,3 +32,7 @@ def create_review(request, product_id):
 
 
     return render(request, 'reviews/review_form.html', {'product': product})
+
+
+   
+

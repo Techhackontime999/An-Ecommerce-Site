@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'cart.apps.CartConfig',
     'order.apps.OrderConfig',
     'coupons.apps.CouponsConfig',
+    # 'reviews.apps.ReviewsConfig',
 
 
 
@@ -42,7 +43,7 @@ INSTALLED_APPS = [
         'faq',
         'seller',
         'search',
-        'reviews'
+        'reviews',
 ]
 
 MIDDLEWARE = [

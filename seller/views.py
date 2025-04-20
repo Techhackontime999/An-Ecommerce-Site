@@ -156,14 +156,9 @@ def profile_details(request, slug):
     profile = get_object_or_404(SellerProfile, slug=slug, is_verified=True)
     return render(request, 'seller/profile_details.html', {'profile': profile})
 
-# def best_sellers(request):
-#     profile = SellerProfile.objects.filter(is_verified=True)
 
-
-#     return render(request,'seller/best_sellers.html',{'profile': profile})
 def best_sellers(request):
     query = request.GET.get("q", "").strip()
-
     profile = SellerProfile.objects.filter(is_verified=True)
 
     if query:
@@ -177,6 +172,7 @@ def best_sellers(request):
         'profile': profile,
         "query": query,  # 🔍 for input box value
         "search_action": "seller:best_sellers",
+        
           # for navbar search action (optional)
     })
 
@@ -200,9 +196,9 @@ def sellers_profile_search(request):
 
 
 
-def seller_detail(request, slug):
-    seller = get_object_or_404(SellerProfile, slug=slug)
-    return render(request, "seller/detail.html", {
-        "seller": seller
-    })
+# def seller_detail(request, slug):
+#     seller = get_object_or_404(SellerProfile, slug=slug)
+#     return render(request, "seller/detail.html", {
+#         "seller": seller
+#     })
 
