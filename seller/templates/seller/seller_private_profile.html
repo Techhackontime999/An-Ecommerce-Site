@@ -19,6 +19,21 @@
                     </div>
                     <div class="profile-details ml-3 flex-grow-1">
                         <h3 class="mb-1 text-primary h3">{{ profile.shop_name }}</h3>
+                        {% if profile.rating %}
+    <div class="seller-rating">
+        {% for i in "12345" %}
+            {% if forloop.counter <= profile.rating %}
+                <span style="color: gold;">★</span>
+            {% else %}
+                <span style="color: lightgray;">★</span>
+            {% endif %}
+        {% endfor %}
+        <small>({{ profile.rating|floatformat:1 }}/5)</small>
+    </div>
+{% else %}
+    <p>You don't have any ratings yet.</p>
+{% endif %}
+
                         <p class="mb-0 text-muted"><strong>GST Number:</strong> {{ profile.gst_number }}</p>
                         <p class="mb-0 text-muted"><strong>Phone:</strong> {{ profile.phone }}</p>
                         <p class="mb-0 text-muted"><strong>Address:</strong> {{ profile.address }}</p>

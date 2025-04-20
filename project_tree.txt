@@ -109,10 +109,14 @@
 │   │   │           │   ├── todays_deals.png
 │   │   │           │   └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
 │   │   │           └── 20
-│   │   │               └── cart_detailsandcoupne.png
+│   │   │               ├── 2.webp
+│   │   │               ├── cart_detailsandcoupne.png
+│   │   │               ├── cart_detailsandcoupne_xbTC8JS.png
+│   │   │               └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
 │   │   ├── seller_profiles
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
-│   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_LQszhwv.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_LQszhwv.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-15_at_22_SrA8nwL.12.57.jpeg
 │   │   ├── services
 │   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
 │   │   │   ├── images.jpeg
@@ -254,6 +258,7 @@
 │   ├── apps.py
 │   ├── __init__.py
 │   ├── models.py
+│   ├── signals.py
 │   ├── templates
 │   │   └── reviews
 │   │       └── review_form.html
@@ -388,4 +393,4 @@
 │   └── views.py
 └── web_screenshots
 
-82 directories, 306 files
+82 directories, 311 files

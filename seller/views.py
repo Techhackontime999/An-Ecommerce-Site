@@ -159,7 +159,8 @@ def profile_details(request, slug):
 
 def best_sellers(request):
     query = request.GET.get("q", "").strip()
-    profile = SellerProfile.objects.filter(is_verified=True)
+    # profile = SellerProfile.objects.filter(is_verified=True).order_by('-rating')[:10]#its shows top-10 sellers
+    profile = SellerProfile.objects.filter(is_verified=True).order_by('-rating')
 
     if query:
         profile = profile.filter(

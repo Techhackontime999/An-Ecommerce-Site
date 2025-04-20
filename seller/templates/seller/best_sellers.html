@@ -22,19 +22,22 @@
           <!-- Seller Info -->
           <h5 class="card-title mb-1">{{ profile.shop_name }}</h5>
           <p class="text-muted small mb-2">{{ profile.description|truncatewords:15 }}</p>
-          <p>
-            
-             
-            ({{ seller.total_reviews }} reviews)
-        </p>
+        <p></p>
         <div class="text-warning">
-            {% for i in "12345" %}
-                {% if i|add:'0' <= seller.average_rating|stringformat:"d" %}
-                    ⭐
-                {% else %}
-                    ☆
-                {% endif %}
-            {% endfor %}
+          {% if profile.rating %}
+          <div class="seller-rating">
+              {% for i in "12345" %}
+                  {% if forloop.counter <= profile.rating %}
+                      <span style="color: gold;">★</span>
+                  {% else %}
+                      <span style="color: lightgray;">★</span>
+                  {% endif %}
+              {% endfor %}
+              <small>({{ profile.rating|floatformat:1 }}/5)</small>
+          </div>
+      {% else %}
+          <p>This seller don't have any ratings yet.</p>
+      {% endif %}
         </div>
         
 
