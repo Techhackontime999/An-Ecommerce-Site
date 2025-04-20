@@ -22,7 +22,12 @@
           <!-- Seller Info -->
           <h5 class="card-title mb-1">{{ profile.shop_name }}</h5>
           <p class="text-muted small mb-2">{{ profile.description|truncatewords:15 }}</p>
-        <p></p>
+          <small class="text-muted">Score: {{ profile.composite_score }}</small>
+          <small class="text-muted">Reviews: {{ profile.seller_reviews.count }}</small>
+          {% if forloop.counter <= 3 %}
+          <span class="badge bg-warning px-2 text-dark">Top {{ forloop.counter }}</span>
+      {% endif %}
+      
         <div class="text-warning">
           {% if profile.rating %}
           <div class="seller-rating">
@@ -34,7 +39,9 @@
                   {% endif %}
               {% endfor %}
               <small>({{ profile.rating|floatformat:1 }}/5)</small>
+
           </div>
+
       {% else %}
           <p>This seller don't have any ratings yet.</p>
       {% endif %}

@@ -7,6 +7,9 @@ from django.contrib import messages
 from .forms import ProductForm
 from accounts.forms import SellerProfileForm
 from django.db.models import Q
+from django.db.models import Count, F, FloatField, ExpressionWrapper
+from django.db.models.functions import Log
+import math
 
 @login_required
 def seller_dashboard(request):
@@ -157,10 +160,38 @@ def profile_details(request, slug):
     return render(request, 'seller/profile_details.html', {'profile': profile})
 
 
+# def best_sellers(request):
+#     query = request.GET.get("q", "").strip()
+#     # profile = SellerProfile.objects.filter(is_verified=True).order_by('-rating')[:10]#its shows top-10 sellers
+#     profile = SellerProfile.objects.filter(is_verified=True).order_by('-rating')
+
+#     if query:
+#         profile = profile.filter(
+#             Q(shop_name__icontains=query) |
+#             Q(address__icontains=query) |
+#             Q(description__icontains=query)
+#         )
+
+#     return render(request, "seller/best_sellers.html", {
+#         'profile': profile,
+#         "query": query,  # 🔍 for input box value
+#         "search_action": "seller:best_sellers",
+        
+#           # for navbar search action (optional)
+#     })
+
 def best_sellers(request):
     query = request.GET.get("q", "").strip()
-    # profile = SellerProfile.objects.filter(is_verified=True).order_by('-rating')[:10]#its shows top-10 sellers
-    profile = SellerProfile.objects.filter(is_verified=True).order_by('-rating')
+
+    # Annotate review_count first, then use it in composite_score
+    profile = SellerProfile.objects.annotate(
+        review_count=Count('seller_reviews'),
+    ).annotate(
+        composite_score=ExpressionWrapper(
+            F('rating') * Log(F('review_count') + 1, math.e),
+            output_field=FloatField()
+        )
+    ).filter(is_verified=True).order_by('-composite_score')
 
     if query:
         profile = profile.filter(
@@ -171,11 +202,12 @@ def best_sellers(request):
 
     return render(request, "seller/best_sellers.html", {
         'profile': profile,
-        "query": query,  # 🔍 for input box value
+        "query": query,
         "search_action": "seller:best_sellers",
-        
-          # for navbar search action (optional)
     })
+
+
+
 
 def sellers_profile_search(request):
     query = request.GET.get('q', '').strip()

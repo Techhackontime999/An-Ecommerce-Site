@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.text import slugify
 from django.db.models import Avg
+from django.db.models import Count
 
 # from shop.models import Product
 
@@ -30,7 +31,13 @@ class SellerProfile(models.Model):
         self.rating = round(avg or 0.00, 2)
         self.save()
 
-  
+      
+    def reviews_count(self):
+        return self.seller_reviews.count()
+
+    def composite_score(self):
+        import math
+        return round((self.rating or 0) * math.log(self.reviews_count() + 1), 2)
 
     def save(self, *args, **kwargs):
         if not self.slug:
