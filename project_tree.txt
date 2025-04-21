@@ -51,10 +51,14 @@
 │   ├── media
 │   │   ├── about
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
-│   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_Y9x8Gf3.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_Y9x8Gf3.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22_JrEA18m.12.57.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-15_at_22_xbFD2eo.12.57.jpeg
 │   │   ├── documentation_images
+│   │   │   ├── 2.webp
 │   │   │   ├── 91orz3r1jLL._AC_SR405405_.jpg
-│   │   │   └── Untitled.jpeg
+│   │   │   ├── Untitled.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
 │   │   ├── products
 │   │   │   └── 2025
 │   │   │       └── 04
@@ -108,23 +112,44 @@
 │   │   │           ├── 19
 │   │   │           │   ├── todays_deals.png
 │   │   │           │   └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
-│   │   │           └── 20
-│   │   │               ├── 2.webp
-│   │   │               ├── cart_detailsandcoupne.png
-│   │   │               ├── cart_detailsandcoupne_xbTC8JS.png
-│   │   │               └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │           ├── 20
+│   │   │           │   ├── 2.webp
+│   │   │           │   ├── cart_detailsandcoupne.png
+│   │   │           │   ├── cart_detailsandcoupne_xbTC8JS.png
+│   │   │           │   └── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │           └── 21
+│   │   │               ├── 31RzHQ1K8L._AC_UL320_.jpg
+│   │   │               ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │               ├── 51VqtBOF2CL._AC_UL320_.jpg
+│   │   │               ├── 6143nGlNWKL._AC_UL320_.jpg
+│   │   │               ├── 61aGaJ-gaL._AC_UL320_.jpg
+│   │   │               ├── 71FYgvmvNAL._AC_UL320_.jpg
+│   │   │               ├── 71zD6LNDRdL._AC_UL320_.jpg
+│   │   │               ├── 71zD6LNDRdL_NcwOleG._AC_UL320_.jpg
+│   │   │               ├── 91GXo5RXm5L._AC_UL320_.jpg
+│   │   │               ├── popular_categories-1._CB559991005_.jpg
+│   │   │               ├── popular_categories-4._CB559991005_.jpg
+│   │   │               ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
+│   │   │               └── WhatsApp_Image_2025-04-15_at_22_FLCGuy8.12.57.jpeg
 │   │   ├── seller_profiles
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_LQszhwv.jpeg
-│   │   │   └── WhatsApp_Image_2025-04-15_at_22_SrA8nwL.12.57.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22_EYoPJB3.12.57.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22_SrA8nwL.12.57.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-16_at_15.08.39.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-16_at_15.08.41.jpeg
 │   │   ├── services
 │   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
+│   │   │   ├── faq.png
 │   │   │   ├── images.jpeg
 │   │   │   ├── third.jpeg
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_5w8cn8P.jpeg
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
 │   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_w1Z8ad9.jpeg
-│   │   │   └── WhatsApp_Image_2025-04-15_at_22.12.57_x2Jdvog.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22.12.57_x2Jdvog.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22_ftJ6b2f.12.57.jpeg
+│   │   │   ├── WhatsApp_Image_2025-04-15_at_22_Mg2ayqS.12.57.jpeg
+│   │   │   └── WhatsApp_Image_2025-04-15_at_22_PBGuZBT.12.57.jpeg
 │   │   ├── stories
 │   │   │   ├── 51kFpLp93uL._MCnd_AC_.jpg
 │   │   │   ├── 71qVMXxky8L._AC_UL320_.jpg
@@ -143,7 +168,10 @@
 │   │       ├── 91orz3r1jLL._AC_SR405405_.jpg
 │   │       ├── WhatsApp_Image_2025-04-15_at_22.12.57_1mYQhEh.jpeg
 │   │       ├── WhatsApp_Image_2025-04-15_at_22.12.57.jpeg
-│   │       └── WhatsApp_Image_2025-04-15_at_22.12.57_MPxkRK5.jpeg
+│   │       ├── WhatsApp_Image_2025-04-15_at_22.12.57_MPxkRK5.jpeg
+│   │       ├── WhatsApp_Image_2025-04-15_at_22_3JtZl9R.12.57.jpeg
+│   │       ├── WhatsApp_Image_2025-04-15_at_22_EgPtYjg.12.57.jpeg
+│   │       └── WhatsApp_Image_2025-04-15_at_22_xhVXvtd.12.57.jpeg
 │   ├── settings
 │   │   ├── __init__.py
 │   │   ├── local.py
@@ -393,4 +421,4 @@
 │   └── views.py
 └── web_screenshots
 
-82 directories, 311 files
+83 directories, 338 files

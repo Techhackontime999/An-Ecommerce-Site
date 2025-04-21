@@ -125,6 +125,8 @@ def update_order_status(request, order_id):
 
 @login_required
 def private_profile(request):
+  
+
     profile = get_object_or_404(SellerProfile, user=request.user)
     products = Product.objects.filter(seller=profile)
     order_items = OrderItem.objects.filter(product__in=products)
