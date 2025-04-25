@@ -1,88 +1,32 @@
 [
-    {
-      "model": "shop.product",
-      "pk": 6,
-      "fields": {
-        "category": 1,
-        "name": "Samsung Galaxy S21",
-        "slug": "samsung-galaxy-s21",
-        "image": "",
-        "description": "Latest flagship smartphone from Samsung with powerful features.",
-        "price": "699.99",
-        "available": true,
-        "created": "2024-01-01T10:00:00Z",
-        "updated": "2024-01-01T10:00:00Z",
-        "brand": "Samsung",
-        "seller": 1
-      }
-    },
-    {
-      "model": "shop.product",
-      "pk": 7,
-      "fields": {
-        "category": 2,
-        "name": "Men's Casual T-Shirt",
-        "slug": "mens-casual-tshirt",
-        "image": "",
-        "description": "Comfortable and stylish cotton t-shirt for men.",
-        "price": "15.50",
-        "available": true,
-        "created": "2024-02-01T10:00:00Z",
-        "updated": "2024-02-01T10:00:00Z",
-        "brand": "Roadster",
-        "seller": 1
-      }
-    },
-    {
-      "model": "shop.product",
-      "pk": 8,
-      "fields": {
-        "category": 3,
-        "name": "The Alchemist",
-        "slug": "the-alchemist",
-        "image": "",
-        "description": "Bestselling novel by Paulo Coelho.",
-        "price": "9.99",
-        "available": true,
-        "created": "2024-03-01T10:00:00Z",
-        "updated": "2024-03-01T10:00:00Z",
-        "brand": "HarperOne",
-        "seller": 2
-      }
-    },
-    {
-      "model": "shop.product",
-      "pk": 9,
-      "fields": {
-        "category": 4,
-        "name": "LG Refrigerator 260L",
-        "slug": "lg-refrigerator-260l",
-        "image": "",
-        "description": "Energy-efficient double-door refrigerator.",
-        "price": "349.00",
-        "available": true,
-        "created": "2024-03-05T10:00:00Z",
-        "updated": "2024-03-05T10:00:00Z",
-        "brand": "LG",
-        "seller": 2
-      }
-    },
-    {
-      "model": "shop.product",
-      "pk": 10,
-      "fields": {
-        "category": 5,
-        "name": "Apple iPad 10.2",
-        "slug": "apple-ipad-10-2",
-        "image": "",
-        "description": "Powerful and affordable tablet from Apple.",
-        "price": "329.00",
-        "available": true,
-        "created": "2024-03-10T10:00:00Z",
-        "updated": "2024-03-10T10:00:00Z",
-        "brand": "Apple",
-        "seller": 1
-      }
+  {
+    "model": "about.teammember",
+    "pk": 4,
+    "fields": {
+      "name": "Amit Kumar",
+      "role": "Founder & CEO",
+      "photo": "team/john_doe.jpg",
+      "bio": "John is the visionary behind our company. With over 10 years of experience in the e-commerce industry, he has a deep understanding of the challenges faced by small businesses."
     }
-  ]
-  
+  },
+  {
+    "model": "about.teammember",
+    "pk": 5,
+    "fields": {
+      "name": "Jane Smith",
+      "role": "Chief Marketing Officer",
+      "photo": "team/jane_smith.jpg",
+      "bio": "Jane is responsible for driving our marketing strategies and building strong relationships with our customers. She brings a wealth of knowledge in digital marketing."
+    }
+  },
+  {
+    "model": "about.teammember",
+    "pk": 6,
+    "fields": {
+      "name": "Sara Johnson",
+      "role": "Head of Development",
+      "photo": "team/sara_johnson.jpg",
+      "bio": "Sara leads our development team, ensuring that we deliver high-quality and user-friendly platforms for our clients. She is passionate about coding and technology."
+    }
+  }
+]

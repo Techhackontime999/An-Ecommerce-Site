@@ -12,7 +12,7 @@
 <form class="my-3 "action="{% url 'shop:product_search' %}" method="get">
     <!-- <input type="text" name="q" placeholder="Search..." value="{{ query }}" /> -->
 
-    <select class="text-black " style="font-weight:bold;border-color : grey;"name="category">
+    <select class="text-secondary p-1" style="font-weight:bold;border-color : rgba(0, 0, 0, 0.342);"name="category">
         <option class="rounded"value="">All Categories</option>
         {% for cat in product_categories %}
             <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>
@@ -21,7 +21,7 @@
         {% endfor %}
     </select>
 
-    <button style="border-color: bisque;"class="px-2 bg-warning text-black rounded shadow-sm hover "type="submit">Search</button>
+    <button style="border-color: bisque;"class=" bg-warning px-2 py-1 text-black rounded shadow-sm hover "type="submit">Search</button>
 </form>
 
 <!-- category close -->
@@ -31,11 +31,11 @@
     <div class="row mb-5">
         {% for product in results %}
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" data-aos="zoom-in-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
-            <div class="block-4 text-center border product-card shadow-sm rounded-3 h-100 d-flex flex-column">
+            <div class="block-4 text-center border product-card shadow-md rounded-3 h-100 d-flex flex-column">
                 <figure class="block-4-image overflow-hidden rounded-top">
                     <a href="{{ product.get_absolute_url }}">
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid transition-300"
-                            style="width: 100%; height: 260px; object-fit: contain;">
+                            style="width: 100%; height: 240px; object-fit: contain;">
                     </a>
                 </figure>
                 <div class="block-4-text p-4 d-flex flex-column flex-grow-1">
@@ -45,27 +45,31 @@
                     <p class="mb-2 small text-muted">{{ product.description|safe|truncatewords:10 }}</p>
 
                     <!-- review start -->
-                    <div class="mb-3">
+                    <div class="mb-3 ">
                         <div class="d-flex align-items-center">
-                            <div class="mx-auto">
-                                {% with total=product.average_rating|floatformat:1 %}
-                                <strong>{{ total }}</strong>
-                                {% endwith %}
-                                <span class="text-warning">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= product.average_rating|floatformat:0 %}
-                                            <i class="fas fa-star"></i>
-                                        {% elif forloop.counter <= product.average_rating %}
-                                            <i class="fas fa-star-half-alt"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </span>
-                                <small class="text-muted">({{ product.rating_count }} review{{ product.rating_count|pluralize }})</small>
-                            </div>
+                          <div class="mx-auto">
+                            {% with total=product.average_rating %}
+                              <strong>{{ total|floatformat:1 }}</strong>
+                              <span class="text-warning">
+                                {% for i in "12345"|make_list %}
+                                  {% if forloop.counter <= total|floatformat:"0"|add:"0" %}
+                                    <i class="fas fa-star"></i>
+                                  {% elif forloop.counter == total|add:"0.5"|floatformat:"0"|add:"0" %}
+                                    <i class="fas fa-star-half-alt"></i>
+                                  {% else %}
+                                    <i class="far fa-star"></i>
+                                  {% endif %}
+                                {% endfor %}
+                              </span>
+                              <small class="text-muted">({{ product.rating_count }} review{{ product.rating_count|pluralize }})</small>
+                            {% endwith %}
+                          </div>
+                          
+                          
+                          
+                          
                         </div>
-                    </div>
+                      </div>
                     <!-- review close -->
 
                     <p class="text-primary mt-auto">

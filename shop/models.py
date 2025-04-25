@@ -4,6 +4,7 @@ from ckeditor.fields import RichTextField
 from accounts.models import SellerProfile
 from django.utils import timezone
 from django.db.models import Index
+from django.db.models import Avg
 
 class Category(models.Model):
     name = models.CharField(max_length=200, db_index=True)
@@ -61,12 +62,13 @@ class Product(models.Model):
         if active_deal:
             return active_deal.deal_price
         return self.price
-    
+    @property
     def average_rating(self):
         reviews = self.reviews.all()
         if reviews.exists():
             return round(sum([r.rating for r in reviews]) / reviews.count(), 1)
         return 0
+    @property
     def rating_count(self):
         return self.reviews.count()
 
