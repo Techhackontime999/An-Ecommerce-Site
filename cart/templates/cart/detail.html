@@ -46,7 +46,7 @@ Your shopping cart
                                 <td>
                                     <div class="input-group mb-3" style="max-width: 120px;">
                                         <div class="input-group-prepend">
-                                            <form action="{% url "cart:cart_add" product.id %}" method="post">
+                                            <form action="{% url 'cart:cart_add' product.id %}" method="post">
                                                 {% csrf_token %}
                                                 {{ item.update_quantity_form.quantity }}
                                                 {{ item.update_quantity_form.override }}
@@ -57,7 +57,7 @@ Your shopping cart
                                     </div>
                                 </td>
                                 <td>${{ item.total_price }}</td>
-                                <td><a href="{% url "cart:cart_remove" product.id %}"
+                                <td><a href="{% url 'cart:cart_remove' product.id %}"
                                         class="btn btn-primary btn-sm">X</a></td>
                             </tr>
                             {% endwith %}

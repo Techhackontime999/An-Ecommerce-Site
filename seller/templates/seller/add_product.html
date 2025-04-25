@@ -8,8 +8,9 @@
                     <h4 class="mb-0">Add New Product</h4>
                 </div>
                 <div class="card-body">
-                    {{ form.media }}
                     <form method="post" enctype="multipart/form-data" novalidate>
+                    {{ form.media }}
+
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="mb-4">

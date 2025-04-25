@@ -7,8 +7,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '5yo93-8a^%idwkzxz@6gq67p2ml#sraf4=7#pqg+28mv)koo@m'
 
 DEBUG = True
-
+# ALLOWED_HOSTS is a security feature in Django that prevents HTTP Host header attacks.
 ALLOWED_HOSTS = ['*']
+# add 
+CSRF_TRUSTED_ORIGINS = [
+    'https://b567-2402-8100-2624-6e71-c836-7fa8-cc9e-9492.ngrok-free.app'
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -147,6 +151,7 @@ CART_SESSION_ID = 'cart'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'  # Not /cart/
 LOGOUT_REDIRECT_URL = '/'
+
 
 
 # LOGIN_URL = 'login'

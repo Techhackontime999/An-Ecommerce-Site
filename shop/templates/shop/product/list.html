@@ -29,11 +29,11 @@
         <div class="row mb-5">
           {% for product in products %}
           <div class="col-sm-6 col-lg-4 mb-4" data-aos="zoom-in-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
-            <div class="block-4 text-center border product-card shadow-sm rounded-3">
+            <div class="block-4 text-center border product-card shadow-md  rounded-3">
               <figure class="block-4-image overflow-hidden rounded-top">
                 <a href="{{ product.get_absolute_url }}">
                   <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid transition-300"
-                    style="width: 100%; height: 260px; object-fit: contain;">
+                    style="width: 100%; height: 240px; object-fit: contain;">
                 </a>
               </figure>
               <div class="block-4-text p-4">

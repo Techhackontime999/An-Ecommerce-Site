@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<div class="container my-5 px-3">
+<div class="container mx-auto my-5 px-3">
   <h2 class="text-center mb-5 font-weight-bold">Frequently Asked Questions
     <hr>
   </h2>
@@ -13,7 +13,7 @@
       <div class="card-header bg-white p-0" id="heading{{ forloop.counter }}">
         <h3 class="mb-0">
           <button
-            class="btn btn-link btn-block text-left text-dark font-weight-bold d-flex justify-content-between align-items-center py-3 px-4 collapsed"
+            class="btn btn-link btn-block text-left  text-dark font-weight-bold d-flex justify-content-between align-items-center py-3 px-7 collapsed"
             style="text-decoration: none; white-space: normal;"
             type="button"
             data-toggle="collapse"
@@ -46,12 +46,12 @@
 <!-- success stories starts -->
 <hr class="my-5">
 
-<h3 class="mb-4 text-center font-weight-bold">Seller's Successful Stories</h3>
+<h3 class="mb-4 text-center font-weight-bold ">Seller's Successful Stories</h3>
 
-<div class="container-fluid px-0">
+<div class="container bg-light ">
   <div class="d-flex overflow-auto pb-3 px-3" id="success-scroll">
     {% for story in stories %}
-    <div class="card mx-2 flex-shrink-0 shadow-sm" style="border-bottom-left-radius:14px; border-top-right-radius:14px; width: 280px; min-width: 280px; display: flex; flex-direction: column;">
+    <div class="card mx-2 flex-shrink-0 shadow-md" style="border-bottom-left-radius:14px; border-top-right-radius:14px; width: 280px; min-width: 280px; display: flex; flex-direction: column;">
       
       {% if story.image %}
       <img class="card-img-top rounded" src="{{ story.image.url }}" alt="{{ story.title }}" style="height: 170px; object-fit: cover;">
