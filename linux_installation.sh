@@ -13,7 +13,11 @@ echo "**************************************************************************
 echo "Installing necessary software packages..."
 echo "********************************************************************************************************************"
 SOFTWARE_LIST=(
-    "graphviz graphviz-dev pkg-config libgraphviz-dev libjpeg-dev zlib1g-dev"
+    "graphviz "
+    "graphviz-dev "
+    "pkg-config"
+    "libgraphviz-dev"
+    "libjpeg-dev zlib1g-dev"
     "git"
     "build-essential"
     "gcc"
