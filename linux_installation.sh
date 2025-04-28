@@ -1,5 +1,4 @@
 #!/bin/bash
-cd
 
 # Update the package list and upgrade all packages
 echo "Updating package list and upgrading packages..."
