@@ -23,7 +23,6 @@ echo "**************************************************************************
 
 SOFTWARE_LIST=(
     "graphviz"
-    "graphviz-dev"
     "pkg-config"
     "libgraphviz-dev"
     "libjpeg-dev"
@@ -46,17 +45,18 @@ echo -e "${YELLOW}Cleaning up unnecessary packages...${NC}"
 echo "********************************************************************************************************************"
 sudo apt autoremove -y
 
-# Verify installation
+# Verifying installed software
 echo "********************************************************************************************************************"
 echo -e "${YELLOW}Verifying installed software...${NC}"
 echo "********************************************************************************************************************"
 for SOFTWARE in "${SOFTWARE_LIST[@]}"; do
-    if command -v $SOFTWARE &>/dev/null; then
+    if dpkg -s $SOFTWARE &>/dev/null; then
         echo -e "${GREEN}$SOFTWARE is installed successfully.${NC}"
     else
         echo -e "${RED}Error: $SOFTWARE installation failed.${NC}"
     fi
 done
+
 
 # Create virtual environment
 echo "********************************************************************************************************************"
