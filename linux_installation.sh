@@ -32,6 +32,7 @@ SOFTWARE_LIST=(
     "gcc"
     "python3"
     "python3-pip"
+    "python3.10-venv"
 )
 
 for SOFTWARE in "${SOFTWARE_LIST[@]}"; do
