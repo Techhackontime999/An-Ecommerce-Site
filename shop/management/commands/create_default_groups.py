@@ -13,6 +13,3 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f"Group '{name}' created successfully."))
             else:
                 self.stdout.write(self.style.WARNING(f"Group '{name}' already exists."))
- # signal to add group customers
-            customers_group, created = Group.objects.get_or_create(name='customers')
-            customers_group.user_set.add(user)
