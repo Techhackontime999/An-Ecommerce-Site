@@ -1,5 +1,8 @@
 #!/bin/bash
+echo ""
 echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Welcome To Shop-Seed>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+echo ""
+
 # Update the package list and upgrade all packages
 echo "********************************************************************************************************************"
 echo "Updating package list and upgrading packages..."
