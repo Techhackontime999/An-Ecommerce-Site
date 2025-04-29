@@ -6,6 +6,28 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Function to prompt the user
+prompt_load_test_data() {
+    echo "Do you want to load test data? (y/n)"
+    read -r choice
+
+    case "$choice" in
+        [Yy]* ) 
+            echo "Loading test data..."
+            # Place your command to load test data here
+            # Example:
+            # python manage.py loaddata test_data.json
+            echo "Test data loaded successfully!"
+            ;;
+        [Nn]* ) 
+            echo "Skipping test data load."
+            ;;
+        * ) 
+            echo "Please answer with 'y' for yes or 'n' for no."
+            prompt_load_test_data
+            ;;
+    esac
+}
 echo ""
 echo -e "${BLUE}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Welcome To Shop-Seed >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${NC}"
 echo ""
@@ -107,7 +129,8 @@ python manage.py "createsuperuser"
 echo "********************************************************************************************************************"
 echo -e "${GREEN}Software installation completed!${NC}"
 echo "********************************************************************************************************************"
-
+# Prompt the user about loading test data
+prompt_load_test_data
 # Start server
 echo "********************************************************************************************************************"
 echo -e "${YELLOW}Now starting server...${NC}"
