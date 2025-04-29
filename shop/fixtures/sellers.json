@@ -1,7 +1,8 @@
 [
+    
     {
       "model": "auth.user",
-      "pk": 1,
+      "pk": 2,
       "fields": {
         "username": "sellerone",
         "password": "pbkdf2_sha256$260000$dummy$hashedpassword1",
@@ -12,7 +13,7 @@
     },
     {
       "model": "auth.user",
-      "pk": 2,
+      "pk": 3,
       "fields": {
         "username": "sellertwo",
         "password": "pbkdf2_sha256$260000$dummy$hashedpassword2",
@@ -25,7 +26,7 @@
       "model": "accounts.sellerprofile",
       "pk": 1,
       "fields": {
-        "user": 1,
+        "user": 2,
         "shop_name": "Tech Galaxy",
         "gst_number": "29ABCDE1234F2Z5",
         "phone": "9876543210",
@@ -39,7 +40,7 @@
       "model": "accounts.sellerprofile",
       "pk": 2,
       "fields": {
-        "user": 2,
+        "user": 3,
         "shop_name": "Book Haven",
         "gst_number": "07PQRST6789L1Z3",
         "phone": "9123456780",
