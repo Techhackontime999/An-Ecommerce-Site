@@ -15,6 +15,7 @@ prompt_load_test_data() {
         [Yy]* ) 
             echo "Loading test data..."
             # Place your command to load test data here
+            python manage.py "testdata"
             # Example:
             # python manage.py loaddata test_data.json
             echo "Test data loaded successfully!"
