@@ -86,11 +86,30 @@ if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
 # load database from the DATABASE_URL environment variable
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config()
-# DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+#DATABASES = {}
+#DATABASES['default'] = dj_database_url.config()
+## DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True
 
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    # PostgreSQL / Supabase / Render
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True,
+        )
+    }
+else:
+    # SQLite fallback
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
