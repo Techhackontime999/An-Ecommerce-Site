@@ -4,11 +4,16 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = '5yo93-8a^%idwkzxz@6gq67p2ml#sraf4=7#pqg+28mv)koo@m'
+
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "django-insecure-local-development-only"
+)
 
 DEBUG = True
 # ALLOWED_HOSTS is a security feature in Django that prevents HTTP Host header attacks.
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', 'https://shop-seed.onrender.com'
+]
 # add 
 CSRF_TRUSTED_ORIGINS = [
     'https://shop-seed.onrender.com'
