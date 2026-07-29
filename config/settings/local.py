@@ -11,7 +11,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 # add 
 CSRF_TRUSTED_ORIGINS = [
-    'https://b567-2402-8100-2624-6e71-c836-7fa8-cc9e-9492.ngrok-free.app'
+    'https://shop-seed.onrender.com'
 ]
 
 # Application definition
