@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = False
 #  '.herokuapp.com'
 ALLOWED_HOSTS = [
-    'localhost','mrtechhackontime999.pythonanywhere.com',
+    'localhost','shop-seed.onrender.com',
    
 ]
 
