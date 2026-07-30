@@ -2,11 +2,11 @@
 # =============================================================================
 # Setup Script — runs during release / pre-deploy phase
 # =============================================================================
-# Only does database-related tasks (migrations & superuser).
-# Static files are collected in the build phase via build.sh.
-# =============================================================================
 
 set -e
+
+echo "=== Collecting static files ==="
+python manage.py collectstatic --noinput
 
 echo "=== Running database migrations ==="
 python manage.py migrate --noinput
