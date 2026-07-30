@@ -4,23 +4,29 @@ env
 env/*
 siteenv/*
 siteenv
+
 # Django #
 *.log
 *.pot
 *.pyc
 __pycache__
 db.sqlite3
+*.db
 media
+staticfiles/
 
-# Visual Studio Code # 
-.vscode
-.vscode/* 
-!.vscode/settings.json 
-!.vscode/tasks.json 
-!.vscode/launch.json 
-!.vscode/extensions.json 
+# Visual Studio Code #
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .history
 
 # pytest #
 .pytest_cache/*
 pytest.ini
+
+# External
+taste-skill/
+

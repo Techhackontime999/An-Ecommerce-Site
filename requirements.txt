@@ -86,6 +86,7 @@ soupsieve==2.3
 sqlparse==0.4.1
 static3==0.7.0
 stripe==2.58.0
+razorpay==1.4.2
 svglib==1.5.1
 tinycss2==1.4.0
 tinyhtml5==2.0.0

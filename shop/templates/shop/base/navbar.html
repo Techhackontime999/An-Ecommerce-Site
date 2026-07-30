@@ -9,20 +9,16 @@
 
                 <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
 
-                      
                <form method="GET" action="{% url search_action %}" class="site-block-top-search">
     <span class="icon icon-search2"></span>
     <input type="text" class="form-control border-0" placeholder="Search" name="q" value="{{ query }}">
 </form>
 
-                       
-
-<!-- search close -->
                 </div>
 
                 <div class="col-12 mb-3 mb-md-0 col-md-4 order-1 order-md-2 text-center">
                     <div class="site-logo">
-                        <a href="#" class="js-logo-clone">Shop-Seed</a>
+                        <a href="{% url 'shop:product_list' %}" class="js-logo-clone">Shop-Seed</a>
                     </div>
                 </div>
 
@@ -30,11 +26,9 @@
                     <div class="site-top-icons">
                         <ul class="navbar-nav ml-auto mt-2 d-flex gap-10 flex-row">
 
-
                             <!-- Cart -->
                             <li class="nav-item">
                                 <a href="{% url 'cart:cart_detail' %}" class="nav-link ">
-
                                     <span class="icon icon-shopping_cart"></span>
                                     <span class="count mt-1">
                                         {% with total_items=cart|length %}
@@ -44,7 +38,6 @@
                                         0
                                         {% endif %}
                                         {% endwith %}
-
                                     </span>
                                 </a>
                             </li>
@@ -57,13 +50,9 @@
                                     <span class="icon icon-person"></span>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-left" aria-labelledby="userDropdown">
-                                    {% if user.is_authenticated %}
 
-                                    <a class="dropdown-item" href="#">Your Profile</a>
-                                    {% endif %}
-
-                                    <a class="dropdown-item" href="#">Returns & Orders </a>
-
+                                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">Your Profile</a>
+                                    <a class="dropdown-item" href="{% url 'order:order_create' %}">Returns & Orders</a>
                                     <a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a>
 
                                 </div>
@@ -74,14 +63,9 @@
                                 {% endif %}
                             </li>
 
-
                             <li class="d-inline-block d-md-none ml-md-0"><a href="#"
                                     class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li>
                         </ul>
-
-
-                        <!-- ✅ Add this script at the bottom of the page -->
-
 
                     </div>
                 </div>
@@ -91,7 +75,7 @@
     </div>
     <div class="scrollable-nav">
 
-        <nav class="site-navigation text-right  fw-blod text-md-center my-2 " role="navigation">
+        <nav class="site-navigation text-right fw-blod text-md-center my-2 " role="navigation">
 
             <div class="container">
                 <div class="d-none d-md-block col-lg-block">
@@ -104,7 +88,6 @@
                             alt="Shop-Seed logo">
                     </a>
                 </div>
-                
 
                 <ul class="site-menu text-black js-clone-nav d-none d-md-block">
 
@@ -112,21 +95,16 @@
                     <li><a href="{% url 'shop:product_list' %}">Shop</a></li>
                     <li><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
                     <li><a href="{% url 'about:about' %}">About</a></li>
-                    <li><a href="#">Big Billion Day's</a></li>
-                    <li><a href="{% url 'seller:best_sellers'  %}">Best sellers</a></li>
-                    <li><a href="#">Best Product</a></li>
-
+                    <li><a href="{% url 'deals:todays_deals' %}">Big Billion Day's</a></li>
+                    <li><a href="{% url 'seller:best_sellers' %}">Best sellers</a></li>
+                    <li><a href="{% url 'shop:product_list' %}">Best Product</a></li>
                     <li><a href="{% url 'services:services_list' %}">Customer Services</a></li>
-                    <li><a href="contact.html">Market Blog</a></li>
-                    <li><a href="{% url 'accounts:seller_register' %}">Sellers Ragistration</a></li>
-
+                    <li><a href="{% url 'contact:contact' %}">Market Blog</a></li>
+                    <li><a href="{% url 'accounts:seller_register' %}">Sellers Registration</a></li>
                     <li><a href="{% url 'contact:contact' %}">Contact us</a></li>
-                    <li><a href="#">Join Shop-Seed</a></li>
+                    <li><a href="{% url 'accounts:signup' %}">Join Shop-Seed</a></li>
                     <li><a href="{% url 'faq:faq' %}">FAQ Room</a></li>
                     <li><a href="{% url 'doc:documentation' %}">Documentation</a></li>
-
-
-
 
                 </ul>
             </div>

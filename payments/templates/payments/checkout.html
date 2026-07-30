@@ -1,0 +1,45 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}Payment{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <h1 class="mb-4">Complete Payment</h1>
+    <div class="card shadow-sm mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <h5 class="card-title">Order #{{ order.id }}</h5>
+            <p class="card-text">
+                <strong>Total:</strong> ₹{{ order.get_total_cost }}<br>
+                <strong>Items:</strong> {{ order.items.count }}
+            </p>
+            <button id="rzp-button" class="btn btn-primary btn-lg w-100">Pay Now ₹{{ order.get_total_cost }}</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "{{ razorpay_key_id }}",
+    "amount": "{{ amount }}",
+    "currency": "{{ currency }}",
+    "name": "An Ecommerce Site",
+    "description": "Order #{{ order.id }}",
+    "order_id": "{{ razorpay_order_id }}",
+    "callback_url": "{{ callback_url }}",
+    "prefill": {
+        "name": "{{ order.first_name }} {{ order.last_name }}",
+        "email": "{{ order.email }}",
+        "contact": ""
+    },
+    "theme": {
+        "color": "#002fff"
+    }
+};
+var rzp = new Razorpay(options);
+document.getElementById('rzp-button').onclick = function(e) {
+    rzp.open();
+    e.preventDefault();
+};
+</script>
+{% endblock %}
