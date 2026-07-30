@@ -20,7 +20,7 @@ services:
     region: singapore
     runtime: python
     buildCommand: bash build.sh
-    startCommand: python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers=3 --access-logfile=-
+    startCommand: bash setup.sh && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers=3 --access-logfile=-
     preDeployCommand: bash setup.sh
     envVars:
       - key: DJANGO_ENV
