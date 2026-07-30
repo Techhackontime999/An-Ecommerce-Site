@@ -1,2 +1,2 @@
 release: bash setup.sh
-web: python manage.py collectstatic --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers=3 --access-logfile=-
+web: python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers=3 --access-logfile=-
