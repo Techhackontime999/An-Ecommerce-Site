@@ -4,7 +4,7 @@
 # 1. Push this repo to GitHub
 # 2. Go to https://dashboard.render.com/blueprints
 # 3. Connect your repo — Render auto-detects this file
-# 4. Set the missing environment variables manually
+# 4. Set the missing SECRET_KEY, RAZORPAY_*, and SUPERUSER vars manually
 # =============================================================================
 databases:
   - name: ecommerce-db
@@ -19,7 +19,7 @@ services:
     plan: free
     region: singapore
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: bash build.sh
     startCommand: gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers=3 --access-logfile=-
     preDeployCommand: bash setup.sh
     envVars:
