@@ -5,8 +5,9 @@ import dotenv
 import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_DIR = os.path.dirname(BASE_DIR)
 
-dotenv_file = os.path.join(BASE_DIR, ".env")
+dotenv_file = os.path.join(PROJECT_DIR, ".env")
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
@@ -149,3 +150,5 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
