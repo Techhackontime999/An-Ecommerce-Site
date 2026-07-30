@@ -4,6 +4,9 @@
 # =============================================================================
 set -e
 
+echo "=== Creating static directory ==="
+mkdir -p static
+
 echo "=== Installing dependencies ==="
 pip install -r requirements.txt
 
