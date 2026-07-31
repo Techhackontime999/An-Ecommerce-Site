@@ -14,9 +14,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'shop-seed.onrender.com']
 
-CSRF_TRUSTED_ORIGINS = ['https://shop-seed.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://shop-seed.onrender.com','https://localhost']
 
 INSTALLED_APPS = [
+    'core',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -37,13 +38,13 @@ INSTALLED_APPS = [
     'contact',
     'services',
     'deals',
-    'core',
     'documentation',
     'faq',
     'seller',
     'search',
     'reviews',
     'payments.apps.PaymentsConfig',
+    'shipping.apps.ShippingConfig',
 ]
 
 MIDDLEWARE = [
@@ -101,6 +102,14 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(PROJECT_DIR, 'static'),)
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'

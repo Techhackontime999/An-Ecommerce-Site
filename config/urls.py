@@ -1,13 +1,12 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     path('search/', include('search.urls', namespace='search')),
     path('', include('reviews.urls', namespace='reviews')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
-    path('admin/', admin.site.urls),
+    path('admin/', include('core.admin_urls')),
     path('todays-deals/', include('deals.urls', namespace='deals')),
     path('cart/', include('cart.urls', namespace='cart')),
     path('order/', include('order.urls', namespace='order')),
@@ -19,6 +18,7 @@ urlpatterns = [
     path('coupons/', include('coupons.urls', namespace='coupons')),
     path('seller/', include('seller.urls', namespace='seller')),
     path('payments/', include('payments.urls', namespace='payments')),
+    path('shipping/', include('shipping.urls', namespace='shipping')),
     path('', include('shop.urls', namespace='shop')),
 ]
 

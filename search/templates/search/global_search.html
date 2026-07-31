@@ -33,8 +33,14 @@
             <div class="block-4 text-center border product-card shadow-sm rounded-3 h-100 d-flex flex-column">
                 <figure class="block-4-image overflow-hidden rounded-top">
                     <a href="{{ product.get_absolute_url }}">
+                        {% if product.image %}
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid transition-300"
                             style="width: 100%; height: 260px; object-fit: contain;">
+                        {% else %}
+                        <div style="width:100%;height:260px;display:flex;align-items:center;justify-content:center;color:#F97316;background:#f8f9fa;">
+                          <i class="fas fa-box-open" style="font-size:3rem;"></i>
+                        </div>
+                        {% endif %}
                     </a>
                 </figure>
                 <div class="block-4-text p-4 d-flex flex-column flex-grow-1">

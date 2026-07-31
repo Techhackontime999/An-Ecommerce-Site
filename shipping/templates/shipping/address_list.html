@@ -1,0 +1,66 @@
+{% extends "shop/base/base.html" %}
+{% block title %}My Addresses{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">My Addresses</h1>
+        <a href="{% url 'shipping:address_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Address
+        </a>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if addresses %}
+    <div class="row">
+        {% for address in addresses %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 {% if address.is_default %}border-primary{% endif %}">
+                <div class="card-body">
+                    {% if address.is_default %}
+                    <span class="badge badge-primary float-right">Default</span>
+                    {% endif %}
+                    <h5 class="card-title">{{ address.full_name }}</h5>
+                    <p class="card-text mb-1">{{ address.address_line1 }}</p>
+                    {% if address.address_line2 %}
+                    <p class="card-text mb-1">{{ address.address_line2 }}</p>
+                    {% endif %}
+                    <p class="card-text mb-1">{{ address.city }}, {{ address.state }} - {{ address.postal_code }}</p>
+                    <p class="card-text mb-1">{{ address.country }}</p>
+                    <p class="card-text text-muted">Phone: {{ address.phone }}</p>
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{% url 'shipping:address_update' address.id %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <form action="{% url 'shipping:address_delete' address.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this address?')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-map-marker-alt fa-4x text-muted mb-3"></i>
+        <h4>No addresses saved yet</h4>
+        <p class="text-muted">Add an address to make checkout faster.</p>
+        <a href="{% url 'shipping:address_create' %}" class="btn btn-primary">Add Address</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

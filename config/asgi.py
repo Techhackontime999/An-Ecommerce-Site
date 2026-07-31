@@ -1,6 +1,9 @@
 """ASGI config for config project."""
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from django.core.asgi import get_asgi_application
 

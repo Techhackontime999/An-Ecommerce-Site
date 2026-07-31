@@ -1,0 +1,20 @@
+{% extends "admin/login.html" %}
+{% load static %}
+
+{% block branding %}{% endblock %}
+
+{% block content %}
+<div class="login-brand">
+  <div class="brand-logo">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+  </div>
+  <h1>Shop-Seed</h1>
+  <p class="login-subtitle">Admin Panel &mdash; Sign in to continue</p>
+</div>
+{{ block.super }}
+<div class="login-footer">
+  <p>&copy; {% now "Y" %} Shop-Seed. All rights reserved.</p>
+</div>
+{% endblock %}

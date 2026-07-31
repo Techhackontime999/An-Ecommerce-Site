@@ -1,183 +1,172 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
-{% block title %}
-{{ product.name }}
-{% endblock %}
+
+{% block title %}{{ product.name }} — Shop-Seed{% endblock %}
+
 {% block content %}
-<div class="bg-light py-3">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12 mb-0"><a href="index.html">Home</a> <span class="mx-2 mb-0">/</span> <strong
-          class="text-black">{{ product.name }}</strong></div>
-    </div>
+<!-- Breadcrumb -->
+<div class="container-aq" style="padding-top:6rem;">
+  <div class="breadcrumb-aq">
+    <a href="{% url 'shop:home' %}">Home</a>
+    <span class="sep"><i class="fas fa-chevron-right"></i></span>
+    <a href="{% url 'shop:product_list' %}">Shop</a>
+    <span class="sep"><i class="fas fa-chevron-right"></i></span>
+    {% if product.category %}
+    <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+    <span class="sep"><i class="fas fa-chevron-right"></i></span>
+    {% endif %}
+    <span class="current">{{ product.name }}</span>
   </div>
 </div>
 
-<div class="site-section">
-  <div class="container">
-    <div class="row">
+<!-- Product Detail -->
+<section class="section-aq" style="padding-top:0;">
+  <div class="container-aq">
+    <div class="row g-4">
+      <!-- Image -->
       <div class="col-md-6">
-        <img src="{{ product.image.url }}" alt="Image" class="img-fluid">
-      </div>
-      <div class="col-md-6">
-        <h2 class="text-black mr-2">{{ product.name }}</h2>
-        <p>{{ product.description|safe }}</p>
-        <!-- review start -->
-
-        <div class="mb-3 ">
-          <div class="d-flex align-items-center">
-            <div class="">
-              {% with total=product.average_rating %}
-                <strong>{{ total|floatformat:1 }}</strong>
-                <span class="text-warning">
-                  {% for i in "12345"|make_list %}
-                    {% if forloop.counter <= total|floatformat:"0"|add:"0" %}
-                      <i class="fas fa-star"></i>
-                    {% elif forloop.counter == total|add:"0.5"|floatformat:"0"|add:"0" %}
-                      <i class="fas fa-star-half-alt"></i>
-                    {% else %}
-                      <i class="far fa-star"></i>
-                    {% endif %}
-                  {% endfor %}
-                </span>
-                <small class="text-muted">({{ product.rating_count }} review{{ product.rating_count|pluralize }})</small>
-              {% endwith %}
-            </div>
+        <div class="glass-card" style="overflow:hidden;padding:0;">
+          {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}"
+               style="width:100%;height:auto;min-height:400px;object-fit:cover;display:block;">
+          {% else %}
+          <div style="width:100%;min-height:400px;display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:5rem;background:var(--aq-gradient-2);">
+            <i class="fas fa-box-open"></i>
           </div>
-        </div>
-        <!-- review close -->
-        <p class="text-primary h5">
-          {% if product.current_price != product.price %}
-          <strong class="text-primary h5"><del> ${{ product.price }}</del></strong>
-          <strong class="h2" style="color:red;"> ${{ product.current_price }}</strong>
-          {% else %}
-          ${{ product.price }}
           {% endif %}
-        </p>
-
-        <div class="mt-5 col-md-5">
-          <!-- <form action="{% url "cart:cart_add" product.id %}" method="post">
-                {% csrf_token %}
-                {{ cart_product_form|crispy }}
-                <input type="submit" class="buy-now btn btn-sm btn-primary" value="Add to cart">
-              </form> -->
-          {% if user.is_authenticated %}
-          <form action="{% url 'cart:cart_add' product.id %}" method="post">
-            {% csrf_token %}
-            {{ cart_product_form|crispy }}
-            <input type="submit" class="buy-now btn btn-sm btn-primary" value="Add to cart">
-          </form>
-          {% else %}
-          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-sm btn-primary">
-            Login to add to cart
-          </a>
-          {% endif %}
-
         </div>
       </div>
-    </div>
-  </div>
-</div>
-<!-- reviews strat -->
-<div class="review bg-light py-4  my-2">
-  <div class=" mb-3 ">
-    <h5 class="mb-1 ml-4">Customer Ratings</h5>
-    <div class="d-flex align-items-center">
-      <div class="mr-2 ml-4">
+
+      <!-- Info -->
+      <div class="col-md-6">
+        <div class="fade-up">
+          <span class="hero-aq-badge" style="margin-bottom:1rem;">
+            <i class="fas fa-tag"></i>
+            {% if product.category %}{{ product.category.name }}{% else %}General{% endif %}
+          </span>
+
+          <h1 style="font-size:clamp(1.5rem,3vw,2.25rem);font-weight:700;letter-spacing:-0.025em;margin-bottom:0.75rem;">
+            {{ product.name }}
+          </h1>
+
           {% with total=product.average_rating %}
-            <strong>{{ total|floatformat:1 }}</strong>
-            <span class="text-warning">
+          <div class="product-aq-rating" style="margin-bottom:1rem;">
+            <span class="stars">
+              {% if total %}
               {% for i in "12345"|make_list %}
                 {% if forloop.counter <= total|floatformat:"0"|add:"0" %}
-                  <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
                 {% elif forloop.counter == total|add:"0.5"|floatformat:"0"|add:"0" %}
-                  <i class="fas fa-star-half-alt"></i>
+                <i class="fas fa-star-half-alt"></i>
                 {% else %}
-                  <i class="far fa-star"></i>
+                <i class="far fa-star"></i>
                 {% endif %}
               {% endfor %}
+              {% else %}
+              <i class="far fa-star"></i>
+              <i class="far fa-star"></i>
+              <i class="far fa-star"></i>
+              <i class="far fa-star"></i>
+              <i class="far fa-star"></i>
+              {% endif %}
             </span>
-            <small class="text-muted">({{ product.rating_count }} review{{ product.rating_count|pluralize }})</small>
+            {% if product.rating_count %}
+            <span class="count">({{ product.rating_count }} review{{ product.rating_count|pluralize }})</span>
+            {% endif %}
+          </div>
           {% endwith %}
-        </div>
 
-    </div>
-  </div>
-
-  <h3 class="ml-4">Customer Reviews</h3>
-  {% for review in product.reviews.all %}
-  <div class="ml-4 ">
-    <strong class="text-primary h5">{{ review.user.username }}</strong> - {{ review.rating }}<span
-      class="text-warning h6">★</span><br>
-    <p>{{ review.comment }}</p>
-    <small>{{ review.created_at }}</small>
-  </div>
-  {% empty %}
-  <p class="ml-4">No reviews yet.</p>
-  {% endfor %}
-
-  {% if user.is_authenticated %}
-  <a class="ml-4 py-1 my-3 " href="{% url 'reviews:create_review' product.id %}"> <button type="submit"
-      class="btn btn-warning font-weight-bold text-dark">
-      <i class="fas fa-paper-plane mr-1"></i>Leave a review
-    </button></a>
-  {% else %}
-  <p class="ml-4"><a href="{% url 'accounts:login' %}">Login</a> to write a review.</p>
-  {% endif %}
-  <!-- Submit Button -->
-
-  <!-- reviews close -->
-
-
-
-
-
-
-
-
-
-</div>
-
-</div>
-
-<div class="site-section block-3 site-blocks-2 bg-light">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-7 site-section-heading text-center pt-4">
-        <h2>Featured Products</h2>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <div class="nonloop-block-3 owl-carousel">
-          <div class="item">
-            <div class="block-4 text-center">
-              <figure class="block-4-image">
-                <img src="#" alt="Image placeholder" class="img-fluid">
-              </figure>
-              <div class="block-4-text p-4">
-                <h3><a href="#">T-Shirt Mockup</a></h3>
-                <p class="mb-0">Finding perfect products</p>
-                <p class="text-primary font-weight-bold">$50</p>
-              </div>
-            </div>
+          <div class="product-aq-price" style="font-size:1.5rem;margin-bottom:1.5rem;">
+            {% if product.current_price != product.price %}
+            <span>${{ product.current_price }}</span>
+            <span class="original" style="font-size:1.125rem;">${{ product.price }}</span>
+            {% else %}
+            <span>${{ product.price }}</span>
+            {% endif %}
           </div>
-          <div class="item">
-            <div class="block-4 text-center">
-              <figure class="block-4-image">
-                <img src="images/shoe_1.jpg" alt="Image placeholder" class="img-fluid">
-              </figure>
-              <div class="block-4-text p-4">
-                <h3><a href="#">Corater</a></h3>
-                <p class="mb-0">Finding perfect products</p>
-                <p class="text-primary font-weight-bold">$50</p>
+
+          <p style="font-size:1rem;line-height:1.7;color:var(--aq-body);margin-bottom:2rem;">
+            {{ product.description|safe }}
+          </p>
+
+          <div style="display:flex;flex-direction:column;gap:1rem;max-width:400px;">
+            {% if user.is_authenticated %}
+            <form action="{% url 'cart:cart_add' product.id %}" method="post" style="display:flex;gap:0.75rem;align-items:end;">
+              {% csrf_token %}
+              <div style="flex:1;">
+                <label style="font-size:0.8125rem;font-weight:500;color:var(--aq-ink);margin-bottom:0.375rem;display:block;">Quantity</label>
+                {{ cart_product_form|crispy }}
               </div>
-            </div>
+              <button type="submit" class="btn-aq btn-aq-primary" style="white-space:nowrap;">
+                <i class="fas fa-cart-plus"></i>
+                Add to Cart
+              </button>
+            </form>
+            {% else %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn-aq btn-aq-primary" style="width:fit-content;">
+              <i class="fas fa-sign-in-alt"></i>
+              Login to Purchase
+            </a>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>
+
+<!-- Reviews -->
+<section class="section-aq" style="background:var(--aq-gradient-2);">
+  <div class="container-aq">
+    <h2 class="display-section" style="margin-bottom:2rem;">Customer Reviews</h2>
+
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      {% for review in product.reviews.all %}
+      <div class="glass-card" style="padding:1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--aq-gradient-2);border:1px solid var(--aq-border);display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:0.875rem;font-weight:600;">
+              {{ review.user.username|first|upper }}
+            </div>
+            <div>
+              <strong style="font-size:0.9375rem;color:var(--aq-ink);">{{ review.user.username }}</strong>
+              <div style="font-size:0.75rem;color:var(--aq-tertiary);">{{ review.created_at|date:"M d, Y" }}</div>
+            </div>
+          </div>
+          <div style="color:#F59E0B;font-size:0.8125rem;">
+            {% for i in "12345"|make_list %}
+              {% if forloop.counter <= review.rating %}
+              <i class="fas fa-star"></i>
+              {% else %}
+              <i class="far fa-star"></i>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        <p style="font-size:0.9375rem;line-height:1.6;color:var(--aq-body);margin:0;">{{ review.comment }}</p>
+      </div>
+      {% empty %}
+      <div class="empty-aq">
+        <div class="empty-aq-icon"><i class="fas fa-comment"></i></div>
+        <h3>No reviews yet</h3>
+        <p>Be the first to share your experience with this product.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <div style="margin-top:2rem;text-align:center;">
+      <a href="{% url 'reviews:create_review' product.id %}" class="btn-aq btn-aq-primary">
+        <i class="fas fa-pen"></i>
+        Write a Review
+      </a>
+    </div>
+    {% else %}
+    <p style="text-align:center;margin-top:2rem;color:var(--aq-tertiary);">
+      <a href="{% url 'accounts:login' %}" style="color:var(--aq-accent);">Login</a> to write a review.
+    </p>
+    {% endif %}
+  </div>
+</section>
 {% endblock %}

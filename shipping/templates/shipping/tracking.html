@@ -1,0 +1,143 @@
+{% extends "shop/base/base.html" %}
+{% block title %}Order Tracking{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'shop:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'order:my_orders' %}">My Orders</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Order #{{ order.id }} Tracking</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Order #{{ order.id }}</h4>
+                    <span class="badge badge-{% if order.paid %}success{% else %}warning{% endif %} py-2 px-3">
+                        {% if order.paid %}Paid{% else %}Pending{% endif %}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Placed on:</strong> {{ order.created|date:"F j, Y, g:i A" }}</p>
+                    {% if order.shipping_method_name %}
+                    <p class="mb-1"><strong>Shipping:</strong> {{ order.shipping_method_name }} (₹{{ order.shipping_cost }})</p>
+                    {% endif %}
+                    <p class="mb-0"><strong>Total:</strong> ₹{{ order.get_total_cost }}</p>
+                </div>
+            </div>
+
+            {% if shipment %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-truck"></i> Shipment Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="tracking-timeline">
+                        {% with status=shipment.status %}
+                        <div class="row mb-3">
+                            <div class="col-3 text-center">
+                                <div class="rounded-circle bg-{% if status != 'failed' %}success{% else %}secondary{% endif %} d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                    <i class="fas fa-check text-white"></i>
+                                </div>
+                                <p class="small mt-1 mb-0">Order Placed</p>
+                                <small class="text-muted">{{ shipment.created_at|date:"M d" }}</small>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="rounded-circle bg-{% if status == 'shipped' or status == 'in_transit' or status == 'delivered' %}success{% else %}secondary{% endif %} d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                    <i class="fas fa-box text-white"></i>
+                                </div>
+                                <p class="small mt-1 mb-0">Shipped</p>
+                                {% if shipment.shipped_at %}<small class="text-muted">{{ shipment.shipped_at|date:"M d" }}</small>{% endif %}
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="rounded-circle bg-{% if status == 'in_transit' or status == 'delivered' %}success{% else %}secondary{% endif %} d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                    <i class="fas fa-plane text-white"></i>
+                                </div>
+                                <p class="small mt-1 mb-0">In Transit</p>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="rounded-circle bg-{% if status == 'delivered' %}success{% else %}secondary{% endif %} d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                    <i class="fas fa-home text-white"></i>
+                                </div>
+                                <p class="small mt-1 mb-0">Delivered</p>
+                                {% if shipment.delivered_at %}<small class="text-muted">{{ shipment.delivered_at|date:"M d" }}</small>{% endif %}
+                            </div>
+                        </div>
+                        {% endwith %}
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Tracking Number</h6>
+                            <p class="mb-0">
+                                {% if shipment.tracking_number %}
+                                <code>{{ shipment.tracking_number }}</code>
+                                {% else %}
+                                <span class="text-muted">Not yet assigned</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Current Status</h6>
+                            <p class="mb-0">
+                                <span class="badge badge-{% if shipment.status == 'delivered' %}success{% elif shipment.status == 'failed' %}danger{% elif shipment.status == 'shipped' or shipment.status == 'in_transit' %}info{% else %}secondary{% endif %} py-2 px-3">
+                                    {{ shipment.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if shipment.shipping_address %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Shipping Address</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>{{ shipment.shipping_address.full_name }}</strong></p>
+                    <p class="mb-1">{{ shipment.shipping_address.address_line1 }}</p>
+                    {% if shipment.shipping_address.address_line2 %}
+                    <p class="mb-1">{{ shipment.shipping_address.address_line2 }}</p>
+                    {% endif %}
+                    <p class="mb-1">{{ shipment.shipping_address.city }}, {{ shipment.shipping_address.state }} - {{ shipment.shipping_address.postal_code }}</p>
+                    <p class="mb-0">{{ shipment.shipping_address.country }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if shipment.shipping_method %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-truck"></i> Shipping Method</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>{{ shipment.shipping_method.name }}</strong></p>
+                    <p class="mb-1">Estimated delivery: {{ shipment.shipping_method.estimated_delivery_days }}</p>
+                    <p class="mb-0">Cost: ₹{{ shipment.shipping_method.price }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                <h4>No shipment information yet</h4>
+                <p class="text-muted">Your order has been placed but hasn't been shipped yet. Check back later for updates.</p>
+            </div>
+            {% endif %}
+
+            <div class="text-center">
+                <a href="{% url 'order:my_orders' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

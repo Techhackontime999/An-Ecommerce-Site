@@ -1,0 +1,121 @@
+{% extends "shop/base/base.html" %}
+{% block title %}Shipping{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Shipping Details</h1>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-truck"></i> Shipping Method</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for method in methods %}
+                        <div class="custom-control custom-radio mb-3">
+                            <input type="radio" id="method_{{ method.id }}" name="shipping_method" value="{{ method.id }}" class="custom-control-input" required>
+                            <label class="custom-control-label d-flex justify-content-between align-items-center w-100" for="method_{{ method.id }}">
+                                <span>
+                                    <strong>{{ method.name }}</strong>
+                                    {% if method.description %}
+                                    <br><small class="text-muted">{{ method.description }}</small>
+                                    {% endif %}
+                                    <br><small class="text-muted">Estimated delivery: {{ method.estimated_delivery_days }}</small>
+                                </span>
+                                <span class="font-weight-bold text-primary">₹{{ method.price }}</span>
+                            </label>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No shipping methods available.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Shipping Address</h5>
+                        <a href="{% url 'shipping:address_create' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add New
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="custom-control custom-radio mb-3">
+                            <input type="radio" id="address_order" name="shipping_address" value="order_address" class="custom-control-input" required>
+                            <label class="custom-control-label" for="address_order">
+                                <strong>{{ order.first_name }} {{ order.last_name }}</strong>
+                                <span class="badge badge-info">From Order</span>
+                                <br>{{ order.address }}
+                                <br>{{ order.city }} - {{ order.postal_code }}
+                                <br><small class="text-muted">Use the address entered during checkout</small>
+                            </label>
+                        </div>
+                        {% if addresses %}
+                        <hr>
+                        <h6 class="text-muted mb-3">Saved Addresses</h6>
+                        {% endif %}
+                        {% for address in addresses %}
+                        <div class="custom-control custom-radio mb-3">
+                            <input type="radio" id="address_{{ address.id }}" name="shipping_address" value="{{ address.id }}" class="custom-control-input" required>
+                            <label class="custom-control-label" for="address_{{ address.id }}">
+                                <strong>{{ address.full_name }}</strong>
+                                {% if address.is_default %}<span class="badge badge-primary">Default</span>{% endif %}
+                                <br>{{ address.address_line1 }}
+                                {% if address.address_line2 %}<br>{{ address.address_line2 }}{% endif %}
+                                <br>{{ address.city }}, {{ address.state }} - {{ address.postal_code }}
+                                <br>{{ address.country }}
+                                <br><small class="text-muted">Phone: {{ address.phone }}</small>
+                            </label>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">
+                            No saved addresses.
+                        </p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    <i class="fas fa-arrow-right"></i> Continue to Payment
+                </button>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for item in cart %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            {{ item.quantity }} x {{ item.product.name }}
+                            <span>₹{{ item.total_price }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="d-flex justify-content-between mt-3">
+                        <strong>Subtotal</strong>
+                        <strong>₹{{ cart.get_total_price }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

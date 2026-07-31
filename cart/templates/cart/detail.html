@@ -37,7 +37,13 @@ Your shopping cart
                                 {% with product=item.product %}
                             <tr>
                                 <td class="product-thumbnail">
+                                    {% if product.image %}
                                     <img src="{{ product.image.url }}" alt="Image" class="img-fluid">
+                                    {% else %}
+                                    <div style="width:80px;height:80px;display:flex;align-items:center;justify-content:center;color:#F97316;background:#f8f9fa;border-radius:8px;">
+                                      <i class="fas fa-box-open" style="font-size:2rem;"></i>
+                                    </div>
+                                    {% endif %}
                                 </td>
                                 <td class="product-name">
                                     <h2 class="h5 text-black">{{ product.name }}</h2>

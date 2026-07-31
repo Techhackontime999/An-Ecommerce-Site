@@ -3,6 +3,23 @@ from cart.forms import CartAddProductForm
 from .models import Category, Product
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.utils import timezone
+
+
+def home(request):
+    trending = Product.objects.filter(available=True)[:8]
+    now = timezone.now()
+    deals = Product.objects.filter(
+        available=True,
+        deals__start_time__lte=now,
+        deals__end_time__gte=now
+    ).distinct()[:4]
+    if not deals:
+        deals = Product.objects.filter(available=True)[:4]
+    return render(request, 'shop/home.html', {
+        'trending_products': trending,
+        'deals': deals,
+    })
 
 
 def product_list(request, category_slug=None):

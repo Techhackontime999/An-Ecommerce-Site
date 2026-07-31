@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from shop.models import Product
 from django.contrib.auth.models import User 
@@ -13,6 +14,8 @@ class Order(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    shipping_method_name = models.CharField(max_length=100, blank=True)
 
     class Meta:
         ordering = ('-created',)
@@ -21,7 +24,8 @@ class Order(models.Model):
         return 'Order {}'.format(self.id)
 
     def get_total_cost(self):
-        return sum(item.get_cost() for item in self.items.all())
+        total = sum(item.get_cost() for item in self.items.all())
+        return total + self.shipping_cost
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)

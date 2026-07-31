@@ -1,0 +1,263 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome">
+  <div>
+    <h2>Welcome back, {{ request.user.first_name|default:request.user.username }}</h2>
+    <p>{{ product_count }} products &middot; {{ order_count }} orders &middot; {{ user_count }} users</p>
+  </div>
+  <div class="welcome-actions">
+    <a href="/" class="dash-btn dash-btn-outline" target="_blank">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      View Site
+    </a>
+    <a href="{% url 'admin:seed_data' %}" class="dash-btn dash-btn-primary" onclick="return confirm('This will create sample records for development. Continue?')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      Quick Seed
+    </a>
+  </div>
+</div>
+
+<div class="dashboard-stats">
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      </div>
+      <span class="stat-trend">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        active
+      </span>
+    </div>
+    <span class="stat-value">{{ product_count }}</span>
+    <div class="stat-label">Products</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:var(--aq-info)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(23,162,184,0.1);color:var(--aq-info);">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+        total
+      </span>
+    </div>
+    <span class="stat-value">{{ user_count }}</span>
+    <div class="stat-label">Users</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#e67e22">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(230,126,34,0.1);color:#e67e22;">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        total
+      </span>
+    </div>
+    <span class="stat-value">{{ order_count }}</span>
+    <div class="stat-label">Orders</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:var(--aq-success)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(40,167,69,0.1);color:var(--aq-success);">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        revenue
+      </span>
+    </div>
+    <span class="stat-value">&#8377;{{ total_revenue|floatformat:0 }}</span>
+    <div class="stat-label">Revenue</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#8e44ad">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(142,68,173,0.1);color:#8e44ad;">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        all
+      </span>
+    </div>
+    <span class="stat-value">{{ category_count }}</span>
+    <div class="stat-label">Categories</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:var(--aq-warning)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(255,193,7,0.1);color:var(--aq-warning);">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        feedback
+      </span>
+    </div>
+    <span class="stat-value">{{ review_count }}</span>
+    <div class="stat-label">Reviews</div>
+  </div>
+</div>
+
+<div class="dashboard-actions">
+  <div class="action-card">
+    <h3>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--aq-primary)"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      Seed Test Data
+    </h3>
+    <p>Populate the database with sample categories, products, users, orders, reviews, and more — perfect for development and testing.</p>
+    <a href="{% url 'admin:seed_data' %}" class="dash-btn dash-btn-primary" onclick="return confirm('This will create sample records for development. Continue?')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      Seed Database
+    </a>
+  </div>
+  <div class="action-card">
+    <h3>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--aq-danger)"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Clear All Data
+    </h3>
+    <p>Remove all seeded test data while preserving admin accounts and site settings. Uses safe FK-aware deletion order.</p>
+    <a href="{% url 'admin:clear_data' %}" class="dash-btn dash-btn-danger" onclick="return confirm('This will delete ALL data except admin accounts. Are you sure?')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Clear Data
+    </a>
+  </div>
+</div>
+
+<div class="module">
+  <h2>System Health</h2>
+  <div style="padding:16px 20px;">
+    <div class="system-info">
+      <div class="system-info-item">
+        <span class="si-dot" style="background:var(--aq-success)"></span>
+        <div>
+          <div class="si-label">Django</div>
+          <div class="si-value">{{ django_version|default:"5.2" }}</div>
+        </div>
+      </div>
+      <div class="system-info-item">
+        <span class="si-dot" style="background:var(--aq-primary)"></span>
+        <div>
+          <div class="si-label">Database</div>
+          <div class="si-value">SQLite</div>
+        </div>
+      </div>
+      <div class="system-info-item">
+        <span class="si-dot" style="background:var(--aq-info)"></span>
+        <div>
+          <div class="si-label">Cache</div>
+          <div class="si-value">Local Memory</div>
+        </div>
+      </div>
+      <div class="system-info-item">
+        <span class="si-dot" style="background:{% if debug %}var(--aq-warning){% else %}var(--aq-success){% endif %}"></span>
+        <div>
+          <div class="si-label">Debug Mode</div>
+          <div class="si-value">{% if debug %}Enabled{% else %}Disabled{% endif %}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="module quick-options">
+  <h2>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Quick Options
+  </h2>
+  <div class="quick-options-grid">
+    <a href="{% url 'admin:shop_product_add' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <span>Add Product</span>
+    </a>
+    <a href="{% url 'admin:shop_category_add' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      <span>Add Category</span>
+    </a>
+    <a href="{% url 'admin:order_order_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span>View Orders</span>
+    </a>
+    <a href="{% url 'admin:accounts_sellerprofile_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>Sellers</span>
+    </a>
+    <a href="{% url 'admin:accounts_customerprofile_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <span>Customers</span>
+    </a>
+    <a href="{% url 'admin:coupons_coupon_add' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      <span>Add Coupon</span>
+    </a>
+    <a href="{% url 'admin:deals_deal_add' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Add Deal</span>
+    </a>
+    <a href="{% url 'admin:reviews_review_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span>Reviews</span>
+    </a>
+    <a href="{% url 'admin:payments_payment_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      <span>Payments</span>
+    </a>
+    <a href="{% url 'admin:shipping_shippingmethod_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      <span>Shipping</span>
+    </a>
+    <a href="{% url 'admin:shipping_shipment_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <span>Shipments</span>
+    </a>
+    <a href="{% url 'admin:faq_faq_add' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Add FAQ</span>
+    </a>
+    <a href="{% url 'admin:faq_story_add' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Add Story</span>
+    </a>
+    <a href="{% url 'admin:contact_contactmessage_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Messages</span>
+    </a>
+    <a href="{% url 'admin:seller_sellerproduct_changelist' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span>Seller Products</span>
+    </a>
+    <a href="{% url 'admin:documentation_documentationsection_add' %}" class="quick-option">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Documentation</span>
+    </a>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('a[href*="logout"]').forEach(function(link) {
+    if (link.closest('form') || link.classList.contains('dash-btn')) return;
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = link.getAttribute('href');
+    form.style.display = 'none';
+    var csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrfmiddlewaretoken';
+    csrf.value = '{{ csrf_token }}';
+    form.appendChild(csrf);
+    link.parentNode.insertBefore(form, link.nextSibling);
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      form.submit();
+    });
+  });
+});
+</script>
+
+{% endblock %}

@@ -30,7 +30,11 @@
             {% for member in team %}
             <div class="col-md-4 mb-4">
                 <div class="card border-0 shadow h-100 text-center">
+                    {% if member.photo %}
                     <img src="{{ member.photo.url }}" class="card-img-top rounded-circle mx-auto mt-3" style="width:150px; height:150px;" alt="{{ member.name }}">
+                    {% else %}
+                    <div class="mx-auto mt-3 d-flex align-items-center justify-content-center rounded-circle" style="width:150px;height:150px;background:#f1f5f9;color:#94a3b8;font-size:3rem;font-weight:600;">{{ member.name|first }}</div>
+                    {% endif %}
                     <div class="card-body">
                         <h5 class="card-title">{{ member.name }}</h5>
                         <p class="text-muted">{{ member.role }}</p>

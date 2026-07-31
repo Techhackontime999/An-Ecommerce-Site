@@ -1,53 +1,75 @@
-    <footer class="site-footer border-top">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 mb-5 mb-lg-0">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h3 class="footer-heading mb-4">Navigations</h3>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <ul class="list-unstyled">
-                                <li><a href="#">Sell online</a></li>
-                                <li><a href="#">Features</a></li>
-                                <li><a href="#">Shopping cart</a></li>
-                                <li><a href="#">Store builder</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <ul class="list-unstyled">
-                                <li><a href="#">Mobile commerce</a></li>
-                                <li><a href="#">Dropshipping</a></li>
-                                <li><a href="#">Website development</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <ul class="list-unstyled">
-                                <li><a href="#">Point of sale</a></li>
-                                <li><a href="#">Hardware</a></li>
-                                <li><a href="#">Software</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
-                    <h3 class="footer-heading mb-4">Promo</h3>
-                    <a href="#" class="block-6">
-                        <img src="images/hero_1.jpg" alt="Image placeholder" class="img-fluid rounded mb-4">
-                        <h3 class="font-weight-light  mb-0">Finding Your Perfect Shoes</h3>
-                        <p>Promo from nuary 15 &mdash; 25, 2019</p>
-                    </a>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="block-5 mb-5">
-                        <h3 class="footer-heading mb-4">Contact Info</h3>
-                        <ul class="list-unstyled">
-                            <li class="address">203 Fake St. Mountain View, San Francisco, Patna, Bihar</li>
-                            <li class="phone"><a href="tel://23923929210">+2 392 3929 210</a></li>
-                            <li class="email">mrtechhackontime999@gmail.com</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+{% load static %}
+
+<footer class="footer-aq">
+  <svg class="footer-aq-wave" viewBox="0 0 1440 60" preserveAspectRatio="none">
+    <path d="M0,30 C360,60 720,0 1440,30 L1440,0 L0,0 Z" fill="#0F172A"/>
+  </svg>
+
+  <div class="container-aq">
+    <div class="footer-aq-grid">
+      <div class="footer-aq-brand">
+        <a href="{% url 'shop:home' %}" class="nav-aq-logo">
+          <span class="logo-mark">S</span>
+          Shop-Seed
+        </a>
+        <p>India's most trusted e-commerce platform. Discover premium products at unbeatable prices with fast delivery.</p>
+        <div class="newsletter-aq">
+          <input type="email" placeholder="Enter your email">
+          <button type="submit">Subscribe</button>
         </div>
-    </footer>
+        <div class="footer-aq-social">
+          <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="{% url 'shop:product_list' %}">All Products</a></li>
+          <li><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
+          <li><a href="{% url 'seller:best_sellers' %}">Best Sellers</a></li>
+          <li><a href="{% url 'shop:product_list' %}">New Arrivals</a></li>
+          <li><a href="{% url 'shop:product_list' %}">Categories</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Support</h4>
+        <ul>
+          <li><a href="{% url 'contact:contact' %}">Contact Us</a></li>
+          <li><a href="{% url 'faq:faq' %}">FAQ</a></li>
+          <li><a href="{% url 'services:services_list' %}">Services</a></li>
+          <li><a href="#">Shipping Info</a></li>
+          <li><a href="#">Returns</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="{% url 'about:about' %}">About Us</a></li>
+          <li><a href="{% url 'accounts:seller_register' %}">Sell With Us</a></li>
+          <li><a href="{% url 'accounts:signup' %}">Join Shop-Seed</a></li>
+          <li><a href="{% url 'doc:documentation' %}">Documentation</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-aq-bottom">
+      <p>&copy; 2026 Shop-Seed. All rights reserved.</p>
+      <div class="payment-icons">
+        <i class="fab fa-cc-visa"></i>
+        <i class="fab fa-cc-mastercard"></i>
+        <i class="fab fa-cc-amex"></i>
+        <i class="fab fa-cc-paypal"></i>
+        <i class="fab fa-cc-stripe"></i>
+      </div>
+    </div>
+  </div>
+</footer>

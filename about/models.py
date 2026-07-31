@@ -11,7 +11,7 @@ class AboutSection(models.Model):
 class TeamMember(models.Model):
     name = models.CharField(max_length=100)
     role = models.CharField(max_length=100)
-    photo = models.ImageField(upload_to='team/')
+    photo = models.ImageField(upload_to='team/', blank=True, null=True)
     bio = models.TextField(blank=True)
 
     def __str__(self):

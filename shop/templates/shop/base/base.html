@@ -1,141 +1,40 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <title>{% block title %}Django E-commerce{% endblock %}</title>
+    <title>{% block title %}Shop-Seed — Premium E-Commerce{% endblock %}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Shop-Seed — Premium e-commerce platform">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mukta:300,400,700">
-    <link rel="stylesheet" href="{% static "fonts/icomoon/style.css" %}">
     <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
-    <link rel="stylesheet" href="{% static "css/magnific-popup.css" %}">
-    <link rel="stylesheet" href="{% static "css/jquery-ui.css" %}">
+    <link rel="stylesheet" href="{% static "css/aquastic.css" %}">
     <link rel="stylesheet" href="{% static "css/owl.carousel.min.css" %}">
     <link rel="stylesheet" href="{% static "css/owl.theme.default.min.css" %}">
     <link rel="stylesheet" href="{% static "css/aos.css" %}">
-    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    {% block extra_css %}{% endblock %}
     <style>
-        html{
-            margin:0;
-            padding:0;
-            box-sizing: border-box;
-            scroll-behavior: smooth;
-            scroll-padding-top: 120px;
-        }
-    .card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
-}
-.transition-300 {
-  transition: transform 0.3s ease-in-out;
-}
-
-.product-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
-
-
-/* for nav in small device */
-
-@media (max-width: 768px) {
-  .scrollable-nav {
-    max-height: 200px;
-    overflow-y: auto;
-    border: 1px solid #dee2e6;
-  }
-}
-.animated-logo {
-    transition: transform 0.4s ease-in-out;
-}
-
-.animated-logo:hover {
-    transform: scale(1.1) rotate(-2deg);
-}
-
-/* for nav in small device close*/
-
-
-/*  */
-/* Optional: Highlight active sidebar link */
-.list-group-item.active {
-  background-color: #002fff;
-  color: white;
-}
-/* seller add product start */
-/* Add this to your CSS file or inside a <style> block */
-  .cke, .cke_inner, .cke_contents {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box;
-}
-/* seller add products close */
-
+      html { margin: 0; padding: 0; box-sizing: border-box; }
     </style>
 </head>
-
-<body data-spy="scroll" data-target=".list-group" data-offset="80" >
-    <div class="site-wrap">
-        {% include 'shop/base/navbar.html' %}
-        {% block content %}
-        {% endblock %}
-        {% include 'shop/base/footer.html' %}
-    </div>
-    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<body>
+    {% include 'shop/base/navbar.html' %}
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    {% include 'shop/base/footer.html' %}
 
     <script src="{% static "js/jquery-3.3.1.min.js" %}"></script>
-    <script src="{% static "js/jquery-ui.js" %}"></script>
-    <script src="{% static "js/popper.min.js" %}"></script>
     <script src="{% static "js/bootstrap.min.js" %}"></script>
     <script src="{% static "js/owl.carousel.min.js" %}"></script>
-    <script src="{% static "js/jquery.magnific-popup.min.js" %}"></script>
     <script src="{% static "js/aos.js" %}"></script>
-    <script src="{% static "js/main.js" %}"></script>
+    <script src="{% static "js/aquastic.js" %}"></script>
     <script>
-      const scrollContainer = document.getElementById('success-scroll');
-      let autoScroll;
-    
-      function startAutoScroll() {
-        autoScroll = setInterval(() => {
-          // If scroll reaches the end, reset to start (infinite loop)
-          if (scrollContainer.scrollLeft + scrollContainer.offsetWidth >= scrollContainer.scrollWidth) {
-            scrollContainer.scrollLeft = 0;
-          } else {
-            scrollContainer.scrollLeft += 5;  // control speed here
-          }
-        }, 20);  // smaller value = faster scroll
-      }
-    
-      function stopAutoScroll() {
-        clearInterval(autoScroll);
-      }
-    
-      // Start scrolling when page loads
-      startAutoScroll();
-    
-      // Pause on mouse enter / click / touch
-      scrollContainer.addEventListener('mouseenter', stopAutoScroll);
-      scrollContainer.addEventListener('click', stopAutoScroll);
-      scrollContainer.addEventListener('touchstart', stopAutoScroll);
-    
-      // Resume when mouse leaves (optional)
-      scrollContainer.addEventListener('mouseleave', startAutoScroll);
+        AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true });
     </script>
-    
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-          const editors = document.querySelectorAll('.cke');
-          editors.forEach(editor => {
-              editor.style.width = '100%';
-              editor.style.maxWidth = '100%';
-          });
-      });
-  </script>
-  
-    
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
