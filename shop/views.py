@@ -8,6 +8,10 @@ from django.utils import timezone
 
 def home(request):
     trending = Product.objects.filter(available=True)[:8]
+    hero_products = list(
+        Product.objects.filter(available=True, image__isnull=False)
+        .exclude(image='')[:16]
+    )
     now = timezone.now()
     deals = Product.objects.filter(
         available=True,
@@ -18,6 +22,8 @@ def home(request):
         deals = Product.objects.filter(available=True)[:4]
     return render(request, 'shop/home.html', {
         'trending_products': trending,
+        'hero_products': hero_products,
+        'hero_layer_images': [p.image.url for p in hero_products],
         'deals': deals,
     })
 

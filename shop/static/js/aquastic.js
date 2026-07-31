@@ -11,6 +11,9 @@
       this.searchExpand();
       this.staggerAnimations();
       this.productViewToggle();
+      this.scrollProgress();
+      this.heroParallax();
+      this.parallaxShowcase();
     },
 
     navbar: function() {
@@ -52,7 +55,7 @@
     },
 
     scrollReveal: function() {
-      const revealElements = document.querySelectorAll('.fade-up');
+      const revealElements = document.querySelectorAll('.fade-up, .fade-left, .fade-right, .fade-scale');
       if (!revealElements.length) return;
 
       const observer = new IntersectionObserver((entries) => {
@@ -68,6 +71,46 @@
       });
 
       revealElements.forEach(el => observer.observe(el));
+    },
+
+    scrollProgress: function() {
+      const bar = document.getElementById('aq-scroll-progress');
+      if (!bar) return;
+
+      const hero = document.getElementById('hero-aq');
+      const content = hero ? hero.querySelector('.hero-aq-content') : null;
+      const prefersReduced = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      let ticking = false;
+
+      const update = () => {
+        const doc = document.documentElement;
+        const max = doc.scrollHeight - window.innerHeight;
+        const pct = max > 0 ? (window.scrollY / max) : 0;
+        bar.style.width = (pct * 100) + '%';
+
+        if (content && !prefersReduced) {
+          const heroH = hero.offsetHeight || window.innerHeight;
+          const progress = Math.min(1, window.scrollY / (heroH * 0.9));
+          content.style.opacity = String(1 - progress * 0.65);
+          content.style.transform =
+            `translateY(${(-progress * 50).toFixed(1)}px) scale(${(1 - progress * 0.04).toFixed(4)})`;
+        }
+
+        ticking = false;
+      };
+
+      const requestUpdate = () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      };
+
+      window.addEventListener('scroll', requestUpdate, { passive: true });
+      window.addEventListener('resize', requestUpdate, { passive: true });
+      requestUpdate();
     },
 
     magneticButtons: function() {
@@ -162,6 +205,131 @@
 
         setActive(grid.dataset.layout || '4col');
       });
+    },
+
+    heroParallax: function() {
+      const container = document.getElementById('hero-parallax-aq');
+      if (!container) return;
+
+      const dataEl = document.getElementById('hero-layer-images');
+      let urls = [];
+      if (dataEl) {
+        try { urls = JSON.parse(dataEl.textContent); } catch (err) { urls = []; }
+      }
+      if (!urls.length) return;
+
+      const prefersReduced = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const presets = [
+        { top: '18%', left: '14%', w: 210 },
+        { top: '20%', left: '88%', w: 180 },
+        { top: '58%', left: '6%', w: 200 },
+        { top: '52%', left: '94%', w: 220 },
+        { top: '42%', left: '2%', w: 150 },
+        { top: '36%', left: '98%', w: 150 }
+      ];
+
+      const items = urls.slice(0, presets.length).map((url, i) => {
+        const cfg = presets[i];
+        const rot = ((i % 3) - 1) * 8;
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.style.zIndex = String(i + 1);
+        img.style.top = cfg.top;
+        img.style.left = cfg.left;
+        img.style.width = cfg.w + 'px';
+        img.style.transform = `translate(-50%, -50%) rotate(${rot}deg)`;
+        container.appendChild(img);
+        return {
+          el: img,
+          rot: rot,
+          speedX: 0.04 + i * 0.02,
+          speedY: 0.035 + i * 0.02
+        };
+      });
+
+      if (prefersReduced) return;
+
+      const title = document.querySelector('.hero-aq .display-hero');
+
+      let ticking = false;
+
+      const update = (e) => {
+        const xVal = e.clientX - window.innerWidth / 2;
+        const yVal = e.clientY - window.innerHeight / 2;
+        const rotateDeg = (xVal / (window.innerWidth / 2)) * 12;
+
+        items.forEach((it) => {
+          it.el.style.transform =
+            `translate(-50%, -50%) ` +
+            `translate3d(${(-xVal * it.speedX).toFixed(2)}px, ${(yVal * it.speedY).toFixed(2)}px, 0) ` +
+            `rotateY(${(rotateDeg * 0.06).toFixed(2)}deg) ` +
+            `rotate(${it.rot}deg)`;
+        });
+
+        if (title) {
+          title.style.transform =
+            `perspective(1200px) rotateY(${(rotateDeg * 0.03).toFixed(2)}deg) ` +
+            `translate3d(${(xVal * 0.07).toFixed(2)}px, ${(yVal * 0.05).toFixed(2)}px, 0)`;
+        }
+
+        ticking = false;
+      };
+
+      const requestUpdate = (e) => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => update(e));
+        }
+      };
+
+      document.addEventListener('mousemove', requestUpdate, { passive: true });
+    },
+
+    parallaxShowcase: function() {
+      const section = document.getElementById('parallax-aq');
+      if (!section) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const layers = section.querySelectorAll('[data-parallax-speed]');
+      const isTitle = (el) => el.classList.contains('parallax-aq-title');
+      const vh = () => window.innerHeight;
+
+      let ticking = false;
+
+      const update = () => {
+        const rect = section.getBoundingClientRect();
+        const total = vh() + rect.height;
+        if (total <= 0) return;
+        let progress = 1 - ((rect.top + vh()) / total);
+        progress = Math.max(0, Math.min(1, progress));
+
+        layers.forEach((el) => {
+          const speed = parseFloat(el.getAttribute('data-parallax-speed')) || 0;
+          const y = progress * speed * (rect.height / 100);
+          if (isTitle(el)) {
+            el.style.transform = `translate(-50%, calc(-50% + ${y}px))`;
+          } else {
+            el.style.transform = `translate3d(0, ${y}px, 0)`;
+          }
+        });
+
+        ticking = false;
+      };
+
+      const requestUpdate = () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      };
+
+      window.addEventListener('scroll', requestUpdate, { passive: true });
+      window.addEventListener('resize', requestUpdate, { passive: true });
+      update();
     }
   };
 

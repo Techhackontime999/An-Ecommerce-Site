@@ -4,22 +4,29 @@
 {% block title %}Shop-Seed — Premium E-Commerce{% endblock %}
 
 {% block content %}
+{{ hero_layer_images|json_script:"hero-layer-images" }}
 <!-- ===== HERO ===== -->
-<section class="hero-aq">
-  <div class="hero-aq-content">
+<section class="hero-aq" id="hero-aq">
+  <div class="hero-parallax-aq" id="hero-parallax-aq" aria-hidden="true"></div>
+  <div class="hero-parallax-aq-vignette" aria-hidden="true"></div>
+  <div class="hero-aq-content hero-aq-content--center">
     <span class="hero-aq-badge fade-up">
       <i class="fas fa-bolt"></i>
       Big Sale — Up to 60% Off
     </span>
-    <h1 class="display-hero fade-up fade-up-delay-1">
-      Shop Smarter,<br>Live Better
+    <h1 class="display-hero">
+      <span class="aq-word aq-word-1">Shop</span>
+      <span class="aq-word aq-word-2">Smarter,</span>
+      <br>
+      <span class="aq-word aq-word-3">Live</span>
+      <span class="aq-word aq-word-4">Better</span>
     </h1>
     <p class="body-large fade-up fade-up-delay-2">
       India's most trusted online marketplace. From fashion to electronics,
       find everything you need with fast delivery, easy returns, and best prices.
     </p>
     <div class="hero-aq-actions fade-up fade-up-delay-3">
-      <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-primary">
+      <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-hero-cta">
         Shop Now
         <span class="icon-wrapper"><i class="fas fa-arrow-right"></i></span>
       </a>
@@ -29,18 +36,46 @@
     </div>
   </div>
 
-  <div class="hero-aq-visual">
-    <div class="hero-grid">
-      <div class="hero-grid-item"><i class="fas fa-truck"></i></div>
-      <div class="hero-grid-item"><i class="fas fa-shield"></i></div>
-      <div class="hero-grid-item"><i class="fas fa-tag"></i></div>
-      <div class="hero-grid-item"><i class="fas fa-clock"></i></div>
+  {% if hero_products %}
+  <div class="hero-aq-marquee" aria-hidden="true">
+    <div class="hero-aq-marquee-track">
+      <div class="hero-aq-marquee-group">
+        {% for product in hero_products %}
+        <img src="{{ product.image.url }}" alt="" loading="lazy">
+        {% endfor %}
+      </div>
+      <div class="hero-aq-marquee-group">
+        {% for product in hero_products %}
+        <img src="{{ product.image.url }}" alt="" loading="lazy">
+        {% endfor %}
+      </div>
     </div>
   </div>
+  {% endif %}
 
   <svg class="hero-aq-wave" viewBox="0 0 1440 80" preserveAspectRatio="none">
     <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#FAFAFA"/>
   </svg>
+</section>
+
+<!-- ===== PARALLAX SHOWCASE ===== -->
+<section class="parallax-aq" id="parallax-aq" aria-label="Product showcase">
+  <div class="parallax-aq-visuals">
+    <div class="parallax-aq-layer parallax-aq-layer-back" data-parallax-speed="14">
+      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80" alt="Clothing store" loading="lazy">
+    </div>
+    <div class="parallax-aq-layer parallax-aq-layer-mid" data-parallax-speed="9">
+      <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&q=80" alt="Premium headphones" loading="lazy">
+    </div>
+    <h2 class="parallax-aq-title" data-parallax-speed="5">Shop the<br><span>Future</span></h2>
+    <div class="parallax-aq-layer parallax-aq-layer-front" data-parallax-speed="3">
+      <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=80" alt="Iconic sneaker" loading="lazy">
+    </div>
+  </div>
+  <div class="parallax-aq-content">
+    <p>Scroll slowly — watch the layers drift apart.</p>
+  </div>
+  <div class="parallax-aq-fade"></div>
 </section>
 
 <!-- ===== FEATURES ===== -->
@@ -227,7 +262,7 @@
 <!-- ===== DEALS SECTION ===== -->
 <section class="section-aq">
   <div class="container-aq">
-    <div class="products-aq-header fade-up" style="text-align:left;">
+    <div class="products-aq-header fade-left" style="text-align:left;">
       <span class="hero-aq-badge">
         <i class="fas fa-bolt"></i> Limited Time
       </span>
@@ -321,7 +356,7 @@
 <!-- ===== TESTIMONIAL ===== -->
 <section class="section-aq">
   <div class="container-aq">
-    <div class="testimonial-aq-card fade-up">
+    <div class="testimonial-aq-card fade-scale">
       <div class="testimonial-aq-avatar">
         <img src="https://picsum.photos/seed/ariana/128/128" alt="Customer avatar">
       </div>
@@ -339,7 +374,7 @@
 <!-- ===== CTA ===== -->
 <section class="section-aq cta-aq">
   <div class="container-aq">
-    <div class="cta-aq-inner fade-up">
+    <div class="cta-aq-inner fade-scale">
       <h2 class="display-section" style="color:white">Start Shopping Today</h2>
       <p>Join millions of satisfied customers who trust Shop-Seed for premium products at the best prices with fast delivery.</p>
       <a href="{% url 'accounts:signup' %}" class="btn-aq">
