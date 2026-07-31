@@ -1,0 +1,31 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Link Invalid — Shop-Seed{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-glow auth-glow-a"></div>
+  <div class="auth-glow auth-glow-b"></div>
+  <div class="auth-glow auth-glow-c"></div>
+
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="auth-logo"><i class="fas fa-store"></i></span>
+      <span class="auth-brand-name">Shop-Seed</span>
+    </div>
+
+    <div class="auth-alert">
+      <i class="fas fa-exclamation-circle"></i>
+      <div class="auth-alert-body">
+        <strong>The verification link is invalid or has expired.</strong>
+        <span>Please sign in to request a new verification email.</span>
+      </div>
+    </div>
+
+    <a href="{% url 'accounts:login' %}" class="auth-btn">
+      Go to Sign In <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+</div>
+{% endblock %}

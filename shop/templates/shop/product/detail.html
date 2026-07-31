@@ -116,6 +116,65 @@
   </div>
 </section>
 
+<!-- Suggested products slider -->
+{% if suggested_products %}
+<section class="section-aq" style="background:var(--aq-gradient-2);">
+  <div class="container-aq">
+    <div class="td-slider-section">
+      <div class="td-slider-header">
+        <div class="td-slider-heading">
+          <h2 class="td-slider-title"><i class="fas fa-fire"></i> You Might Also Like</h2>
+          <p class="td-slider-sub">
+            {% if product.category %}More from {{ product.category.name }}{% else %}Popular picks from our shop{% endif %}
+          </p>
+        </div>
+        <div class="td-slider-nav">
+          <button type="button" class="td-slider-btn" data-slider="prev" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+          <button type="button" class="td-slider-btn" data-slider="next" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="td-slider-track" data-slider-track>
+        {% for product in suggested_products %}
+        <div class="td-slide">
+          <a href="{{ product.get_absolute_url }}" class="td-slide-link">
+            <div class="td-slide-media">
+              {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="td-slide-img">
+              {% else %}
+              <div class="td-slide-img td-slide-img-placeholder"><i class="fas fa-box-open"></i></div>
+              {% endif %}
+            </div>
+            <div class="td-slide-body">
+              <h3 class="td-slide-title">{{ product.name }}</h3>
+              <div class="td-slide-prices">
+                {% if product.current_price != product.price %}
+                <span class="td-slide-price">${{ product.current_price }}</span>
+                <del class="td-slide-old-price">${{ product.price }}</del>
+                {% else %}
+                <span class="td-slide-price">${{ product.price }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+          {% if user.is_authenticated %}
+          <form action="{% url 'cart:cart_add' product.id %}" method="post" class="td-slide-cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="td-slide-cart-btn"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+          </form>
+          {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="td-slide-cart-btn">
+            <i class="fas fa-sign-in-alt"></i> Login to Buy
+          </a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
 <!-- Reviews -->
 <section class="section-aq" style="background:var(--aq-gradient-2);">
   <div class="container-aq">
@@ -169,4 +228,23 @@
     {% endif %}
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('[data-slider-track]').forEach(function (track) {
+    var section = track.closest('.td-slider-section');
+    var prev = section.querySelector('[data-slider="prev"]');
+    var next = section.querySelector('[data-slider="next"]');
+    var firstCard = track.querySelector('.td-slide');
+    var step = firstCard ? firstCard.offsetWidth + 16 : 280;
+
+    prev.addEventListener('click', function () {
+      track.scrollBy({ left: -step, behavior: 'smooth' });
+    });
+    next.addEventListener('click', function () {
+      track.scrollBy({ left: step, behavior: 'smooth' });
+    });
+  });
+</script>
 {% endblock %}

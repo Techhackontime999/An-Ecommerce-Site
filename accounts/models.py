@@ -19,6 +19,8 @@ class SellerProfile(models.Model):
     description = models.TextField(blank=True)
     # add methods to verify seller make it defaut false for testing i do it true
     is_verified = models.BooleanField(default=True)  # Admin verifies sellers
+    is_email_verified = models.BooleanField(default=False)
+    is_phone_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     profile_picture = models.ImageField(upload_to='seller_profiles/', null=True, blank=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
@@ -60,6 +62,8 @@ class CustomerProfile(models.Model):
     phone = models.CharField(max_length=15)
     address = models.TextField()
     profile_picture = models.ImageField(upload_to='customer_profiles/', null=True, blank=True)
+    is_email_verified = models.BooleanField(default=False)
+    is_phone_verified = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username

@@ -72,71 +72,79 @@
           </div>
         </div>
 
-        <div class="products-aq-grid">
-          {% for product in products %}
-          <div class="product-aq-card fade-up" style="transition-delay:{% widthratio forloop.counter0 1 60 %}ms">
-            <a href="{{ product.get_absolute_url }}" style="text-decoration:none;color:inherit;">
-              <div class="product-aq-image">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                {% else %}
-                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:2.5rem;">
-                  <i class="fas fa-box-open"></i>
+        <div class="products-aq-rows">
+          {% for row in product_rows %}
+          <div class="products-aq-row-wrap">
+            <button type="button" class="products-aq-arrow products-aq-arrow-prev" data-row-scroll="prev" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+            <div class="products-aq-row" data-row>
+            {% for product in row %}
+            <div class="product-aq-card fade-up" style="transition-delay:{% widthratio forloop.counter0 1 60 %}ms">
+              <a href="{{ product.get_absolute_url }}" style="text-decoration:none;color:inherit;">
+                <div class="product-aq-image">
+                  {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                  {% else %}
+                  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:2.5rem;">
+                    <i class="fas fa-box-open"></i>
+                  </div>
+                  {% endif %}
+                  {% if product.current_price and product.current_price < product.price %}
+                  <span class="product-aq-tag sale">Sale</span>
+                  {% else %}
+                  <span class="product-aq-tag new">New</span>
+                  {% endif %}
                 </div>
-                {% endif %}
-                {% if product.current_price and product.current_price < product.price %}
-                <span class="product-aq-tag sale">Sale</span>
-                {% else %}
-                <span class="product-aq-tag new">New</span>
-                {% endif %}
-              </div>
-              <div class="product-aq-body">
-                <h3>{{ product.name }}</h3>
-                <p class="desc">{{ product.description|safe|truncatewords:10 }}</p>
-                {% with total=product.average_rating %}
-                <div class="product-aq-rating">
-                  <span class="stars">
-                    {% if total %}
-                    {% for i in "12345"|make_list %}
-                      {% if forloop.counter <= total|floatformat:"0"|add:"0" %}
-                      <i class="fas fa-star"></i>
-                      {% elif forloop.counter == total|add:"0.5"|floatformat:"0"|add:"0" %}
-                      <i class="fas fa-star-half-alt"></i>
+                <div class="product-aq-body">
+                  <h3>{{ product.name }}</h3>
+                  <p class="desc">{{ product.description|safe|truncatewords:10 }}</p>
+                  {% with total=product.average_rating %}
+                  <div class="product-aq-rating">
+                    <span class="stars">
+                      {% if total %}
+                      {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= total|floatformat:"0"|add:"0" %}
+                        <i class="fas fa-star"></i>
+                        {% elif forloop.counter == total|add:"0.5"|floatformat:"0"|add:"0" %}
+                        <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                        <i class="far fa-star"></i>
+                        {% endif %}
+                      {% endfor %}
                       {% else %}
                       <i class="far fa-star"></i>
+                      <i class="far fa-star"></i>
+                      <i class="far fa-star"></i>
+                      <i class="far fa-star"></i>
+                      <i class="far fa-star"></i>
                       {% endif %}
-                    {% endfor %}
-                    {% else %}
-                    <i class="far fa-star"></i>
-                    <i class="far fa-star"></i>
-                    <i class="far fa-star"></i>
-                    <i class="far fa-star"></i>
-                    <i class="far fa-star"></i>
+                    </span>
+                    {% if product.rating_count %}
+                    <span class="count">({{ product.rating_count }})</span>
                     {% endif %}
-                  </span>
-                  {% if product.rating_count %}
-                  <span class="count">({{ product.rating_count }})</span>
-                  {% endif %}
+                  </div>
+                  {% endwith %}
+                  <div class="product-aq-price">
+                    {% if product.current_price and product.current_price != product.price %}
+                    <span>${{ product.current_price }}</span>
+                    <span class="original">${{ product.price }}</span>
+                    {% else %}
+                    <span>${{ product.price }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="product-aq-actions">
+                    <a href="{{ product.get_absolute_url }}" class="btn-aq btn-aq-primary" style="padding:0.5rem 1.125rem;font-size:0.75rem;width:100%;justify-content:center;">
+                      View Details
+                    </a>
+                  </div>
                 </div>
-                {% endwith %}
-                <div class="product-aq-price">
-                  {% if product.current_price and product.current_price != product.price %}
-                  <span>${{ product.current_price }}</span>
-                  <span class="original">${{ product.price }}</span>
-                  {% else %}
-                  <span>${{ product.price }}</span>
-                  {% endif %}
-                </div>
-                <div class="product-aq-actions">
-                  <a href="{{ product.get_absolute_url }}" class="btn-aq btn-aq-primary" style="padding:0.5rem 1.125rem;font-size:0.75rem;width:100%;justify-content:center;">
-                    View Details
-                  </a>
-                </div>
-              </div>
-            </a>
+              </a>
+            </div>
+            {% endfor %}
+            </div>
+            <button type="button" class="products-aq-arrow products-aq-arrow-next" data-row-scroll="next" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
           </div>
           {% empty %}
-          <div class="empty-aq" style="grid-column:1/-1">
+          <div class="empty-aq">
             <div class="empty-aq-icon"><i class="fas fa-box-open"></i></div>
             <h3>No products found</h3>
             <p>This category is being restocked. Check back soon for new arrivals.</p>
@@ -214,6 +222,38 @@
 
 {% block extra_js %}
 <script>
+  document.querySelectorAll('.products-aq-row-wrap').forEach(function (wrap) {
+    var row = wrap.querySelector('[data-row]');
+    var prev = wrap.querySelector('[data-row-scroll="prev"]');
+    var next = wrap.querySelector('[data-row-scroll="next"]');
+    var firstCard = row.querySelector('.product-aq-card');
+    var step = firstCard ? firstCard.offsetWidth + 20 : 280;
+
+    function updateArrows() {
+      var atStart = row.scrollLeft <= 0;
+      var atEnd = row.scrollLeft + row.clientWidth >= row.scrollWidth - 1;
+      prev.classList.toggle('is-disabled', atStart);
+      next.classList.toggle('is-disabled', atEnd);
+    }
+
+    prev.addEventListener('click', function () {
+      row.scrollBy({ left: -step, behavior: 'smooth' });
+    });
+    next.addEventListener('click', function () {
+      row.scrollBy({ left: step, behavior: 'smooth' });
+    });
+    row.addEventListener('scroll', updateArrows);
+    window.addEventListener('resize', updateArrows);
+    updateArrows();
+
+    row.addEventListener('wheel', function (e) {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+        row.scrollLeft += e.deltaX;
+      }
+    }, { passive: false });
+  });
+
   document.querySelectorAll('[data-slider-track]').forEach(function (track) {
     var section = track.closest('.td-slider-section');
     var prev = section.querySelector('[data-slider="prev"]');

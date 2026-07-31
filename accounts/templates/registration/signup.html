@@ -1,13 +1,143 @@
 {% extends "shop/base/base.html" %}
-{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Create Account — Shop-Seed{% endblock %}
 
 {% block content %}
-  <div class="container mt-5">
-    <h2>Sign Up</h2>
-    <form method="post">
+<div class="auth-page">
+  <div class="auth-glow auth-glow-a"></div>
+  <div class="auth-glow auth-glow-b"></div>
+  <div class="auth-glow auth-glow-c"></div>
+
+  <div class="auth-card auth-card-wide">
+    <div class="auth-brand">
+      <span class="auth-logo"><i class="fas fa-store"></i></span>
+      <span class="auth-brand-name">Shop-Seed</span>
+    </div>
+
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-sub">Join Shop-Seed and start shopping in minutes.</p>
+
+    {% if form.non_field_errors %}
+    <div class="auth-alert">
+      <i class="fas fa-exclamation-circle"></i>
+      <div class="auth-alert-body">
+        {% for e in form.non_field_errors %}
+        <strong>{{ e }}</strong>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
       {% csrf_token %}
-      {{ form|crispy }}
-      <button type="submit" class="btn btn-primary">Sign Up</button>
+
+      <div class="auth-field">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        <div class="auth-input-wrap">
+          <i class="fas fa-user"></i>
+          {{ form.username }}
+        </div>
+        {% for e in form.username.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="auth-grid">
+        <div class="auth-field">
+          <label for="{{ form.email.id_for_label }}">Email</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-envelope"></i>
+            {{ form.email }}
+          </div>
+          {% for e in form.email.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="auth-field">
+          <label for="{{ form.phone.id_for_label }}">Phone</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-phone"></i>
+            {{ form.phone }}
+          </div>
+          {% for e in form.phone.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="auth-field">
+        <label for="{{ form.address.id_for_label }}">Address</label>
+        <div class="auth-input-wrap auth-input-wrap-textarea">
+          <i class="fas fa-map-marker-alt"></i>
+          {{ form.address }}
+        </div>
+        {% for e in form.address.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="auth-field">
+        <label for="{{ form.profile_picture.id_for_label }}">Profile Picture <span class="auth-optional">(optional)</span></label>
+        <div class="auth-file-wrap">
+          {{ form.profile_picture }}
+          <span class="auth-file-label"><i class="fas fa-camera"></i> Choose Image</span>
+        </div>
+        {% for e in form.profile_picture.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="auth-grid">
+        <div class="auth-field">
+          <label for="{{ form.password1.id_for_label }}">Password</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-lock"></i>
+            {{ form.password1 }}
+            <button type="button" class="auth-eye" data-toggle-password aria-label="Show password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          {% for e in form.password1.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="auth-field">
+          <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-lock"></i>
+            {{ form.password2 }}
+            <button type="button" class="auth-eye" data-toggle-password aria-label="Show password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          {% for e in form.password2.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="auth-help">
+        <i class="fas fa-info-circle"></i>
+        <span>Use at least 8 characters with a mix of letters and numbers. Don't use a password you use elsewhere.</span>
+      </div>
+
+      <button type="submit" class="auth-btn">
+        Create Account <i class="fas fa-arrow-right"></i>
+      </button>
     </form>
+
+    <div class="auth-divider"><span>Already have an account?</span></div>
+
+    <a href="{% url 'accounts:login' %}" class="auth-btn-ghost">
+      <i class="fas fa-sign-in-alt"></i> Sign in
+    </a>
+
+    <div class="auth-extra">
+      <a href="{% url 'accounts:seller_register' %}" class="auth-link"><i class="fas fa-store-alt"></i> Want to sell on Shop-Seed?</a>
+    </div>
   </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var input = btn.closest('.auth-input-wrap').querySelector('input');
+      var isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.querySelector('i').classList.toggle('fa-eye');
+      btn.querySelector('i').classList.toggle('fa-eye-slash');
+    });
+  });
+</script>
 {% endblock %}

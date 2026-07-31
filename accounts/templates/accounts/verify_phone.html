@@ -1,0 +1,66 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Verify Phone — Shop-Seed{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-glow auth-glow-a"></div>
+  <div class="auth-glow auth-glow-b"></div>
+  <div class="auth-glow auth-glow-c"></div>
+
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="auth-logo"><i class="fas fa-store"></i></span>
+      <span class="auth-brand-name">Shop-Seed</span>
+    </div>
+
+    <div class="auth-success-icon">
+      <i class="fas fa-mobile-alt"></i>
+    </div>
+
+    <h1 class="auth-title auth-title-center">Enter your code</h1>
+    <p class="auth-sub auth-sub-center">
+      We sent a 6-digit code to your email for the phone number
+      <strong>{{ profile.phone }}</strong>. It expires in 10 minutes.
+    </p>
+
+    {% if error %}
+    <div class="auth-alert">
+      <i class="fas fa-exclamation-circle"></i>
+      <div class="auth-alert-body">
+        <strong>{{ error }}</strong>
+      </div>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="auth-field">
+        <label for="otp">Verification Code</label>
+        <div class="auth-input-wrap">
+          <i class="fas fa-key"></i>
+          <input type="text" name="otp" id="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required autocomplete="one-time-code">
+        </div>
+      </div>
+
+      <button type="submit" class="auth-btn">
+        Verify Phone <i class="fas fa-check"></i>
+      </button>
+    </form>
+
+    <div class="auth-divider"><span>Didn't receive the code?</span></div>
+
+    <form method="post" action="{% url 'accounts:resend_otp' %}">
+      {% csrf_token %}
+      <button type="submit" class="auth-btn-ghost">
+        <i class="fas fa-redo"></i> Resend code
+      </button>
+    </form>
+
+    <div class="auth-extra">
+      <a href="{% url 'accounts:verify' %}" class="auth-link"><i class="fas fa-arrow-left"></i> Back to verification steps</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

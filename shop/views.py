@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from cart.forms import CartAddProductForm
 from .models import Category, Product
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils import timezone
 
 
@@ -32,11 +32,44 @@ def product_list(request, category_slug=None):
     else:
         products = Product.objects.filter(available=True)
 
-    paginator = Paginator(products, 9)
+    paginator = Paginator(products, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     current_ids = [p.id for p in page_obj.object_list]
+    chunk_size = 4
+
+    page_products = list(page_obj.object_list)
+
+    popular_qs = (
+        Product.objects.filter(available=True)
+        .annotate(review_count=Count('reviews'))
+        .order_by('-review_count')
+        .prefetch_related('deals')
+        .exclude(id__in=current_ids)
+    )
+    if category:
+        fill_pool = list(popular_qs.filter(category=category)[:6]) + \
+                    list(popular_qs.exclude(category=category)[:6])
+    else:
+        fill_pool = list(popular_qs[:12])
+
+    product_rows = []
+    current = []
+    for p in page_products:
+        current.append(p)
+        if len(current) == chunk_size:
+            product_rows.append(current)
+            current = []
+    if current:
+        product_rows.append(current)
+
+    for row in product_rows:
+        need = chunk_size - len(row)
+        if need > 0 and fill_pool:
+            row.extend(fill_pool[:need])
+            fill_pool = fill_pool[need:]
+
     suggested_qs = Product.objects.filter(available=True).prefetch_related('deals')
     if category:
         suggested_qs = suggested_qs.filter(category=category)
@@ -48,6 +81,7 @@ def product_list(request, category_slug=None):
         'category': category,
         'categories': categories,
         'products': page_obj,
+        'product_rows': product_rows,
         'suggested_products': suggested_products,
     })
 
@@ -55,7 +89,28 @@ def product_list(request, category_slug=None):
 def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
     cart_product_form = CartAddProductForm()
-    context = {'product': product, 'cart_product_form': cart_product_form}
+
+    related_qs = Product.objects.filter(available=True).prefetch_related('deals')
+    same_category = related_qs.filter(category=product.category).exclude(id=product.id)[:6]
+    if len(same_category) < 6:
+        popular_qs = (
+            Product.objects.filter(available=True)
+            .annotate(review_count=Count('reviews'))
+            .order_by('-review_count')
+            .prefetch_related('deals')
+            .exclude(id=product.id)
+            .exclude(id__in=[p.id for p in same_category])
+        )
+        others = list(popular_qs[:6])
+    else:
+        others = []
+    suggested_products = list(same_category) + others
+
+    context = {
+        'product': product,
+        'cart_product_form': cart_product_form,
+        'suggested_products': suggested_products[:12],
+    }
     return render(request, 'shop/product/detail.html', context)
 
 
