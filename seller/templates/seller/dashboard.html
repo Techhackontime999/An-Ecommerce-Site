@@ -1,67 +1,161 @@
 {% extends 'shop/base/base.html' %}
+{% load static %}
+
+{% block title %}Seller Dashboard — Shop-Seed{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    {% if profile.profile_picture %}
-    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture"
-        style="margin-bottom:3px;width: 100px; height: auto; border-radius: 50%;">
-    {% else %}
-    <p>No profile picture uploaded.</p>
-    {% endif %}
-    <h2>Welcome, {{ profile.shop_name }}</h2>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5>Total Products</h5>
-                    <p>{{ total_products }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5>Total Orders</h5>
-                    <p>{{ total_orders }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5>Pending Orders</h5>
-                    <p>{{ pending_orders }}</p>
-                </div>
-            </div>
-        </div>
+<div class="seller-dash">
+  <div class="seller-dash-inner">
+
+    {% if messages %}
+    <div class="seller-dash-messages">
+      {% for message in messages %}
+      <div class="seller-dash-message seller-dash-message-{{ message.tags }}">
+        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+        {{ message }}
+      </div>
+      {% endfor %}
     </div>
-    <a href="{% url 'seller:add_product' %}" class="btn btn-primary mb-3">Add Product</a>
-    <a href="{% url 'seller:orders' %}" class="btn btn-primary mb-3">Manage Orders</a>
-    <a href="{% url 'seller:private_profile' %}" class="btn btn-primary mb-3">Your Profile</a>
+    {% endif %}
 
+    <div class="seller-dash-header">
+      <div class="seller-dash-brand">
+        {% if profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" alt="{{ profile.shop_name }}" class="seller-dash-avatar">
+        {% else %}
+          <div class="seller-dash-avatar seller-dash-avatar-placeholder">
+            <i class="fas fa-store"></i>
+          </div>
+        {% endif %}
+        <div>
+          <h1 class="seller-dash-title">{{ profile.shop_name }}</h1>
+          <div class="seller-dash-meta">
+            <span><i class="fas fa-star"></i> {{ profile.rating|default:"0.0" }}/5</span>
+            <span><i class="fas fa-phone"></i> {{ profile.phone }}</span>
+            {% if profile.gst_number %}
+              <span><i class="fas fa-file-invoice"></i> GST: {{ profile.gst_number }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <h3>Your Products</h3>
-    <table class="table table-striped">
-        <thead>
+    <div class="seller-dash-stats">
+      <div class="seller-dash-stat-card">
+        <div class="seller-dash-stat-icon" style="background: var(--aq-accent-subtle); color: var(--aq-accent);">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="seller-dash-stat-body">
+          <span class="seller-dash-stat-value">{{ total_products }}</span>
+          <span class="seller-dash-stat-label">Total Products</span>
+        </div>
+      </div>
+      <div class="seller-dash-stat-card">
+        <div class="seller-dash-stat-icon" style="background: var(--aq-blue-glow); color: var(--aq-blue);">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="seller-dash-stat-body">
+          <span class="seller-dash-stat-value">{{ total_orders }}</span>
+          <span class="seller-dash-stat-label">Total Orders</span>
+        </div>
+      </div>
+      <div class="seller-dash-stat-card">
+        <div class="seller-dash-stat-icon" style="background: rgba(234, 179, 8, 0.12); color: #CA8A04;">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="seller-dash-stat-body">
+          <span class="seller-dash-stat-value">{{ pending_orders }}</span>
+          <span class="seller-dash-stat-label">Pending Orders</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="seller-dash-actions">
+      <a href="{% url 'seller:add_product' %}" class="seller-dash-action-card">
+        <i class="fas fa-plus-circle"></i>
+        <span>Add Product</span>
+      </a>
+      <a href="{% url 'seller:orders' %}" class="seller-dash-action-card">
+        <i class="fas fa-clipboard-list"></i>
+        <span>Manage Orders</span>
+      </a>
+      <a href="{% url 'seller:private_profile' %}" class="seller-dash-action-card">
+        <i class="fas fa-store-alt"></i>
+        <span>Your Profile</span>
+      </a>
+    </div>
+
+    <div class="seller-dash-table-section">
+      <div class="seller-dash-table-header">
+        <h2><i class="fas fa-cube"></i> Your Products</h2>
+        {% if products %}
+          <span class="seller-dash-count-badge">{{ products|length }} total</span>
+        {% endif %}
+      </div>
+
+      {% if products %}
+      <div class="seller-dash-table-wrap">
+        <table class="seller-dash-table">
+          <thead>
             <tr>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Available</th>
-                <th>Actions</th>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
             </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
             {% for product in products %}
             <tr>
-                <td>{{ product.name }}</td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.available }}</td>
-                <td>
-                    <a href="{% url 'seller:edit_product' product.pk %}" class="btn btn-sm btn-info">Edit</a>
-                    <a href="{% url 'seller:delete_product' product.pk %}" class="btn btn-sm btn-danger">Delete</a>
-                </td>
+              <td>
+                <div class="seller-dash-product-cell">
+                  {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="seller-dash-product-thumb">
+                  {% else %}
+                    <div class="seller-dash-product-thumb seller-dash-product-thumb-placeholder">
+                      <i class="fas fa-box"></i>
+                    </div>
+                  {% endif %}
+                  <div>
+                    <div class="seller-dash-product-name">{{ product.name }}</div>
+                    <div class="seller-dash-product-sku">{{ product.brand|default:"No brand" }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="seller-dash-price">₹{{ product.price }}</td>
+              <td>
+                {% if product.available %}
+                  <span class="seller-dash-badge seller-dash-badge-active">Active</span>
+                {% else %}
+                  <span class="seller-dash-badge seller-dash-badge-inactive">Inactive</span>
+                {% endif %}
+              </td>
+              <td class="seller-dash-date">{{ product.created|date:"M d, Y" }}</td>
+              <td>
+                <div class="seller-dash-action-btns">
+                  <a href="{% url 'seller:edit_product' product.pk %}" class="seller-dash-btn-icon" title="Edit">
+                    <i class="fas fa-pen"></i>
+                  </a>
+                  <a href="{% url 'seller:delete_product' product.pk %}" class="seller-dash-btn-icon seller-dash-btn-icon-danger" title="Delete" onclick="return confirm('Delete this product?')">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </td>
             </tr>
             {% endfor %}
-        </tbody>
-    </table>
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="seller-dash-empty">
+        <i class="fas fa-box-open"></i>
+        <p>No products yet</p>
+        <a href="{% url 'seller:add_product' %}" class="seller-dash-btn-primary">Add Your First Product</a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
 </div>
 {% endblock %}

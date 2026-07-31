@@ -1,49 +1,86 @@
 {% extends 'shop/base/base.html' %}
-{% block title %}About Us{% endblock %}
+{% load static %}
+
+{% block title %}About Us — Shop-Seed{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4">About Us</h1>
-        <p class="lead">Empowering small businesses with modern tech solutions.</p>
-    </div>
+<div class="ab-page">
 
+  <div class="ab-hero">
+    <div class="ab-hero-glow"></div>
+    <div class="ab-retro-grid"><div><div></div></div></div>
+    <div class="ab-hero-inner">
+      <span class="ab-hero-badge">
+        <i class="fas fa-store"></i> About Us
+        <i class="fas fa-chevron-right ab-badge-chevron"></i>
+      </span>
+      <h1 class="ab-hero-title">
+        Empowering small businesses with
+        <span class="ab-hero-gradient-text">modern tech solutions.</span>
+      </h1>
+      <p class="ab-hero-sub">
+        We're on a mission to make e-commerce accessible to everyone.
+        Join thousands of sellers who trust Shop-Seed.
+      </p>
+      <div class="ab-cta-wrap">
+        <span class="ab-cta-border"></span>
+        <a href="{% url 'seller:best_sellers' %}" class="ab-cta-btn">
+          Browse Sellers <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+    <div class="ab-hero-image">
+      <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80" alt="Dashboard preview" class="ab-hero-screenshot">
+    </div>
+  </div>
+
+  <div class="ab-sections">
     {% for section in sections %}
-    <div class="row mb-5 align-items-center">
-        {% if section.image %}
-        <div class="col-md-6 {% cycle '' 'order-md-2' %}">
-            <img src="{{ section.image.url }}" class="img-fluid rounded shadow" alt="{{ section.title }}">
-        </div>
-        {% endif %}
-        <div class="col-md-6">
-            <h3>{{ section.title }}</h3>
-            <p class="lead">{{ section.content }}</p>
-        </div>
+    <div class="ab-section{% cycle ' ab-section-normal' ' ab-section-reverse' %}">
+      {% if section.image %}
+      <div class="ab-section-media">
+        <img src="{{ section.image.url }}" alt="{{ section.title }}" class="ab-section-img">
+      </div>
+      {% endif %}
+      <div class="ab-section-content">
+        <h2 class="ab-section-title">{{ section.title }}</h2>
+        <p class="ab-section-text">{{ section.content }}</p>
+      </div>
     </div>
     {% endfor %}
+  </div>
 
-    <hr class="my-5">
-
-    <div class="text-center">
-        <h2 class="mb-4">Our Team</h2>
-        <div class="row">
-            {% for member in team %}
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow h-100 text-center">
-                    {% if member.photo %}
-                    <img src="{{ member.photo.url }}" class="card-img-top rounded-circle mx-auto mt-3" style="width:150px; height:150px;" alt="{{ member.name }}">
-                    {% else %}
-                    <div class="mx-auto mt-3 d-flex align-items-center justify-content-center rounded-circle" style="width:150px;height:150px;background:#f1f5f9;color:#94a3b8;font-size:3rem;font-weight:600;">{{ member.name|first }}</div>
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ member.name }}</h5>
-                        <p class="text-muted">{{ member.role }}</p>
-                        <p>{{ member.bio }}</p>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+  <div class="ab-team">
+    <div class="ab-team-inner">
+      <div class="ab-team-header">
+        <span class="ab-team-badge"><i class="fas fa-users"></i> Our Team</span>
+        <h2 class="ab-team-title">Meet the people behind Shop-Seed</h2>
+      </div>
+      <div class="ab-team-grid">
+        {% for member in team %}
+        <div class="ab-team-card">
+          <div class="ab-team-avatar-wrap">
+            {% if member.photo %}
+            <img src="{{ member.photo.url }}" alt="{{ member.name }}" class="ab-team-avatar">
+            {% else %}
+            <div class="ab-team-avatar ab-team-avatar-placeholder">{{ member.name|first }}</div>
+            {% endif %}
+          </div>
+          <h3 class="ab-team-name">{{ member.name }}</h3>
+          <span class="ab-team-role">{{ member.role }}</span>
+          {% if member.bio %}
+          <p class="ab-team-bio">{{ member.bio }}</p>
+          {% endif %}
         </div>
+        {% empty %}
+        <div class="ab-team-empty">
+          <i class="fas fa-users"></i>
+          <p>Team members coming soon.</p>
+        </div>
+        {% endfor %}
+      </div>
     </div>
+  </div>
+
 </div>
 {% endblock %}

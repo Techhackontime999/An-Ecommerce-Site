@@ -1,179 +1,181 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
+{% load deals_tags %}
 
 {% block title %}
-{% if category %}{{ category.name }}{% else %}Today's Deals{% endif %}
+{% if category %}{{ category.name }} Deals — Shop-Seed{% else %}Today's Deals — Shop-Seed{% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="text-center mb-4">🔥 Today’s Deals</h2>
-    <div class="row">
+<div class="td-page">
+  <div class="td-inner">
 
-        <!-- Compact Sidebar (Categories) -->
-        <div class="col-md-2">
-            <div class="border p-3 rounded mb-4 bg-white">
-                <h5 class="mb-3 text-uppercase text-black">Categories</h5>
-                <ul class="list-unstyled mb-0 small">
-                    <li class="mb-2 {% if not category %}fw-bold{% endif %}">
-                        <a href="{% url 'deals:todays_deals' %}" class="text-decoration-none">All</a>
-                    </li>
-                    {% for c in categories %}
-                    <li class="mb-2 {% if category and category.slug == c.slug %}fw-bold{% endif %}">
-                        <a href="{% url 'deals:todays_deals_by_category' category_slug=c.slug %}"
-                            class="text-decoration-none">{{ c.name }}</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+    <div class="td-hero">
+      <div class="td-hero-glow"></div>
+      <div class="td-hero-inner">
+        <span class="td-hero-badge"><i class="fas fa-bolt"></i> Limited Time</span>
+        <h1 class="td-hero-title">
+          Today's <span class="td-hero-gradient">Deals</span>
+        </h1>
+        <p class="td-hero-sub">Handpicked discounts, refreshed daily. Grab them before they're gone.</p>
+      </div>
+    </div>
+
+    <div class="td-layout">
+
+      <!-- Category Sidebar -->
+      <aside class="td-sidebar">
+        <div class="td-sidebar-card">
+          <h4 class="td-sidebar-title"><i class="fas fa-th-large"></i> Categories</h4>
+          <nav class="td-cats">
+            <a href="{% url 'deals:todays_deals' %}"
+               class="td-cat{% if not category %} td-cat-active{% endif %}">
+              <i class="fas fa-fire"></i> All Deals
+            </a>
+            {% for c in categories %}
+            <a href="{% url 'deals:todays_deals_by_category' category_slug=c.slug %}"
+               class="td-cat{% if category and category.slug == c.slug %} td-cat-active{% endif %}">
+              <i class="fas fa-tag"></i> {{ c.name }}
+            </a>
+            {% endfor %}
+          </nav>
         </div>
+      </aside>
 
-        <!-- Deals Section -->
-        <div class="col-md-10">
-            <div class="row">
-                {% for deal in deals %}
-                <div class="col-md-4 mb-4">
-                    <div class="card border-0 shadow-sm h-100 deal-card">
-                        {% if deal.product.image %}
-                        <img src="{{ deal.product.image.url }}" class="card-img-top" alt="{{ deal.product.name }}">
-                        {% endif %}
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title text-primary text-truncate">{{ deal.product.name }}</h5>
-                              <!-- review start -->
-                  
-    
+      <!-- Deals Grid -->
+      <section class="td-main">
+        {% if deals %}
+        <div class="td-grid">
+          {% for deal in deals %}
+          <div class="td-card">
+            <a href="{% url 'shop:product_detail' deal.product.id deal.product.slug %}" class="td-card-link">
+              <div class="td-card-media">
+                {% if deal.product.image %}
+                <img src="{{ deal.product.image.url }}" alt="{{ deal.product.name }}" class="td-card-img">
+                {% else %}
+                <div class="td-card-img td-card-img-placeholder"><i class="fas fa-box-open"></i></div>
+                {% endif %}
+                <span class="td-card-off">-{{ deal.product.price|discount_percent:deal.deal_price }}%</span>
+                <span class="td-card-flash"><i class="fas fa-bolt"></i></span>
+              </div>
+              <div class="td-card-body">
+                <h3 class="td-card-title">{{ deal.product.name }}</h3>
 
+                <div class="td-card-rating">
+                  <span class="td-card-rating-value">{{ deal.product.average_rating }}<i class="fas fa-star"></i></span>
+                  <span class="td-card-rating-count">({{ deal.product.rating_count }} reviews)</span>
+                </div>
 
+                <div class="td-card-prices">
+                  <span class="td-card-price">${{ deal.deal_price }}</span>
+                  <del class="td-card-old-price">${{ deal.product.price }}</del>
+                </div>
 
-
-
-
-      <!-- review start -->
-<!-- review display -->
-<div class="mb-2 ">
-    <strong>{{ deal.product.average_rating }}★</strong>
-    <span class="text-warning">
-      {% for i in "12345" %}
-        {% if forloop.counter <= deal.product.average_rating %}
-          <i class="fas fa-star"></i>
-        {% elif forloop.counter < deal.product.average_rating|add:"1" %}
-          <i class="fas fa-star-half-alt"></i>
+                <div class="td-card-cta">
+                  <span class="td-card-btn">Shop Now <i class="fas fa-arrow-right"></i></span>
+                </div>
+              </div>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
         {% else %}
-          <i class="far fa-star"></i>
-        {% endif %}
-      {% endfor %}
-    </span>
-    <small class="text-muted">({{ deal.product.rating_count }} reviews)</small>
-  </div>
-  
-  <!-- review close -->
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                 <!-- review close -->
-                            <p style="color: red;" class="card-text  fw-bold fs-5">$ {{ deal.deal_price }}</p>
-                            <p class="card-text text-muted"><del>$ {{ deal.product.price }}</del></p>
-                            <p class="text-muted small">Hurry, ends soon!</p>
-                            <a href="{% url 'shop:product_detail' deal.product.id deal.product.slug %}"
-                                class="btn btn-sm btn-primary mt-auto">Shop Now</a>
-
-                        </div>
-                    </div>
-
-
-
-
-                </div>
-
-                {% empty %}
-
-                <div class="col-12">
-                    <p class="text-center">No deals available today. Check back later!</p>
-                </div>
-                {% endfor %}
-            </div>
+        <div class="td-empty">
+          <i class="fas fa-tag"></i>
+          <h3>No deals right now</h3>
+          <p>Check back later — new deals drop every day.</p>
         </div>
+        {% endif %}
 
-        <!-- pagination start -->
-<!-- Pagination -->
-{% if deals.has_other_pages %}
-<div class="row mt-4 mx-auto" data-aos="fade-up">
-    <div class="col-md-12 text-center">
-        <nav>
-            <ul class="pagination justify-content-center">
-                {% if deals.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ deals.previous_page_number }}">&laquo;</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">&laquo;</span>
-                    </li>
-                {% endif %}
+        <!-- Pagination -->
+        {% if deals.has_other_pages %}
+        <nav class="td-pagination">
+          {% if deals.has_previous %}
+          <a class="td-page-btn" href="?page={{ deals.previous_page_number }}"><i class="fas fa-chevron-left"></i></a>
+          {% else %}
+          <span class="td-page-btn td-page-btn-disabled"><i class="fas fa-chevron-left"></i></span>
+          {% endif %}
 
-                {% for num in deals.paginator.page_range %}
-                    {% if deals.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ num }}</span>
-                        </li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
+          {% for num in deals.paginator.page_range %}
+          {% if deals.number == num %}
+          <span class="td-page-btn td-page-btn-active">{{ num }}</span>
+          {% else %}
+          <a class="td-page-btn" href="?page={{ num }}">{{ num }}</a>
+          {% endif %}
+          {% endfor %}
 
-                {% if deals.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ deals.next_page_number }}">&raquo;</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">&raquo;</span>
-                    </li>
-                {% endif %}
-            </ul>
+          {% if deals.has_next %}
+          <a class="td-page-btn" href="?page={{ deals.next_page_number }}"><i class="fas fa-chevron-right"></i></a>
+          {% else %}
+          <span class="td-page-btn td-page-btn-disabled"><i class="fas fa-chevron-right"></i></span>
+          {% endif %}
         </nav>
-    </div>
-</div>
-{% endif %}
-
-
-<!-- pagination end -->
+        {% endif %}
+      </section>
 
     </div>
+
+    <!-- Suggested products slider -->
+    {% if suggested_products %}
+    <section class="td-slider-section">
+      <div class="td-slider-header">
+        <div class="td-slider-heading">
+          <h2 class="td-slider-title"><i class="fas fa-fire"></i> You Might Also Like</h2>
+          <p class="td-slider-sub">Popular picks from our shop</p>
+        </div>
+        <div class="td-slider-nav">
+          <button type="button" class="td-slider-btn" data-slider="prev" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+          <button type="button" class="td-slider-btn" data-slider="next" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="td-slider-track" data-slider-track>
+        {% for product in suggested_products %}
+        <div class="td-slide">
+          <a href="{% url 'shop:product_detail' product.id product.slug %}" class="td-slide-link">
+            <div class="td-slide-media">
+              {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="td-slide-img">
+              {% else %}
+              <div class="td-slide-img td-slide-img-placeholder"><i class="fas fa-box-open"></i></div>
+              {% endif %}
+            </div>
+            <div class="td-slide-body">
+              <h3 class="td-slide-title">{{ product.name }}</h3>
+              <div class="td-slide-prices">
+                {% if product.current_price != product.price %}
+                <span class="td-slide-price">${{ product.current_price }}</span>
+                <del class="td-slide-old-price">${{ product.price }}</del>
+                {% else %}
+                <span class="td-slide-price">${{ product.price }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
 </div>
+{% endblock %}
 
-<style>
-    /* Optional custom styling */
-    .deal-card img {
-        object-fit: cover;
-        height: 200px;
-    }
+{% block extra_js %}
+<script>
+  document.querySelectorAll('[data-slider-track]').forEach(function (track) {
+    var section = track.closest('.td-slider-section');
+    var prev = section.querySelector('[data-slider="prev"]');
+    var next = section.querySelector('[data-slider="next"]');
+    var firstCard = track.querySelector('.td-slide');
+    var step = firstCard ? firstCard.offsetWidth + 16 : 280;
 
-    .deal-card {
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .deal-card:hover {
-        transform: scale(1.02);
-    }
-
-    .card-title {
-        min-height: 40px;
-    }
-</style>
+    prev.addEventListener('click', function () {
+      track.scrollBy({ left: -step, behavior: 'smooth' });
+    });
+    next.addEventListener('click', function () {
+      track.scrollBy({ left: step, behavior: 'smooth' });
+    });
+  });
+</script>
 {% endblock %}

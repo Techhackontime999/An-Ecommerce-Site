@@ -142,12 +142,6 @@
   .system-info-item .si-value { color: var(--aq-text); }
 
   .messagelist li { border-left-color: currentColor; }
-
-  .login { background: var(--aq-bg); }
-  .login #container { background: var(--aq-card); border-color: var(--aq-card-border); }
-  .login label { color: var(--aq-text-secondary) !important; }
-  .login .form-row { border: none; }
-  .login .submit-row { background: transparent; border: none; }
 }
 
 body {
@@ -504,165 +498,229 @@ body {
 }
 
 /* ===== LOGIN ===== */
-.login #header { display: none; }
-
-.login #content-main { float: none; }
+.login #header,
+.login #branding,
+.login #user-tools,
+.login #nav-sidebar,
+.login .skip-to-content-link {
+  display: none !important;
+}
 
 .login #content {
-  padding: 0;
-  max-width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.login #content-main {
+  float: none;
+  width: auto;
+}
+
+.login #container {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+/* ===== Full-page wrapper ===== */
+.aq-login {
   min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 24px;
   background: var(--aq-bg-soft);
 }
 
-.login #container {
+/* ===== Card ===== */
+.aq-login-card {
   background: var(--aq-card);
   border: 1px solid var(--aq-border);
-  border-radius: var(--aq-radius);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  padding: 32px 36px 28px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 40px 40px 32px;
   width: 400px;
-  max-width: 92vw;
+  max-width: 100%;
+  animation: aqLoginFadeIn 0.4s ease;
+}
+
+@keyframes aqLoginFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Header ===== */
+.aq-login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.aq-login-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--aq-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  transition: transform 0.2s ease;
+}
+
+.aq-login-header:hover .aq-login-logo {
+  transform: scale(1.05);
+}
+
+.aq-login-header h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--aq-text);
+  letter-spacing: -0.3px;
+}
+
+.aq-login-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--aq-text-secondary);
+  line-height: 1.4;
+}
+
+/* ===== Form ===== */
+.aq-login-form {
   display: flex;
   flex-direction: column;
 }
 
-.login-brand {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.login-brand .brand-logo {
-  width: 48px;
-  height: 48px;
-  background: var(--aq-primary);
-  border-radius: var(--aq-radius);
+.aq-form-group {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 12px;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
 
-.login-brand h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--aq-text);
-}
-
-.login-brand p {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--aq-text-secondary);
-}
-
-.login .form-row {
-  border: none;
-  padding: 0 0 16px;
-}
-
-.login label {
+.aq-form-group label {
   color: var(--aq-text-secondary) !important;
   font-weight: 500 !important;
   font-size: 13px !important;
-  margin-bottom: 4px;
-  display: block;
+  margin-bottom: 6px !important;
+  display: block !important;
+  float: none !important;
+  width: auto !important;
+  padding: 0 !important;
 }
 
-.login input[type="text"],
-.login input[type="password"] {
-  width: 100%;
+.aq-form-group input[type="text"],
+.aq-form-group input[type="password"] {
+  width: 100% !important;
   padding: 10px 12px !important;
   font-size: 14px !important;
+  line-height: 1.5 !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--aq-border) !important;
+  border-radius: 6px !important;
+  background: var(--aq-bg) !important;
+  color: var(--aq-text) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.login .submit-row {
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin-top: 4px;
+.aq-form-group input[type="text"]:focus,
+.aq-form-group input[type="password"]:focus {
+  border-color: var(--aq-accent) !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12) !important;
+  outline: none !important;
 }
 
-.login .submit-row input {
-  width: 100%;
-  padding: 10px !important;
-  font-size: 14px !important;
-  justify-content: center;
+.aq-form-group .errorlist {
+  margin: 4px 0 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
 }
 
-.login .password-reset-link {
+.aq-form-group .errorlist li {
+  font-size: 12px;
+  color: var(--aq-danger);
+}
+
+/* ===== Password Reset ===== */
+.aq-password-reset {
   text-align: center;
-  margin-top: 16px;
+  margin-bottom: 20px;
 }
 
-.login .password-reset-link a {
+.aq-password-reset a {
   color: var(--aq-text-muted);
   font-size: 13px;
+  text-decoration: none;
+  transition: color 0.15s ease;
 }
 
-.login .errornote {
-  margin-bottom: 16px;
+.aq-password-reset a:hover {
+  color: var(--aq-accent);
+  text-decoration: underline;
 }
 
-.login-footer {
+/* ===== Submit Button ===== */
+.aq-login-btn {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #fff;
+  background: var(--aq-primary);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, filter 0.15s ease;
+  font-family: var(--aq-font);
+}
+
+.aq-login-btn:hover {
+  background: var(--aq-primary-dark);
+  filter: brightness(1.08);
+}
+
+.aq-login-btn:active {
+  filter: brightness(0.96);
+}
+
+/* ===== Footer ===== */
+.aq-login-footer {
   text-align: center;
-  margin-top: 24px;
+  margin-top: 28px;
   padding-top: 20px;
   border-top: 1px solid var(--aq-border-light);
 }
 
-.login-footer p {
+.aq-login-footer p {
   font-size: 12px;
   color: var(--aq-text-muted);
   margin: 0;
 }
 
-.login #container {
-  animation: loginFadeIn 0.4s ease;
-}
-
-@keyframes loginFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.login-brand .brand-logo {
-  transition: transform 0.2s ease;
-}
-
-.login-brand:hover .brand-logo {
-  transform: scale(1.05);
-}
-
-.login-subtitle {
-  margin: 4px 0 0;
+/* ===== Error Note ===== */
+.aq-login-form .errornote,
+.aq-login-card > .errornote {
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  border-radius: 6px;
   font-size: 13px;
-  color: var(--aq-text-secondary);
 }
 
-.login .submit-row input {
-  transition: all 0.15s ease;
-}
-
-.login .submit-row input:hover {
-  filter: brightness(1.1);
-}
-
+/* ===== Dark Mode ===== */
 @media (prefers-color-scheme: dark) {
-  .login-footer {
-    border-top-color: var(--aq-border-light);
+  .aq-login-card {
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
   }
-  .login #container {
-    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+
+  .aq-login-footer {
+    border-top-color: var(--aq-border);
   }
 }
 
@@ -735,7 +793,7 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .login #container {
-    padding: 24px 20px;
+  .aq-login-card {
+    padding: 32px 24px 28px;
   }
 }

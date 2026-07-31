@@ -1,48 +1,57 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
 
+{% block title %}Our Services — Shop-Seed{% endblock %}
+
 {% block content %}
-<div class="container my-5">
-    <h2 class="text-center mb-5 font-weight-bold">Our Services</h2>
-    <div class="row justify-content-center">
-        {% for service in services %}
-        <div class="col-sm-6 col-md-4 col-lg-3 mb-4 d-flex">
-            <div class="card shadow-sm w-100 service-card h-100">
-                {% if service.image %}
-                <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.title }}" style="height: 200px; object-fit: cover;">
-                {% endif %}
-                <div class="card-body d-flex flex-column max-width-full ">
-                    <h5 class="card-title">{{ service.title }}</h5>
-                    <p class="card-text text-muted small">{{ service.description|truncatewords:20 }}</p>
-                    <div class="mt-auto">
-                        <a href="{% url 'services:service_detail' service.pk %}" class="btn btn-outline-primary btn-sm btn-block">
-                            Learn More
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+<div class="svc-page">
+  <div class="svc-inner">
+
+    <div class="svc-hero">
+      <div class="svc-hero-glow"></div>
+      <div class="svc-hero-inner">
+        <span class="svc-hero-badge"><i class="fas fa-cogs"></i> Our Services</span>
+        <h1 class="svc-hero-title">Everything your business needs</h1>
+        <p class="svc-hero-sub">Explore the services we provide to keep your shopping experience seamless and enjoyable.</p>
+      </div>
     </div>
+
+    {% if services %}
+    <div class="svc-grid">
+      {% for service in services %}
+      <div class="svc-card">
+        <div class="svc-card-icon">
+          {% if forloop.counter|divisibleby:"3" %}
+          <i class="fas fa-box-open"></i>
+          {% elif forloop.counter|divisibleby:"2" %}
+          <i class="fas fa-rocket"></i>
+          {% else %}
+          <i class="fas fa-shield-alt"></i>
+          {% endif %}
+        </div>
+        {% if service.image %}
+        <div class="svc-card-media">
+          <img src="{{ service.image.url }}" alt="{{ service.title }}" class="svc-card-img">
+        </div>
+        {% endif %}
+        <div class="svc-card-body">
+          <h3 class="svc-card-title">{{ service.title }}</h3>
+          <p class="svc-card-text">{{ service.description|truncatewords:18 }}</p>
+          <a href="{% url 'services:service_detail' service.pk %}" class="svc-card-btn">
+            Learn More <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="svc-empty">
+      <i class="fas fa-concierge-bell"></i>
+      <h3>No services yet</h3>
+      <p>Our services are coming soon. Check back shortly.</p>
+    </div>
+    {% endif %}
+
+  </div>
 </div>
-
-<style>
-    .service-card {
-        border-radius: 10px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .service-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
-    }
-
-    .card-title {
-        font-weight: 600;
-    }
-
-    .btn-outline-primary {
-        border-radius: 20px;
-    }
-</style>
 {% endblock %}

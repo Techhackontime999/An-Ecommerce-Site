@@ -40,4 +40,4 @@ class SellerProfileForm(forms.ModelForm):
 class CustomerProfileForm(forms.ModelForm):
     class Meta:
         model = CustomerProfile
-        fields = ['phone', 'address']
+        fields = ['phone', 'address', 'profile_picture']

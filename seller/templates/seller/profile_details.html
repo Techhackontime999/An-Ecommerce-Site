@@ -1,98 +1,96 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
 
+{% block title %}{{ profile.shop_name }} — Shop-Seed{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-  <!-- Seller Profile Header -->
-  <!-- <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body d-flex flex-column flex-md-row align-items-center text-center text-md-start">
-      <div class="me-md-4 mb-3 mb-md-0">
-        {% if profile.profile_picture %}
-          <img src="{{ profile.profile_picture.url }}" alt="{{ profile.shop_name }} Logo"
-               class="rounded-circle shadow-sm" style="width: 130px; height: 130px; object-fit: cover;">
-        {% else %}
-          <img src="{% static 'images/default-store.png' %}" alt="No Logo"
-               class="rounded-circle shadow-sm" style="width: 130px; height: 130px; object-fit: cover;">
-        {% endif %}
-      </div>
-      <div>
-        <h2 class="mb-1 fw-bold">{{ profile.shop_name }}</h2>
-        <p class="text-muted mb-2">{{ profile.description|default:"No description available." }}</p>
-        <p class="text-muted"><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ profile.address }}</p>
-      </div>
-    </div>
-  </div> -->
+<div class="pd-page">
+  <div class="pd-page-inner">
 
+    <a href="{% url 'seller:best_sellers' %}" class="pd-back">
+      <i class="fas fa-arrow-left"></i> Back to Best Sellers
+    </a>
 
-
-  <div class="card shadow-md border-0 mx-3">
-    <div class="card-body d-flex row align-items-center">
-        <div class="profile-image me-4 col-sm-12  col-md-6 col-lg-6 text-center">
-            
-            {% if profile.profile_picture %}
-            <img src="{{ profile.profile_picture.url }}" alt="Profile Picture"
-                style="margin-bottom:3px;width: 150px; height: auto; border-radius: 50%;">
-            {% else %}
-                <img src="{% static 'images/default-store.png' %}" alt="No Logo" class="img-fluid rounded-circle shadow" style="margin-bottom:3px;width: 150px; height: auto; border-radius: 50%;">
-                <p class="text-muted small">No logo uploaded</p>
-            {% endif %}
+    <div class="pd-card pd-card-profile">
+      <div class="pd-profile-top">
+        <div class="pd-avatar-wrap">
+          {% if profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" alt="{{ profile.shop_name }}" class="pd-avatar">
+          {% else %}
+          <div class="pd-avatar pd-avatar-placeholder">
+            <i class="fas fa-store"></i>
+          </div>
+          {% endif %}
         </div>
-        <div class="profile-details  flex-grow-1 px-4 ">
-            <h3 class="mb-1 text-primary h3">{{ profile.shop_name }}</h3>
+        <div class="pd-profile-info">
+          <h1 class="pd-shop-name">{{ profile.shop_name }}</h1>
+          <div class="pd-rating">
             {% if profile.rating %}
-    <div class="seller-rating">
-        {% for i in "12345" %}
-            {% if forloop.counter <= profile.rating %}
-                <span style="color: gold;">★</span>
+              {% with irating=profile.rating|floatformat:"0"|add:"0" %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= irating %}
+                <i class="fas fa-star"></i>
+                {% else %}
+                <i class="far fa-star"></i>
+                {% endif %}
+              {% endfor %}
+              {% endwith %}
+              <span class="pd-rating-value">{{ profile.rating|floatformat:1 }}/5</span>
             {% else %}
-                <span style="color: lightgray;">★</span>
+              <span class="pd-no-rating">No ratings yet</span>
             {% endif %}
-        {% endfor %}
-        <small>({{ profile.rating|floatformat:1 }}/5)</small>
-    </div>
-{% else %}
-    <p>You don't have any ratings yet.</p>
-{% endif %}
-
-            <!-- <p class="mb-0 text-muted"><strong>Phone:</strong> {{ profile.phone }}</p> -->
-            <p class="mb-0 text-muted"><strong><i class="fas fa-map-marker-alt me-1 text-danger"></i></strong> {{ profile.address }}</p>
-            <p class="mb-2 text-muted"> {{ profile.description|default:"No description available." }}</p>
+          </div>
+          <div class="pd-meta">
+            <span><i class="fas fa-map-marker-alt"></i> {{ profile.address }}</span>
+            {% if profile.phone %}
+            <span><i class="fas fa-phone"></i> {{ profile.phone }}</span>
+            {% endif %}
+          </div>
+          {% if profile.description %}
+          <p class="pd-desc">{{ profile.description }}</p>
+          {% endif %}
         </div>
+      </div>
     </div>
-</div>
 
+    <div class="pd-products">
+      <div class="pd-products-header">
+        <h2 class="pd-products-title"><i class="fas fa-cube"></i> Products by {{ profile.shop_name }}</h2>
+        <span class="pd-products-count">{{ profile.products.all|length }} item{{ profile.products.all|length|pluralize }}</span>
+      </div>
 
-  <!-- Seller's Products Section -->
-  <div class="card border-0 shadow-sm mt-3">
-    <div class="card-body">
-      <h4 class="card-title mb-4 text-center text-md-start">🛍️ Products by {{ profile.shop_name }}</h4>
-
-      {% if profile.product_set.all %}
-      <div class="row g-4">
-        {% for product in profile.product_set.all %}
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <div class="card h-100 border-0 shadow-sm">
+      <div class="pd-products-grid">
+        {% for product in profile.products.all %}
+        <div class="pd-product-card">
+          <div class="pd-product-image-wrap">
             {% if product.image %}
-            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}"
-                 style="height: 200px; object-fit: contain;">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="pd-product-image">
             {% else %}
-            <div style="height:200px;display:flex;align-items:center;justify-content:center;color:var(--aq-accent);background:#f8f9fa;">
-              <i class="fas fa-box-open" style="font-size:3rem;"></i>
+            <div class="pd-product-image pd-product-image-placeholder">
+              <i class="fas fa-box-open"></i>
             </div>
             {% endif %}
-            <div class="card-body d-flex flex-column">
-              <h6 class="card-title text-truncate">{{ product.name }}</h6>
-              <p class="text-muted mb-2">&#8377;{{ product.price }}</p>
-              <a href="{% url 'shop:product_detail' product.id product.slug %}" class="btn btn-sm btn-primary mt-auto">View Product</a>
-            </div>
+          </div>
+          <div class="pd-product-body">
+            <h3 class="pd-product-name">{{ product.name }}</h3>
+            {% if product.brand %}
+            <span class="pd-product-brand">{{ product.brand }}</span>
+            {% endif %}
+            <span class="pd-product-price">₹{{ product.price }}</span>
+            <a href="{% url 'shop:product_detail' product.id product.slug %}" class="pd-product-btn">
+              View Product <i class="fas fa-arrow-right"></i>
+            </a>
           </div>
         </div>
+        {% empty %}
+        <div class="pd-empty">
+          <i class="fas fa-box-open"></i>
+          <p>No products listed yet.</p>
+        </div>
         {% endfor %}
       </div>
-      {% else %}
-        <p class="text-muted text-center mt-4">No products listed yet.</p>
-      {% endif %}
     </div>
+
   </div>
 </div>
 {% endblock %}

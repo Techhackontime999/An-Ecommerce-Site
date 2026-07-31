@@ -1,10 +1,8 @@
-# from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Deal
 from django.utils import timezone
-from .models import Deal
-from shop.models import Category
+from shop.models import Category, Product
 from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404
 
 from django.db.models import Avg
 # def todays_deals(request, category_slug=None):
@@ -76,8 +74,11 @@ def todays_deals(request, category_slug=None):
     page_number = request.GET.get('page')
     deals = paginator.get_page(page_number)
 
+    suggested_products = Product.objects.filter(available=True)[:10]
+
     return render(request, 'deals/todays_deals.html', {
         'deals': deals,
         'categories': categories,
         'category': category,
+        'suggested_products': suggested_products,
     })

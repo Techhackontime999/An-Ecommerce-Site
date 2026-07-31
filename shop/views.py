@@ -36,10 +36,19 @@ def product_list(request, category_slug=None):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    current_ids = [p.id for p in page_obj.object_list]
+    suggested_qs = Product.objects.filter(available=True).prefetch_related('deals')
+    if category:
+        suggested_qs = suggested_qs.filter(category=category)
+    if current_ids:
+        suggested_qs = suggested_qs.exclude(id__in=current_ids)
+    suggested_products = suggested_qs[:10]
+
     return render(request, 'shop/product/list.html', {
         'category': category,
         'categories': categories,
         'products': page_obj,
+        'suggested_products': suggested_products,
     })
 
 

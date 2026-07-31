@@ -39,10 +39,18 @@
           <i class="fas fa-user"></i>
         </button>
         <div class="nav-aq-dropdown-menu">
-          <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> Your Profile</a>
-          <a href="{% url 'order:my_orders' %}"><i class="fas fa-box"></i> Returns &amp; Orders</a>
-          <div class="nav-aq-dropdown-divider"></div>
-          <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          <div class="nav-aq-dropdown-menu-inner">
+            {% if is_seller %}
+            <a href="{% url 'seller:seller_dashboard' %}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            {% endif %}
+            {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}"><i class="fas fa-shield-alt"></i> Admin</a>
+            {% endif %}
+            <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> Your Profile</a>
+            <a href="{% url 'order:my_orders' %}"><i class="fas fa-box"></i> Returns &amp; Orders</a>
+            <div class="nav-aq-dropdown-divider"></div>
+            <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
         </div>
       </div>
       {% else %}

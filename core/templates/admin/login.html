@@ -1,20 +1,64 @@
 {% extends "admin/login.html" %}
-{% load static %}
+{% load i18n static %}
 
 {% block branding %}{% endblock %}
 
 {% block content %}
-<div class="login-brand">
-  <div class="brand-logo">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
-      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-    </svg>
+<div class="aq-login">
+  <div class="aq-login-card">
+    <div class="aq-login-header">
+      <div class="aq-login-logo">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1>Shop-Seed</h1>
+      <p class="aq-login-subtitle">Admin Panel &mdash; Sign in to continue</p>
+    </div>
+
+    {% if form.errors and not form.non_field_errors %}
+    <p class="errornote">
+      {% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
+    </p>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <p class="errornote">{{ error }}</p>
+    {% endfor %}
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <p class="errornote">
+      {% blocktranslate trimmed %}You are authenticated as {{ username }}, but are not authorized to access this page. Would you like to login to a different account?{% endblocktranslate %}
+    </p>
+    {% endif %}
+
+    <form action="{{ app_path }}" method="post" id="login-form" class="aq-login-form">
+      {% csrf_token %}
+      <div class="aq-form-group">
+        <label for="id_username">{{ form.username.label }}</label>
+        {{ form.username }}
+        {{ form.username.errors }}
+      </div>
+      <div class="aq-form-group">
+        <label for="id_password">{{ form.password.label }}</label>
+        {{ form.password }}
+        {{ form.password.errors }}
+        <input type="hidden" name="next" value="{{ next }}">
+      </div>
+      {% url 'admin_password_reset' as password_reset_url %}
+      {% if password_reset_url %}
+      <div class="aq-password-reset">
+        <a href="{{ password_reset_url }}">{% translate 'Forgotten your login credentials?' %}</a>
+      </div>
+      {% endif %}
+      <button type="submit" class="aq-login-btn">{% translate 'Log in' %}</button>
+    </form>
+
+    <div class="aq-login-footer">
+      <p>&copy; {% now "Y" %} Shop-Seed. All rights reserved.</p>
+    </div>
   </div>
-  <h1>Shop-Seed</h1>
-  <p class="login-subtitle">Admin Panel &mdash; Sign in to continue</p>
-</div>
-{{ block.super }}
-<div class="login-footer">
-  <p>&copy; {% now "Y" %} Shop-Seed. All rights reserved.</p>
 </div>
 {% endblock %}

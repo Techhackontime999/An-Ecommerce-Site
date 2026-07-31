@@ -1,11 +1,40 @@
 {% extends 'shop/base/base.html' %}
+{% load static %}
+{% block title %}Edit Product — Shop-Seed{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2>Edit Product</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-    </form>
+<div class="sp-page">
+  <div class="sp-inner">
+    <div class="sp-card">
+      <div class="sp-card-header">
+        <div class="sp-card-heading">
+          <i class="fas fa-edit"></i>
+          <h2 class="sp-title">Edit Product</h2>
+        </div>
+        <p class="sp-subtitle">Update the product details below.</p>
+      </div>
+      <div class="sp-card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {{ form.media }}
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="sp-field">
+            <label class="sp-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+            <p class="sp-help">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+            <p class="sp-error">{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endfor %}
+          <div class="sp-actions">
+            <a href="{% url 'seller:seller_dashboard' %}" class="sp-btn sp-btn-secondary">Cancel</a>
+            <button type="submit" class="sp-btn sp-btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

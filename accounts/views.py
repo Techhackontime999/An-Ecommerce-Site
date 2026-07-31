@@ -75,17 +75,20 @@ def seller_register(request):
 @login_required
 def profile_view(request):
     try:
-        if hasattr(request.user, 'sellerprofile'):
-            profile = request.user.sellerprofile
-            form_class = SellerProfileForm
-        else:
+        profile = request.user.sellerprofile
+        form_class = SellerProfileForm
+    except SellerProfile.DoesNotExist:
+        try:
             profile = request.user.customerprofile
             form_class = CustomerProfileForm
-    except (SellerProfile.DoesNotExist, CustomerProfile.DoesNotExist):
-        return redirect('shop:product_list')
+        except CustomerProfile.DoesNotExist:
+            profile = CustomerProfile.objects.create(
+                user=request.user, phone='', address=''
+            )
+            form_class = CustomerProfileForm
 
     if request.method == 'POST':
-        form = form_class(request.POST, instance=profile)
+        form = form_class(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             return redirect('accounts:profile')

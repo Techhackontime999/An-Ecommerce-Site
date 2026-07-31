@@ -1,63 +1,101 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
 
+{% block title %}Best Sellers — Shop-Seed{% endblock %}
+
 {% block content %}
-<div class="container py-5 ">
+<div class="bs-page">
+  <div class="bs-page-inner">
 
-  <div class="row g-4">
-    {% for seller in profile %}
-    <div class="col-md-6 col-lg-4 my-3">
-      <div style="border: 2px solid black;box-shadow:5px 5px 5px 1px rgba(0, 0, 0, 0.664)"class="card h-100 shadow-md border-0">
-        <div class="card-body d-flex flex-column align-items-center text-center">
-
-          {% if seller.profile_picture %}
-          <img src="{{ seller.profile_picture.url }}" alt="{{ seller.shop_name }} Logo"
-            class="rounded-circle shadow-sm mb-3" style="width: 100px; height: 100px; object-fit: cover;">
-          {% else %}
-          <img src="{% static 'images/default-store.png' %}" alt="Default Store Logo"
-            class="rounded-circle shadow-sm mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+    <div class="bs-header">
+      <div class="bs-header-text">
+        <h1 class="bs-title"><i class="fas fa-trophy"></i> Best Sellers</h1>
+        <p class="bs-subtitle">Top-rated sellers on Shop-Seed</p>
+      </div>
+      <div class="bs-header-end">
+        <form class="bs-search" method="GET" action="{% url 'seller:best_sellers' %}">
+          <i class="fas fa-search bs-search-icon"></i>
+          <input type="text" name="q" placeholder="Search sellers..." value="{{ query }}" class="bs-search-input">
+          {% if query %}
+          <a href="{% url 'seller:best_sellers' %}" class="bs-search-clear"><i class="fas fa-times"></i></a>
           {% endif %}
-
-          <h5 class="card-title mb-1">{{ seller.shop_name }}</h5>
-          <p class="text-muted small mb-2">{{ seller.description|truncatewords:15 }}</p>
-          <small class="text-muted">Score: {{ seller.composite_score }}</small>
-          <small class="text-muted">Reviews: {{ seller.seller_reviews.count }}</small>
-          {% if forloop.counter <= 3 %}
-          <span class="badge bg-warning px-2 text-dark">Top {{ forloop.counter }}</span>
-      {% endif %}
-
-        <div class="text-warning">
-          {% if seller.rating %}
-          <div class="seller-rating">
-              {% for i in "12345" %}
-                  {% if forloop.counter <= seller.rating %}
-                      <span style="color: gold;">★</span>
-                  {% else %}
-                      <span style="color: lightgray;">★</span>
-                  {% endif %}
-              {% endfor %}
-              <small>({{ seller.rating|floatformat:1 }}/5)</small>
-          </div>
-
-      {% else %}
-          <p>This seller don't have any ratings yet.</p>
-      {% endif %}
-        </div>
-
-          <p class="text-muted small">
-            <i class="fas fa-map-marker-alt me-1 text-danger"></i>
-            {{ seller.address }}
-          </p>
-
-          <a href="{% url 'seller:profile_details' seller.slug %}" class="btn btn-sm btn-outline-primary mt-2">
-            View Profile
-          </a>
-
-        </div>
+        </form>
+        <span class="bs-count-badge">{{ profile|length }} seller{{ profile|length|pluralize }}</span>
       </div>
     </div>
-    {% endfor %}
-  </div>
 
+    {% if profile %}
+    <div class="bs-grid">
+      {% for seller in profile %}
+      <div class="bs-card">
+        {% if forloop.counter <= 3 %}
+        <div class="bs-card-badge bs-card-badge-top{{ forloop.counter }}">
+          <i class="fas fa-crown"></i> Top {{ forloop.counter }}
+        </div>
+        {% endif %}
+
+        <div class="bs-card-avatar-wrap">
+          {% if seller.profile_picture %}
+          <img src="{{ seller.profile_picture.url }}" alt="{{ seller.shop_name }}" class="bs-card-avatar">
+          {% else %}
+          <div class="bs-card-avatar bs-card-avatar-placeholder">
+            <i class="fas fa-store"></i>
+          </div>
+          {% endif %}
+        </div>
+
+        <h3 class="bs-card-name">{{ seller.shop_name }}</h3>
+
+        <div class="bs-card-rating">
+          {% if seller.rating %}
+            {% with irating=seller.rating|floatformat:"0"|add:"0" %}
+            {% for i in "12345" %}
+              {% if forloop.counter <= irating %}
+                <i class="fas fa-star"></i>
+              {% else %}
+                <i class="far fa-star"></i>
+              {% endif %}
+            {% endfor %}
+            {% endwith %}
+            <span class="bs-card-rating-value">{{ seller.rating|floatformat:1 }}/5</span>
+          {% else %}
+            <span class="bs-card-no-rating">No ratings yet</span>
+          {% endif %}
+        </div>
+
+        <div class="bs-card-meta">
+          <span><i class="fas fa-map-marker-alt"></i> {{ seller.address|truncatewords:8 }}</span>
+        </div>
+
+        {% if seller.description %}
+        <p class="bs-card-desc">{{ seller.description|truncatewords:18 }}</p>
+        {% endif %}
+
+        <div class="bs-card-stats">
+          <div class="bs-card-stat">
+            <span class="bs-card-stat-value">{{ seller.composite_score|floatformat:1 }}</span>
+            <span class="bs-card-stat-label">Score</span>
+          </div>
+          <div class="bs-card-stat">
+            <span class="bs-card-stat-value">{{ seller.seller_reviews.count }}</span>
+            <span class="bs-card-stat-label">Reviews</span>
+          </div>
+        </div>
+
+        <a href="{% url 'seller:profile_details' seller.slug %}" class="bs-card-btn">
+          View Profile <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="bs-empty">
+      <i class="fas fa-store-slash"></i>
+      <h3>No sellers found</h3>
+      <p>Check back later for new sellers joining Shop-Seed.</p>
+    </div>
+    {% endif %}
+
+  </div>
 </div>
 {% endblock %}

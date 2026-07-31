@@ -1,61 +1,154 @@
 {% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Your Profile — Shop-Seed{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Your Profile</h2>
-    
-    <!-- Profile Section -->
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title mb-3">Personal Information</h5>
-            <form method="post">
-                {% csrf_token %}
-                
-                <!-- Display the form fields with custom Bootstrap styling -->
-                <div class="mb-3">
-                    <label for="shop_name" class="form-label">Shop Name</label>
-                    {{ form.shop_name }}
-                </div>
-                <div class="mb-3">
-                    <label for="gst_number" class="form-label">GST Number</label>
-                    {{ form.gst_number }}
-                </div>
-                <div class="mb-3">
-                    <label for="phone" class="form-label">Phone</label>
-                    {{ form.phone }}
-                </div>
-                <div class="mb-3">
-                    <label for="address" class="form-label">Address</label>
-                    {{ form.address }}
-                </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    {{ form.description }}
-                </div>
-                
-                <!-- Save Changes Button -->
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                </div>
-            </form>
-        </div>
+<div class="ap-page">
+  <div class="ap-page-inner">
+
+    <div class="ap-header">
+      <h1 class="ap-title"><i class="fas fa-user-circle"></i> Your Profile</h1>
     </div>
 
-    <!-- Profile Picture Section (Optional) -->
-    <div class="mt-4">
-        <h5 class="mb-3">Profile Picture</h5>
-        <div class="text-center">
-            <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}/static/default-avatar.png{% endif %}" alt="Profile Picture" class="img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="mt-2">
-                    <label for="profile_picture" class="form-label">Change Profile Picture</label>
-                    <input type="file" name="profile_picture" id="profile_picture" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary mt-2">Upload New Picture</button>
-            </form>
+    {% if profile.shop_name %}
+    {# --- SELLER PROFILE --- #}
+    <div class="ap-card ap-card-profile">
+      <div class="ap-profile-top">
+        <div class="ap-avatar-wrap">
+          {% if profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" alt="{{ profile.shop_name }}" class="ap-avatar">
+          {% else %}
+          <div class="ap-avatar ap-avatar-placeholder">
+            <i class="fas fa-store"></i>
+          </div>
+          {% endif %}
         </div>
+        <div class="ap-profile-info">
+          <h2 class="ap-shop-name">{{ profile.shop_name }}</h2>
+          <div class="ap-meta">
+            <span><i class="fas fa-star"></i> {{ profile.rating|floatformat:1 }}/5</span>
+            <span><i class="fas fa-phone"></i> {{ profile.phone }}</span>
+            {% if profile.gst_number %}
+            <span><i class="fas fa-file-invoice"></i> GST: {{ profile.gst_number }}</span>
+            {% endif %}
+            <span><i class="fas fa-check-circle" style="color: #16A34A;"></i> {% if profile.is_verified %}Verified Seller{% else %}Unverified{% endif %}</span>
+          </div>
+          <p class="ap-desc">{{ profile.description|default:"No description." }}</p>
+        </div>
+      </div>
     </div>
+
+    <div class="ap-card">
+      <div class="ap-card-header">
+        <i class="fas fa-edit"></i> Edit Shop Details
+      </div>
+      <div class="ap-card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="ap-form-grid">
+            <div class="ap-field">
+              <label for="{{ form.shop_name.id_for_label }}">Shop Name</label>
+              {{ form.shop_name }}
+              {% for e in form.shop_name.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.gst_number.id_for_label }}">GST Number</label>
+              {{ form.gst_number }}
+              {% for e in form.gst_number.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.phone.id_for_label }}">Phone</label>
+              {{ form.phone }}
+              {% for e in form.phone.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.address.id_for_label }}">Address</label>
+              {{ form.address }}
+              {% for e in form.address.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+          </div>
+          <div class="ap-field ap-field-full">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {% for e in form.description.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="ap-field ap-field-full">
+            <label for="{{ form.profile_picture.id_for_label }}">Profile Picture</label>
+            <div class="ap-file-wrap">
+              {{ form.profile_picture }}
+              <span class="ap-file-label"><i class="fas fa-camera"></i> Choose Image</span>
+            </div>
+            {% for e in form.profile_picture.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="ap-form-actions">
+            <button type="submit" class="ap-btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% else %}
+    {# --- CUSTOMER / NEW USER PROFILE --- #}
+    <div class="ap-card ap-card-profile">
+      <div class="ap-profile-top">
+        <div class="ap-avatar-wrap">
+          {% if profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" alt="{{ request.user.username }}" class="ap-avatar">
+          {% else %}
+          <div class="ap-avatar ap-avatar-placeholder">
+            <i class="fas fa-user"></i>
+          </div>
+          {% endif %}
+        </div>
+        <div class="ap-profile-info">
+          <h2 class="ap-shop-name">{{ request.user.username }}</h2>
+          <div class="ap-meta">
+            <span><i class="fas fa-envelope"></i> {{ request.user.email }}</span>
+            <span><i class="fas fa-calendar-alt"></i> Joined {{ request.user.date_joined|date:"M Y" }}</span>
+            {% if profile.phone %}
+            <span><i class="fas fa-phone"></i> {{ profile.phone }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-card">
+      <div class="ap-card-header">
+        <i class="fas fa-edit"></i> Edit Details
+      </div>
+      <div class="ap-card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="ap-form-grid">
+            <div class="ap-field">
+              <label for="{{ form.phone.id_for_label }}">Phone</label>
+              {{ form.phone }}
+              {% for e in form.phone.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.address.id_for_label }}">Address</label>
+              {{ form.address }}
+              {% for e in form.address.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+          </div>
+          <div class="ap-field ap-field-full">
+            <label for="{{ form.profile_picture.id_for_label }}">Profile Picture</label>
+            <div class="ap-file-wrap">
+              {{ form.profile_picture }}
+              <span class="ap-file-label"><i class="fas fa-camera"></i> Choose Image</span>
+            </div>
+            {% for e in form.profile_picture.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="ap-form-actions">
+            <button type="submit" class="ap-btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
 </div>
-
 {% endblock %}

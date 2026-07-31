@@ -1,19 +1,40 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
 
+{% block title %}{{ service.title }} — Shop-Seed{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <h2>{{ service.title }}</h2>
-    <div class="row">
-        <div class="col-md-6">
-            {% if service.image %}
-            <img src="{{ service.image.url }}" class="img-fluid" alt="{{ service.title }}">
-            {% endif %}
-        </div>
-        <div class="col-md-6">
-            <h4>Details</h4>
-            <p>{{ service.details|safe }}</p>
-        </div>
+<div class="svc-page">
+  <div class="svc-inner">
+
+    <a href="{% url 'services:services_list' %}" class="svc-back">
+      <i class="fas fa-arrow-left"></i> All Services
+    </a>
+
+    <div class="svc-detail-card">
+      {% if service.image %}
+      <div class="svc-detail-media">
+        <img src="{{ service.image.url }}" alt="{{ service.title }}" class="svc-detail-img">
+      </div>
+      {% endif %}
+      <div class="svc-detail-content">
+        <span class="svc-detail-badge"><i class="fas fa-cogs"></i> Service</span>
+        <h1 class="svc-detail-title">{{ service.title }}</h1>
+        <p class="svc-detail-desc">{{ service.description }}</p>
+        <div class="svc-detail-body">{{ service.details|safe }}</div>
+      </div>
     </div>
+
+    <div class="svc-detail-cta">
+      <div>
+        <h2 class="svc-cta-title">Want to know more?</h2>
+        <p class="svc-cta-sub">Contact us to learn how this service can help you.</p>
+      </div>
+      <a href="{% url 'shop:home' %}" class="svc-cta-btn">
+        Contact Us <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+  </div>
 </div>
 {% endblock %}
