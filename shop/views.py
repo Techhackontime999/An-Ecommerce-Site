@@ -90,6 +90,24 @@ def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
     cart_product_form = CartAddProductForm()
 
+    from reviews.models import ProductReview
+    from django.db.models import Avg, Count
+    approved = ProductReview.objects.filter(
+        product=product,
+        status=ProductReview.Status.APPROVED,
+    ).select_related('reviewer').prefetch_related('helpful_votes')
+    aggregate = approved.aggregate(average=Avg('overall_rating'))
+    widget_total = approved.count()
+    widget_average = round(aggregate['average'], 1) if aggregate['average'] else 0
+    widget_recommend = (
+        round(approved.filter(recommendation_rating__gte=70).count() / widget_total * 100)
+        if widget_total else 0
+    )
+    user_review = (
+        ProductReview.objects.filter(product=product, reviewer=request.user).first()
+        if request.user.is_authenticated else None
+    )
+
     related_qs = Product.objects.filter(available=True).prefetch_related('deals')
     same_category = related_qs.filter(category=product.category).exclude(id=product.id)[:6]
     if len(same_category) < 6:
@@ -110,6 +128,11 @@ def product_detail(request, id, slug):
         'product': product,
         'cart_product_form': cart_product_form,
         'suggested_products': suggested_products[:12],
+        'widget_reviews': approved[:3],
+        'widget_total': widget_total,
+        'widget_average': widget_average,
+        'widget_recommend': widget_recommend,
+        'user_review': user_review,
     }
     return render(request, 'shop/product/detail.html', context)
 

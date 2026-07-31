@@ -14,6 +14,9 @@ class SellerProfile(models.Model):
     shop_name = models.CharField(max_length=100)
     gst_number = models.CharField(max_length=15, blank=True, null=True)  # Optional GST field
     bank_account = models.CharField(max_length=100)
+    account_holder_name = models.CharField(max_length=100, blank=True, null=True)
+    ifsc_code = models.CharField(max_length=11, blank=True, null=True)
+    bank_name = models.CharField(max_length=100, blank=True, null=True)
     phone = models.CharField(max_length=15)
     address = models.TextField()
     description = models.TextField(blank=True)

@@ -1,0 +1,46 @@
+{% load static %}
+<div class="review-widget">
+  <div class="review-widget-head">
+    <div>
+      <h2 class="display-section" style="font-size:1.5rem;margin-bottom:0.25rem;">Customer Reviews</h2>
+      {% if widget_total %}
+      <div class="review-widget-summary">
+        <span class="review-stars">
+          {% for i in "12345"|make_list %}
+            {% if forloop.counter <= widget_average %}<i class="fas fa-star"></i>
+            {% else %}<i class="far fa-star"></i>{% endif %}
+          {% endfor %}
+        </span>
+        <strong>{{ widget_average }}</strong> · {{ widget_total }} review{{ widget_total|pluralize }}
+        {% if widget_recommend %}<span class="review-widget-recommend"><i class="fas fa-thumbs-up"></i> {{ widget_recommend }}% recommend</span>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% if user.is_authenticated %}
+      {% if user_review %}
+      <a href="{% url 'reviews:product_review_detail' user_review.pk %}" class="btn-aq btn-aq-ghost"><i class="fas fa-edit"></i> My review</a>
+      {% else %}
+      <a href="{% url 'reviews:create_product_review' product.pk %}" class="btn-aq btn-aq-primary"><i class="fas fa-pen"></i> Write a detailed review</a>
+      {% endif %}
+    {% else %}
+    <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn-aq btn-aq-primary"><i class="fas fa-pen"></i> Write a review</a>
+    {% endif %}
+  </div>
+
+  {% if widget_reviews %}
+  <div class="review-widget-list">
+    {% for review in widget_reviews %}
+      {% include 'reviews/partials/review_item.html' %}
+    {% endfor %}
+  </div>
+  <div class="review-widget-footer">
+    <a href="{% url 'reviews:product_review_list' product.pk %}" class="blog-text-link">See all {{ widget_total }} reviews <i class="fas fa-arrow-right"></i></a>
+  </div>
+  {% else %}
+  <div class="empty-aq">
+    <div class="empty-aq-icon"><i class="fas fa-comment"></i></div>
+    <h3>No detailed reviews yet</h3>
+    <p>Be the first to share an in-depth review of this product.</p>
+  </div>
+  {% endif %}
+</div>

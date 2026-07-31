@@ -1,0 +1,71 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Notifications — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--compact">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-bell"></i> Notifications</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">Your activity</h1>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        <div class="blog-notif-toolbar">
+          {% if unread_count %}<span class="blog-notif-count">{{ unread_count }} unread</span>{% endif %}
+          {% if notifications %}
+          <form method="post" action="{% url 'blogs:mark_notifications_read' %}">
+            {% csrf_token %}
+            <button type="submit" class="blog-action-btn"><i class="fas fa-check-double"></i> Mark all read</button>
+          </form>
+          {% endif %}
+        </div>
+
+        {% if notifications %}
+        <div class="blog-notif-list">
+          {% for item in notifications %}
+          <div class="blog-notif-item{% if not item.is_read %} unread{% endif %}">
+            <span class="blog-avatar">{{ item.actor.username|first|upper }}</span>
+            <div class="blog-notif-body">
+              <p>
+                <a href="{% url 'blogs:profile' item.actor.username %}"><strong>{{ item.actor.username }}</strong></a>
+                {{ item.get_verb_display }}
+                {% if item.verb == 'follow' %}
+                  you
+                {% else %}
+                  <a href="{% url 'blogs:post_detail' item.target.post.pk item.target.post.slug %}#comment-{{ item.target.pk }}"><strong>{{ item.target.post.title }}</strong></a>
+                {% endif %}
+              </p>
+              <span class="blog-notif-date">{{ item.created|timesince }} ago</span>
+            </div>
+            {% if not item.is_read %}
+            <span class="blog-notif-dot" aria-hidden="true"></span>
+            {% endif %}
+          </div>
+          {% empty %}
+          <div class="blog-empty">
+            <i class="fas fa-bell-slash"></i>
+            <h3>All caught up</h3>
+            <p>Comments, likes, and follows will show up here.</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-bell-slash"></i>
+          <h3>No notifications yet</h3>
+          <p>When someone comments, likes, or follows you, it shows up here.</p>
+        </div>
+        {% endif %}
+
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,67 @@
+<article class="review-card">
+  <div class="review-card-head">
+    <div class="review-card-user">
+      <a href="{% url 'blogs:profile' review.reviewer.username %}" class="blog-avatar">{{ review.reviewer.username|first|upper }}</a>
+      <div>
+        <a href="{% url 'blogs:profile' review.reviewer.username %}" class="review-card-name">{{ review.reviewer.username }}</a>
+        <div class="review-card-meta">
+          <span class="review-stars">
+            {% for i in "12345"|make_list %}
+              {% if forloop.counter <= review.overall_rating %}<i class="fas fa-star"></i>
+              {% else %}<i class="far fa-star"></i>{% endif %}
+            {% endfor %}
+          </span>
+          <span class="review-card-date">{{ review.created|date:"M d, Y" }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="review-card-badges">
+      {% if review.verified_purchase %}
+      <span class="review-badge review-badge--verified"><i class="fas fa-check-circle"></i> Verified purchase</span>
+      {% endif %}
+      {% if review.is_verified_reviewer %}
+      <span class="review-badge"><i class="fas fa-shield-alt"></i> Verified reviewer</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="review-card-scores">
+    <span class="review-score"><small>Performance</small><strong>{{ review.performance|default:"—" }}/5</strong></span>
+    <span class="review-score"><small>Value</small><strong>{{ review.value|default:"—" }}/5</strong></span>
+    <span class="review-score"><small>Quality</small><strong>{{ review.quality|default:"—" }}/5</strong></span>
+    {% if review.recommendation_rating %}
+    <span class="review-score review-score--rec"><small>Recommend</small><strong>{{ review.recommendation_rating }}%</strong></span>
+    {% endif %}
+  </div>
+
+  {% if review.pros %}
+  <div class="review-pros"><i class="fas fa-plus-circle"></i> <strong>Pros:</strong> {{ review.pros|linebreaksbr }}</div>
+  {% endif %}
+  {% if review.cons %}
+  <div class="review-cons"><i class="fas fa-minus-circle"></i> <strong>Cons:</strong> {{ review.cons|linebreaksbr }}</div>
+  {% endif %}
+  {% if review.review_text %}
+  <p class="review-card-text">{{ review.review_text|linebreaksbr }}</p>
+  {% endif %}
+  {% if review.image %}
+  <img class="review-card-image" src="{{ review.image.url }}" alt="Review photo">
+  {% endif %}
+  {% if review.video_url %}
+  <a class="blog-text-link" href="{{ review.video_url }}" target="_blank" rel="noopener"><i class="fas fa-video"></i> Watch the video review</a>
+  {% endif %}
+
+  <div class="review-card-actions">
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'reviews:toggle_review_helpful' review.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="blog-helpful-btn{% if user in review.helpful_votes.all %} active{% endif %}">
+        <i class="fas fa-thumbs-up"></i> {{ review.helpful_count }}
+      </button>
+    </form>
+    {% else %}
+    <span class="blog-helpful-btn"><i class="fas fa-thumbs-up"></i> {{ review.helpful_count }}</span>
+    {% endif %}
+    <a class="blog-action-btn" href="{% url 'reviews:product_review_detail' review.pk %}"><i class="fas fa-arrow-right"></i> Read full review</a>
+    <a class="blog-action-btn blog-action-btn--danger" href="{% url 'reviews:report_review' review.pk %}"><i class="fas fa-flag"></i> Report</a>
+  </div>
+</article>

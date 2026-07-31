@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
 
     'crispy_forms',
     'ckeditor',
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
     'seller',
     'search',
     'reviews',
+    'blogs.apps.BlogsConfig',
     'payments.apps.PaymentsConfig',
     'shipping.apps.ShippingConfig',
 ]
@@ -87,6 +89,7 @@ TEMPLATES = [
                 'cart.context_processors.cart',
                 'shop.context_processors.search_action_context',
                 'seller.context_processors.seller_context',
+                'blogs.context_processors.blog_nav',
             ],
         },
     },

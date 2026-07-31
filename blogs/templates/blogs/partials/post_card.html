@@ -1,0 +1,43 @@
+<article class="blog-card{% if lead %} blog-card--lead{% endif %} fade-up" style="transition-delay:{% widthratio forloop.counter0 1 60 %}ms">
+  <a class="blog-card-link" href="{{ post.get_absolute_url }}">
+    <div class="blog-card-media">
+      {% if post.featured_image %}
+      <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy" decoding="async">
+      {% else %}
+      <div class="blog-card-media-placeholder">
+        <i class="fas fa-newspaper"></i>
+      </div>
+      {% endif %}
+      <span class="blog-type-badge">{{ post.get_post_type_display }}</span>
+    </div>
+    <div class="blog-card-body">
+      <div class="blog-card-meta">
+        <span class="blog-avatar">{{ post.author.username|first|upper }}</span>
+        <span class="blog-card-author">{{ post.author.username }}</span>
+        <span class="blog-dot">&middot;</span>
+        <span class="blog-card-date">{{ post.publish_at|date:"M d, Y" }}</span>
+        <span class="blog-dot">&middot;</span>
+        <span class="blog-card-date"><i class="far fa-clock"></i> {{ post.reading_time }}m</span>
+      </div>
+      <h3 class="blog-card-title">{{ post.title }}</h3>
+      <p class="blog-card-excerpt">
+        {% if post.excerpt %}{{ post.excerpt|truncatewords:24 }}{% else %}{{ post.body|striptags|truncatewords:26 }}{% endif %}
+      </p>
+      <div class="blog-card-footer">
+        <div class="blog-tags">
+          {% for tag in post.tags.all|slice:":3" %}
+          <span class="blog-tag">{{ tag.name }}</span>
+          {% endfor %}
+        </div>
+        <div class="blog-card-footer-right">
+          <div class="blog-card-stats">
+            <span><i class="far fa-eye"></i> {{ post.view_count }}</span>
+            <span><i class="far fa-comment"></i> {{ post.comment_count }}</span>
+            <span><i class="far fa-heart"></i> {{ post.like_count }}</span>
+          </div>
+          <span class="blog-card-readmore">Read <i class="fas fa-arrow-right"></i></span>
+        </div>
+      </div>
+    </div>
+  </a>
+</article>

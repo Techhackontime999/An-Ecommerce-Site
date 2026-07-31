@@ -1,0 +1,37 @@
+{% extends "shop/base/base.html" %}
+
+{% block title %}#{{ tag.name }} — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--tag">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-hashtag"></i> Tag</span>
+    <h1 class="display-section" style="margin-top:0.75rem">{{ tag.name }}</h1>
+    <p class="body-large">{{ page_obj.paginator.count }} post{{ page_obj.paginator.count|pluralize }} tagged "{{ tag.name }}"</p>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if posts %}
+        <div class="blog-grid">
+          {% for post in posts %}
+            {% include 'blogs/partials/post_card.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-hashtag"></i>
+          <h3>Nothing here yet</h3>
+          <p>No posts tagged "{{ tag.name }}" yet.</p>
+        </div>
+        {% endif %}
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

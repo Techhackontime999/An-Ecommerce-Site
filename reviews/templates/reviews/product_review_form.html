@@ -1,0 +1,118 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Write a review — {{ product.name }} — Shop-Seed{% endblock %}
+
+{% block content %}
+<section class="section-aq" style="padding-top:6rem;">
+  <div class="container-aq">
+    <div class="blog-form-layout">
+      <div class="blog-form-main">
+        <div class="blog-form-heading">
+          <span class="hero-aq-badge" style="margin-bottom:1rem;"><i class="fas fa-star"></i> Product review</span>
+          <h1 class="display-section">{% if editing %}Edit your review{% else %}Review {{ product.name }}{% endif %}</h1>
+          <p class="body-large">Honest, detailed reviews help the whole community. Verified purchases are badged automatically.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <div class="blog-field-block">
+            <label class="blog-field-label">Overall rating</label>
+            <div class="review-star-select">
+              {% for value, label in form.overall_rating.field.choices %}
+              <label class="review-star-option">
+                <input type="radio" name="{{ form.overall_rating.html_name }}" value="{{ value }}"{% if form.overall_rating.value|stringformat:"s" == value|stringformat:"s" %} checked{% endif %}>
+                <span class="review-star-chip" data-score="{{ value }}">
+                  {% for i in "12345"|make_list %}{% if forloop.counter <= value|add:"0" %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}{% endfor %}
+                </span>
+              </label>
+              {% endfor %}
+            </div>
+            {% for error in form.overall_rating.errors %}<p class="blog-field-error">{{ error }}</p>{% endfor %}
+          </div>
+
+          <div class="blog-field-row">
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.performance.id_for_label }}">Performance</label>
+              {{ form.performance }}
+            </div>
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.value.id_for_label }}">Value for money</label>
+              {{ form.value }}
+            </div>
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.quality.id_for_label }}">Build quality</label>
+              {{ form.quality }}
+            </div>
+          </div>
+
+          <div class="blog-field-row">
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.recommendation_rating.id_for_label }}">Would you recommend? (0–100%)</label>
+              {{ form.recommendation_rating }}
+            </div>
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.video_url.id_for_label }}">Video review URL</label>
+              {{ form.video_url }}
+            </div>
+          </div>
+
+          <div class="blog-field-row">
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.pros.id_for_label }}">What you liked</label>
+              {{ form.pros }}
+            </div>
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.cons.id_for_label }}">What could be better</label>
+              {{ form.cons }}
+            </div>
+          </div>
+
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="{{ form.review_text.id_for_label }}">Your experience</label>
+            {{ form.review_text }}
+            {% for error in form.review_text.errors %}<p class="blog-field-error">{{ error }}</p>{% endfor %}
+          </div>
+
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="{{ form.image.id_for_label }}">Photo</label>
+            {{ form.image }}
+          </div>
+
+          <div class="blog-form-actions">
+            <button type="submit" class="btn-aq btn-aq-primary"><i class="fas fa-paper-plane"></i> {% if editing %}Save review{% else %}Submit review{% endif %}</button>
+            <a href="{{ product.get_absolute_url }}" class="btn-aq btn-aq-ghost">Cancel</a>
+          </div>
+        </form>
+      </div>
+
+      <aside class="blog-form-aside">
+        <div class="blog-sidebar-card">
+          <h4 class="blog-sidebar-title"><i class="fas fa-info-circle"></i> Review guidelines</h4>
+          <ul class="blog-tip-list">
+            <li>Reviews are public and visible on your author profile.</li>
+            <li>Paid or incentivised reviews are not allowed — reports are reviewed by humans.</li>
+            <li>If you purchased this product, your review gets a <em>Verified purchase</em> badge.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.review-star-option input').forEach(function (input) {
+  input.addEventListener('change', function () {
+    document.querySelectorAll('.review-star-chip').forEach(function (chip) {
+      chip.classList.remove('selected');
+    });
+    if (input.checked) {
+      input.parentElement.querySelector('.review-star-chip').classList.add('selected');
+    }
+  });
+});
+</script>
+{% endblock %}

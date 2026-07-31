@@ -1,0 +1,95 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Market Blog — Shop-Seed{% endblock %}
+
+{% block extra_css %}
+<meta name="description" content="Guides, product reviews, and buying tips from the Shop-Seed Market Blog.">
+{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--split">
+  <div class="container-aq">
+    <div class="blog-hero-inner">
+      <div class="blog-hero-copy">
+        <span class="hero-aq-badge fade-up">
+          <i class="fas fa-blog"></i> Market Blog
+        </span>
+        <h1 class="display-section blog-hero-title fade-up">Stories, <span class="blog-hero-grad">Guides &amp; Reviews</span></h1>
+        <p class="body-large fade-up">Hand-picked products, buying guides, and seller stories — written by people who actually shop here.</p>
+        <div class="blog-hero-actions fade-up">
+          <a href="#latest" class="btn-aq btn-aq-primary"><i class="fas fa-arrow-down"></i> Start reading</a>
+          <a href="{% url 'blogs:leaderboard' %}" class="btn-aq btn-aq-ghost"><i class="fas fa-trophy"></i> Leaderboard</a>
+          {% if user.is_authenticated %}
+          <a href="{% url 'blogs:post_create' %}" class="btn-aq btn-aq-ghost"><i class="fas fa-feather-alt"></i> Write a post</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="blog-hero-stats fade-up" aria-hidden="true">
+        <div class="blog-stat"><i class="fas fa-newspaper"></i><span>{{ page_obj.paginator.count }}</span><small>posts live</small></div>
+        <div class="blog-stat"><i class="fas fa-users"></i><span>{{ top_author_count|default:"24" }}</span><small>active writers</small></div>
+        <div class="blog-stat"><i class="fas fa-fire"></i><span>7d</span><small>trending window</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-aq" id="latest">
+  <div class="container-aq">
+    <div class="blog-feed-tabs fade-up" role="tablist">
+      <a href="?feed=recent" class="blog-feed-tab{% if feed == 'recent' %} active{% endif %}"><i class="fas fa-stream"></i> Recent</a>
+      <a href="?feed=trending" class="blog-feed-tab{% if feed == 'trending' %} active{% endif %}"><i class="fas fa-fire"></i> Trending</a>
+      <a href="?feed=picks" class="blog-feed-tab{% if feed == 'picks' %} active{% endif %}"><i class="fas fa-star"></i> Editors' Picks</a>
+      <span class="blog-feed-tabs-spacer"></span>
+      <form method="get" action="{% url 'blogs:post_search' %}" class="blog-feed-search">
+        <i class="fas fa-search"></i>
+        <input type="text" name="q" placeholder="Search the blog..." value="">
+      </form>
+    </div>
+
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if feed == 'recent' and pinned_posts %}
+        <div class="blog-featured-row">
+          {% for post in pinned_posts %}
+            {% if forloop.first %}
+              {% include 'blogs/partials/featured_card.html' %}
+            {% else %}
+              <div class="blog-featured-stack">
+                {% include 'blogs/partials/post_card.html' %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if feed == 'picks' %}
+        <h2 class="blog-section-heading"><i class="fas fa-star"></i> Editors' Picks</h2>
+        {% elif feed == 'trending' %}
+        <h2 class="blog-section-heading"><i class="fas fa-fire"></i> Trending this week</h2>
+        {% else %}
+        <h2 class="blog-section-heading"><i class="fas fa-layer-group"></i> Latest Posts</h2>
+        {% endif %}
+
+        {% if posts %}
+        <div class="blog-grid blog-grid--lead">
+          {% for post in posts %}
+            {% include 'blogs/partials/post_card.html' with lead=forloop.first %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-feather-alt"></i>
+          <h3>Nothing here yet</h3>
+          <p>Check back soon — our authors are hard at work.</p>
+        </div>
+        {% endif %}
+
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Leaderboard — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--tag">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-trophy"></i> Leaderboard</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">The community's most valuable voices</h1>
+    <p class="body-large">Earn XP by posting, commenting, and helping others decide what to buy.</p>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-leaderboard-grid">
+      <div class="blog-sidebar-card blog-lead-card">
+        <h4 class="blog-sidebar-title"><i class="fas fa-bolt"></i> Top authors by XP</h4>
+        <ol class="blog-lead-list">
+          {% for profile in top_authors %}
+          <li class="blog-lead-item">
+            <span class="blog-lead-rank">{{ forloop.counter }}</span>
+            {% if profile.avatar %}
+            <img class="blog-avatar blog-avatar--img" src="{{ profile.avatar.url }}" alt="{{ profile.user.username }}">
+            {% else %}
+            <span class="blog-avatar">{{ profile.user.username|first|upper }}</span>
+            {% endif %}
+            <div class="blog-lead-meta">
+              <a class="blog-lead-name" href="{% url 'blogs:profile' profile.user.username %}">{{ profile.user.username }}</a>
+              <span class="blog-lead-sub">{{ profile.num_posts }} posts · {{ profile.total_likes }} likes</span>
+            </div>
+            <span class="blog-lead-score">LVL {{ profile.level }}<small>{{ profile.xp }} XP</small></span>
+          </li>
+          {% empty %}
+          <li class="blog-empty-text">No authors yet.</li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      <div class="blog-sidebar-card blog-lead-card">
+        <h4 class="blog-sidebar-title"><i class="fas fa-thumbs-up"></i> Top commenters</h4>
+        <ol class="blog-lead-list">
+          {% for user in top_commenters %}
+          <li class="blog-lead-item">
+            <span class="blog-lead-rank">{{ forloop.counter }}</span>
+            <span class="blog-avatar">{{ user.username|first|upper }}</span>
+            <div class="blog-lead-meta">
+              <a class="blog-lead-name" href="{% url 'blogs:profile' user.username %}">{{ user.username }}</a>
+              <span class="blog-lead-sub">helpful votes received</span>
+            </div>
+            <span class="blog-lead-score">{{ user.total_helpful }}<small>helpful</small></span>
+          </li>
+          {% empty %}
+          <li class="blog-empty-text">No commenters yet.</li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      <div class="blog-sidebar-card blog-lead-card">
+        <h4 class="blog-sidebar-title"><i class="fas fa-star"></i> Top reviewers</h4>
+        <ol class="blog-lead-list">
+          {% for user in top_reviewers %}
+          <li class="blog-lead-item">
+            <span class="blog-lead-rank">{{ forloop.counter }}</span>
+            <span class="blog-avatar">{{ user.username|first|upper }}</span>
+            <div class="blog-lead-meta">
+              <a class="blog-lead-name" href="{% url 'blogs:profile' user.username %}">{{ user.username }}</a>
+              <span class="blog-lead-sub">approved product reviews</span>
+            </div>
+            <span class="blog-lead-score">{{ user.total_reviews }}<small>reviews</small></span>
+          </li>
+          {% empty %}
+          <li class="blog-empty-text">No reviewers yet.</li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

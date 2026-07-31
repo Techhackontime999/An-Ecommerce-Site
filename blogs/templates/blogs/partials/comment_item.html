@@ -1,0 +1,41 @@
+<div class="blog-comment{% if comment.is_pinned %} blog-comment--pinned{% endif %}{% if comment.is_best_answer %} blog-comment--best{% endif %}" id="comment-{{ comment.pk }}">
+  <div class="blog-comment-head">
+    <a href="{% url 'blogs:profile' comment.author.username %}" title="{{ comment.author.username }}">
+      {% with cp=comment.author.blog_profile %}
+      {% if cp and cp.avatar %}
+      <img class="blog-avatar blog-avatar--img" src="{{ cp.avatar.url }}" alt="{{ comment.author.username }}">
+      {% else %}
+      <span class="blog-avatar">{{ comment.author.username|first|upper }}</span>
+      {% endif %}
+      {% endwith %}
+    </a>
+    <div class="blog-comment-meta">
+      <a href="{% url 'blogs:profile' comment.author.username %}" class="blog-comment-author">{{ comment.author.username }}</a>
+      <span class="blog-comment-date">{{ comment.created|timesince }} ago{% if comment.edited %} · edited{% endif %}</span>
+    </div>
+    {% if comment.is_best_answer %}
+    <span class="blog-comment-badge"><i class="fas fa-check-circle"></i> Best Answer</span>
+    {% endif %}
+  </div>
+  <p class="blog-comment-body">{{ comment.body|linebreaksbr }}</p>
+  <div class="blog-comment-actions">
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'blogs:toggle_helpful' comment.pk %}" class="blog-helpful-form">
+      {% csrf_token %}
+      <button type="submit" class="blog-helpful-btn{% if user in comment.helpful_votes.all %} active{% endif %}" title="Mark as helpful">
+        <i class="fas fa-thumbs-up"></i> {{ comment.helpful_count }}
+      </button>
+    </form>
+    <button type="button" class="blog-reply-btn" data-comment-id="{{ comment.pk }}" data-parent="{{ comment.author.username }}">
+      <i class="fas fa-reply"></i> Reply
+    </button>
+    {% endif %}
+  </div>
+  {% if comment.replies %}
+  <div class="blog-comment-replies">
+    {% for reply in comment.replies %}
+      {% include 'blogs/partials/comment_item.html' with comment=reply %}
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>

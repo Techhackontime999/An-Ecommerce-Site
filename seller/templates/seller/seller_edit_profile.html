@@ -78,6 +78,35 @@
             {{ form.description }}
             {% for e in form.description.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
           </div>
+
+          <div class="ap-field ap-field-full ap-divider">
+            <h3><i class="fas fa-university"></i> Payout Details</h3>
+            <p>Used to send your earnings from sales.</p>
+          </div>
+
+          <div class="ap-form-grid">
+            <div class="ap-field">
+              <label for="{{ form.account_holder_name.id_for_label }}">Account Holder Name</label>
+              {{ form.account_holder_name }}
+              {% for e in form.account_holder_name.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.bank_account.id_for_label }}">Bank Account Number</label>
+              {{ form.bank_account }}
+              {% for e in form.bank_account.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.ifsc_code.id_for_label }}">IFSC Code</label>
+              {{ form.ifsc_code }}
+              {% for e in form.ifsc_code.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.bank_name.id_for_label }}">Bank Name</label>
+              {{ form.bank_name }}
+              {% for e in form.bank_name.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+          </div>
+
           <div class="ap-field ap-field-full">
             <label for="{{ form.profile_picture.id_for_label }}">Store Logo</label>
             <div class="ap-file-wrap">

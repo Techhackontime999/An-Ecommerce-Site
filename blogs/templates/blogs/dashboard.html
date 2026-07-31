@@ -1,0 +1,86 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}My Dashboard — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--tag">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-chart-pie"></i> My Dashboard</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">How your writing is doing</h1>
+    <p class="body-large">{{ published_count }} published · {{ draft_count }} draft{{ draft_count|pluralize }} — live numbers for every post.</p>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if insights %}
+        <div class="blog-dash-insights">
+          {% for tip in insights %}
+          <div class="blog-dash-insight"><i class="fas {{ tip.icon }}"></i><span>{{ tip.text }}</span></div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="blog-dash-stats">
+          <div class="blog-stat"><i class="fas fa-eye"></i><span>{{ total_views }}</span><small>all-time views</small></div>
+          <div class="blog-stat"><i class="fas fa-bolt"></i><span>{{ views_28d }}</span><small>views · 28 days</small></div>
+          <div class="blog-stat"><i class="fas fa-heart"></i><span>{{ total_likes }}</span><small>likes</small></div>
+          <div class="blog-stat"><i class="fas fa-bookmark"></i><span>{{ total_bookmarks }}</span><small>bookmarks</small></div>
+          <div class="blog-stat"><i class="fas fa-comment"></i><span>{{ total_comments }}</span><small>comments</small></div>
+        </div>
+
+        {% if posts %}
+        <div class="blog-dash-table-wrap">
+          <table class="blog-dash-table">
+            <thead>
+              <tr>
+                <th>Post</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>28d</th>
+                <th>Likes</th>
+                <th>Saved</th>
+                <th>Comments</th>
+                <th>Read</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in posts %}
+              <tr>
+                <td class="blog-dash-title">
+                  <a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+                  <span class="blog-dash-type">{{ p.get_post_type_display }}</span>
+                </td>
+                <td><span class="blog-dash-status blog-dash-status--{{ p.status }}">{{ p.get_status_display }}</span></td>
+                <td>{{ p.view_count }}</td>
+                <td>{{ p.views_28d }}</td>
+                <td>{{ p.likes_count }}</td>
+                <td>{{ p.bookmarks_count }}</td>
+                <td>{{ p.comments_count }}</td>
+                <td>{{ p.reading_time }}m</td>
+                <td><a href="{% url 'blogs:post_update' p.pk p.slug %}" class="blog-dash-edit" title="Edit"><i class="fas fa-edit"></i></a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="blog-field-hint" style="margin-top:0.5rem;">Views are deduplicated per visit; 28d counts the last four weeks.</p>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-chart-pie"></i>
+          <h3>No posts yet</h3>
+          <p>Write your first post and this dashboard will track how readers find it.</p>
+          <a href="{% url 'blogs:post_create' %}" class="btn-aq btn-aq-primary"><i class="fas fa-feather-alt"></i> Write a post</a>
+        </div>
+        {% endif %}
+      </div>
+
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

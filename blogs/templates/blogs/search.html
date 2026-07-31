@@ -1,0 +1,42 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}{% if query %}Search "{{ query }}"{% else %}Search the blog{% endif %} — Shop-Seed{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--tag">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-search"></i> Blog search</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">{% if query %}{{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }} for "{{ query }}"{% else %}Find something to read{% endif %}</h1>
+    <form method="get" action="{% url 'blogs:post_search' %}" class="blog-hero-search fade-up">
+      <i class="fas fa-search"></i>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search titles, bodies, tags, authors...">
+      <button type="submit" class="btn-aq btn-aq-primary">Search</button>
+    </form>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if posts %}
+        <div class="blog-grid">
+          {% for post in posts %}
+            {% include 'blogs/partials/post_card.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-search"></i>
+          <h3>No matches</h3>
+          <p>Try a different keyword or browse the tag cloud in the sidebar.</p>
+        </div>
+        {% endif %}
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,160 @@
+<aside class="blog-sidebar">
+  <div class="blog-sidebar-card">
+    <div class="blog-sidebar-search">
+      <i class="fas fa-search"></i>
+      <input type="search" id="blog-live-search" placeholder="Search posts, tags, authors..." autocomplete="off" aria-label="Search the blog">
+      <div class="blog-sidebar-search-results" id="blog-live-search-results" hidden></div>
+    </div>
+  </div>
+
+  <div class="blog-sidebar-card">
+    <h4 class="blog-sidebar-title">Explore</h4>
+    <ul class="blog-sidebar-list">
+      <li><a class="blog-sidebar-link" href="{% url 'blogs:blog_home' %}"><i class="fas fa-stream"></i> All posts</a></li>
+      <li><a class="blog-sidebar-link" href="{% url 'blogs:trending' %}"><i class="fas fa-fire"></i> Trending</a></li>
+      <li><a class="blog-sidebar-link" href="{% url 'blogs:editors_picks' %}"><i class="fas fa-star"></i> Editors' Picks</a></li>
+      <li><a class="blog-sidebar-link" href="{% url 'blogs:leaderboard' %}"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+      <li><a class="blog-sidebar-link" href="{% url 'blogs:rss_feed' %}"><i class="fas fa-rss"></i> RSS feed</a></li>
+      {% if user.is_authenticated %}
+      <li><a class="blog-sidebar-link" href="{% url 'blogs:my_bookmarks' %}"><i class="fas fa-bookmark"></i> My reading list</a></li>
+      <li><a class="blog-sidebar-link" href="{% url 'blogs:author_dashboard' %}"><i class="fas fa-chart-pie"></i> My dashboard</a></li>
+      {% endif %}
+      <li><button type="button" class="blog-sidebar-link blog-theme-toggle" id="blog-theme-toggle" aria-pressed="false"><i class="fas fa-moon"></i> <span>Dark mode</span></button></li>
+    </ul>
+  </div>
+
+  <div class="blog-sidebar-card">
+    <h4 class="blog-sidebar-title">Trending Tags</h4>
+    <div class="blog-tags blog-tags-cloud">
+      {% for tag in sidebar_tags %}
+      <a class="blog-tag blog-tag-link" href="{{ tag.get_absolute_url }}" title="{{ tag.num_posts }} post{{ tag.num_posts|pluralize }}">{{ tag.name }}<span class="blog-tag-count">{{ tag.num_posts }}</span></a>
+      {% empty %}
+      <span class="blog-empty-text">No tags yet.</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="blog-sidebar-card">
+    <h4 class="blog-sidebar-title">Recent Posts</h4>
+    <ul class="blog-sidebar-list">
+      {% for item in sidebar_recent %}
+      <li>
+        <a href="{{ item.get_absolute_url }}" class="blog-sidebar-link">
+          <span class="blog-sidebar-link-title">{{ item.title }}</span>
+          <span class="blog-sidebar-link-date">{{ item.publish_at|date:"M d, Y" }}</span>
+        </a>
+      </li>
+      {% empty %}
+      <li class="blog-empty-text">No posts yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="blog-sidebar-card">
+    <h4 class="blog-sidebar-title">Top Authors</h4>
+    <ul class="blog-sidebar-list">
+      {% for author in sidebar_authors %}
+      <li>
+        <a href="{% url 'blogs:profile' author.user.username %}" class="blog-sidebar-link blog-sidebar-author">
+          {% if author.avatar %}
+          <img class="blog-avatar blog-avatar--img" src="{{ author.avatar.url }}" alt="{{ author.user.username }}" loading="lazy">
+          {% else %}
+          <span class="blog-avatar">{{ author.user.username|first|upper }}</span>
+          {% endif %}
+          <span>
+            <span class="blog-sidebar-link-title">{{ author.user.get_full_name|default:author.user.username }}</span>
+            <span class="blog-sidebar-link-date">LVL {{ author.level }} · {{ author.num_posts }} post{{ author.num_posts|pluralize }}</span>
+          </span>
+        </a>
+      </li>
+      {% empty %}
+      <li class="blog-empty-text">No authors yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="blog-sidebar-card blog-sidebar-cta">
+    <i class="fas fa-feather-alt blog-sidebar-cta-icon"></i>
+    <h4 class="blog-sidebar-title">Share your knowledge</h4>
+    <p class="blog-empty-text">Write a guide, review a product, earn XP and climb the leaderboard.</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'blogs:post_create' %}" class="btn-aq btn-aq-primary btn-aq-sm"><i class="fas fa-feather-alt"></i> Write a post</a>
+    {% else %}
+    <a href="{% url 'accounts:login' %}?next={% url 'blogs:post_create' %}" class="btn-aq btn-aq-primary btn-aq-sm"><i class="fas fa-user-plus"></i> Join to write</a>
+    {% endif %}
+  </div>
+</aside>
+
+<script>
+(function () {
+  // ---------- Live search-as-you-type ----------
+  var box = document.getElementById('blog-live-search');
+  var results = document.getElementById('blog-live-search-results');
+  if (box && results) {
+    var apiUrl = '{% url "blogs:post_search_api" %}';
+    var timer = null;
+    box.addEventListener('input', function () {
+      clearTimeout(timer);
+      var q = box.value.trim();
+      if (!q) { results.hidden = true; return; }
+      timer = setTimeout(function () { fetchLive(q); }, 220);
+    });
+    box.addEventListener('focus', function () {
+      if (box.value.trim() && results.children.length) results.hidden = false;
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.blog-sidebar-search')) results.hidden = true;
+    });
+    function fetchLive(q) {
+      fetch(apiUrl + '?q=' + encodeURIComponent(q))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          results.innerHTML = '';
+          if (!data.results.length) {
+            var empty = document.createElement('a');
+            empty.className = 'blog-live-result blog-live-empty';
+            empty.href = '{% url "blogs:post_search" %}?q=' + encodeURIComponent(q);
+            empty.textContent = 'No matches — see all results';
+            results.appendChild(empty);
+          } else {
+            data.results.forEach(function (p) {
+              var a = document.createElement('a');
+              a.className = 'blog-live-result';
+              a.href = p.url;
+              a.innerHTML = '<span class="blog-live-result-title"></span><span class="blog-live-result-meta"></span>';
+              a.querySelector('.blog-live-result-title').textContent = p.title;
+              a.querySelector('.blog-live-result-meta').textContent = p.author + ' · ' + p.date + ' · ' + p.reading_time + 'm read';
+              results.appendChild(a);
+            });
+            var all = document.createElement('a');
+            all.className = 'blog-live-result blog-live-more';
+            all.href = '{% url "blogs:post_search" %}?q=' + encodeURIComponent(q);
+            all.textContent = 'View all results →';
+            results.appendChild(all);
+          }
+          results.hidden = false;
+        })
+        .catch(function () { results.hidden = true; });
+    }
+  }
+
+  // ---------- Dark mode toggle ----------
+  var toggle = document.getElementById('blog-theme-toggle');
+  if (toggle) {
+    var label = toggle.querySelector('span');
+    function apply(theme) {
+      var dark = theme === 'dark';
+      document.documentElement.classList.toggle('blog-dark', dark);
+      toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      toggle.querySelector('i').className = dark ? 'fas fa-sun' : 'fas fa-moon';
+      if (label) label.textContent = dark ? 'Light mode' : 'Dark mode';
+      try { localStorage.setItem('blog-theme', theme); } catch (e) {}
+    }
+    var saved = null;
+    try { saved = localStorage.getItem('blog-theme'); } catch (e) {}
+    apply(saved === 'dark');
+    toggle.addEventListener('click', function () {
+      apply(document.documentElement.classList.contains('blog-dark') ? 'light' : 'dark');
+    });
+  }
+})();
+</script>

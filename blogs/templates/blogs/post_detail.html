@@ -1,0 +1,418 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}{{ post.meta_title|default:post.title }} — Shop-Seed Blog{% endblock %}
+
+{% block extra_css %}
+<meta name="description" content="{{ post.meta_description|default:post.excerpt }}">
+<meta name="author" content="{{ post.author.username }}">
+<link rel="canonical" href="{{ canonical_url }}">
+<meta property="og:title" content="{{ post.title }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:description" content="{{ post.meta_description|default:post.excerpt }}">
+<meta property="og:site_name" content="Shop-Seed Blog">
+<meta property="article:published_time" content="{{ post.publish_at|date:'c' }}">
+<meta property="article:modified_time" content="{{ post.updated|date:'c' }}">
+{% if og_image %}<meta property="og:image" content="{{ og_image }}">{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ post.title }}">
+<meta name="twitter:description" content="{{ post.meta_description|default:post.excerpt }}">
+{% if og_image %}<meta name="twitter:image" content="{{ og_image }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+<script type="application/ld+json">{{ schema_json|safe }}</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Blog", "item": "{{ blog_home_url }}"},
+    {"@type": "ListItem", "position": 2, "name": "{{ post.title }}", "item": "{{ canonical_url }}"}
+  ]
+}
+</script>
+
+<article class="blog-article">
+  <div class="blog-progress" aria-hidden="true"><span id="blog-progress-fill"></span><span class="blog-progress-label" id="blog-progress-label"></span></div>
+  <div class="container-aq">
+    <div class="blog-article-inner">
+      <div class="blog-article-head">
+        <a href="{% url 'blogs:blog_home' %}" class="blog-back-link"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+        <div class="blog-card-meta">
+          <a href="{% url 'blogs:profile' post.author.username %}" title="{{ post.author.username }}">
+            {% with ap=post.author.blog_profile %}
+            {% if ap and ap.avatar %}
+            <img class="blog-avatar blog-avatar--img" src="{{ ap.avatar.url }}" alt="{{ post.author.username }}">
+            {% else %}
+            <span class="blog-avatar">{{ post.author.username|first|upper }}</span>
+            {% endif %}
+            {% endwith %}
+          </a>
+          <div>
+            <a href="{% url 'blogs:profile' post.author.username %}" class="blog-card-author">{{ post.author.username }}</a>
+            <div class="blog-card-date">{{ post.publish_at|date:"F d, Y" }} &middot; {{ reading_time }} min read &middot; {{ post.view_count }} views</div>
+          </div>
+          <span class="blog-type-badge">{{ post.get_post_type_display }}</span>
+        </div>
+        <h1 class="blog-article-title">{{ post.title }}</h1>
+        {% if post.excerpt or post.meta_description %}
+        <p class="blog-article-subtitle">{{ post.excerpt|default:post.meta_description }}</p>
+        {% endif %}
+        <div class="blog-tags">
+          {% for tag in post.tags.all %}
+          <a class="blog-tag blog-tag-link" href="{{ tag.get_absolute_url }}">#{{ tag.name }}</a>
+          {% endfor %}
+        </div>
+
+        <div class="blog-article-actions">
+          <div class="blog-article-like">
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'blogs:post_like' post.pk post.slug %}" class="blog-shortcut-like">
+              {% csrf_token %}
+              <button type="submit" class="blog-action-btn{% if is_liked %} active{% endif %}">
+                <i class="{% if is_liked %}fas{% else %}far{% endif %} fa-heart"></i> {{ post.like_count }}
+              </button>
+            </form>
+            <form method="post" action="{% url 'blogs:post_bookmark' post.pk post.slug %}" class="blog-shortcut-bookmark">
+              {% csrf_token %}
+              <button type="submit" class="blog-action-btn{% if is_bookmarked %} active{% endif %}">
+                <i class="{% if is_bookmarked %}fas{% else %}far{% endif %} fa-bookmark"></i> Save
+              </button>
+            </form>
+            {% else %}
+            <a class="blog-action-btn" href="{% url 'accounts:login' %}?next={{ request.path }}"><i class="far fa-heart"></i> {{ post.like_count }}</a>
+            {% endif %}
+          </div>
+          {% include 'blogs/partials/share_bar.html' %}
+          {% if can_moderate %}
+          <div class="blog-article-mod">
+            <a class="blog-action-btn" href="{% url 'blogs:post_update' post.pk post.slug %}"><i class="fas fa-edit"></i> Edit</a>
+            <form method="post" action="{% url 'blogs:post_delete' post.pk post.slug %}" onsubmit="return confirm('Archive this post?');">
+              {% csrf_token %}
+              <button type="submit" class="blog-action-btn blog-action-btn--danger"><i class="fas fa-archive"></i></button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="blog-article-grid">
+        <div class="blog-article-main">
+          {% if post.featured_image %}
+          <div class="blog-article-media">
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy" decoding="async">
+          </div>
+          {% endif %}
+
+          {% if post.video_embed or post.video_file %}
+          <div class="blog-article-media blog-article-video">
+            {% if post.video_embed %}
+            <iframe src="{{ post.video_embed }}" title="Demo video for {{ post.title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
+            {% else %}
+            <video src="{{ post.video_file }}" controls preload="metadata"></video>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if post.gallery_images.exists %}
+          <div class="blog-gallery">
+            <h3 class="blog-section-heading"><i class="fas fa-images"></i> Gallery</h3>
+            <div class="blog-gallery-grid">
+              {% for img in post.gallery_images.all %}
+              <a href="{{ img.image.url }}" class="blog-gallery-thumb" data-caption="{{ img.caption }}" aria-label="View photo{% if img.caption %}: {{ img.caption }}{% endif %}">
+                <img src="{{ img.image.url }}" alt="{{ img.caption|default:post.title }}" loading="lazy" decoding="async">
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="blog-article-body">
+            {{ post.body_html|safe }}
+          </div>
+
+          {% if post.post_products.exists %}
+          <div class="blog-products">
+            <h3 class="blog-section-heading"><i class="fas fa-tags"></i> Products in this post</h3>
+            <div class="blog-product-grid">
+              {% for pp in post.post_products.select_related %}
+                {% include 'blogs/partials/product_card.html' with product=pp.product role=pp.get_role_display %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="blog-author-box">
+            <a href="{% url 'blogs:profile' post.author.username %}">
+              {% with ap=post.author.blog_profile %}
+              {% if ap and ap.avatar %}
+              <img class="blog-avatar blog-avatar--lg blog-avatar--img" src="{{ ap.avatar.url }}" alt="{{ post.author.username }}">
+              {% else %}
+              <span class="blog-avatar blog-avatar--lg">{{ post.author.username|first|upper }}</span>
+              {% endif %}
+              {% endwith %}
+            </a>
+            <div>
+              <h4>Written by {{ post.author.username }}</h4>
+              <p>{% if post.author.first_name or post.author.last_name %}{{ post.author.first_name }} {{ post.author.last_name }} · {% endif %}Member of the Shop-Seed community.</p>
+              {% if user.is_authenticated and user != post.author %}
+              <form method="post" action="{% url 'blogs:toggle_follow' post.author.username %}" style="margin:0.5rem 0 0;">
+                {% csrf_token %}
+                <button type="submit" class="btn-aq {% if is_following_author %}btn-aq-ghost{% else %}btn-aq-primary{% endif %} btn-aq-sm">
+                  <i class="fas {% if is_following_author %}fa-user-minus{% else %}fa-user-plus{% endif %}"></i>
+                  {% if is_following_author %}Unfollow{% else %}Follow{% endif %}
+                </button>
+              </form>
+              {% endif %}
+              <p><a href="{% url 'blogs:profile' post.author.username %}" class="blog-text-link">View all posts by {{ post.author.username }} <i class="fas fa-arrow-right"></i></a></p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="blog-article-aside">
+          {% if toc %}
+          <nav class="blog-toc" aria-label="Table of contents">
+            <h4 class="blog-toc-title"><i class="fas fa-list"></i> On this page</h4>
+            <ul>
+              {% for item in toc %}
+              <li class="toc-level-{{ item.level }}">
+                <a href="#{{ item.anchor }}">{{ item.title }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </nav>
+          {% endif %}
+          <div class="blog-sidebar-card">
+            <h4 class="blog-sidebar-title">Related Posts</h4>
+            <ul class="blog-sidebar-list">
+              {% for item in related_posts %}
+              <li>
+                <a href="{{ item.get_absolute_url }}" class="blog-sidebar-link">
+                  <span class="blog-sidebar-link-title">{{ item.title }}</span>
+                  <span class="blog-sidebar-link-date">{{ item.publish_at|date:"M d, Y" }}</span>
+                </a>
+              </li>
+              {% empty %}
+              <li class="blog-empty-text">No related posts yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="blog-sidebar-card">
+            <h4 class="blog-sidebar-title">More from {{ post.author.username }}</h4>
+            <ul class="blog-sidebar-list">
+              {% for item in more_from_author %}
+              <li>
+                <a href="{{ item.get_absolute_url }}" class="blog-sidebar-link">
+                  <span class="blog-sidebar-link-title">{{ item.title }}</span>
+                  <span class="blog-sidebar-link-date">{{ item.publish_at|date:"M d, Y" }} · {{ item.reading_time }}m</span>
+                </a>
+              </li>
+              {% empty %}
+              <li class="blog-empty-text">That's all for now.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      {% if more_from_author %}
+      <div class="blog-related">
+        <h3 class="blog-section-heading"><i class="fas fa-user"></i> More from {{ post.author.username }}</h3>
+        <div class="blog-grid">
+          {% for post in more_from_author %}
+            {% include 'blogs/partials/post_card.html' %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      {% if related_posts %}
+      <div class="blog-related">
+        <h3 class="blog-section-heading"><i class="fas fa-layer-group"></i> More to read</h3>
+        <div class="blog-grid">
+          {% for post in related_posts %}
+            {% include 'blogs/partials/post_card.html' %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <section class="blog-comments-section" id="comments">
+        <h3 class="blog-section-heading"><i class="fas fa-comments"></i> Comments ({{ comment_count }})</h3>
+
+        {% if user.is_authenticated %}
+          {% if post.allow_comments %}
+          <form method="post" action="{% url 'blogs:add_comment' post.pk post.slug %}" class="blog-comment-form">
+            {% csrf_token %}
+            {{ form.parent_id }}
+            <div class="blog-comment-form-head">
+              <span class="blog-avatar">{{ user.username|first|upper }}</span>
+              <span>Commenting as <strong>{{ user.username }}</strong></span>
+              <button type="button" class="blog-cancel-reply" id="blog-cancel-reply" style="display:none;">Cancel reply</button>
+            </div>
+            {{ form.body }}
+            <div class="blog-comment-form-actions">
+              <button type="submit" class="btn-aq btn-aq-primary">Post Comment</button>
+            </div>
+          </form>
+          {% else %}
+          <div class="blog-comment-login">Comments are closed for this post.</div>
+          {% endif %}
+        {% else %}
+        <div class="blog-comment-login">
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn-aq btn-aq-primary">Log in to comment</a>
+        </div>
+        {% endif %}
+
+        {% if comment_tree %}
+        <div class="blog-comments">
+          {% for comment in comment_tree %}
+            {% include 'blogs/partials/comment_item.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="blog-empty-text">Be the first to comment on this post.</p>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</article>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var fill = document.getElementById('blog-progress-fill');
+  var label = document.getElementById('blog-progress-label');
+  var readingTime = {{ reading_time }};
+  function onProgress() {
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - doc.clientHeight;
+    var p = max > 0 ? window.scrollY / max : 0;
+    if (fill) fill.style.transform = 'scaleX(' + p + ')';
+    if (label) {
+      var left = Math.max(1, Math.round(readingTime * (1 - p)));
+      label.textContent = (p >= 0.995 ? 'Done reading' : left + ' min left');
+    }
+  }
+  window.addEventListener('scroll', onProgress, { passive: true });
+  onProgress();
+
+  var links = document.querySelectorAll('.blog-toc a');
+  if ('IntersectionObserver' in window && links.length) {
+    var visible = {};
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          visible[entry.target.id] = true;
+        } else {
+          delete visible[entry.target.id];
+        }
+      });
+      var activeId = null;
+      links.forEach(function (link) {
+        var id = link.getAttribute('href').slice(1);
+        if (visible[id] && !activeId) activeId = id;
+      });
+      links.forEach(function (link) {
+        link.classList.toggle('active', link.getAttribute('href').slice(1) === activeId);
+      });
+    }, { rootMargin: '-15% 0px -65% 0px', threshold: 0 });
+    links.forEach(function (link) {
+      var el = document.getElementById(link.getAttribute('href').slice(1));
+      if (el) observer.observe(el);
+    });
+  }
+
+  var replyBtns = document.querySelectorAll('.blog-reply-btn');
+  var parentInput = document.getElementById('comment-parent-id');
+  var cancelBtn = document.getElementById('blog-cancel-reply');
+  var form = document.querySelector('.blog-comment-form');
+  var ta = form ? form.querySelector('textarea') : null;
+
+  replyBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (parentInput) parentInput.value = btn.dataset.commentId;
+      if (cancelBtn) cancelBtn.style.display = 'inline-block';
+      if (ta) {
+        ta.focus();
+        ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function () {
+      parentInput.value = '';
+      cancelBtn.style.display = 'none';
+    });
+  }
+
+  var copyBtn = document.querySelector('.blog-share-btn[data-copy]');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var url = copyBtn.dataset.copy;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          copyBtn.classList.add('copied');
+          copyBtn.querySelector('span').textContent = 'Copied';
+          setTimeout(function () {
+            copyBtn.classList.remove('copied');
+            copyBtn.querySelector('span').textContent = 'Copy';
+          }, 1600);
+        });
+      }
+    });
+  }
+
+  // ---------- Gallery lightbox ----------
+  var galleryThumbs = document.querySelectorAll('.blog-gallery-thumb');
+  if (galleryThumbs.length) {
+    var lightbox = document.createElement('div');
+    lightbox.className = 'blog-lightbox';
+    lightbox.hidden = true;
+    lightbox.innerHTML = '<button type="button" class="blog-lightbox-close" aria-label="Close">&times;</button><img class="blog-lightbox-img" alt=""><p class="blog-lightbox-caption"></p>';
+    var lbImg = lightbox.querySelector('.blog-lightbox-img');
+    var lbCaption = lightbox.querySelector('.blog-lightbox-caption');
+    document.body.appendChild(lightbox);
+    function openLightbox(index) {
+      var src = galleryThumbs[index].getAttribute('href');
+      lbImg.src = src;
+      lbCaption.textContent = galleryThumbs[index].dataset.caption || '';
+      lightbox.hidden = false;
+      document.body.classList.add('blog-lightbox-open');
+    }
+    galleryThumbs.forEach(function (thumb, i) {
+      thumb.addEventListener('click', function (e) {
+        e.preventDefault();
+        openLightbox(i);
+      });
+    });
+    lightbox.addEventListener('click', function (e) {
+      if (e.target !== lbImg) { lightbox.hidden = true; document.body.classList.remove('blog-lightbox-open'); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (lightbox.hidden) return;
+      if (e.key === 'Escape') { lightbox.hidden = true; document.body.classList.remove('blog-lightbox-open'); }
+    });
+  }
+
+  // ---------- Keyboard shortcuts ----------
+  var likeForm = document.querySelector('.blog-shortcut-like');
+  var bookmarkForm = document.querySelector('.blog-shortcut-bookmark');
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+    var k = e.key.toLowerCase();
+    if (k === 'l' && likeForm) { likeForm.submit(); }
+    else if (k === 'b' && bookmarkForm) { bookmarkForm.submit(); }
+    else if ((k === 'c' || k === 'm') && document.getElementById('comments')) {
+      document.getElementById('comments').scrollIntoView({ behavior: 'smooth' });
+    }
+    else if (k === 't') { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+})();
+</script>
+{% endblock %}

@@ -133,11 +133,38 @@
         </div>
         <div class="seller-pro-detail-item">
           <div class="seller-pro-detail-icon" style="background: rgba(139, 92, 246, 0.12); color: #7C3AED;">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <div>
+            <span class="seller-pro-detail-label">Account Holder</span>
+            <span class="seller-pro-detail-value">{{ profile.account_holder_name|default:"—" }}</span>
+          </div>
+        </div>
+        <div class="seller-pro-detail-item">
+          <div class="seller-pro-detail-icon" style="background: rgba(139, 92, 246, 0.12); color: #7C3AED;">
             <i class="fas fa-university"></i>
           </div>
           <div>
             <span class="seller-pro-detail-label">Bank Account</span>
             <span class="seller-pro-detail-value">{{ profile.bank_account|default:"—" }}</span>
+          </div>
+        </div>
+        <div class="seller-pro-detail-item">
+          <div class="seller-pro-detail-icon" style="background: rgba(139, 92, 246, 0.12); color: #7C3AED;">
+            <i class="fas fa-qrcode"></i>
+          </div>
+          <div>
+            <span class="seller-pro-detail-label">IFSC Code</span>
+            <span class="seller-pro-detail-value">{{ profile.ifsc_code|default:"—" }}</span>
+          </div>
+        </div>
+        <div class="seller-pro-detail-item">
+          <div class="seller-pro-detail-icon" style="background: rgba(139, 92, 246, 0.12); color: #7C3AED;">
+            <i class="fas fa-landmark"></i>
+          </div>
+          <div>
+            <span class="seller-pro-detail-label">Bank Name</span>
+            <span class="seller-pro-detail-value">{{ profile.bank_name|default:"—" }}</span>
           </div>
         </div>
       </div>

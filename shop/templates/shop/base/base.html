@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
     <link rel="stylesheet" href="{% static "css/aquastic.css" %}">
+    <link rel="stylesheet" href="{% static "css/blog.css" %}">
     <link rel="stylesheet" href="{% static "css/owl.carousel.min.css" %}">
     <link rel="stylesheet" href="{% static "css/owl.theme.default.min.css" %}">
     <link rel="stylesheet" href="{% static "css/aos.css" %}">
@@ -27,6 +28,8 @@
     </main>
     {% include 'shop/base/footer.html' %}
 
+    <button type="button" class="aq-to-top" id="aq-to-top" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+
     <script src="{% static "js/jquery-3.3.1.min.js" %}"></script>
     <script src="{% static "js/bootstrap.min.js" %}"></script>
     <script src="{% static "js/owl.carousel.min.js" %}"></script>
@@ -34,6 +37,20 @@
     <script src="{% static "js/aquastic.js" %}"></script>
     <script>
         AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true });
+    </script>
+    <script>
+        (function () {
+            var btn = document.getElementById('aq-to-top');
+            if (!btn) return;
+            function onScroll() {
+                btn.classList.toggle('show', window.scrollY > 400);
+            }
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll();
+            btn.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
     </script>
     {% block extra_js %}{% endblock %}
 </body>

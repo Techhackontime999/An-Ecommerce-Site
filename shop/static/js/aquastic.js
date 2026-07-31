@@ -10,6 +10,7 @@
       this.cartBadgePulse();
       this.searchExpand();
       this.staggerAnimations();
+      this.productViewToggle();
     },
 
     navbar: function() {
@@ -120,6 +121,46 @@
           child.style.opacity = '0';
           child.style.animation = `fade-up 0.6s ease ${i * 0.1}s forwards`;
         });
+      });
+    },
+
+    productViewToggle: function() {
+      document.querySelectorAll('[data-aq-toggle]').forEach(toggle => {
+        const target = toggle.dataset.aqToggle;
+        if (!target) return;
+        const grid = document.querySelector(target);
+        if (!grid) return;
+
+        const buttons = toggle.querySelectorAll('[data-layout]');
+
+        const setActive = (mode) => {
+          buttons.forEach(btn => {
+            btn.classList.toggle('is-active', btn.dataset.layout === mode);
+          });
+        };
+
+        const applyMode = (mode) => {
+          grid.dataset.layout = mode;
+          grid.querySelectorAll(':scope > .product-aq-card').forEach((card, i) => {
+            card.style.setProperty('--i', i);
+          });
+          grid.classList.remove('aq-reveal');
+          void grid.offsetWidth;
+          grid.classList.add('aq-reveal');
+          clearTimeout(grid._aqToggleTimer);
+          grid._aqToggleTimer = setTimeout(() => {
+            grid.classList.remove('aq-reveal');
+          }, 800);
+          setActive(mode);
+        };
+
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            applyMode(btn.dataset.layout);
+          });
+        });
+
+        setActive(grid.dataset.layout || '4col');
       });
     }
   };

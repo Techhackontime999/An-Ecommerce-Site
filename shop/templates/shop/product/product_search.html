@@ -27,7 +27,11 @@
       </div>
     </form>
 
-    <div class="products-aq-grid">
+    <div class="products-aq-toggle-wrap products-aq-toggle-wrap-right">
+      {% include 'shop/product/layout_toggle.html' with target='#search-grid' %}
+    </div>
+
+    <div class="products-aq-grid" id="search-grid" data-layout="4col">
       {% for product in results %}
       <div class="product-aq-card fade-up" style="transition-delay:{% widthratio forloop.counter0 1 80 %}ms">
         <a href="{{ product.get_absolute_url }}" style="text-decoration:none;color:inherit;">

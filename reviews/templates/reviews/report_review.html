@@ -1,0 +1,35 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Report review — Shop-Seed{% endblock %}
+
+{% block content %}
+<section class="section-aq" style="padding-top:6rem;">
+  <div class="container-aq">
+    <div class="blog-report-wrap">
+      <div class="blog-sidebar-card" style="max-width:640px;margin:0 auto;">
+        <h4 class="blog-sidebar-title"><i class="fas fa-flag"></i> Report this review</h4>
+        <p class="blog-empty-text" style="margin-bottom:1rem;">
+          Reporting a review by <strong>{{ review.reviewer.username }}</strong> on
+          <strong>{{ review.product.name }}</strong>. Our moderation team reviews every report.
+        </p>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="{{ form.reason.id_for_label }}">Reason</label>
+            {{ form.reason }}
+          </div>
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="{{ form.details.id_for_label }}">Details</label>
+            {{ form.details }}
+          </div>
+          <div class="blog-form-actions">
+            <button type="submit" class="btn-aq btn-aq-primary"><i class="fas fa-flag"></i> Submit report</button>
+            <a href="{% url 'reviews:product_review_detail' review.pk %}" class="btn-aq btn-aq-ghost">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

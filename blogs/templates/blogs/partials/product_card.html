@@ -1,0 +1,32 @@
+<div class="blog-product-card">
+  <a class="blog-product-card-link" href="{{ product.get_absolute_url }}">
+    <div class="blog-product-card-media">
+      {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}">
+      {% else %}
+      <div class="blog-card-media-placeholder"><i class="fas fa-box-open"></i></div>
+      {% endif %}
+    </div>
+    <div class="blog-product-card-body">
+      <span class="blog-product-role">
+        {% if product.current_price != product.price %}<i class="fas fa-bolt"></i> On deal{% else %}{{ role|default:"Featured product" }}{% endif %}
+      </span>
+      <h4 class="blog-product-card-name">{{ product.name }}</h4>
+      <div class="blog-product-card-price">
+        <span>${{ product.current_price }}</span>
+        {% if product.current_price != product.price %}
+        <del>${{ product.price }}</del>
+        {% endif %}
+      </div>
+      {% if product.seller %}
+      <div class="blog-product-card-seller">
+        <i class="fas fa-store"></i> {{ product.seller.shop_name }}
+        {% if product.seller.rating %}<span class="blog-product-card-rating"><i class="fas fa-star"></i> {{ product.seller.rating }}</span>{% endif %}
+      </div>
+      {% endif %}
+      <span class="blog-product-card-cta">
+        {% if product.available %}View product <i class="fas fa-arrow-right"></i>{% else %}Currently unavailable{% endif %}
+      </span>
+    </div>
+  </a>
+</div>

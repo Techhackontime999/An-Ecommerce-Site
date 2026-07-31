@@ -4,8 +4,8 @@ from .models import SellerProfile, CustomerProfile
 
 @admin.register(SellerProfile)
 class SellerProfileAdmin(admin.ModelAdmin):
-    list_display = ['shop_name', 'user', 'phone', 'address', 'is_verified', 'created_at']
-    search_fields = ['shop_name', 'user__username', 'phone']
+    list_display = ['shop_name', 'user', 'phone', 'is_verified', 'created_at']
+    search_fields = ['shop_name', 'user__username', 'phone', 'account_holder_name', 'ifsc_code']
     list_filter = ['is_verified', 'created_at']
     list_select_related = ['user']
     date_hierarchy = 'created_at'

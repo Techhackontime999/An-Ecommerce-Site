@@ -1,0 +1,43 @@
+{% extends "shop/base/base.html" %}
+
+{% block title %}Posts by {{ author.username }} — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--author">
+  <div class="container-aq">
+    <div class="blog-author-header">
+      <span class="blog-avatar blog-avatar--lg">{{ author.username|first|upper }}</span>
+      <div>
+        <h1 class="display-section" style="margin-top:0.5rem;margin-bottom:0.25rem;">
+          {{ author.first_name|default:author.username }} {{ author.last_name }}
+        </h1>
+        <p class="body-large">@{{ author.username }} · {{ page_obj.paginator.count }} post{{ page_obj.paginator.count|pluralize }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if posts %}
+        <div class="blog-grid">
+          {% for post in posts %}
+            {% include 'blogs/partials/post_card.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-feather-alt"></i>
+          <h3>No posts yet</h3>
+          <p>{{ author.username }} hasn't published anything yet.</p>
+        </div>
+        {% endif %}
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

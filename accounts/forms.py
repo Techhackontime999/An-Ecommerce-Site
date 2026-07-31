@@ -10,7 +10,10 @@ from .models import SellerProfile, CustomerProfile
 class SellerRegisterForm(UserCreationForm):
     shop_name = forms.CharField(max_length=100,required=False)
     gst_number = forms.CharField(max_length=15, required=False)  # Optional GST field  
-    bank_account = forms.CharField(max_length=15, required=True) 
+    bank_account = forms.CharField(max_length=15, required=True)
+    account_holder_name = forms.CharField(max_length=100, required=True)
+    ifsc_code = forms.CharField(max_length=11, required=True)
+    bank_name = forms.CharField(max_length=100, required=False)
     phone = forms.CharField(max_length=15,required=True)
     address = forms.CharField(widget=forms.Textarea,required=True)
     email = forms.EmailField(required=True)
@@ -35,7 +38,7 @@ class CustomerRegisterForm(UserCreationForm):
 class SellerProfileForm(forms.ModelForm):
     class Meta:
         model = SellerProfile
-        fields = ['shop_name', 'gst_number', 'phone', 'address', 'description' ,'profile_picture']
+        fields = ['shop_name', 'gst_number', 'phone', 'address', 'description', 'profile_picture', 'bank_account', 'account_holder_name', 'ifsc_code', 'bank_name']
 
 class CustomerProfileForm(forms.ModelForm):
     class Meta:

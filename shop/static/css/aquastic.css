@@ -338,10 +338,22 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-aq-links a:hover {
   color: var(--aq-accent-dark);
+  animation: navLinkPulse 1.6s ease-in-out infinite;
 }
 
 .nav-aq-links a:hover::after {
   width: 100%;
+  animation: navLinkUnderlinePulse 1.6s ease-in-out infinite;
+}
+
+@keyframes navLinkPulse {
+  0%, 100% { text-shadow: 0 0 0 rgba(249, 115, 22, 0); }
+  50% { text-shadow: 0 0 12px rgba(249, 115, 22, 0.5); }
+}
+
+@keyframes navLinkUnderlinePulse {
+  0%, 100% { opacity: 0.55; box-shadow: 0 0 0 rgba(249, 115, 22, 0); }
+  50% { opacity: 1; box-shadow: 0 0 8px rgba(249, 115, 22, 0.8); }
 }
 
 .nav-aq-actions {
@@ -913,6 +925,136 @@ h1, h2, h3, h4, h5, h6 {
 @media (min-width: 1280px) {
   .products-aq-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ─── Product View Toggle ─── */
+.products-aq-toggle-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.products-aq-toggle-wrap-right {
+  justify-content: flex-end;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.products-aq-toggle-wrap-left {
+  justify-content: flex-start;
+}
+
+.products-aq-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--aq-surface);
+  border: 1px solid var(--aq-border);
+  border-radius: 100px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.products-aq-toggle-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--aq-tertiary);
+  margin: 0 0.25rem;
+}
+
+.products-aq-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  background: transparent;
+  border-radius: 100px;
+  color: var(--aq-tertiary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--aq-transition);
+}
+
+.products-aq-toggle-btn:hover {
+  color: var(--aq-ink);
+  background: var(--aq-accent-subtle);
+}
+
+.products-aq-toggle-btn.is-active {
+  background: var(--aq-accent);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.35);
+}
+
+/* ─── Product Grid Layout Modes ─── */
+.products-aq-grid[data-layout="list"] {
+  grid-template-columns: 1fr;
+}
+
+.products-aq-grid[data-layout="2col"] {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 560px) {
+  .products-aq-grid[data-layout="2col"] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.products-aq-grid[data-layout="4col"] {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) {
+  .products-aq-grid[data-layout="4col"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Staggered card reveal on view change */
+.aq-reveal .product-aq-card {
+  animation: aqCardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes aqCardIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* List layout card */
+.products-aq-grid[data-layout="list"] .product-aq-card > a {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) 1fr;
+}
+
+.products-aq-grid[data-layout="list"] .product-aq-image {
+  aspect-ratio: auto;
+}
+
+.products-aq-grid[data-layout="list"] .product-aq-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.25rem 1.5rem;
+}
+
+.products-aq-grid[data-layout="list"] .product-aq-body .desc {
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 559px) {
+  .products-aq-grid[data-layout="list"] .product-aq-card > a {
+    grid-template-columns: 1fr;
+  }
+
+  .products-aq-grid[data-layout="list"] .product-aq-image {
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -2957,6 +3099,32 @@ h1, h2, h3, h4, h5, h6 {
 .ap-field textarea {
   min-height: 90px;
   resize: vertical;
+}
+
+.ap-divider {
+  margin: 0.5rem 0 0.25rem;
+  padding: 1rem 0 0.25rem;
+  border-top: 1px solid var(--aq-border);
+}
+
+.ap-divider h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--aq-ink);
+  margin: 0 0 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ap-divider h3 i {
+  color: var(--aq-accent);
+}
+
+.ap-divider p {
+  font-size: 0.8125rem;
+  color: var(--aq-tertiary);
+  margin: 0;
 }
 
 .ap-error {
@@ -5944,4 +6112,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .auth-divider::before,
 .auth-divider::after {
-  content: 
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--aq-border);
+}

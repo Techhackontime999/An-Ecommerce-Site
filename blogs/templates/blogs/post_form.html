@@ -1,0 +1,947 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}{% if editing %}Edit Post{% else %}Write a Post{% endif %} — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--compact">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-feather-alt"></i> Community</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">{% if editing %}Edit your post{% else %}Write something worth sharing{% endif %}</h1>
+    <p class="body-large">Every post earns XP and a spot on your author profile. Link real products so readers can shop as they read.</p>
+    {% if editing and post %}
+    <div class="blog-hero-actions fade-up">
+      <a href="{{ post.get_absolute_url }}" class="btn-aq btn-aq-ghost btn-aq-sm"><i class="fas fa-eye"></i> View post</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-form-layout">
+      <div class="blog-form-main">
+        {% if form.non_field_errors %}
+        <div class="blog-form-alert">
+          {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" novalidate id="post-form" data-mode="{% if editing %}edit{% else %}create{% endif %}" data-post-id="{{ post.pk|default:'' }}">
+          {% csrf_token %}
+
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="{{ form.title.id_for_label }}">Title</label>
+            {{ form.title }}
+            <div class="blog-field-counter">
+              <span class="blog-field-hint">Make a promise readers can't ignore.</span>
+              <span><span id="title-count">0</span>/200</span>
+            </div>
+            {% for error in form.title.errors %}<p class="blog-field-error">{{ error }}</p>{% endfor %}
+          </div>
+
+          <div class="blog-field-row">
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.post_type.id_for_label }}">Post type</label>
+              {{ form.post_type }}
+            </div>
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.status.id_for_label }}">Status</label>
+              {{ form.status }}
+              <div class="blog-field-hint">Draft: only you see it · Published: live now · Scheduled: goes live at the date below.</div>
+            </div>
+          </div>
+
+          <div class="blog-field-block">
+            <div class="blog-field-label-row">
+              <label class="blog-field-label" for="{{ form.body.id_for_label }}">Body</label>
+              <div class="blog-editor-tabs" role="tablist" aria-label="Editor mode">
+                <button type="button" class="blog-editor-tab active" data-pane="write" role="tab" aria-selected="true"><i class="fas fa-pen"></i> Write</button>
+                <button type="button" class="blog-editor-tab" data-pane="preview" role="tab" aria-selected="false"><i class="fas fa-eye"></i> Preview</button>
+              </div>
+            </div>
+            <div class="blog-editor">
+              <div class="blog-editor-toolbar" aria-label="Formatting tools">
+                <button type="button" data-fn="h2" title="Heading 2"><i class="fas fa-heading"></i> 2</button>
+                <button type="button" data-fn="h3" title="Heading 3"><i class="fas fa-heading"></i> 3</button>
+                <span class="blog-editor-sep"></span>
+                <button type="button" data-fn="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                <button type="button" data-fn="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                <button type="button" data-fn="strike" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+                <span class="blog-editor-sep"></span>
+                <button type="button" data-fn="ul" title="Bullet list"><i class="fas fa-list-ul"></i></button>
+                <button type="button" data-fn="ol" title="Numbered list"><i class="fas fa-list-ol"></i></button>
+                <button type="button" data-fn="quote" title="Quote"><i class="fas fa-quote-right"></i></button>
+                <button type="button" data-fn="code" title="Inline code"><i class="fas fa-code"></i></button>
+                <span class="blog-editor-sep"></span>
+                <button type="button" data-fn="link" title="Insert link"><i class="fas fa-link"></i></button>
+                <button type="button" data-fn="hr" title="Divider"><i class="fas fa-minus"></i></button>
+                <span class="blog-editor-sep"></span>
+                <button type="button" data-fn="product" title="Insert product link"><i class="fas fa-bag-shopping"></i></button>
+                <div class="blog-product-link-popover" id="product-link-popover" hidden>
+                  <div class="blog-product-link-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="product-link-search" placeholder="Search catalogue products..." autocomplete="off">
+                  </div>
+                  <ul class="blog-product-link-list" id="product-link-list">
+                    {% for p in form.fields.products.queryset.all %}
+                    <li>
+                      <button type="button" class="blog-product-link-opt" data-url="{{ p.get_absolute_url }}" data-name="{{ p.name }}">
+                        <i class="fas fa-bag-shopping"></i> {{ p.name }}
+                      </button>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+              {{ form.body }}
+              <div class="blog-editor-preview blog-article-body" hidden></div>
+              <div class="blog-editor-meta">
+                <span><i class="far fa-clock"></i> <span id="read-time">1</span> min read</span>
+                <span><i class="far fa-file-alt"></i> <span id="word-count">0</span> words</span>
+                <span class="blog-field-hint">Select text, then click a tool to format it. Headings become the table of contents.</span>
+              </div>
+            </div>
+            {% for error in form.body.errors %}<p class="blog-field-error">{{ error }}</p>{% endfor %}
+          </div>
+
+          <div class="blog-field-row">
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.excerpt.id_for_label }}">Excerpt</label>
+              {{ form.excerpt }}
+              <div class="blog-field-counter">
+                <span class="blog-field-hint">One-line summary for cards and search results.</span>
+                <span><span id="excerpt-count">0</span>/300</span>
+              </div>
+            </div>
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.publish_at.id_for_label }}">Publish at</label>
+              {{ form.publish_at }}
+              <div class="blog-field-hint">Leave empty to publish immediately.</div>
+            </div>
+          </div>
+
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="{{ form.tags.id_for_label }}">Tags <span class="blog-field-hint">comma-separated, up to 8</span></label>
+            {{ form.tags }}
+          </div>
+
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="product-url">Linked products</label>
+            <div class="blog-product-picker">
+              <div class="blog-product-add">
+                <i class="fas fa-link"></i>
+                <input type="url" id="product-url" placeholder="Paste a product link, e.g. shop-seed.com/shop/12/name" autocomplete="off">
+                <button type="button" class="btn-aq btn-aq-primary btn-aq-sm" id="product-add-btn"><i class="fas fa-plus"></i> Add</button>
+              </div>
+              <p class="blog-product-status" id="product-status" hidden></p>
+              <div class="blog-product-chips" id="product-chips">
+                {% if editing and post %}
+                  {% for p in post.products.all %}
+                  <span class="blog-product-chip" data-pk="{{ p.pk }}">
+                    {% if p.image %}<img src="{{ p.image.url }}" alt="">{% endif %}
+                    <span class="blog-product-chip-name">{{ p.name }}</span>
+                    <button type="button" class="blog-product-chip-remove" title="Remove" aria-label="Remove {{ p.name }}">&times;</button>
+                  </span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="blog-product-toolbar">
+                <span class="blog-product-count"><span id="product-count">0</span> linked</span>
+                <button type="button" class="blog-product-clear" id="product-clear">Clear all</button>
+                <span class="blog-field-hint">Paste any product link — we fetch it automatically.</span>
+              </div>
+              <select id="id_products" name="products" multiple hidden>
+                {% if editing and post %}
+                  {% for p in post.products.all %}
+                  <option value="{{ p.pk }}" selected>{{ p.name }}</option>
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+            <div class="blog-field-row" style="margin-top:1rem;">
+              <div class="blog-field-block">
+                <label class="blog-field-label" for="{{ form.product_role.id_for_label }}">Product role</label>
+                {{ form.product_role }}
+              </div>
+            </div>
+          </div>
+
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="{{ form.video_url.id_for_label }}">Demo video <span class="blog-field-hint">YouTube, Vimeo, or a direct .mp4/.webm link</span></label>
+            {{ form.video_url }}
+            <div class="blog-video-preview" id="video-preview" hidden></div>
+          </div>
+
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="gallery-input">Photo gallery <span class="blog-field-hint">optional extra photos, up to 10</span></label>
+            <input type="file" id="gallery-input" name="gallery" multiple accept="image/*" class="form-control blog-field-input">
+            <div class="blog-gallery-editor" id="gallery-editor">
+              {% if editing and post %}
+                {% for img in post.gallery_images.all %}
+                <div class="blog-gallery-item" data-pk="{{ img.pk }}">
+                  <img src="{{ img.image.url }}" alt="" loading="lazy">
+                  <form method="post" action="{% url 'blogs:gallery_image_delete' post.pk post.slug img.pk %}" class="blog-gallery-remove">
+                    {% csrf_token %}
+                    <button type="submit" title="Remove this photo" aria-label="Remove photo">&times;</button>
+                  </form>
+                </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <p class="blog-field-hint" id="gallery-hint"></p>
+          </div>
+
+          <div class="blog-field-row">
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.featured_image.id_for_label }}">Featured image</label>
+              <div class="blog-image-picker">
+                <div class="blog-image-preview-wrap">
+                  {% if post and post.featured_image %}
+                  <img src="{{ post.featured_image.url }}" id="featured-image-preview" alt="Current featured image">
+                  {% else %}
+                  <img id="featured-image-preview" alt="" hidden>
+                  <i class="fas fa-image" id="featured-image-placeholder"></i>
+                  {% endif %}
+                </div>
+                <div class="blog-image-inputs">
+                  {{ form.featured_image }}
+                </div>
+              </div>
+            </div>
+            <div class="blog-field-block">
+              <label class="blog-field-label" for="{{ form.meta_title.id_for_label }}">Meta title</label>
+              {{ form.meta_title }}
+              <div class="blog-field-counter">
+                <span class="blog-field-hint">Shown in browser tabs and search links.</span>
+                <span><span id="meta-title-count">0</span>/200</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="blog-field-block">
+            <label class="blog-field-label" for="{{ form.meta_description.id_for_label }}">Meta description</label>
+            {{ form.meta_description }}
+            <div class="blog-field-counter">
+              <span class="blog-field-hint">Two sentences that sell the click.</span>
+              <span><span id="meta-desc-count">0</span>/300</span>
+            </div>
+          </div>
+
+          <div class="blog-field-check">
+            {{ form.allow_comments }}
+            <label for="{{ form.allow_comments.id_for_label }}">Allow comments on this post</label>
+          </div>
+
+          <div class="blog-form-actions">
+            <button type="submit" class="btn-aq btn-aq-primary" id="publish-btn">
+              <i class="fas fa-paper-plane"></i> {% if editing %}{% if post.status == 'draft' %}Publish post{% else %}Save changes{% endif %}{% else %}Publish post{% endif %}
+            </button>
+            <button type="button" class="btn-aq btn-aq-ghost" id="draft-btn">
+              <i class="fas fa-save"></i> Save as draft
+            </button>
+            {% if editing and post %}
+            <a href="{{ post.get_absolute_url }}" class="btn-aq btn-aq-ghost">Cancel</a>
+            {% else %}
+            <a href="{% url 'blogs:blog_home' %}" class="btn-aq btn-aq-ghost">Cancel</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+
+      <aside class="blog-form-aside">
+        <div class="blog-sidebar-card">
+          <h4 class="blog-sidebar-title"><i class="fas fa-magnifying-glass"></i> Search preview</h4>
+          <div class="blog-seo-snippet">
+            <div class="blog-seo-url" id="seo-url"></div>
+            <div class="blog-seo-title" id="seo-title">Post title appears here</div>
+            <div class="blog-seo-desc" id="seo-desc">Your excerpt or meta description shows up here — roughly how the post looks in Google and link previews.</div>
+          </div>
+          <div class="blog-field-counter">
+            <span class="blog-field-hint">Best: 130–160 characters.</span>
+            <span><span id="seo-count">0</span>/160</span>
+          </div>
+        </div>
+        <div class="blog-sidebar-card">
+          <h4 class="blog-sidebar-title"><i class="fas fa-wand-magic-sparkles"></i> Writing coach</h4>
+          <div class="blog-coach">
+            <div class="blog-coach-readability">
+              <div class="blog-coach-row">
+                <span class="blog-coach-label">Readability</span>
+                <span class="blog-coach-value" id="coach-score">—</span>
+              </div>
+              <div class="blog-coach-bar"><span id="coach-bar"></span></div>
+              <div class="blog-coach-verdict" id="coach-verdict">Start writing to see a readability score.</div>
+            </div>
+            <ul class="blog-coach-flags" id="coach-flags"></ul>
+            <div class="blog-coach-title">
+              <button type="button" class="blog-coach-suggest" id="coach-suggest"><i class="fas fa-wand-magic-sparkles"></i> Suggest a title</button>
+              <div class="blog-coach-suggestions" id="coach-suggestions"></div>
+            </div>
+          </div>
+        </div>
+        <div class="blog-sidebar-card">
+          <h4 class="blog-sidebar-title"><i class="fas fa-lightbulb"></i> Writing tips</h4>
+          <ul class="blog-tip-list">
+            <li>Use the toolbar above the editor — select text, then click a tool to format it.</li>
+            <li>Link real catalogue products right in your text with the <i class="fas fa-bag-shopping"></i> button — prices and details stay live.</li>
+            <li>Preview before publishing to catch typos and broken layouts.</li>
+            <li>Write an excerpt; it powers cards, search, and share previews.</li>
+            <li>Keep sentences under 25 words and prefer active voice.</li>
+            <li>Tag generously — tags are the blog's primary navigation.</li>
+          </ul>
+        </div>
+        <div class="blog-sidebar-card">
+          <h4 class="blog-sidebar-title"><i class="fas fa-gem"></i> XP &amp; badges</h4>
+          <ul class="blog-tip-list">
+            <li><i class="fas fa-plus-circle"></i> +25 XP for publishing a post</li>
+            <li><i class="fas fa-plus-circle"></i> +5 XP per comment</li>
+            <li><i class="fas fa-plus-circle"></i> +10 XP when a comment is marked helpful</li>
+            <li><i class="fas fa-plus-circle"></i> +2 XP for every like your post earns</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var form = document.getElementById('post-form');
+  if (!form) return;
+  var mode = form.dataset.mode;
+  var postId = form.dataset.postId || '';
+  var dirty = false;
+
+  function $(id) { return document.getElementById(id); }
+
+  // ---------- Character counters ----------
+  function setCounter(id, value, max) {
+    var el = $(id);
+    if (!el) return;
+    el.textContent = value;
+    var over = value > max;
+    el.classList.toggle('over', over);
+    if (el.parentElement) el.parentElement.classList.toggle('over', over);
+  }
+  function bindCounter(input, counterId, max) {
+    if (!input) return;
+    function upd() { setCounter(counterId, input.value.length, max); }
+    input.addEventListener('input', upd);
+    upd();
+  }
+  bindCounter($('id_title'), 'title-count', 200);
+  bindCounter($('id_excerpt'), 'excerpt-count', 300);
+  bindCounter($('id_meta_title'), 'meta-title-count', 200);
+  bindCounter($('id_meta_description'), 'meta-desc-count', 300);
+
+  // ---------- Body editor ----------
+  var body = $('id_body');
+  var previewPane = form.querySelector('.blog-editor-preview');
+  var toolbar = form.querySelector('.blog-editor-toolbar');
+  var tabs = form.querySelectorAll('.blog-editor-tab');
+
+  function wordCount(text) {
+    var plain = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    return plain ? plain.split(' ').length : 0;
+  }
+
+  function updateStats() {
+    if (!body) return;
+    var words = wordCount(body.value);
+    var wc = $('word-count');
+    var rt = $('read-time');
+    if (wc) wc.textContent = words;
+    if (rt) rt.textContent = Math.max(1, Math.round(words / 200));
+  }
+
+  function updatePreview() {
+    if (previewPane) previewPane.innerHTML = body ? body.value : '';
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      var pane = tab.dataset.pane;
+      if (pane === 'preview') {
+        updatePreview();
+        previewPane.hidden = false;
+        toolbar.hidden = true;
+        if (body) body.hidden = true;
+      } else {
+        previewPane.hidden = true;
+        toolbar.hidden = false;
+        if (body) body.hidden = false;
+      }
+    });
+  });
+
+  function wrap(before, after) {
+    if (!body) return;
+    var start = body.selectionStart, end = body.selectionEnd, val = body.value;
+    var sel = val.slice(start, end) || 'text';
+    body.value = val.slice(0, start) + before + sel + after + val.slice(end);
+    body.focus();
+    var p = start + before.length;
+    body.selectionStart = p;
+    body.selectionEnd = p + sel.length;
+    updateStats();
+  }
+
+  function wrapList(tag) {
+    if (!body) return;
+    var start = body.selectionStart, end = body.selectionEnd, val = body.value;
+    var sel = val.slice(start, end);
+    var lines = sel.split('\n').map(function (l) { return '<li>' + l + '</li>'; }).join('');
+    var block = '<' + tag + '>' + (lines || '<li>Item</li>') + '</' + tag + '>';
+    body.value = val.slice(0, start) + block + val.slice(end);
+    body.focus();
+    body.selectionStart = body.selectionEnd = start + block.length;
+    updateStats();
+  }
+
+  function addLink() {
+    if (!body) return;
+    var url = window.prompt('Paste a URL (https://...):');
+    if (!url) return;
+    var start = body.selectionStart, end = body.selectionEnd, val = body.value;
+    var text = val.slice(start, end) || url;
+    var anchor = '<a href="' + url + '" target="_blank" rel="noopener">' + text + '</a>';
+    body.value = val.slice(0, start) + anchor + val.slice(end);
+    body.focus();
+    body.selectionStart = body.selectionEnd = start + anchor.length;
+    updateStats();
+  }
+
+  function insertHR() {
+    if (!body) return;
+    var start = body.selectionStart, val = body.value;
+    var hr = '\n<hr>\n';
+    body.value = val.slice(0, start) + hr + val.slice(start);
+    body.focus();
+    body.selectionStart = body.selectionEnd = start + hr.length;
+    updateStats();
+  }
+
+  var fns = {
+    h2: function () { wrap('<h2>', '</h2>\n'); },
+    h3: function () { wrap('<h3>', '</h3>\n'); },
+    bold: function () { wrap('<strong>', '</strong>'); },
+    italic: function () { wrap('<em>', '</em>'); },
+    strike: function () { wrap('<del>', '</del>'); },
+    ul: function () { wrapList('ul'); },
+    ol: function () { wrapList('ol'); },
+    quote: function () { wrap('\n<blockquote>', '</blockquote>\n'); },
+    code: function () { wrap('<code>', '</code>'); },
+    link: addLink,
+    hr: insertHR,
+  };
+
+  toolbar.querySelectorAll('button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (fns[btn.dataset.fn]) fns[btn.dataset.fn]();
+    });
+  });
+
+  // ---------- Product-link popover ----------
+  var linkPopover = $('product-link-popover');
+  var linkSearch = $('product-link-search');
+  var linkList = $('product-link-list');
+  var productToolBtn = toolbar.querySelector('[data-fn="product"]');
+
+  function insertProductLink(url, name) {
+    if (!body) return;
+    var start = body.selectionStart, end = body.selectionEnd, val = body.value;
+    var anchor = '<a href="' + url + '">' + (name || url) + '</a>';
+    body.value = val.slice(0, start) + anchor + val.slice(end);
+    body.focus();
+    body.selectionStart = body.selectionEnd = start + anchor.length;
+    if (linkPopover) linkPopover.hidden = true;
+    updateStats();
+  }
+
+  if (productToolBtn && linkPopover && linkList) {
+    productToolBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = !linkPopover.hidden;
+      linkPopover.hidden = open;
+      if (!open && linkSearch) {
+        linkSearch.value = '';
+        filterProductLinks('');
+        linkSearch.focus();
+      }
+    });
+
+    var linkOpts = linkList.querySelectorAll('.blog-product-link-opt');
+    function filterProductLinks(q) {
+      linkOpts.forEach(function (opt) {
+        opt.hidden = !!q && opt.textContent.toLowerCase().indexOf(q) === -1;
+      });
+    }
+    if (linkSearch) {
+      linkSearch.addEventListener('input', function () {
+        filterProductLinks(linkSearch.value.trim().toLowerCase());
+      });
+    }
+    linkList.addEventListener('click', function (e) {
+      var opt = e.target.closest('.blog-product-link-opt');
+      if (opt) insertProductLink(opt.dataset.url, opt.dataset.name);
+    });
+    document.addEventListener('click', function (e) {
+      if (!linkPopover.hidden && !e.target.closest('.blog-editor')) linkPopover.hidden = true;
+    });
+  }
+
+  if (body) {
+    body.addEventListener('input', function () { updateStats(); updateCoach(); });
+    body.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        var s = body.selectionStart, v = body.value;
+        body.value = v.slice(0, s) + '  ' + v.slice(s);
+        body.selectionStart = body.selectionEnd = s + 2;
+        updateStats();
+      }
+    });
+    updateStats();
+    updateCoach();
+  }
+
+  // ---------- SEO preview ----------
+  function slugify(s) {
+    return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+  }
+
+  function updateSeo() {
+    var titleInput = $('id_title');
+    var metaTitleInput = $('id_meta_title');
+    var metaDescInput = $('id_meta_description');
+    var excerptInput = $('id_excerpt');
+    var seoUrl = $('seo-url');
+    var seoTitle = $('seo-title');
+    var seoDesc = $('seo-desc');
+    var seoCount = $('seo-count');
+
+    var t = (metaTitleInput && metaTitleInput.value.trim()) || (titleInput && titleInput.value.trim()) || 'Post title';
+    var d = (metaDescInput && metaDescInput.value.trim()) || (excerptInput && excerptInput.value.trim()) || 'Your excerpt or meta description shows up here — roughly how the post looks in search results and link previews.';
+    if (seoTitle) seoTitle.textContent = t.slice(0, 70);
+    if (seoDesc) seoDesc.textContent = d.slice(0, 160);
+    if (seoCount) seoCount.textContent = Math.min(d.length, 160);
+    if (seoUrl) {
+      var slug = slugify(titleInput ? titleInput.value : '') || 'your-post-slug';
+      seoUrl.textContent = 'shop-seed.com/blog/post/' + (postId || '#') + '/' + slug + '/';
+    }
+  }
+
+  ['id_title', 'id_meta_title', 'id_meta_description', 'id_excerpt'].forEach(function (id) {
+    var el = $(id);
+    if (el) el.addEventListener('input', updateSeo);
+  });
+  updateSeo();
+
+  // ---------- Writing coach ----------
+  var coachScore = $('coach-score');
+  var coachBar = $('coach-bar');
+  var coachVerdict = $('coach-verdict');
+  var coachFlags = $('coach-flags');
+  var coachSuggest = $('coach-suggest');
+  var coachSuggestions = $('coach-suggestions');
+
+  function countSyllables(w) {
+    w = (w || '').toLowerCase().replace(/[^a-z]/g, '');
+    if (!w) return 0;
+    if (w.length <= 3) return 1;
+    w = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '');
+    var m = w.match(/[aeiouy]{1,2}/g);
+    return m ? m.length : 1;
+  }
+
+  function plainWords(plain) {
+    return plain.trim().split(/\s+/).filter(Boolean);
+  }
+
+  function capFirst(s) {
+    return (s || '').charAt(0).toUpperCase() + (s || '').slice(1);
+  }
+
+  function updateCoach() {
+    if (!body) return;
+    var text = (body.value || '').replace(/<[^>]+>/g, ' ');
+    var plain = text.replace(/&nbsp;/g, ' ').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim();
+    if (!plain) {
+      if (coachScore) coachScore.textContent = '—';
+      if (coachBar) coachBar.style.width = '0%';
+      if (coachVerdict) coachVerdict.textContent = 'Start writing to see a readability score.';
+      if (coachFlags) coachFlags.innerHTML = '';
+      return;
+    }
+    var words = plainWords(plain);
+    var total = words.length || 1;
+    var sentences = (plain.match(/[.!?]+/g) || []).length || 1;
+    var syllables = words.reduce(function (a, w) { return a + countSyllables(w); }, 0);
+    var score = Math.round(206.835 - 1.015 * (total / sentences) - 84.6 * (syllables / total));
+    var label, pct;
+    if (score >= 90) { label = 'Very easy'; pct = 100; }
+    else if (score >= 70) { label = 'Easy'; pct = 88; }
+    else if (score >= 50) { label = 'Fairly easy'; pct = 70; }
+    else if (score >= 40) { label = 'Moderate'; pct = 55; }
+    else if (score >= 30) { label = 'Hard'; pct = 35; }
+    else { label = 'Very hard'; pct = 20; }
+    if (coachScore) coachScore.textContent = score + ' · ' + label;
+    if (coachBar) coachBar.style.width = pct + '%';
+    if (coachVerdict) coachVerdict.textContent = score >= 70
+      ? 'Great — easy for phone readers to follow.'
+      : 'Aim for "Easy" — your audience reads on phones.';
+
+    var longS = plain.split(/[.!?]+/).filter(function (s) {
+      return plainWords(s).length > 25;
+    }).length;
+    var passive = (plain.match(/\b(?:is|are|was|were|be|been|being)\s+[\w']+ed\b/gi) || []).length;
+    var hardList = [];
+    words.forEach(function (w) {
+      var wl = w.toLowerCase().replace(/^[^a-z]+|[^a-z]+$/g, '');
+      if (wl.length > 5 && countSyllables(wl) >= 3 && !/ed$/.test(wl) && hardList.indexOf(wl) === -1 && hardList.length < 4) {
+        hardList.push(wl);
+      }
+    });
+    var flags = [];
+    if (hardList.length) {
+      flags.push('Long words: ' + hardList.map(function (w) { return '"' + w + '"'; }).join(', ') + ' — simpler wording reads better.');
+    }
+    if (passive) {
+      flags.push(passive + ' passive construction' + (passive > 1 ? 's' : '') + ' — prefer active voice.');
+    }
+    if (longS) {
+      flags.push(longS + ' sentence' + (longS > 1 ? 's' : '') + ' over 25 words — try splitting them.');
+    }
+    if (!flags.length) flags.push('Looking good — clear and easy to read.');
+    if (coachFlags) {
+      coachFlags.innerHTML = '';
+      flags.forEach(function (f) {
+        var li = document.createElement('li');
+        li.textContent = f;
+        coachFlags.appendChild(li);
+      });
+    }
+  }
+
+  function topKeywords(html) {
+    var stop = new Set(('a an the and or but for with of to in on at by from is are was were ' +
+      'this that these those it its your our their more than about how what when where why ' +
+      'which who into over under between out up down off if as so not be been being will would can could').split(' '));
+    var freq = {};
+    var words = html.toLowerCase().replace(/<[^>]+>/g, ' ').replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean);
+    words.forEach(function (w) {
+      if (w.length > 2 && !stop.has(w)) freq[w] = (freq[w] || 0) + 1;
+    });
+    return Object.keys(freq).sort(function (a, b) { return freq[b] - freq[a]; }).slice(0, 3);
+  }
+
+  function suggestTitles() {
+    if (!body || !coachSuggestions) return;
+    var html = body.value || '';
+    var text = html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+    coachSuggestions.innerHTML = '';
+    if (text.length < 20) {
+      var hint = document.createElement('div');
+      hint.className = 'blog-coach-title-hint';
+      hint.textContent = 'Write a few sentences first, then we can suggest titles.';
+      coachSuggestions.appendChild(hint);
+      return;
+    }
+    var firstSentence = text.split(/[.!?]/)[0].trim().replace(/[":;]+$/, '');
+    var kws = topKeywords(html);
+    var suggestions = [];
+    if (firstSentence.length > 15) {
+      var base = firstSentence;
+      if (base.length > 70) base = base.slice(0, 70).replace(/\s+\S*$/, '') + '…';
+      suggestions.push(capFirst(base));
+    }
+    if (kws.length >= 2) {
+      suggestions.push('How to Choose the Best ' + kws.map(function (w) { return capFirst(w); }).join(' '));
+    }
+    if (kws.length) {
+      suggestions.push(capFirst(kws[0]) + ': A Practical Guide');
+    }
+    suggestions.push('The Complete Guide to ' + (kws[0] ? capFirst(kws[0]) : 'Your Topic'));
+    suggestions.slice(0, 3).forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'blog-coach-title-opt';
+      b.textContent = s;
+      b.addEventListener('click', function () {
+        var t = $('id_title');
+        if (t) {
+          t.value = s;
+          setCounter('title-count', s.length, 200);
+          updateSeo();
+        }
+        coachSuggestions.innerHTML = '';
+      });
+      coachSuggestions.appendChild(b);
+    });
+  }
+
+  if (coachSuggest) coachSuggest.addEventListener('click', suggestTitles);
+  updateCoach();
+
+  // ---------- Product linker (URL -> chip) ----------
+  var productUrlInput = $('product-url');
+  var productAddBtn = $('product-add-btn');
+  var productStatus = $('product-status');
+  var productChips = $('product-chips');
+  var productSelect = $('id_products');
+  var productCount = $('product-count');
+  var productClear = $('product-clear');
+
+  function showProductStatus(text, ok) {
+    if (!productStatus) return;
+    productStatus.textContent = text;
+    productStatus.hidden = !text;
+    productStatus.className = 'blog-product-status ' + (ok ? 'blog-product-status-ok' : 'blog-product-status-err');
+  }
+  function refreshProductCount() {
+    if (productCount && productSelect) productCount.textContent = productSelect.selectedOptions.length;
+  }
+  function addProductChip(product) {
+    if (!productSelect || !productChips) return;
+    if (Array.prototype.some.call(productSelect.options, function (opt) { return opt.value === String(product.id); })) {
+      showProductStatus('This product is already linked.', false);
+      return;
+    }
+    var opt = document.createElement('option');
+    opt.value = product.id;
+    opt.text = product.name;
+    opt.selected = true;
+    productSelect.appendChild(opt);
+    var chip = document.createElement('span');
+    chip.className = 'blog-product-chip';
+    chip.dataset.pk = product.id;
+    if (product.image) {
+      var img = document.createElement('img');
+      img.src = product.image;
+      img.alt = '';
+      chip.appendChild(img);
+    }
+    var name = document.createElement('span');
+    name.className = 'blog-product-chip-name';
+    name.textContent = product.name;
+    chip.appendChild(name);
+    var rm = document.createElement('button');
+    rm.type = 'button';
+    rm.className = 'blog-product-chip-remove';
+    rm.title = 'Remove';
+    rm.setAttribute('aria-label', 'Remove ' + product.name);
+    rm.innerHTML = '&times;';
+    chip.appendChild(rm);
+    productChips.appendChild(chip);
+    refreshProductCount();
+    showProductStatus('', true);
+  }
+  if (productChips) {
+    productChips.addEventListener('click', function (e) {
+      var btn = e.target.closest('.blog-product-chip-remove');
+      if (!btn) return;
+      var chip = btn.closest('.blog-product-chip');
+      if (!chip) return;
+      var pk = chip.dataset.pk;
+      chip.remove();
+      if (productSelect) {
+        Array.prototype.forEach.call(productSelect.options, function (opt) {
+          if (opt.value === pk) { opt.selected = false; opt.remove(); }
+        });
+      }
+      refreshProductCount();
+    });
+  }
+  function fetchProduct() {
+    var url = (productUrlInput.value || '').trim();
+    if (!url) { showProductStatus('Paste a product link first.', false); return; }
+    showProductStatus('Looking up the product...', true);
+    fetch('{% url "blogs:product_lookup" %}?url=' + encodeURIComponent(url), { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.found) { showProductStatus(data.error || 'No product found for that link.', false); return; }
+        addProductChip(data);
+        productUrlInput.value = '';
+      })
+      .catch(function () { showProductStatus('Could not reach the lookup service.', false); });
+  }
+  if (productAddBtn) productAddBtn.addEventListener('click', fetchProduct);
+  if (productUrlInput) productUrlInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); fetchProduct(); }
+  });
+  if (productClear && productSelect) {
+    productClear.addEventListener('click', function () {
+      Array.prototype.forEach.call(productSelect.options, function (opt) { opt.selected = false; opt.remove(); });
+      if (productChips) productChips.innerHTML = '';
+      refreshProductCount();
+    });
+  }
+  refreshProductCount();
+
+  // ---------- Video preview ----------
+  var videoUrlInput = $('id_video_url');
+  var videoPreview = $('video-preview');
+  function buildVideoPreview() {
+    if (!videoUrlInput || !videoPreview) return;
+    var url = videoUrlInput.value.trim();
+    videoPreview.innerHTML = '';
+    videoPreview.hidden = true;
+    if (!url) return;
+    var frame = document.createElement('div');
+    frame.className = 'blog-video-frame';
+    var m;
+    if ((m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/))) {
+      var iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube-nocookie.com/embed/' + m[1];
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      iframe.setAttribute('allowfullscreen', '');
+      frame.appendChild(iframe);
+    } else if ((m = url.match(/vimeo\.com\/(\d+)/))) {
+      var viframe = document.createElement('iframe');
+      viframe.src = 'https://player.vimeo.com/video/' + m[1];
+      viframe.setAttribute('frameborder', '0');
+      viframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+      viframe.setAttribute('allowfullscreen', '');
+      frame.appendChild(viframe);
+    } else if (/\.(mp4|webm|ogg)(\?|#|$)/i.test(url)) {
+      var video = document.createElement('video');
+      video.src = url;
+      video.controls = true;
+      video.preload = 'metadata';
+      frame.appendChild(video);
+    } else {
+      videoPreview.innerHTML = '<p class="blog-field-hint">Preview unavailable for this link — it will still be saved.</p>';
+      videoPreview.hidden = false;
+      return;
+    }
+    videoPreview.appendChild(frame);
+    videoPreview.hidden = false;
+  }
+  if (videoUrlInput) {
+    videoUrlInput.addEventListener('input', buildVideoPreview);
+    videoUrlInput.addEventListener('change', buildVideoPreview);
+  }
+  buildVideoPreview();
+
+  // ---------- Gallery preview (new uploads) ----------
+  var galleryInput = $('gallery-input');
+  var galleryEditor = $('gallery-editor');
+  var galleryHint = $('gallery-hint');
+  var newGalleryFiles = [];
+  var MAX_GALLERY = 10;
+  function rebuildGalleryInput() {
+    if (!galleryInput || typeof DataTransfer === 'undefined') return;
+    var dt = new DataTransfer();
+    newGalleryFiles.forEach(function (f) { dt.items.add(f); });
+    galleryInput.files = dt.files;
+  }
+  function renderNewGallery() {
+    if (!galleryEditor) return;
+    Array.prototype.forEach.call(galleryEditor.querySelectorAll('.blog-gallery-item[data-new]'), function (el) { el.remove(); });
+    var existing = galleryEditor.querySelectorAll('.blog-gallery-item:not([data-new])').length;
+    var room = MAX_GALLERY - existing;
+    if (newGalleryFiles.length > room) {
+      newGalleryFiles = newGalleryFiles.slice(0, Math.max(room, 0));
+      rebuildGalleryInput();
+    }
+    if (galleryHint) galleryHint.textContent = room > 0 ? '' : 'Gallery is full (max ' + MAX_GALLERY + ' photos).';
+    newGalleryFiles.forEach(function (file, idx) {
+      var item = document.createElement('div');
+      item.className = 'blog-gallery-item';
+      item.dataset.new = '1';
+      var img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.alt = '';
+      img.loading = 'lazy';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'blog-gallery-new-remove';
+      btn.title = 'Remove';
+      btn.setAttribute('aria-label', 'Remove this photo');
+      btn.textContent = '\u00d7';
+      btn.addEventListener('click', function () {
+        newGalleryFiles.splice(idx, 1);
+        rebuildGalleryInput();
+        renderNewGallery();
+      });
+      item.appendChild(img);
+      item.appendChild(btn);
+      galleryEditor.appendChild(item);
+    });
+  }
+  if (galleryInput && galleryEditor) {
+    galleryInput.addEventListener('change', function () {
+      newGalleryFiles = Array.prototype.slice.call(galleryInput.files);
+      renderNewGallery();
+    });
+  }
+  renderNewGallery();
+
+  // ---------- Featured image preview ----------
+  var fileInput = $('id_featured_image');
+  var imgPreview = $('featured-image-preview');
+  var imgPlaceholder = $('featured-image-placeholder');
+  if (fileInput && imgPreview) {
+    fileInput.addEventListener('change', function () {
+      if (fileInput.files && fileInput.files[0]) {
+        imgPreview.src = URL.createObjectURL(fileInput.files[0]);
+        imgPreview.hidden = false;
+        if (imgPlaceholder) imgPlaceholder.hidden = true;
+      }
+    });
+  }
+
+  // ---------- Save behaviour ----------
+  var statusSel = $('id_status');
+  var draftBtn = $('draft-btn');
+  var draftRequested = false;
+
+  if (draftBtn && statusSel) {
+    draftBtn.addEventListener('click', function () {
+      draftRequested = true;
+      statusSel.value = 'draft';
+      form.submit();
+    });
+  }
+
+  // ---------- Unsaved-changes guard + Ctrl/Cmd+S ----------
+  form.addEventListener('input', function () { dirty = true; });
+  form.addEventListener('change', function () { dirty = true; });
+  form.addEventListener('submit', function () {
+    dirty = false;
+    if (statusSel && !draftRequested && (statusSel.value === 'draft' || statusSel.value === 'archived')) {
+      statusSel.value = 'published';
+    }
+    draftRequested = false;
+  });
+  window.addEventListener('beforeunload', function (e) {
+    if (dirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      dirty = false;
+      form.submit();
+    }
+  });
+
+  // ---------- Autofocus title on a fresh post ----------
+  if (mode === 'create') {
+    var titleEl = $('id_title');
+    if (titleEl) titleEl.focus();
+  }
+})();
+</script>
+{% endblock %}

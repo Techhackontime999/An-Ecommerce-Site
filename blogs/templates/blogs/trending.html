@@ -1,0 +1,62 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Trending — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--tag">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-fire"></i> Trending</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">What the community is reading</h1>
+    <p class="body-large">Ranked by views, likes, saves, and comments over the last {{ days }} days — weighted against age.</p>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if posts %}
+        <div class="blog-trending-list">
+          {% for post in posts %}
+          <article class="blog-trending-item fade-up" style="transition-delay:{% widthratio forloop.counter0 1 50 %}ms">
+            <span class="blog-trending-rank">#{{ forloop.counter|stringformat:"02d" }}</span>
+            <div class="blog-trending-media">
+              {% if post.featured_image %}
+              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+              {% else %}
+              <div class="blog-card-media-placeholder"><i class="fas fa-newspaper"></i></div>
+              {% endif %}
+            </div>
+            <div class="blog-trending-body">
+              <div class="blog-card-meta">
+                <span class="blog-card-author">{{ post.author.username }}</span>
+                <span class="blog-dot">&middot;</span>
+                <span class="blog-card-date">{{ post.publish_at|date:"M d, Y" }}</span>
+                <span class="blog-type-badge">{{ post.get_post_type_display }}</span>
+              </div>
+              <a href="{{ post.get_absolute_url }}"><h3 class="blog-trending-title">{{ post.title }}</h3></a>
+              <div class="blog-card-stats">
+                <span><i class="far fa-eye"></i> {{ post.views_7d }}</span>
+                <span><i class="far fa-heart"></i> {{ post.likes_7d }}</span>
+                <span><i class="far fa-bookmark"></i> {{ post.bookmarks_7d }}</span>
+                <span><i class="far fa-comment"></i> {{ post.comments_7d }}</span>
+              </div>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-fire"></i>
+          <h3>Nothing trending yet</h3>
+          <p>Engagement in the last {{ days }} days will show up here.</p>
+        </div>
+        {% endif %}
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

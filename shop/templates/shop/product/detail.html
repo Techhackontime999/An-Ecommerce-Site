@@ -178,54 +178,7 @@
 <!-- Reviews -->
 <section class="section-aq" style="background:var(--aq-gradient-2);">
   <div class="container-aq">
-    <h2 class="display-section" style="margin-bottom:2rem;">Customer Reviews</h2>
-
-    <div style="display:flex;flex-direction:column;gap:1rem;">
-      {% for review in product.reviews.all %}
-      <div class="glass-card" style="padding:1.5rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <div style="width:40px;height:40px;border-radius:50%;background:var(--aq-gradient-2);border:1px solid var(--aq-border);display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:0.875rem;font-weight:600;">
-              {{ review.user.username|first|upper }}
-            </div>
-            <div>
-              <strong style="font-size:0.9375rem;color:var(--aq-ink);">{{ review.user.username }}</strong>
-              <div style="font-size:0.75rem;color:var(--aq-tertiary);">{{ review.created_at|date:"M d, Y" }}</div>
-            </div>
-          </div>
-          <div style="color:#F59E0B;font-size:0.8125rem;">
-            {% for i in "12345"|make_list %}
-              {% if forloop.counter <= review.rating %}
-              <i class="fas fa-star"></i>
-              {% else %}
-              <i class="far fa-star"></i>
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-        <p style="font-size:0.9375rem;line-height:1.6;color:var(--aq-body);margin:0;">{{ review.comment }}</p>
-      </div>
-      {% empty %}
-      <div class="empty-aq">
-        <div class="empty-aq-icon"><i class="fas fa-comment"></i></div>
-        <h3>No reviews yet</h3>
-        <p>Be the first to share your experience with this product.</p>
-      </div>
-      {% endfor %}
-    </div>
-
-    {% if user.is_authenticated %}
-    <div style="margin-top:2rem;text-align:center;">
-      <a href="{% url 'reviews:create_review' product.id %}" class="btn-aq btn-aq-primary">
-        <i class="fas fa-pen"></i>
-        Write a Review
-      </a>
-    </div>
-    {% else %}
-    <p style="text-align:center;margin-top:2rem;color:var(--aq-tertiary);">
-      <a href="{% url 'accounts:login' %}" style="color:var(--aq-accent);">Login</a> to write a review.
-    </p>
-    {% endif %}
+    {% include 'reviews/partials/product_reviews_widget.html' %}
   </div>
 </section>
 {% endblock %}

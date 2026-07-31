@@ -1,0 +1,41 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}My Reading List — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--tag">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-bookmark"></i> Reading List</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">Saved for later</h1>
+    <p class="body-large">
+      {{ total_saved }} saved post{{ total_saved|pluralize }}
+      {% if total_read %} · about {{ total_read }} min of reading{% endif %}
+    </p>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if posts %}
+        <div class="blog-grid">
+          {% for post in posts %}
+            {% include 'blogs/partials/post_card.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-bookmark"></i>
+          <h3>Nothing saved yet</h3>
+          <p>Tap the bookmark icon on any post to keep it here for later.</p>
+          <a href="{% url 'blogs:blog_home' %}" class="btn-aq btn-aq-primary">Browse posts</a>
+        </div>
+        {% endif %}
+      </div>
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

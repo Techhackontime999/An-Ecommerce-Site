@@ -1,0 +1,38 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Editors' Picks — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--tag">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-star"></i> Editors' Picks</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">Hand-selected by the Shop-Seed team</h1>
+    <p class="body-large">Our favourite reads — the posts we pin so you don't miss them.</p>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if posts %}
+        <div class="blog-grid">
+          {% for post in posts %}
+            {% include 'blogs/partials/post_card.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-star"></i>
+          <h3>No picks yet</h3>
+          <p>Our editors haven't pinned anything yet.</p>
+        </div>
+        {% endif %}
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

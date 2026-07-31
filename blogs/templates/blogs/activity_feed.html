@@ -1,0 +1,65 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Your Feed — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--compact">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-stream"></i> Your Feed</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">From the people you follow</h1>
+    {% if following_count %}
+    <p class="body-large">Following {{ following_count }} author{{ following_count|pluralize }}. Discover more on the <a href="{% url 'blogs:leaderboard' %}">leaderboard</a>.</p>
+    {% else %}
+    <p class="body-large">Follow authors you like and their new posts will land here.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        <h2 class="blog-section-heading"><i class="fas fa-pen-nib"></i> New posts</h2>
+        {% if feed_posts %}
+        <div class="blog-grid">
+          {% for post in feed_posts %}
+            {% include 'blogs/partials/post_card.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-users"></i>
+          <h3>Your feed is quiet</h3>
+          <p>Follow some authors and their new posts will appear here.</p>
+        </div>
+        {% endif %}
+
+        <h2 class="blog-section-heading" style="margin-top:3rem;"><i class="fas fa-activity"></i> Recent activity</h2>
+        {% if activities %}
+        <div class="blog-notif-list">
+          {% for item in activities %}
+          <div class="blog-notif-item">
+            <span class="blog-avatar">{{ item.actor.username|first|upper }}</span>
+            <div class="blog-notif-body">
+              <p>
+                <a href="{% url 'blogs:profile' item.actor.username %}"><strong>{{ item.actor.username }}</strong></a>
+                {{ item.get_verb_display }}
+                {% if item.post %}
+                <a href="{{ item.post.get_absolute_url }}"><strong>{{ item.post.title }}</strong></a>
+                {% endif %}
+              </p>
+              <span class="blog-notif-date">{{ item.created|timesince }} ago</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="blog-empty-text">No activity from the people you follow yet.</p>
+        {% endif %}
+      </div>
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -144,9 +144,12 @@
       <p class="body-large" style="margin: 0.75rem auto 0; max-width: 55ch;">
         Most-loved products at unbeatable prices. Updated daily with new deals.
       </p>
+      <div class="products-aq-toggle-wrap">
+        {% include 'shop/product/layout_toggle.html' with target='#featured-grid' %}
+      </div>
     </div>
 
-    <div class="products-aq-grid">
+    <div class="products-aq-grid" id="featured-grid" data-layout="4col">
       {% for product in trending_products %}
       <div class="product-aq-card fade-up" style="transition-delay:{% widthratio forloop.counter0 1 100 %}ms">
         <a href="{{ product.get_absolute_url }}" style="text-decoration:none;color:inherit;">
@@ -232,9 +235,12 @@
       <p class="body-large" style="margin: 0.5rem 0 0; max-width: 55ch;">
         Unbeatable discounts on top products. Grab them before they're gone.
       </p>
+      <div class="products-aq-toggle-wrap products-aq-toggle-wrap-left">
+        {% include 'shop/product/layout_toggle.html' with target='#deals-grid' %}
+      </div>
     </div>
 
-    <div class="products-aq-grid">
+    <div class="products-aq-grid" id="deals-grid" data-layout="4col">
       {% for product in deals %}
       <div class="product-aq-card fade-up" style="transition-delay:{% widthratio forloop.counter0 1 80 %}ms;border-color:rgba(249,115,22,0.2);">
         <a href="{{ product.get_absolute_url }}" style="text-decoration:none;color:inherit;">

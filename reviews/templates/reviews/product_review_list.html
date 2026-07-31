@@ -1,0 +1,77 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Reviews — {{ product.name }} — Shop-Seed{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--tag">
+  <div class="container-aq">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-star"></i> Reviews</span>
+    <h1 class="display-section" style="margin-top:0.75rem;">{{ product.name }}</h1>
+    <div class="review-summary fade-up">
+      {% if total %}
+      <div class="review-summary-score">
+        <strong>{{ average }}</strong>
+        <span class="review-stars">
+          {% for i in "12345"|make_list %}
+            {% if forloop.counter <= average %}<i class="fas fa-star"></i>
+            {% else %}<i class="far fa-star"></i>{% endif %}
+          {% endfor %}
+        </span>
+        <small>{{ total }} review{{ total|pluralize }}</small>
+      </div>
+      <div class="review-summary-recommend">
+        <i class="fas fa-thumbs-up"></i>
+        <strong>{{ recommend_pct }}%</strong>
+        <small>would recommend</small>
+      </div>
+      {% endif %}
+      <a href="{% url 'reviews:create_product_review' product.pk %}" class="btn-aq btn-aq-primary"><i class="fas fa-pen"></i> Write a review</a>
+    </div>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if reviews %}
+        <div class="blog-review-list">
+          {% for review in reviews %}
+            {% include 'reviews/partials/review_item.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+          <i class="fas fa-star"></i>
+          <h3>No detailed reviews yet</h3>
+          <p>Be the first to leave an in-depth review for this product.</p>
+        </div>
+        {% endif %}
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+      <div class="blog-sidebar">
+        <div class="blog-sidebar-card">
+          <h4 class="blog-sidebar-title"><i class="fas fa-box-open"></i> Product</h4>
+          <div class="blog-product-card" style="box-shadow:none;border:none;background:transparent;">
+            <a class="blog-product-card-link" href="{{ product.get_absolute_url }}">
+              <div class="blog-product-card-media">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                <div class="blog-card-media-placeholder"><i class="fas fa-box-open"></i></div>
+                {% endif %}
+              </div>
+              <div class="blog-product-card-body">
+                <h4 class="blog-product-card-name">{{ product.name }}</h4>
+                <div class="blog-product-card-price"><span>${{ product.current_price }}</span></div>
+                <span class="blog-product-card-cta">View product <i class="fas fa-arrow-right"></i></span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

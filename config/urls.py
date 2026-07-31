@@ -1,8 +1,14 @@
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
+from django.views.generic import TemplateView
+
+from blogs.urls import sitemaps as blog_sitemaps
 
 urlpatterns = [
+    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'), name='robots'),
+    path('sitemap.xml', sitemap, {'sitemaps': blog_sitemaps}, name='sitemap'),
     path('search/', include('search.urls', namespace='search')),
     path('', include('reviews.urls', namespace='reviews')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
@@ -14,6 +20,7 @@ urlpatterns = [
     path('documentation/', include('documentation.urls', namespace='doc')),
     path('faq/', include('faq.urls', namespace='faq')),
     path('about/', include('about.urls', namespace='about')),
+    path('blog/', include('blogs.urls', namespace='blogs')),
     path('contact/', include('contact.urls', namespace='contact')),
     path('coupons/', include('coupons.urls', namespace='coupons')),
     path('seller/', include('seller.urls', namespace='seller')),

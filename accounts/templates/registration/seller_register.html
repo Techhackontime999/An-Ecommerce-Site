@@ -82,12 +82,41 @@
       </div>
 
       <div class="auth-field">
-        <label for="{{ form.bank_account.id_for_label }}">Bank Account Number</label>
+        <label for="{{ form.account_holder_name.id_for_label }}">Account Holder Name</label>
         <div class="auth-input-wrap">
-          <i class="fas fa-university"></i>
-          {{ form.bank_account }}
+          <i class="fas fa-user-tie"></i>
+          {{ form.account_holder_name }}
         </div>
-        {% for e in form.bank_account.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+        {% for e in form.account_holder_name.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+      </div>
+
+      <div class="auth-grid">
+        <div class="auth-field">
+          <label for="{{ form.bank_account.id_for_label }}">Bank Account Number</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-university"></i>
+            {{ form.bank_account }}
+          </div>
+          {% for e in form.bank_account.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="auth-field">
+          <label for="{{ form.ifsc_code.id_for_label }}">IFSC Code</label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-qrcode"></i>
+            {{ form.ifsc_code }}
+          </div>
+          {% for e in form.ifsc_code.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="auth-field">
+        <label for="{{ form.bank_name.id_for_label }}">Bank Name <span class="auth-optional">(optional)</span></label>
+        <div class="auth-input-wrap">
+          <i class="fas fa-landmark"></i>
+          {{ form.bank_name }}
+        </div>
+        {% for e in form.bank_name.errors %}<span class="auth-error">{{ e }}</span>{% endfor %}
       </div>
 
       <div class="auth-field">

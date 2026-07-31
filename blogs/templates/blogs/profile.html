@@ -1,0 +1,124 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}{{ author.username }} — Shop-Seed Blog{% endblock %}
+
+{% block content %}
+<section class="blog-hero blog-hero--author">
+  <div class="container-aq">
+    <div class="blog-author-header">
+      {% if profile and profile.avatar %}
+      <img class="blog-avatar blog-avatar--lg blog-avatar--img" src="{{ profile.avatar.url }}" alt="{{ author.username }}">
+      {% else %}
+      <span class="blog-avatar blog-avatar--lg">{{ author.username|first|upper }}</span>
+      {% endif %}
+      <div class="blog-author-copy">
+        <div class="blog-author-name-row">
+          <h1 class="display-section" style="margin-top:0.5rem;margin-bottom:0.25rem;">
+            {{ author.get_full_name|default:author.username }}
+          </h1>
+          {% if profile %}
+          <span class="blog-level-badge"><i class="fas fa-bolt"></i> Level {{ profile.level }}</span>
+          {% endif %}
+        </div>
+        <p class="body-large">@{{ author.username }} · {{ followers_count }} follower{{ followers_count|pluralize }} · {{ following_count }} following</p>
+        {% if profile and profile.bio %}
+        <p class="blog-author-bio">{{ profile.bio }}</p>
+        {% endif %}
+        <div class="blog-author-actions">
+          {% if user.is_authenticated and user != author %}
+          <form method="post" action="{% url 'blogs:toggle_follow' author.username %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-aq {% if is_following %}btn-aq-ghost{% else %}btn-aq-primary{% endif %}">
+              <i class="fas {% if is_following %}fa-user-minus{% else %}fa-user-plus{% endif %}"></i>
+              {% if is_following %}Unfollow{% else %}Follow{% endif %}
+            </button>
+          </form>
+          {% endif %}
+          {% if user == author %}
+          <a href="{% url 'blogs:post_create' %}" class="btn-aq btn-aq-primary"><i class="fas fa-feather-alt"></i> New post</a>
+          {% endif %}
+        </div>
+      </div>
+      {% if profile %}
+      <div class="blog-author-stats">
+        <div class="blog-stat"><i class="fas fa-bolt"></i><span>{{ profile.xp }} XP</span></div>
+        <div class="blog-xp-track">
+          <div class="blog-xp-fill" style="width:{{ profile.level_progress }}%"></div>
+        </div>
+        <small>{{ profile.level_progress }}% to level {{ profile.level|add:"1" }}</small>
+        {% if profile.badges.all %}
+        <div class="blog-badge-row">
+          {% for badge in profile.badges.all %}
+          <span class="blog-badge" title="{{ badge.description }}"><i class="fas {{ badge.icon }}"></i> {{ badge.name }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section-aq">
+  <div class="container-aq">
+    <div class="blog-profile-tabs fade-up">
+      <a href="{% url 'blogs:profile' author.username %}" class="blog-profile-tab{% if tab == 'posts' %} active{% endif %}"><i class="fas fa-pen-nib"></i> Posts</a>
+      <a href="{% url 'blogs:profile_tab' author.username 'reviews' %}" class="blog-profile-tab{% if tab == 'reviews' %} active{% endif %}"><i class="fas fa-star"></i> Reviews</a>
+      <a href="{% url 'blogs:profile_tab' author.username 'bookmarks' %}" class="blog-profile-tab{% if tab == 'bookmarks' %} active{% endif %}"><i class="fas fa-bookmark"></i> Saved</a>
+    </div>
+
+    <div class="blog-layout">
+      <div class="blog-main">
+        {% if tab == 'reviews' %}
+          {% if reviews %}
+          <div class="blog-review-list">
+            {% for review in reviews %}
+              {% include 'reviews/partials/review_item.html' %}
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="blog-empty">
+            <i class="fas fa-star"></i>
+            <h3>No reviews yet</h3>
+            <p>{{ author.username }} hasn't written any product reviews.</p>
+          </div>
+          {% endif %}
+        {% elif tab == 'bookmarks' %}
+          {% if posts %}
+          <div class="blog-grid">
+            {% for post in posts %}
+              {% include 'blogs/partials/post_card.html' %}
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="blog-empty">
+            <i class="fas fa-bookmark"></i>
+            <h3>Nothing saved</h3>
+            <p>{{ author.username }} hasn't saved any posts yet.</p>
+          </div>
+          {% endif %}
+        {% else %}
+          {% if posts %}
+          <div class="blog-grid">
+            {% for post in posts %}
+              {% include 'blogs/partials/post_card.html' %}
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="blog-empty">
+            <i class="fas fa-feather-alt"></i>
+            <h3>No posts yet</h3>
+            <p>{{ author.username }} hasn't published anything yet.</p>
+          </div>
+          {% endif %}
+        {% endif %}
+
+        {% include 'blogs/partials/pagination.html' %}
+      </div>
+
+      {% include 'blogs/partials/blog_sidebar.html' %}
+    </div>
+  </div>
+</section>
+{% endblock %}

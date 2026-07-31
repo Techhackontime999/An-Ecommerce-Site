@@ -1,0 +1,97 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Review by {{ review.reviewer.username }} — Shop-Seed{% endblock %}
+
+{% block content %}
+<section class="section-aq" style="padding-top:6rem;">
+  <div class="container-aq">
+    <div class="blog-report-wrap">
+      <div class="blog-sidebar-card" style="max-width:760px;margin:0 auto;">
+        <div class="review-detail-head">
+          <div class="review-card-user">
+            <a href="{% url 'blogs:profile' review.reviewer.username %}" class="blog-avatar blog-avatar--lg">{{ review.reviewer.username|first|upper }}</a>
+            <div>
+              <a href="{% url 'blogs:profile' review.reviewer.username %}" class="review-card-name">{{ review.reviewer.username }}</a>
+              <div class="review-card-meta">
+                <span class="review-stars">
+                  {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= review.overall_rating %}<i class="fas fa-star"></i>
+                    {% else %}<i class="far fa-star"></i>{% endif %}
+                  {% endfor %}
+                </span>
+                <span class="review-card-date">{{ review.created|date:"F d, Y" }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="review-card-badges">
+            {% if review.verified_purchase %}
+            <span class="review-badge review-badge--verified"><i class="fas fa-check-circle"></i> Verified purchase</span>
+            {% endif %}
+            {% if review.is_verified_reviewer %}
+            <span class="review-badge"><i class="fas fa-shield-alt"></i> Verified reviewer</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <a href="{{ review.product.get_absolute_url }}" class="blog-product-card-link">
+          <div class="review-product-strip">
+            <div class="blog-product-card-media" style="width:64px;height:64px;min-width:64px;">
+              {% if review.product.image %}
+              <img src="{{ review.product.image.url }}" alt="{{ review.product.name }}">
+              {% else %}
+              <div class="blog-card-media-placeholder"><i class="fas fa-box-open"></i></div>
+              {% endif %}
+            </div>
+            <div>
+              <span class="blog-product-role">Product being reviewed</span>
+              <strong class="blog-product-card-name">{{ review.product.name }}</strong>
+              <div class="blog-product-card-price"><span>${{ review.product.current_price }}</span></div>
+            </div>
+          </div>
+        </a>
+
+        <div class="review-card-scores">
+          <span class="review-score"><small>Performance</small><strong>{{ review.performance|default:"—" }}/5</strong></span>
+          <span class="review-score"><small>Value</small><strong>{{ review.value|default:"—" }}/5</strong></span>
+          <span class="review-score"><small>Quality</small><strong>{{ review.quality|default:"—" }}/5</strong></span>
+          {% if review.recommendation_rating %}
+          <span class="review-score review-score--rec"><small>Recommend</small><strong>{{ review.recommendation_rating }}%</strong></span>
+          {% endif %}
+        </div>
+
+        {% if review.pros %}
+        <div class="review-pros"><i class="fas fa-plus-circle"></i> <strong>Pros:</strong> {{ review.pros|linebreaksbr }}</div>
+        {% endif %}
+        {% if review.cons %}
+        <div class="review-cons"><i class="fas fa-minus-circle"></i> <strong>Cons:</strong> {{ review.cons|linebreaksbr }}</div>
+        {% endif %}
+        <p class="review-detail-text">{{ review.review_text|linebreaksbr }}</p>
+        {% if review.image %}
+        <img class="review-card-image" src="{{ review.image.url }}" alt="Review photo">
+        {% endif %}
+        {% if review.video_url %}
+        <a class="blog-text-link" href="{{ review.video_url }}" target="_blank" rel="noopener"><i class="fas fa-video"></i> Watch the video review</a>
+        {% endif %}
+
+        <div class="review-card-actions">
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'reviews:toggle_review_helpful' review.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="blog-helpful-btn{% if is_helpful %} active{% endif %}">
+              <i class="fas fa-thumbs-up"></i> {{ review.helpful_count }} helpful
+            </button>
+          </form>
+          {% else %}
+          <span class="blog-helpful-btn"><i class="fas fa-thumbs-up"></i> {{ review.helpful_count }} helpful</span>
+          {% endif %}
+          {% if user == review.reviewer or user.is_staff %}
+          <a class="blog-action-btn" href="{% url 'reviews:edit_product_review' review.pk %}"><i class="fas fa-edit"></i> Edit</a>
+          {% endif %}
+          <a class="blog-action-btn blog-action-btn--danger" href="{% url 'reviews:report_review' review.pk %}"><i class="fas fa-flag"></i> Report</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
