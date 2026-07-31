@@ -1,63 +1,99 @@
 {% extends 'shop/base/base.html' %}
-
 {% load static %}
 
+{% block title %}Edit Seller Profile — Shop-Seed{% endblock %}
+
 {% block content %}
+<div class="ap-page">
+  <div class="ap-page-inner">
 
-<div class="container-fluid mt-5 ">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card  border-0">
-                <div class="card-header bg-grey text-secondary">
-                    <h4 class="mb-0">Edit Your Seller Profile</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="form-group mb-3">
-                            <label class="mx-3"for="id_shop_name">Shop Name</label>
-                            {{ form.shop_name }}
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label class="mx-3"for="id_gst_number">GST Number</label>
-                            {{ form.gst_number }}
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label class="mx-3"for="id_phone">Phone</label>
-                            {{ form.phone }}
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label class="mx-2 "for="id_address">Address</label>
-                            {{ form.address }}
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label class="mx-2 "for="id_description">Store Description</label>
-                            {{ form.description }}
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label class="ml-1"for="id_logo">Store Logo</label>
-                            {{ form.profile_picture }}
-                            {% if profile.profile_picture %}
-                                <div class="mt-2">
-                                    <img src="{{ profile.profile_picture.url }}" alt="Current Logo" width="100" class="rounded shadow-sm">
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-success">Save Changes</button>
-                            <a href="{% url 'seller:private_profile' %}" class="btn btn-secondary">Cancel</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    {% if messages %}
+    <div class="seller-pro-messages">
+      {% for message in messages %}
+      <div class="seller-pro-message seller-pro-message-{{ message.tags }}">
+        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+        {{ message }}
+      </div>
+      {% endfor %}
     </div>
+    {% endif %}
+
+    <div class="ap-header">
+      <h1 class="ap-title"><i class="fas fa-store-alt"></i> Edit Store Profile</h1>
+      <p class="body-small" style="margin-top: 0.25rem;">Keep your store details up to date so buyers can find and trust you.</p>
+    </div>
+
+    <div class="ap-card ap-card-profile">
+      <div class="ap-profile-top">
+        <div class="ap-avatar-wrap">
+          {% if profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}" alt="{{ profile.shop_name }}" class="ap-avatar">
+          {% else %}
+            <div class="ap-avatar ap-avatar-placeholder">
+              <i class="fas fa-store"></i>
+            </div>
+          {% endif %}
+        </div>
+        <div class="ap-profile-info">
+          <h2 class="ap-shop-name">{{ profile.shop_name|default:request.user.username }}</h2>
+          <div class="ap-meta">
+            <span><i class="fas fa-check-circle" style="color: #16A34A;"></i> {% if profile.is_verified %}Verified Seller{% else %}Unverified{% endif %}</span>
+            <span><i class="fas fa-phone"></i> {{ profile.phone|default:"No phone added" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-card">
+      <div class="ap-card-header">
+        <i class="fas fa-edit"></i> Store Details
+      </div>
+      <div class="ap-card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="ap-form-grid">
+            <div class="ap-field">
+              <label for="{{ form.shop_name.id_for_label }}">Shop Name</label>
+              {{ form.shop_name }}
+              {% for e in form.shop_name.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.gst_number.id_for_label }}">GST Number</label>
+              {{ form.gst_number }}
+              {% for e in form.gst_number.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.phone.id_for_label }}">Phone</label>
+              {{ form.phone }}
+              {% for e in form.phone.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="ap-field">
+              <label for="{{ form.address.id_for_label }}">Address</label>
+              {{ form.address }}
+              {% for e in form.address.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+            </div>
+          </div>
+          <div class="ap-field ap-field-full">
+            <label for="{{ form.description.id_for_label }}">Store Description</label>
+            {{ form.description }}
+            {% for e in form.description.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="ap-field ap-field-full">
+            <label for="{{ form.profile_picture.id_for_label }}">Store Logo</label>
+            <div class="ap-file-wrap">
+              {{ form.profile_picture }}
+              <span class="ap-file-label"><i class="fas fa-camera"></i> Choose Image</span>
+            </div>
+            {% for e in form.profile_picture.errors %}<span class="ap-error">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="ap-form-actions">
+            <a href="{% url 'seller:private_profile' %}" class="ap-btn-ghost"><i class="fas fa-times"></i> Cancel</a>
+            <button type="submit" class="ap-btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

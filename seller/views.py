@@ -80,7 +80,13 @@ def delete_product(request, pk):
 def seller_orders(request):
     profile = request.user.sellerprofile
     order_items = OrderItem.objects.filter(product__seller=profile).select_related('order')
-    return render(request, 'seller/orders.html', {'order_items': order_items})
+    context = {
+        'order_items': order_items,
+        'total_orders': order_items.count(),
+        'pending_orders': order_items.filter(order__paid=False).count(),
+        'completed_orders': order_items.filter(order__paid=True).count(),
+    }
+    return render(request, 'seller/orders.html', context)
 
 @login_required
 def update_order_status(request, order_id):
@@ -155,7 +161,7 @@ def edit_profile(request):
     else:
         form = SellerProfileForm(instance=profile)
 
-    return render(request, 'seller/seller_edit_profile.html', {'form': form})
+    return render(request, 'seller/seller_edit_profile.html', {'form': form, 'profile': profile})
 
 def profile_details(request, slug):
     profile = get_object_or_404(SellerProfile, slug=slug, is_verified=True)
