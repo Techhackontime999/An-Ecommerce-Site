@@ -10,6 +10,8 @@ from shop.models import Product
 
 from .forms import ProductReviewForm, ReviewReportForm
 from .models import ProductReview, Review, ReviewReport
+from notifications.models import Notification
+from notifications.services import notify
 
 
 def create_review(request, product_id):
@@ -67,6 +69,16 @@ def create_product_review(request, product_id):
             review.product = product
             review.reviewer = request.user
             review.save()
+            seller = product.seller
+            if seller and seller.user_id and seller.user != request.user:
+                notify(
+                    seller.user,
+                    Notification.Category.REVIEW,
+                    f'New {review.overall_rating}-star review for {product.name}',
+                    f'{request.user.username} reviewed your product. See what they said.',
+                    link=reverse('reviews:product_review_detail', args=[review.pk]),
+                    icon='star',
+                )
             messages.success(request, 'Thanks for your detailed review!')
             return redirect('reviews:product_review_detail', review_id=review.pk)
         messages.error(request, 'Please fix the errors below.')

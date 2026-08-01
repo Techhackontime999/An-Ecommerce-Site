@@ -1,5 +1,6 @@
 
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -7,6 +8,8 @@ import requests
 from cart.cart import Cart
 from .models import Order, OrderItem
 from .forms import OrderCreateForm
+from notifications.models import Notification
+from notifications.services import notify
 
 @login_required
 def order_create(request):
@@ -29,6 +32,28 @@ def order_create(request):
                     deal_applied=is_deal
                 )
             cart.clear()
+            notify(
+                request.user,
+                Notification.Category.ORDER,
+                f'Order #{order.id} placed',
+                'We received your order and are preparing it. Choose a shipping method to continue.',
+                link=reverse('shipping:shipping_select', args=[order.id]),
+                icon='box',
+            )
+            seller_users = set()
+            for item in order.items.all():
+                seller = item.product.seller
+                if seller and seller.user_id:
+                    seller_users.add(seller.user)
+            for seller_user in seller_users:
+                notify(
+                    seller_user,
+                    Notification.Category.ORDER,
+                    f'New order #{order.id} for your shop',
+                    f'{seller_user.sellerprofile.shop_name if hasattr(seller_user, "sellerprofile") else "Your shop"} received a new order. Review it in your dashboard.',
+                    link=reverse('seller:orders'),
+                    icon='store',
+                )
             return redirect('shipping:shipping_select', order_id=order.id)
     else:
         initial = {
@@ -43,7 +68,17 @@ def order_create(request):
 @login_required
 def my_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related('items__product', 'shipment')
-    return render(request, 'order/my_orders.html', {'orders': orders})
+    statuses = []
+    for o in orders:
+        shipment = getattr(o, 'shipment', None)
+        statuses.append(shipment.status if shipment else None)
+    stats = {
+        'total': orders.count(),
+        'spent': sum(o.get_total_cost() for o in orders),
+        'active': sum(1 for s in statuses if s not in ('delivered', 'failed', None)),
+        'delivered': sum(1 for s in statuses if s == 'delivered'),
+    }
+    return render(request, 'order/my_orders.html', {'orders': orders, 'stats': stats})
 
 
 NOMINATIM_URL = 'https://nominatim.openstreetmap.org/reverse'

@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'preferences.apps.PreferencesConfig',
     'news.apps.NewsConfig',
     'legal.apps.LegalConfig',
+    'notifications.apps.NotificationsConfig',
 ]
 
 MIDDLEWARE = [
@@ -97,6 +98,7 @@ TEMPLATES = [
                 'blogs.context_processors.blog_nav',
                 'preferences.context_processors.user_preferences',
                 'news.context_processors.news_ticker',
+                'notifications.context_processors.notifications_context',
             ],
         },
     },

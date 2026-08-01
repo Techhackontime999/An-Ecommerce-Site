@@ -1,67 +1,314 @@
 {% extends "shop/base/base.html" %}
 {% load preference_extras %}
-{% block title %}My Orders{% endblock %}
+{% block title %}My Orders — Shop-Seed{% endblock %}
+
+{% block extra_css %}
+<style>
+  .myo-page { position: relative; padding: 3rem 0 5rem; overflow: hidden; }
+  .myo-page::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(800px 420px at 12% 0%, var(--aq-accent-glow), transparent 60%),
+      radial-gradient(720px 420px at 88% 0%, rgba(30, 64, 175, 0.06), transparent 60%);
+  }
+  .myo-wrap { position: relative; max-width: 1200px; margin: 0 auto; padding: 0 1.25rem; }
+  .myo-page-head { text-align: center; margin-bottom: 2.5rem; }
+  .myo-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .4rem 1.1rem; border-radius: 999px;
+    background: var(--aq-accent-subtle); color: var(--aq-accent);
+    border: 1px solid var(--aq-accent-glow);
+    font-size: .8125rem; font-weight: 600; letter-spacing: .02em;
+  }
+  .myo-title {
+    margin: .9rem 0 0; font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800; color: var(--aq-ink); letter-spacing: -.02em;
+  }
+  .myo-sub { margin: .75rem auto 0; max-width: 52ch; color: var(--aq-tertiary); font-size: 1.05rem; }
+
+  .myo-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .myo-stat {
+    display: flex; align-items: center; gap: 1rem; padding: 1.25rem;
+    background: var(--aq-surface); border: 1px solid var(--aq-border);
+    border-radius: var(--aq-radius-md); transition: var(--aq-transition);
+  }
+  .myo-stat:hover { transform: translateY(-2px); box-shadow: 0 10px 28px var(--aq-shadow); }
+  .myo-stat-icon {
+    width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+  }
+  .myo-stat-body { display: flex; flex-direction: column; }
+  .myo-stat-value { font-size: 1.5rem; font-weight: 800; color: var(--aq-ink); line-height: 1.1; }
+  .myo-stat-label { font-size: .8125rem; color: var(--aq-tertiary); margin-top: .2rem; }
+
+  .myo-list { display: flex; flex-direction: column; gap: 1.25rem; }
+  .myo-card {
+    background: var(--aq-surface); border: 1px solid var(--aq-border);
+    border-radius: var(--aq-radius-lg); overflow: hidden; transition: var(--aq-transition);
+  }
+  .myo-card:hover {
+    transform: translateY(-2px); box-shadow: 0 16px 40px var(--aq-shadow);
+    border-color: var(--aq-accent-glow);
+  }
+  .myo-card-head {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--aq-border);
+  }
+  .myo-order-num { font-size: 1.05rem; font-weight: 800; color: var(--aq-ink); }
+  .myo-order-num .myo-order-id { color: var(--aq-accent); }
+  .myo-date { display: flex; align-items: center; gap: .5rem; color: var(--aq-tertiary); font-size: .85rem; }
+  .myo-badges { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .myo-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .35rem .85rem; border-radius: 999px; font-size: .78rem; font-weight: 600;
+  }
+  .myo-chip-paid { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+  .myo-chip-pending { background: rgba(234, 179, 8, 0.14); color: #CA8A04; }
+  .myo-chip-delivered { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+  .myo-chip-shipped { background: rgba(30, 64, 175, 0.1); color: var(--aq-blue); }
+  .myo-chip-transit { background: rgba(8, 145, 178, 0.12); color: #0E7490; }
+  .myo-chip-failed { background: rgba(225, 29, 72, 0.12); color: #BE123C; }
+  .myo-chip-other { background: rgba(100, 116, 139, 0.12); color: var(--aq-tertiary); }
+
+  .myo-body { padding: 1.25rem 1.5rem; }
+  .myo-items { display: flex; flex-direction: column; gap: .9rem; }
+  .myo-item { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .myo-thumb {
+    width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; overflow: hidden;
+    background: var(--aq-blue-glow); display: flex; align-items: center; justify-content: center;
+  }
+  .myo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .myo-thumb i { color: var(--aq-accent); font-size: 1.15rem; }
+  .myo-item-link { font-weight: 600; color: var(--aq-ink); font-size: .95rem; text-decoration: none; transition: var(--aq-transition); }
+  .myo-item-link:hover { color: var(--aq-accent); text-decoration: underline; }
+  .myo-item-meta { font-size: .8rem; color: var(--aq-tertiary); margin-top: .15rem; }
+  .myo-item-price { margin-left: auto; text-align: right; font-weight: 700; color: var(--aq-ink); }
+  .myo-item-qty { color: var(--aq-tertiary); font-size: .8rem; font-weight: 500; }
+  .myo-buy-form { margin-left: auto; }
+  .myo-item-price { margin-left: 0; }
+  .myo-buy-btn {
+    display: inline-flex; align-items: center; gap: .45rem;
+    padding: .48rem 1rem; border-radius: 999px; cursor: pointer; white-space: nowrap;
+    border: 1px solid var(--aq-accent-glow); background: var(--aq-accent-subtle);
+    color: var(--aq-accent); font-size: .78rem; font-weight: 700; transition: var(--aq-transition);
+  }
+  .myo-buy-btn:hover {
+    background: linear-gradient(135deg, var(--aq-accent), var(--aq-accent-light));
+    color: #fff; box-shadow: 0 8px 20px var(--aq-accent-glow); border-color: transparent;
+  }
+  @media (min-width: 561px) {
+    .myo-item-price { margin-left: auto; }
+    .myo-buy-form { margin-left: 0; }
+  }
+
+  .myo-timeline { display: flex; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed var(--aq-border); }
+  .myo-step { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; gap: .4rem; text-align: center; }
+  .myo-step-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--aq-canvas); border: 3px solid var(--aq-surface);
+    box-shadow: 0 0 0 2px var(--aq-border); transition: var(--aq-transition); z-index: 1;
+  }
+  .myo-step.done .myo-step-dot { background: var(--aq-accent); box-shadow: 0 0 0 2px var(--aq-accent-glow); }
+  .myo-step.current .myo-step-dot { background: var(--aq-accent); box-shadow: 0 0 0 4px var(--aq-accent-glow); }
+  .myo-step-line { position: absolute; top: 7px; left: -50%; width: 100%; height: 2px; background: var(--aq-border); }
+  .myo-step:first-child .myo-step-line { display: none; }
+  .myo-step.done + .myo-step .myo-step-line,
+  .myo-step.current + .myo-step .myo-step-line { background: var(--aq-accent); opacity: .45; }
+  .myo-step-label { font-size: .72rem; color: var(--aq-tertiary); font-weight: 600; }
+
+  .myo-card-foot {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 1rem; padding: 1.1rem 1.5rem;
+    background: var(--aq-canvas); border-top: 1px solid var(--aq-border);
+  }
+  .myo-total-label { font-size: .8rem; color: var(--aq-tertiary); }
+  .myo-total-value { font-size: 1.35rem; font-weight: 800; color: var(--aq-ink); }
+  .myo-btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .72rem 1.5rem; border-radius: 999px;
+    background: linear-gradient(135deg, var(--aq-accent), var(--aq-accent-light));
+    color: #fff; font-weight: 600; font-size: .875rem; text-decoration: none;
+    box-shadow: 0 10px 24px var(--aq-accent-glow); transition: var(--aq-transition);
+  }
+  .myo-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px var(--aq-accent-glow); color: #fff; text-decoration: none; }
+  .myo-btn-outline {
+    background: transparent; color: var(--aq-accent);
+    border: 1px solid var(--aq-accent-glow); box-shadow: none;
+  }
+  .myo-btn-outline:hover { background: var(--aq-accent-subtle); color: var(--aq-accent); box-shadow: none; }
+
+  .myo-empty {
+    text-align: center; padding: 4rem 1.5rem;
+    background: var(--aq-surface); border: 1px dashed var(--aq-border);
+    border-radius: var(--aq-radius-lg);
+  }
+  .myo-empty-icon {
+    width: 84px; height: 84px; margin: 0 auto 1.25rem; border-radius: 24px;
+    background: var(--aq-blue-glow); color: var(--aq-blue);
+    display: flex; align-items: center; justify-content: center; font-size: 2rem;
+  }
+  .myo-empty h3 { font-size: 1.4rem; font-weight: 700; color: var(--aq-ink); margin: 0 0 .5rem; }
+  .myo-empty p { color: var(--aq-tertiary); margin: 0 auto 1.5rem; max-width: 40ch; }
+
+  @media (max-width: 560px) {
+    .myo-card-head, .myo-body, .myo-card-foot { padding-left: 1.15rem; padding-right: 1.15rem; }
+    .myo-card-foot { align-items: flex-start; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h1 class="mb-4">My Orders</h1>
+<section class="myo-page">
+  <div class="myo-wrap">
+    <header class="myo-page-head">
+      <span class="myo-badge"><i class="fas fa-box-open"></i> Order history</span>
+      <h1 class="myo-title">My Orders</h1>
+      <p class="myo-sub">Track, review and manage everything you've ordered on Shop-Seed.</p>
+    </header>
 
     {% if orders %}
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="thead-light">
-                <tr>
-                    <th>Order #</th>
-                    <th>Date</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Payment</th>
-                    <th>Shipping</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr>
-                    <td><strong>#{{ order.id }}</strong></td>
-                    <td>{{ order.created|date:"M d, Y" }}</td>
-                    <td>{{ order.items.count }}</td>
-                    <td>{% price order.get_total_cost %}</td>
-                    <td>
-                        {% if order.paid %}
-                        <span class="badge badge-success">Paid</span>
-                        {% else %}
-                        <span class="badge badge-warning">Pending</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% with shipment=order.shipment %}
-                        {% if shipment %}
-                        <span class="badge badge-{% if shipment.status == 'delivered' %}success{% elif shipment.status == 'failed' %}danger{% elif shipment.status == 'shipped' or shipment.status == 'in_transit' %}info{% else %}secondary{% endif %}">
-                            {{ shipment.get_status_display }}
-                        </span>
-                        {% else %}
-                        <span class="text-muted">Pending</span>
-                        {% endif %}
-                        {% endwith %}
-                    </td>
-                    <td>
-                        <a href="{% url 'shipping:order_tracking' order.id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-search"></i> Track
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="myo-stats">
+      <div class="myo-stat">
+        <div class="myo-stat-icon" style="background: var(--aq-accent-subtle); color: var(--aq-accent);">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <div class="myo-stat-body">
+          <span class="myo-stat-value">{{ stats.total }}</span>
+          <span class="myo-stat-label">Total Orders</span>
+        </div>
+      </div>
+      <div class="myo-stat">
+        <div class="myo-stat-icon" style="background: var(--aq-blue-glow); color: var(--aq-blue);">
+          <i class="fas fa-tag"></i>
+        </div>
+        <div class="myo-stat-body">
+          <span class="myo-stat-value">{% price stats.spent %}</span>
+          <span class="myo-stat-label">Total Spent</span>
+        </div>
+      </div>
+      <div class="myo-stat">
+        <div class="myo-stat-icon" style="background: rgba(8, 145, 178, 0.12); color: #0E7490;">
+          <i class="fas fa-truck-moving"></i>
+        </div>
+        <div class="myo-stat-body">
+          <span class="myo-stat-value">{{ stats.active }}</span>
+          <span class="myo-stat-label">In Progress</span>
+        </div>
+      </div>
+      <div class="myo-stat">
+        <div class="myo-stat-icon" style="background: rgba(22, 163, 74, 0.12); color: #16A34A;">
+          <i class="fas fa-circle-check"></i>
+        </div>
+        <div class="myo-stat-body">
+          <span class="myo-stat-value">{{ stats.delivered }}</span>
+          <span class="myo-stat-label">Delivered</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="myo-list">
+      {% for order in orders %}
+      {% with shipment=order.shipment %}
+      <article class="myo-card">
+        <div class="myo-card-head">
+          <div>
+            <div class="myo-order-num">Order <span class="myo-order-id">#{{ order.id }}</span></div>
+            <div class="myo-date"><i class="fas fa-calendar-day"></i> {{ order.created|date:"M d, Y" }} &middot; {{ order.items.count }} item{{ order.items.count|pluralize }}</div>
+          </div>
+          <div class="myo-badges">
+            {% if order.paid %}
+            <span class="myo-chip myo-chip-paid"><i class="fas fa-check-circle"></i> Paid</span>
+            {% else %}
+            <span class="myo-chip myo-chip-pending"><i class="fas fa-clock"></i> Payment pending</span>
+            {% endif %}
+
+            {% if shipment %}
+              {% if shipment.status == 'delivered' %}
+              <span class="myo-chip myo-chip-delivered"><i class="fas fa-box-open"></i> Delivered</span>
+              {% elif shipment.status == 'shipped' %}
+              <span class="myo-chip myo-chip-shipped"><i class="fas fa-paper-plane"></i> Shipped</span>
+              {% elif shipment.status == 'in_transit' %}
+              <span class="myo-chip myo-chip-transit"><i class="fas fa-truck-moving"></i> In Transit</span>
+              {% elif shipment.status == 'failed' %}
+              <span class="myo-chip myo-chip-failed"><i class="fas fa-triangle-exclamation"></i> Failed</span>
+              {% else %}
+              <span class="myo-chip myo-chip-other"><i class="fas fa-box"></i> Pending</span>
+              {% endif %}
+            {% else %}
+            <span class="myo-chip myo-chip-other"><i class="fas fa-hourglass-half"></i> Awaiting shipment</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="myo-body">
+          <div class="myo-items">
+            {% for item in order.items.all %}
+            <div class="myo-item">
+              <div class="myo-thumb">
+                {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                {% else %}
+                <i class="fas fa-box"></i>
+                {% endif %}
+              </div>
+              <div>
+                <a href="{{ item.product.get_absolute_url }}" class="myo-item-link">{{ item.product.name }}</a>
+                <div class="myo-item-meta">{{ item.product.brand|default:"Shop-Seed" }}</div>
+              </div>
+              <div class="myo-item-price">
+                {% price item.get_cost %}
+                <div class="myo-item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+              {% if item.product.available %}
+              <form method="post" action="{% url 'cart:cart_add' item.product.id %}" class="myo-buy-form">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="myo-buy-btn" title="Buy this product again">
+                  <i class="fas fa-cart-plus"></i> Buy Again
+                </button>
+              </form>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+
+          {% if shipment and shipment.status != 'failed' %}
+          <div class="myo-timeline">
+            {% for step in shipment.timeline %}
+            <div class="myo-step {% if forloop.counter <= shipment.progress %}done{% endif %}{% if forloop.counter == shipment.progress %} current{% endif %}">
+              <span class="myo-step-line"></span>
+              <span class="myo-step-dot"></span>
+              <span class="myo-step-label">{{ step }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="myo-card-foot">
+          <div>
+            <div class="myo-total-label">Order total{% if order.shipping_method_name %} &middot; {{ order.shipping_method_name }}{% endif %}</div>
+            <div class="myo-total-value">{% price order.get_total_cost %}</div>
+          </div>
+          <a href="{% url 'shipping:order_tracking' order.id %}" class="myo-btn myo-btn-outline">
+            <i class="fas fa-location-dot"></i> Track Order
+          </a>
+        </div>
+      </article>
+      {% endwith %}
+      {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-5">
-        <i class="fas fa-shopping-bag fa-4x text-muted mb-3"></i>
-        <h4>No orders yet</h4>
-        <p class="text-muted">Start shopping to see your orders here.</p>
-        <a href="{% url 'shop:product_list' %}" class="btn btn-primary">Browse Products</a>
+    <div class="myo-empty">
+      <div class="myo-empty-icon"><i class="fas fa-bag-shopping"></i></div>
+      <h3>No orders yet</h3>
+      <p>You haven't placed any orders yet. Start exploring and find something you love.</p>
+      <a href="{% url 'shop:product_list' %}" class="myo-btn"><i class="fas fa-store"></i> Browse Products</a>
     </div>
     {% endif %}
-</div>
+  </div>
+</section>
 {% endblock %}

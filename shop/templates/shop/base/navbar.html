@@ -42,6 +42,7 @@
       </a>
 
       {% if user.is_authenticated %}
+      {% include 'notifications/dropdown.html' %}
       <div class="nav-aq-profile-dropdown">
         <button class="nav-aq-user" title="{% trans 'Account' %}">
           <i class="fas fa-user"></i>
@@ -75,6 +76,8 @@
             {% endif %}
             <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> {% trans "Your Profile" %}</a>
             <a href="{% url 'order:my_orders' %}"><i class="fas fa-box"></i> {% trans "Returns & Orders" %}</a>
+            <a href="{% url 'notifications:list' %}"><i class="fas fa-bell"></i> {% trans "Notifications" %}{% if notification_unread_count %}<span class="nav-aq-dropdown-badge">{{ notification_unread_count }}</span>{% endif %}</a>
+            <a href="{% url 'notifications:settings' %}"><i class="fas fa-bell-slash"></i> {% trans "Notification Settings" %}</a>
             <a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a>
             <div class="nav-aq-dropdown-divider"></div>
             <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> {% trans "Logout" %}</a>
@@ -140,7 +143,9 @@
     <li style="--index: 10"><a href="{% url 'accounts:signup' %}">{% trans "Join Shop-Seed" %}</a></li>
     <li style="--index: 11"><a href="{% url 'faq:faq' %}">{% trans "FAQ" %}</a></li>
     {% if user.is_authenticated %}
-    <li style="--index: 12"><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a></li>
+    <li style="--index: 12"><a href="{% url 'notifications:list' %}"><i class="fas fa-bell"></i> {% trans "Notifications" %}{% if notification_unread_count %} ({{ notification_unread_count }}){% endif %}</a></li>
+    <li style="--index: 13"><a href="{% url 'notifications:settings' %}"><i class="fas fa-bell-slash"></i> {% trans "Notification Settings" %}</a></li>
+    <li style="--index: 14"><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a></li>
     {% else %}
     <li style="--index: 12"><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Preferences" %}</a></li>
     {% endif %}

@@ -1,0 +1,26 @@
+{% load i18n %}
+<div class="nav-aq-notif" id="aq-notif-dropdown">
+  <button type="button" class="nav-aq-notif-btn" aria-label="{% trans 'Notifications' %}" aria-expanded="false">
+    <i class="fas fa-bell"></i>
+    {% if notification_unread_count > 0 %}
+    <span class="nav-aq-notif-badge" data-badge>{{ notification_unread_count }}</span>
+    {% endif %}
+  </button>
+  <div class="nav-aq-notif-menu">
+    <div class="nav-aq-notif-menu-inner">
+      <div class="nav-aq-notif-header">
+        <strong>{% trans "Notifications" %}</strong>
+        <button type="button" class="aq-mark-all" data-url="{% url 'notifications:mark_all_read' %}">
+          {% trans "Mark all read" %}
+        </button>
+      </div>
+      <div class="nav-aq-notif-list">
+        {% include 'notifications/_item.html' with notifications=recent_notifications %}
+      </div>
+      <div class="nav-aq-notif-footer">
+        <a href="{% url 'notifications:list' %}"><i class="fas fa-list-ul"></i> {% trans "View all" %}</a>
+        <a href="{% url 'notifications:settings' %}"><i class="fas fa-cog"></i> {% trans "Notification Settings" %}</a>
+      </div>
+    </div>
+  </div>
+</div>

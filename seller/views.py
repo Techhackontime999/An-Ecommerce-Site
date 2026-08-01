@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from shop.models import Product
 from order.models import OrderItem, Order
@@ -9,6 +10,8 @@ from accounts.forms import SellerProfileForm
 from django.db.models import Q
 from django.db.models import Count, F, FloatField, ExpressionWrapper
 from django.db.models.functions import Log
+from notifications.models import Notification
+from notifications.services import notify
 import math
 
 @login_required
@@ -93,6 +96,14 @@ def update_order_status(request, order_id):
     order = get_object_or_404(Order, id=order_id, items__product__seller=request.user.sellerprofile)
     order.paid = True
     order.save()
+    notify(
+        order.user,
+        Notification.Category.ORDER,
+        f'Order #{order.id} marked as shipped',
+        f'{request.user.sellerprofile.shop_name} has shipped the item(s) in your order.',
+        link=reverse('order:my_orders'),
+        icon='box',
+    )
     messages.success(request, 'Order marked as shipped/paid.')
     return redirect('seller:orders')
 

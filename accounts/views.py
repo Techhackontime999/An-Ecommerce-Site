@@ -14,6 +14,8 @@ from django.conf import settings
 import random
 from .forms import SellerRegisterForm, CustomerRegisterForm, SellerProfileForm, CustomerProfileForm
 from .models import SellerProfile, CustomerProfile
+from notifications.services import notify
+from notifications.models import Notification
 
 
 OTP_EXPIRY_SECONDS = 600  # 10 minutes
@@ -88,6 +90,14 @@ def signup(request):
             request.session['pending_verify_user_id'] = user.id
             send_email_verification(request, user)
             send_phone_otp(request, user)
+            notify(
+                user,
+                Notification.Category.ACCOUNT,
+                'Welcome to Shop-Seed!',
+                'Your customer account was created. Complete email and phone verification to unlock everything.',
+                link=reverse('accounts:verify'),
+                icon='user-plus',
+            )
             return redirect('accounts:verify')
     else:
         form = CustomerRegisterForm()
@@ -121,7 +131,8 @@ def login_view(request):
 
     return render(request, 'registration/login.html', {
         'form': form,
-        'next': request.GET.get('next', '')
+        'next': request.GET.get('next', ''),
+        'news_ticker_items': [],
     })
 
 
@@ -152,6 +163,14 @@ def seller_register(request):
             request.session['pending_verify_user_id'] = user.id
             send_email_verification(request, user)
             send_phone_otp(request, user)
+            notify(
+                user,
+                Notification.Category.ACCOUNT,
+                'Welcome to Shop-Seed sellers!',
+                'Your seller account was created. Complete verification to start selling on Shop-Seed.',
+                link=reverse('accounts:verify'),
+                icon='store',
+            )
             return redirect('accounts:verify')
     else:
         form = SellerRegisterForm()
@@ -216,6 +235,14 @@ def verify_email(request, uidb64, token):
         if profile and not profile.is_email_verified:
             profile.is_email_verified = True
             profile.save(update_fields=['is_email_verified'])
+            notify(
+                user,
+                Notification.Category.ACCOUNT,
+                'Email verified',
+                'Your email address has been successfully verified.',
+                link=reverse('accounts:profile'),
+                icon='envelope-circle-check',
+            )
         request.session['pending_verify_user_id'] = user.id
         return render(request, 'accounts/verify_email_success.html', {'user': user})
 

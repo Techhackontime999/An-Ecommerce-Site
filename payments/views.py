@@ -9,6 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseBadRequest
 from order.models import Order
 from .models import Payment
+from notifications.models import Notification
+from notifications.services import notify
 
 
 def get_razorpay_client():
@@ -77,6 +79,14 @@ def payment_callback(request):
     if expected_signature != razorpay_signature:
         payment.status = 'failed'
         payment.save()
+        notify(
+            payment.order.user,
+            Notification.Category.PAYMENT,
+            f'Payment failed for order #{payment.order.id}',
+            'Your payment could not be processed. Please try again or use a different payment method.',
+            link=reverse('payments:checkout', args=[payment.order.id]),
+            icon='credit-card',
+        )
         return redirect('payments:error', order_id=payment.order.id)
 
     payment.razorpay_payment_id = razorpay_payment_id
@@ -87,6 +97,15 @@ def payment_callback(request):
     order = payment.order
     order.paid = True
     order.save()
+
+    notify(
+        order.user,
+        Notification.Category.PAYMENT,
+        f'Payment received for order #{order.id}',
+        f'Your payment of {payment.amount} {payment.currency} was successful. Thank you for shopping with Shop-Seed!',
+        link=reverse('order:my_orders'),
+        icon='credit-card',
+    )
 
     return redirect('payments:success', order_id=order.id)
 

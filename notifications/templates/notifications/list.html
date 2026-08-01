@@ -1,0 +1,73 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Notifications" %} — Shop-Seed{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'notifications/css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="aq-notif-page">
+  <div class="aq-notif-glow aq-notif-glow-a"></div>
+  <div class="aq-notif-glow aq-notif-glow-b"></div>
+  <div class="container-aq">
+    <header class="aq-notif-page-head">
+      <div>
+        <span class="hero-aq-badge">
+          <i class="fas fa-bell"></i> {% trans "Inbox" %}
+        </span>
+        <h1 class="display-section" style="margin-top:0.75rem">{% trans "Notifications" %}</h1>
+        <p class="body-large" style="max-width:55ch;margin:0.75rem auto 0;">
+          {% blocktrans %}Stay up to date with your orders, payments, shipping and more.{% endblocktrans %}
+        </p>
+      </div>
+      <div class="aq-notif-page-actions">
+        <button type="button" class="btn-aq aq-mark-all" data-url="{% url 'notifications:mark_all_read' %}">
+          <i class="fas fa-check-double"></i> {% trans "Mark all read" %}
+        </button>
+        <button type="button" class="btn-aq btn-aq-outline aq-clear-read" data-url="{% url 'notifications:clear' %}">
+          <i class="fas fa-trash"></i> {% trans "Clear read" %}
+        </button>
+        <a href="{% url 'notifications:settings' %}" class="btn-aq btn-aq-outline">
+          <i class="fas fa-cog"></i> {% trans "Settings" %}
+        </a>
+      </div>
+    </header>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="settings-alert fade-up">
+        <i class="fas fa-check-circle"></i>
+        <div><strong>{% trans "Saved!" %}</strong><span>{{ message }}</span></div>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <nav class="aq-notif-filters" aria-label="{% trans 'Filter notifications' %}">
+      <a href="{% url 'notifications:list' %}" class="{% if not category %}active{% endif %}">{% trans "All" %}</a>
+      {% for value, label in categories.items %}
+      <a href="{% url 'notifications:list' %}?category={{ value }}"
+         class="{% if category == value %}active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+
+    <div class="aq-notif-list aq-notif-list-page" id="aq-notif-list">
+      {% include 'notifications/_item.html' with notifications=notifications %}
+    </div>
+
+    {% if total > 0 %}
+    <div class="aq-notif-pagination">
+      {% if has_prev %}
+      <a class="btn-aq btn-aq-outline" href="?{% if category %}category={{ category }}&{% endif %}page={{ page|add:'-1' }}"><i class="fas fa-chevron-left"></i> {% trans "Previous" %}</a>
+      {% endif %}
+      <span class="aq-notif-count">{% blocktrans with start=total|default:0 %}{{ start }} notification(s) total{% endblocktrans %}</span>
+      {% if has_next %}
+      <a class="btn-aq btn-aq-outline" href="?{% if category %}category={{ category }}&{% endif %}page={{ page|add:'1' }}">{% trans "Next" %} <i class="fas fa-chevron-right"></i></a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

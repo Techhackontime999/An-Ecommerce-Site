@@ -1,0 +1,23 @@
+{% load i18n %}
+{% for notification in notifications %}
+<article class="aq-notif-item{% if not notification.is_read %} aq-notif-unread{% endif %}"
+         data-id="{{ notification.id }}"
+         data-read-url="{% url 'notifications:mark_read' notification.id %}"
+         {% if notification.link %}data-link="{{ notification.link }}"{% endif %}>
+  <div class="aq-notif-icon aq-notif-{{ notification.category }}">
+    <i class="fas fa-{{ notification.display_icon }}"></i>
+  </div>
+  <div class="aq-notif-body">
+    <p class="aq-notif-title">{{ notification.title }}</p>
+    {% if notification.message %}<p class="aq-notif-msg">{{ notification.message }}</p>{% endif %}
+    <span class="aq-notif-time">{{ notification.created_at|timesince }} {% trans "ago" %}</span>
+  </div>
+  <button type="button" class="aq-notif-dismiss" title="{% trans 'Delete' %}"
+          data-delete-url="{% url 'notifications:delete' notification.id %}"><i class="fas fa-times"></i></button>
+</article>
+{% empty %}
+<div class="aq-notif-empty">
+  <i class="fas fa-bell-slash"></i>
+  <p>{% trans "No notifications here yet." %}</p>
+</div>
+{% endfor %}

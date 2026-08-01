@@ -19,14 +19,15 @@
     <link rel="stylesheet" href="{% static "css/owl.carousel.min.css" %}">
     <link rel="stylesheet" href="{% static "css/owl.theme.default.min.css" %}">
     <link rel="stylesheet" href="{% static "css/aos.css" %}">
+    <link rel="stylesheet" href="{% static "notifications/css/notifications.css" %}">
     {% block extra_css %}{% endblock %}
     <style>
       html { margin: 0; padding: 0; box-sizing: border-box; }
     </style>
 </head>
-<body class="{% if news_ticker_items %}has-news-ticker{% endif %}">
+<body class="{% block body_class %}{% if news_ticker_items %}has-news-ticker{% endif %}{% endblock %}">
     <div class="aq-scroll-progress" id="aq-scroll-progress" aria-hidden="true"></div>
-    {% include 'news/ticker.html' %}
+    {% block news_ticker %}{% include 'news/ticker.html' %}{% endblock %}
     {% include 'shop/base/navbar.html' %}
     <main>
         {% block content %}{% endblock %}
@@ -40,6 +41,7 @@
     <script src="{% static "js/owl.carousel.min.js" %}"></script>
     <script src="{% static "js/aos.js" %}"></script>
     <script src="{% static "js/aquastic.js" %}"></script>
+    <script src="{% static "notifications/js/notifications.js" %}"></script>
     <script>
         AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true });
     </script>

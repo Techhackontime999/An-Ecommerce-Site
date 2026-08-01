@@ -1,0 +1,82 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Notification Settings" %} — Shop-Seed{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'notifications/css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="aq-notif-settings-page">
+  <div class="aq-notif-glow aq-notif-glow-a"></div>
+  <div class="aq-notif-glow aq-notif-glow-b"></div>
+  <div class="container-aq">
+    <header class="aq-notif-page-head">
+      <div>
+        <span class="hero-aq-badge">
+          <i class="fas fa-bell-slash"></i> {% trans "Preferences" %}
+        </span>
+        <h1 class="display-section" style="margin-top:0.75rem">{% trans "Notification Settings" %}</h1>
+        <p class="body-large" style="max-width:60ch;margin:0.75rem auto 0;">
+          {% trans "Choose which types of notifications you want to receive. Turn a type off and we will stop sending it to your inbox." %}
+        </p>
+      </div>
+    </header>
+
+    <div class="aq-notif-role-banner">
+      <i class="fas fa-id-badge"></i>
+      <div>
+        <strong>{% trans "You are signed in as" %}: {{ user.username }}</strong>
+        <span>{% trans "Account type" %}: <b class="aq-notif-role aq-notif-role-{{ role }}">{{ role|capfirst }}</b></span>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="settings-alert fade-up">
+        <i class="fas fa-check-circle"></i>
+        <div><strong>{% trans "Saved!" %}</strong><span>{{ message }}</span></div>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" class="aq-notif-settings-form" novalidate>
+      {% csrf_token %}
+      <div class="aq-notif-settings-grid">
+        {% for item in fields %}
+        <label class="aq-notif-switch-card">
+          <span class="aq-notif-switch-icon"><i class="fas fa-{{ item.icon }}"></i></span>
+          <span class="aq-notif-switch-copy">
+            <strong>{{ item.label }}</strong>
+            <small>{% trans "Receive" %} {{ item.label|lower }} {% trans "updates" %}</small>
+          </span>
+          <input type="checkbox" name="{{ item.field }}" {% if item.checked %}checked{% endif %}>
+          <span class="aq-notif-switch" aria-hidden="true"></span>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="aq-notif-settings-extra">
+        <label class="aq-notif-switch-row">
+          <span class="aq-notif-switch-copy">
+            <strong>{% trans "Email summary" %}</strong>
+            <small>{% trans "Receive a daily digest of your unread notifications by email." %}</small>
+          </span>
+          <input type="checkbox" name="email_enabled" {% if prefs.email_enabled %}checked{% endif %}>
+          <span class="aq-notif-switch" aria-hidden="true"></span>
+        </label>
+      </div>
+
+      <div class="aq-notif-settings-actions">
+        <a href="{% url 'notifications:list' %}" class="btn-aq btn-aq-outline">{% trans "Back to Notifications" %}</a>
+        <button type="submit" class="btn-aq">
+          {% trans "Save Settings" %}
+          <span class="icon-wrapper"><i class="fas fa-check"></i></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

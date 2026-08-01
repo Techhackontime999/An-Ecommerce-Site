@@ -63,3 +63,18 @@ class Shipment(models.Model):
 
     def __str__(self):
         return f"Shipment for Order #{self.order.id} - {self.status}"
+
+    @property
+    def progress(self):
+        """0-3 step index for the delivery timeline (failed = 0)."""
+        return {
+            'pending': 0,
+            'shipped': 1,
+            'in_transit': 2,
+            'delivered': 3,
+            'failed': 0,
+        }.get(self.status, 0)
+
+    @property
+    def timeline(self):
+        return ['Pending', 'Shipped', 'In Transit', 'Delivered']

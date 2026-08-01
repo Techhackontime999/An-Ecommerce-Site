@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from decimal import Decimal
@@ -6,6 +7,8 @@ from .models import ShippingAddress, ShippingMethod, Shipment
 from .forms import ShippingAddressForm
 from cart.cart import Cart
 from order.models import Order
+from notifications.models import Notification
+from notifications.services import notify
 
 
 @login_required
@@ -106,6 +109,14 @@ def shipping_select(request, order_id):
                 'shipping_address': shipping_address,
                 'status': 'pending',
             }
+        )
+        notify(
+            order.user,
+            Notification.Category.SHIPPING,
+            f'Shipping arranged for order #{order.id}',
+            f'{shipping_method.name} selected ({shipping_method.estimated_delivery_days}). Complete payment to dispatch your items.',
+            link=reverse('payments:checkout', args=[order.id]),
+            icon='truck-fast',
         )
         return redirect('payments:checkout', order_id=order.id)
 
