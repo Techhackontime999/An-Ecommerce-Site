@@ -1,35 +1,139 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
 
+{% block title %}Contact Us — Shop-Seed{% endblock %}
+
 {% block content %}
-<div class="container mt-5 mb-5">
-    <h2 class="text-center mb-4">Contact Us</h2>
+<section class="contact-page">
+  <div class="contact-glow contact-glow-a"></div>
+  <div class="contact-glow contact-glow-b"></div>
+
+  <div class="container-aq contact-inner">
+    <header class="contact-head fade-up">
+      <span class="hero-aq-badge mx-auto" style="justify-content:center">
+        <i class="fas fa-headset"></i> We're here to help
+      </span>
+      <h1 class="display-section" style="margin-top:0.75rem">Get in Touch</h1>
+      <p class="body-large" style="max-width:55ch;margin:0.75rem auto 0;">
+        Questions, feedback, or help with an order — drop us a line and our
+        team will get back to you within 24 hours.
+      </p>
+    </header>
 
     {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-success">{{ message }}</div>
-        {% endfor %}
+      {% for message in messages %}
+      <div class="contact-alert {% if message.tags == 'error' %}contact-alert--error{% endif %} fade-up">
+        <i class="{% if message.tags == 'error' %}fas fa-exclamation-circle{% else %}fas fa-check-circle{% endif %}"></i>
+        <div>
+          <strong>{% if message.tags == 'error' %}Action required{% else %}Message sent!{% endif %}</strong>
+          <span>{{ message }}</span>
+        </div>
+      </div>
+      {% endfor %}
     {% endif %}
 
-    <form method="post" novalidate>
-        {% csrf_token %}
-        <div class="form-group">
-            {{ form.name.label_tag }}
-            {{ form.name }}
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-info-card fade-up">
+          <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
+          <div>
+            <span class="contact-info-label">Email us</span>
+            <a href="mailto:support@shopseed.com" class="contact-info-value">support@shopseed.com</a>
+          </div>
         </div>
-        <div class="form-group">
-            {{ form.email.label_tag }}
-            {{ form.email }}
+
+        <div class="contact-info-card fade-up fade-up-delay-1">
+          <div class="contact-info-icon"><i class="fas fa-phone-alt"></i></div>
+          <div>
+            <span class="contact-info-label">Call us</span>
+            <a href="tel:+919876543210" class="contact-info-value">+91 98765 43210</a>
+          </div>
         </div>
-        <div class="form-group">
-            {{ form.subject.label_tag }}
-            {{ form.subject }}
+
+        <div class="contact-info-card fade-up fade-up-delay-2">
+          <div class="contact-info-icon"><i class="fas fa-location-dot"></i></div>
+          <div>
+            <span class="contact-info-label">Visit us</span>
+            <span class="contact-info-value">MG Road, Bengaluru, Karnataka 560001</span>
+          </div>
         </div>
-        <div class="form-group">
-            {{ form.message.label_tag }}
-            {{ form.message }}
+
+        <div class="contact-info-card fade-up fade-up-delay-3">
+          <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
+          <div>
+            <span class="contact-info-label">Support hours</span>
+            <span class="contact-info-value">Mon–Sat, 9:00 AM – 9:00 PM IST</span>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary">Send Message</button>
-    </form>
-</div>
+
+        <div class="contact-note fade-up">
+          <i class="fas fa-bolt"></i>
+          <p>Average response time is <strong>under 2 hours</strong> during business hours.</p>
+        </div>
+      </div>
+
+      {% if user.is_authenticated %}
+      <div class="contact-form-card fade-up">
+        <h2>Send us a message</h2>
+        <p class="contact-form-sub">Fill in the form and we'll reply as soon as possible.</p>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="contact-field">
+            <label for="{{ form.name.id_for_label }}">Your name</label>
+            <div class="contact-input-wrap">
+              <i class="fas fa-user"></i>
+              {{ form.name }}
+            </div>
+            {% for e in form.name.errors %}<span class="contact-error">{{ e }}</span>{% endfor %}
+          </div>
+
+          <div class="contact-field">
+            <label for="{{ form.email.id_for_label }}">Email address</label>
+            <div class="contact-input-wrap">
+              <i class="fas fa-envelope"></i>
+              {{ form.email }}
+            </div>
+            {% for e in form.email.errors %}<span class="contact-error">{{ e }}</span>{% endfor %}
+          </div>
+
+          <div class="contact-field">
+            <label for="{{ form.subject.id_for_label }}">Subject</label>
+            <div class="contact-input-wrap">
+              <i class="fas fa-tag"></i>
+              {{ form.subject }}
+            </div>
+            {% for e in form.subject.errors %}<span class="contact-error">{{ e }}</span>{% endfor %}
+          </div>
+
+          <div class="contact-field">
+            <label for="{{ form.message.id_for_label }}">Message</label>
+            <div class="contact-input-wrap contact-input-wrap-area">
+              <i class="fas fa-comment-dots"></i>
+              {{ form.message }}
+            </div>
+            {% for e in form.message.errors %}<span class="contact-error">{{ e }}</span>{% endfor %}
+          </div>
+
+          <button type="submit" class="btn-aq contact-submit">
+            Send Message
+            <span class="icon-wrapper"><i class="fas fa-paper-plane"></i></span>
+          </button>
+        </form>
+      </div>
+      {% else %}
+      <div class="contact-form-card contact-login-card fade-up">
+        <div class="contact-login-icon"><i class="fas fa-lock"></i></div>
+        <h2>Log in to message us</h2>
+        <p>Only registered members can send messages. Sign in to your account and we'll get back to you quickly.</p>
+        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn-aq contact-submit">
+          Login to Continue
+          <span class="icon-wrapper"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <span class="contact-login-alt">New here? <a href="{% url 'accounts:signup' %}">Create an account</a></span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
 {% endblock %}

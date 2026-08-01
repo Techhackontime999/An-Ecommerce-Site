@@ -1,5 +1,6 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
+{% load preference_extras %}
 
 {% block title %}Review by {{ review.reviewer.username }} — Shop-Seed{% endblock %}
 
@@ -46,7 +47,7 @@
             <div>
               <span class="blog-product-role">Product being reviewed</span>
               <strong class="blog-product-card-name">{{ review.product.name }}</strong>
-              <div class="blog-product-card-price"><span>${{ review.product.current_price }}</span></div>
+              <div class="blog-product-card-price"><span>{% price review.product.current_price %}</span></div>
             </div>
           </div>
         </a>

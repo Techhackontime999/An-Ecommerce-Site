@@ -1,6 +1,7 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load preference_extras %}
 
 {% block title %}{{ product.name }} — Shop-Seed{% endblock %}
 
@@ -79,10 +80,10 @@
 
           <div class="product-aq-price" style="font-size:1.5rem;margin-bottom:1.5rem;">
             {% if product.current_price != product.price %}
-            <span>${{ product.current_price }}</span>
-            <span class="original" style="font-size:1.125rem;">${{ product.price }}</span>
+            <span>{% price product.current_price %}</span>
+            <span class="original" style="font-size:1.125rem;">{% price product.price %}</span>
             {% else %}
-            <span>${{ product.price }}</span>
+            <span>{% price product.price %}</span>
             {% endif %}
           </div>
 
@@ -148,10 +149,10 @@
               <h3 class="td-slide-title">{{ product.name }}</h3>
               <div class="td-slide-prices">
                 {% if product.current_price != product.price %}
-                <span class="td-slide-price">${{ product.current_price }}</span>
-                <del class="td-slide-old-price">${{ product.price }}</del>
+                <span class="td-slide-price">{% price product.current_price %}</span>
+                <del class="td-slide-old-price">{% price product.price %}</del>
                 {% else %}
-                <span class="td-slide-price">${{ product.price }}</span>
+                <span class="td-slide-price">{% price product.price %}</span>
                 {% endif %}
               </div>
             </div>

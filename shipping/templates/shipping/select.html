@@ -1,4 +1,5 @@
 {% extends "shop/base/base.html" %}
+{% load preference_extras %}
 {% block title %}Shipping{% endblock %}
 
 {% block content %}
@@ -37,7 +38,7 @@
                                     {% endif %}
                                     <br><small class="text-muted">Estimated delivery: {{ method.estimated_delivery_days }}</small>
                                 </span>
-                                <span class="font-weight-bold text-primary">₹{{ method.price }}</span>
+                                <span class="font-weight-bold text-primary">{% price method.price %}</span>
                             </label>
                         </div>
                         {% empty %}
@@ -105,13 +106,13 @@
                         {% for item in cart %}
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                             {{ item.quantity }} x {{ item.product.name }}
-                            <span>₹{{ item.total_price }}</span>
+                            <span>{% price item.total_price %}</span>
                         </li>
                         {% endfor %}
                     </ul>
                     <div class="d-flex justify-content-between mt-3">
                         <strong>Subtotal</strong>
-                        <strong>₹{{ cart.get_total_price }}</strong>
+                        <strong>{% price cart.get_total_price %}</strong>
                     </div>
                 </div>
             </div>

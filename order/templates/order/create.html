@@ -1,35 +1,343 @@
 {% extends "shop/base/base.html" %}
-{% load crispy_forms_tags %}
-{% block title %}Checkout{% endblock %}
+{% load preference_extras %}
+{% block title %}Checkout — Shop-Seed{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h1 class="text-center mb-4">Checkout</h1>
-    
-    <div class="order-info border rounded p-3 shadow-sm mb-4">
-        <h3 class="text-center">Your Order</h3>
-        <ul class="list-group">
-            {% for item in cart %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ item.quantity }} × {{ item.product.name }}
-                <span>
-                    {% if item.product.price != item.price %}
-                        <del>₹{{ item.product.price }}</del>
-                        <strong style="color:red;">₹{{ item.total_price }}</strong>
-                    {% else %}
-                        ₹{{ item.total_price }}
-                    {% endif %}
-                </span>
-            </li>
-            {% endfor %}
-        </ul>
-        <h4 class="text-end mt-3">Total: ₹{{ cart.get_total_price }}</h4>
+<!-- Checkout Hero -->
+<section class="ord-hero">
+  <div class="ord-hero-glow ord-hero-glow-a" aria-hidden="true"></div>
+  <div class="ord-hero-glow ord-hero-glow-b" aria-hidden="true"></div>
+  <div class="ord-hero-dots" aria-hidden="true"></div>
+
+  <div class="container-aq ord-hero-inner">
+    <div class="breadcrumb-aq ord-breadcrumb">
+      <a href="{% url 'shop:home' %}">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="{% url 'shop:product_list' %}">Shop</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="{% url 'cart:cart_detail' %}">Cart</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Checkout</span>
     </div>
 
-    <form action="." method="post" class="order-form">
-        {{ form|crispy }}
-        {% csrf_token %}
-        <p><input class="btn btn-primary btn-block" type="submit" value="Place Order"></p>
-    </form>
-</div>
+    <div class="ord-hero-copy fade-up">
+      <span class="hero-aq-badge"><i class="fas fa-credit-card"></i> Checkout</span>
+      <h1 class="ord-hero-title">Almost there, <span class="ord-hero-accent">let's ship it</span></h1>
+      <p class="ord-hero-sub">
+        Confirm your details and we'll take it from here. Your items are safe
+        until you place the order.
+      </p>
+    </div>
+
+    <ol class="ord-steps fade-up fade-up-delay-1">
+      <li class="ord-step is-done">
+        <span class="ord-step-dot"><i class="fas fa-check"></i></span>
+        <span class="ord-step-label">Cart</span>
+      </li>
+      <li class="ord-step is-active">
+        <span class="ord-step-dot">2</span>
+        <span class="ord-step-label">Details</span>
+      </li>
+      <li class="ord-step">
+        <span class="ord-step-dot">3</span>
+        <span class="ord-step-label">Shipping</span>
+      </li>
+      <li class="ord-step">
+        <span class="ord-step-dot">4</span>
+        <span class="ord-step-label">Payment</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- Checkout Body -->
+<section class="ord-body">
+  <div class="container-aq">
+    {% if cart %}
+    <div class="ord-grid">
+      <!-- Form -->
+      <div class="ord-main">
+        <form id="ord-form" class="ord-form" method="post" action=".">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <div class="ord-alert">
+            <i class="fas fa-triangle-exclamation"></i>
+            {{ form.non_field_errors.0 }}
+          </div>
+          {% endif %}
+
+          <fieldset class="ord-card">
+            <legend class="ord-card-head">
+              <span class="ord-card-icon"><i class="fas fa-envelope-open-text"></i></span>
+              <span class="ord-card-titles">
+                <span class="ord-card-title">Contact</span>
+                <span class="ord-card-sub">Where should we send updates?</span>
+              </span>
+            </legend>
+            <div class="ord-fields">
+              <div class="ord-field">
+                <label for="{{ form.email.id_for_label }}">
+                  Email address {% if form.email.field.required %}<span class="ord-req">*</span>{% endif %}
+                </label>
+                <div class="ord-input-wrap">
+                  <i class="fas fa-at" aria-hidden="true"></i>
+                  {{ form.email }}
+                </div>
+                {% for err in form.email.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="ord-card">
+            <legend class="ord-card-head">
+              <span class="ord-card-icon"><i class="fas fa-location-dot"></i></span>
+              <span class="ord-card-titles">
+                <span class="ord-card-title">Shipping details</span>
+                <span class="ord-card-sub">We'll deliver your order to this address</span>
+              </span>
+            </legend>
+            <div class="ord-locate-wrap">
+              <button type="button" class="ord-locate" id="ord-locate">
+                <span class="ord-locate-icon"><i class="fas fa-location-crosshairs"></i></span>
+                <span class="ord-locate-text">Use my location</span>
+              </button>
+              <p class="ord-locate-status" id="ord-locate-status" role="status" hidden></p>
+            </div>
+            <div class="ord-fields">
+              <div class="ord-field-grid">
+                <div class="ord-field">
+                  <label for="{{ form.first_name.id_for_label }}">
+                    First name {% if form.first_name.field.required %}<span class="ord-req">*</span>{% endif %}
+                  </label>
+                  <div class="ord-input-wrap">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    {{ form.first_name }}
+                  </div>
+                  {% for err in form.first_name.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                </div>
+                <div class="ord-field">
+                  <label for="{{ form.last_name.id_for_label }}">
+                    Last name {% if form.last_name.field.required %}<span class="ord-req">*</span>{% endif %}
+                  </label>
+                  <div class="ord-input-wrap">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    {{ form.last_name }}
+                  </div>
+                  {% for err in form.last_name.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                </div>
+              </div>
+
+              <div class="ord-field">
+                <label for="{{ form.address.id_for_label }}">
+                  Street address {% if form.address.field.required %}<span class="ord-req">*</span>{% endif %}
+                </label>
+                <div class="ord-input-wrap">
+                  <i class="fas fa-house" aria-hidden="true"></i>
+                  {{ form.address }}
+                </div>
+                {% for err in form.address.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+              </div>
+
+              <div class="ord-field-grid">
+                <div class="ord-field">
+                  <label for="{{ form.city.id_for_label }}">
+                    City {% if form.city.field.required %}<span class="ord-req">*</span>{% endif %}
+                  </label>
+                  <div class="ord-input-wrap">
+                    <i class="fas fa-city" aria-hidden="true"></i>
+                    {{ form.city }}
+                  </div>
+                  {% for err in form.city.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                </div>
+                <div class="ord-field">
+                  <label for="{{ form.postal_code.id_for_label }}">
+                    Postal code {% if form.postal_code.field.required %}<span class="ord-req">*</span>{% endif %}
+                  </label>
+                  <div class="ord-input-wrap">
+                    <i class="fas fa-hashtag" aria-hidden="true"></i>
+                    {{ form.postal_code }}
+                  </div>
+                  {% for err in form.postal_code.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+
+      <!-- Summary -->
+      <aside class="ord-aside">
+        <div class="ord-card ord-summary">
+          <h3 class="ord-summary-title">Order summary</h3>
+
+          <ul class="ord-items">
+            {% for item in cart %}
+            <li class="ord-item">
+              <span class="ord-item-name">
+                <span class="ord-qty mono">{{ item.quantity }}×</span>
+                {{ item.product.name }}
+              </span>
+              <span class="ord-item-price mono">
+                {% if item.product.price != item.price %}
+                <del>{% price item.product.price %}</del>
+                {% endif %}
+                {% price item.total_price %}
+              </span>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <div class="ord-totals">
+            <div class="ord-row">
+              <span>Subtotal</span>
+              <span class="mono">{% price cart.get_total_price %}</span>
+            </div>
+            {% if cart.get_discount %}
+            <div class="ord-row ord-discount">
+              <span><i class="fas fa-tag"></i> Coupon discount</span>
+              <span class="mono">−{% price cart.get_discount %}</span>
+            </div>
+            {% endif %}
+            <div class="ord-row">
+              <span>Shipping</span>
+              <span class="ord-ship-note">Next step</span>
+            </div>
+            <div class="ord-row ord-total">
+              <span>Total</span>
+              <strong class="mono">{% price cart.get_total_price_after_discount %}</strong>
+            </div>
+          </div>
+
+          <button type="submit" form="ord-form" class="ord-btn-primary">
+            <span>Place order</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+
+          <a class="ord-back" href="{% url 'cart:cart_detail' %}">
+            <i class="fas fa-arrow-left"></i> Back to cart
+          </a>
+
+          <ul class="ord-trust">
+            <li><i class="fas fa-lock"></i> Secure checkout</li>
+            <li><i class="fas fa-rotate-left"></i> Easy 30-day returns</li>
+            <li><i class="fas fa-headset"></i> Support 7 days a week</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+    {% else %}
+    <div class="ord-empty">
+      <div class="ord-empty-card fade-up">
+        <div class="ord-empty-icon"><i class="fas fa-bag-shopping"></i></div>
+        <span class="hero-aq-badge">Checkout</span>
+        <h2 class="ord-empty-title">Nothing to check out yet</h2>
+        <p class="ord-empty-sub">
+          Your cart is empty. Add a few items first, then come back to place
+          your order.
+        </p>
+        <a href="{% url 'shop:product_list' %}" class="ord-btn-primary">
+          <span>Browse products</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    var btn = document.getElementById('ord-locate');
+    var status = document.getElementById('ord-locate-status');
+    if (!btn || !status) return;
+
+    var icon = btn.querySelector('.ord-locate-icon i');
+
+    function setStatus(msg, ok) {
+      status.textContent = msg || '';
+      status.hidden = !msg;
+      status.classList.toggle('is-ok', !!ok);
+    }
+
+    function setLoading(on) {
+      btn.disabled = on;
+      btn.classList.toggle('is-loading', on);
+      btn.querySelector('.ord-locate-text').textContent = on ? 'Locating\u2026' : 'Use my location';
+      if (icon) icon.className = on ? 'fas fa-spinner fa-spin' : 'fas fa-location-crosshairs';
+    }
+
+    btn.addEventListener('click', function () {
+      setStatus('');
+      if (!window.isSecureContext) {
+        setStatus('Location needs a secure (HTTPS) connection to work.', false);
+        return;
+      }
+      if (!('geolocation' in navigator)) {
+        setStatus('Geolocation is not supported by this browser.', false);
+        return;
+      }
+      setLoading(true);
+      navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      });
+    });
+
+    function onSuccess(pos) {
+      var csrf = document.querySelector('#ord-form [name=csrfmiddlewaretoken]');
+      var body = new URLSearchParams();
+      body.append('lat', pos.coords.latitude);
+      body.append('lon', pos.coords.longitude);
+      var headers = { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' };
+      if (csrf) headers['X-CSRFToken'] = csrf.value;
+
+      fetch('{% url "order:autofill_address" %}', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: headers,
+        body: body
+      })
+        .then(function (r) {
+          return r.json().then(function (d) { return { ok: r.ok, data: d }; });
+        })
+        .then(function (res) {
+          if (!res.ok || !res.data.ok) throw new Error(res.data.error || 'not_found');
+          fill(res.data);
+        })
+        .catch(function () {
+          setLoading(false);
+          setStatus('Could not autofill from your location. Please type the address.', false);
+        });
+    }
+
+    function onError(err) {
+      setLoading(false);
+      var msg = 'Unable to get your location.';
+      if (err && err.code === 1) {
+        msg = 'Location permission was denied. Allow it in your browser settings and try again.';
+      } else if (err && err.code === 2) {
+        msg = 'Location is unavailable right now.';
+      } else if (err && err.code === 3) {
+        msg = 'Timed out while getting your location.';
+      }
+      setStatus(msg, false);
+    }
+
+    function fill(d) {
+      function setVal(id, val) {
+        var el = document.getElementById(id);
+        if (el && val) el.value = val;
+      }
+      setVal('id_address', d.address);
+      setVal('id_city', d.city);
+      setVal('id_postal_code', d.postal_code);
+      setLoading(false);
+      setStatus('Address filled from your location.', true);
+    }
+  })();
+</script>
 {% endblock %}

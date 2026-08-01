@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <footer class="footer-aq">
   <svg class="footer-aq-wave" viewBox="0 0 1440 60" preserveAspectRatio="none">
@@ -12,10 +13,10 @@
           <span class="logo-mark">S</span>
           Shop-Seed
         </a>
-        <p>India's most trusted e-commerce platform. Discover premium products at unbeatable prices with fast delivery.</p>
+        <p>{% trans "India's most trusted e-commerce platform. Discover premium products at unbeatable prices with fast delivery." %}</p>
         <div class="newsletter-aq">
-          <input type="email" placeholder="Enter your email">
-          <button type="submit">Subscribe</button>
+          <input type="email" placeholder="{% trans 'Enter your email' %}">
+          <button type="submit">{% trans "Subscribe" %}</button>
         </div>
         <div class="footer-aq-social">
           <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
@@ -27,42 +28,42 @@
       </div>
 
       <div>
-        <h4>Shop</h4>
+        <h4>{% trans "Shop" %}</h4>
         <ul>
-          <li><a href="{% url 'shop:product_list' %}">All Products</a></li>
-          <li><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
-          <li><a href="{% url 'seller:best_sellers' %}">Best Sellers</a></li>
-          <li><a href="{% url 'shop:product_list' %}">New Arrivals</a></li>
-          <li><a href="{% url 'shop:product_list' %}">Categories</a></li>
+          <li><a href="{% url 'shop:product_list' %}">{% trans "All Products" %}</a></li>
+          <li><a href="{% url 'deals:todays_deals' %}">{% trans "Today's Deals" %}</a></li>
+          <li><a href="{% url 'seller:best_sellers' %}">{% trans "Best Sellers" %}</a></li>
+          <li><a href="{% url 'shop:product_list' %}">{% trans "New Arrivals" %}</a></li>
+          <li><a href="{% url 'shop:product_list' %}">{% trans "Categories" %}</a></li>
         </ul>
       </div>
 
       <div>
-        <h4>Support</h4>
+        <h4>{% trans "Support" %}</h4>
         <ul>
-          <li><a href="{% url 'contact:contact' %}">Contact Us</a></li>
-          <li><a href="{% url 'faq:faq' %}">FAQ</a></li>
-          <li><a href="{% url 'services:services_list' %}">Services</a></li>
-          <li><a href="#">Shipping Info</a></li>
-          <li><a href="#">Returns</a></li>
+          <li><a href="{% url 'contact:contact' %}">{% trans "Contact Us" %}</a></li>
+          <li><a href="{% url 'faq:faq' %}">{% trans "FAQ" %}</a></li>
+          <li><a href="{% url 'services:services_list' %}">{% trans "Services" %}</a></li>
+          <li><a href="#">{% trans "Shipping Info" %}</a></li>
+          <li><a href="#">{% trans "Returns" %}</a></li>
         </ul>
       </div>
 
       <div>
-        <h4>Company</h4>
+        <h4>{% trans "Company" %}</h4>
         <ul>
-          <li><a href="{% url 'about:about' %}">About Us</a></li>
-          <li><a href="{% url 'accounts:seller_register' %}">Sell With Us</a></li>
-          <li><a href="{% url 'accounts:signup' %}">Join Shop-Seed</a></li>
-          <li><a href="{% url 'doc:documentation' %}">Documentation</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Service</a></li>
+          <li><a href="{% url 'about:about' %}">{% trans "About Us" %}</a></li>
+          <li><a href="{% url 'accounts:seller_register' %}">{% trans "Sell With Us" %}</a></li>
+          <li><a href="{% url 'accounts:signup' %}">{% trans "Join Shop-Seed" %}</a></li>
+          <li><a href="{% url 'doc:documentation' %}">{% trans "Documentation" %}</a></li>
+          <li><a href="#">{% trans "Privacy Policy" %}</a></li>
+          <li><a href="#">{% trans "Terms of Service" %}</a></li>
         </ul>
       </div>
     </div>
 
     <div class="footer-aq-bottom">
-      <p>&copy; 2026 Shop-Seed. All rights reserved.</p>
+      <p>{% blocktrans %}&copy; 2026 Shop-Seed. All rights reserved.{% endblocktrans %}</p>
       <div class="payment-icons">
         <i class="fab fa-cc-visa"></i>
         <i class="fab fa-cc-mastercard"></i>

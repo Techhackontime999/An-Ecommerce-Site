@@ -1,4 +1,5 @@
 {% extends "shop/base/base.html" %}
+{% load preference_extras %}
 {% block title %}My Orders{% endblock %}
 
 {% block content %}
@@ -25,7 +26,7 @@
                     <td><strong>#{{ order.id }}</strong></td>
                     <td>{{ order.created|date:"M d, Y" }}</td>
                     <td>{{ order.items.count }}</td>
-                    <td>₹{{ order.get_total_cost }}</td>
+                    <td>{% price order.get_total_cost %}</td>
                     <td>
                         {% if order.paid %}
                         <span class="badge badge-success">Paid</span>

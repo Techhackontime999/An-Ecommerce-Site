@@ -1,126 +1,324 @@
-{% extends "shop/base/base.html" %}
+{% extends 'shop/base/base.html' %}
 {% load static %}
 
+{% block title %}FAQ — Help Center | Shop-Seed{% endblock %}
+
 {% block content %}
-<div class="container mx-auto my-5 px-3">
-  <h2 class="text-center mb-5 font-weight-bold">Frequently Asked Questions
-    <hr>
-  </h2>
 
-  <div class="accordion" id="faqAccordion">
-    {% for faq in faqs %}
-    <div class="card mb-3 border-0 shadow-sm">
-      <div class="card-header bg-white p-0" id="heading{{ forloop.counter }}">
-        <h3 class="mb-0">
-          <button
-            class="btn btn-link btn-block text-left  text-dark font-weight-bold d-flex justify-content-between align-items-center py-3 px-7 collapsed"
-            style="text-decoration: none; white-space: normal;"
-            type="button"
-            data-toggle="collapse"
-            data-target="#collapse{{ forloop.counter }}"
-            aria-expanded="false"
-            aria-controls="collapse{{ forloop.counter }}"
-          >
-            <span class="faq-question-text flex-grow-1 text-break">{{ faq.question }}</span>
-            <span class="faq-icon ml-3">+</span>
-          </button>
-        </h3>
-      </div>
+<!-- ─── Hero ───────────────────────────────────────────── -->
+<section class="fq-hero">
+  <div class="fq-hero-glow fq-hero-glow-a" aria-hidden="true"></div>
+  <div class="fq-hero-glow fq-hero-glow-b" aria-hidden="true"></div>
+  <div class="fq-hero-dots" aria-hidden="true"></div>
 
-      <div
-        id="collapse{{ forloop.counter }}"
-        class="collapse"
-        aria-labelledby="heading{{ forloop.counter }}"
-        data-parent="#faqAccordion"
+  <div class="container-aq fq-hero-inner">
+    <span class="hero-aq-badge fade-up"><i class="fas fa-circle-question"></i> Help Center</span>
+    <h1 class="fq-hero-title fade-up fade-up-delay-1">
+      How can we <span class="fq-hero-accent">help you</span> today?
+    </h1>
+    <p class="fq-hero-sub fade-up fade-up-delay-2">
+      Search our knowledge base for instant answers, or reach out to our team —
+      we're always happy to assist.
+    </p>
+
+    <div class="fq-search-wrap fade-up fade-up-delay-3">
+      <i class="fas fa-magnifying-glass fq-search-icon" aria-hidden="true"></i>
+      <input
+        type="text"
+        id="fq-search"
+        class="fq-search"
+        placeholder="Search questions, orders, returns..."
+        autocomplete="off"
+        aria-label="Search frequently asked questions"
       >
-        <div class="card-body text-muted px-4">
-          {{ faq.answer|safe|linebreaks }}
+      <kbd class="fq-search-kbd" aria-hidden="true">/</kbd>
+    </div>
+
+    <div class="fq-chips fade-up fade-up-delay-4" id="fq-chips">
+      <span class="fq-chips-label">Popular:</span>
+      <button type="button" class="fq-chip" data-term="order">Orders</button>
+      <button type="button" class="fq-chip" data-term="delivery">Delivery</button>
+      <button type="button" class="fq-chip" data-term="return">Returns</button>
+      <button type="button" class="fq-chip" data-term="payment">Payments</button>
+    </div>
+
+    <div class="fq-stats fade-up fade-up-delay-4">
+      <div class="fq-stat">
+        <span class="fq-stat-num">{{ faqs.count }}</span>
+        <span class="fq-stat-label">Answers ready</span>
+      </div>
+      <div class="fq-stat">
+        <span class="fq-stat-num">{{ stories.count }}</span>
+        <span class="fq-stat-label">Seller stories</span>
+      </div>
+      <div class="fq-stat">
+        <span class="fq-stat-num">24h</span>
+        <span class="fq-stat-label">Response time</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ───────────────────────────────────────────── -->
+<section class="fq-faq">
+  <div class="container-aq">
+    <div class="fq-faq-head fade-up">
+      <span class="hero-aq-badge"><i class="fas fa-bolt"></i> Common questions</span>
+      <h2 class="fq-section-title">Everything you need to know</h2>
+      <p class="fq-section-sub">
+        Browse the most frequently asked questions or use the search above to filter instantly.
+      </p>
+    </div>
+
+    <div class="fq-grid">
+      <div class="fq-list-wrap fade-up fade-up-delay-1">
+        <div class="fq-list-meta">
+          <span id="fq-count">Showing all {{ faqs.count }} questions</span>
+        </div>
+
+        <div class="fq-list">
+          {% for faq in faqs %}
+          <div class="fq-item" data-search="{{ faq.question|lower }} {{ faq.answer|striptags|lower }}">
+            <button
+              type="button"
+              class="fq-q"
+              id="fq-question-{{ forloop.counter }}"
+              aria-expanded="false"
+              aria-controls="fq-answer-{{ forloop.counter }}"
+            >
+              <span class="fq-q-text">{{ faq.question }}</span>
+              <span class="fq-icon" aria-hidden="true"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="fq-a" id="fq-answer-{{ forloop.counter }}" role="region" aria-labelledby="fq-question-{{ forloop.counter }}">
+              <div class="fq-a-inner">
+                <div class="fq-a-body">
+                  {{ faq.answer|safe }}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="fq-item-empty">
+            <i class="fas fa-inbox"></i>
+            <p>No FAQs published yet. Check back soon.</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="fq-empty" id="fq-no-results" role="status" hidden>
+          <i class="fas fa-magnifying-glass"></i>
+          <h3>No results found</h3>
+          <p>We couldn't find anything matching your search. Try a different keyword or contact support.</p>
+          <a href="{% url 'contact:contact' %}" class="fq-btn-primary">Ask us directly</a>
         </div>
       </div>
+
+      <aside class="fq-aside fade-up fade-up-delay-2">
+        <div class="fq-help-card">
+          <div class="fq-help-head">
+            <span class="fq-help-icon"><i class="fas fa-headset"></i></span>
+            <div>
+              <h3>Still need help?</h3>
+              <p>We usually reply within 2 hours.</p>
+            </div>
+          </div>
+
+          <div class="fq-help-channels">
+            <a href="mailto:support@shopseed.com" class="fq-channel">
+              <span class="fq-channel-icon"><i class="fas fa-envelope"></i></span>
+              <span class="fq-channel-copy">
+                <strong>Email us</strong>
+                <small>support@shopseed.com</small>
+              </span>
+              <i class="fas fa-arrow-right fq-channel-arrow" aria-hidden="true"></i>
+            </a>
+            <a href="tel:+919876543210" class="fq-channel">
+              <span class="fq-channel-icon"><i class="fas fa-phone-volume"></i></span>
+              <span class="fq-channel-copy">
+                <strong>Call us</strong>
+                <small>+91 98765 43210</small>
+              </span>
+              <i class="fas fa-arrow-right fq-channel-arrow" aria-hidden="true"></i>
+            </a>
+            <a href="{% url 'contact:contact' %}" class="fq-channel">
+              <span class="fq-channel-icon"><i class="fas fa-comments"></i></span>
+              <span class="fq-channel-copy">
+                <strong>Live chat</strong>
+                <small>Mon–Sat, 9am–9pm IST</small>
+              </span>
+              <i class="fas fa-arrow-right fq-channel-arrow" aria-hidden="true"></i>
+            </a>
+          </div>
+
+          <div class="fq-help-note">
+            <i class="fas fa-shield-halved"></i>
+            <span>Your data is safe. We never share your information with third parties.</span>
+          </div>
+        </div>
+
+        <div class="fq-aside-banner">
+          <i class="fas fa-store"></i>
+          <div>
+            <strong>Are you a seller?</strong>
+            <p>Find answers for your store in the seller guide.</p>
+          </div>
+          <a href="{% url 'doc:documentation' %}" class="fq-aside-banner-link">Seller guide <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </aside>
     </div>
-    {% empty %}
-    <p class="text-center text-muted">No FAQs found.</p>
-    {% endfor %}
   </div>
-</div>
-<!-- success stories starts -->
-<hr class="my-5">
+</section>
 
-<h3 class="mb-4 text-center font-weight-bold ">Seller's Successful Stories</h3>
-
-<div class="container bg-light ">
-  <div class="d-flex overflow-auto pb-3 px-3" id="success-scroll">
-    {% for story in stories %}
-    <div class="card mx-2 flex-shrink-0 shadow-md" style="border-bottom-left-radius:14px; border-top-right-radius:14px; width: 280px; min-width: 280px; display: flex; flex-direction: column;">
-      
-      {% if story.image %}
-      <img class="card-img-top rounded" src="{{ story.image.url }}" alt="{{ story.title }}" style="height: 170px; object-fit: cover;">
-      {% endif %}
-      
-      <div class="card-body d-flex flex-column justify-content-between" style="flex: 1; overflow: hidden;">
-        <h5 class="card-title mb-2 text-truncate" style="font-size: 1rem; font-weight: 700;">{{ story.title }}</h5>
-        <p class="card-text text-muted mb-2" style="font-size: 0.75rem; line-height: 1.2; max-height: 4.5em; overflow: hidden; text-overflow: ellipsis;">{{ story.description|safe }}</p>
-        <a href="{{ story.url }}" class="btn btn-sm btn-outline-primary mt-auto">Read More</a>
+<!-- ─── Success stories ───────────────────────────────── -->
+{% if stories %}
+<section class="fq-stories">
+  <div class="container-aq">
+    <div class="fq-stories-head fade-up">
+      <div>
+        <span class="hero-aq-badge"><i class="fas fa-award"></i> Success stories</span>
+        <h2 class="fq-section-title">Sellers making it happen</h2>
+        <p class="fq-section-sub">Real stores, real growth. See how sellers are thriving on Shop-Seed.</p>
       </div>
-
+      <div class="fq-stories-controls" aria-hidden="true">
+        <button type="button" class="fq-arrow fq-arrow-prev" aria-label="Scroll stories left"><i class="fas fa-arrow-left"></i></button>
+        <button type="button" class="fq-arrow fq-arrow-next" aria-label="Scroll stories right"><i class="fas fa-arrow-right"></i></button>
+      </div>
     </div>
-    {% endfor %}
+
+    <div class="fq-stories-scroll fade-up fade-up-delay-1" id="fq-stories-scroll" tabindex="0">
+      {% for story in stories %}
+      <article class="fq-story-card">
+        {% if story.image %}
+        <img src="{{ story.image.url }}" alt="{{ story.title }}" class="fq-story-cover">
+        {% else %}
+        <div class="fq-story-cover fq-story-cover--gradient" aria-hidden="true">
+          <i class="fas fa-store"></i>
+        </div>
+        {% endif %}
+        <div class="fq-story-body">
+          <span class="fq-story-tag">Seller spotlight</span>
+          <h3 class="fq-story-title">{{ story.title }}</h3>
+          <p class="fq-story-desc">{{ story.description|safe }}</p>
+          {% if story.url %}
+          <a href="{{ story.url }}" class="fq-story-link">Read the story <i class="fas fa-arrow-right"></i></a>
+          {% else %}
+          <span class="fq-story-link fq-story-link--disabled">Read the story</span>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
   </div>
-</div>
+</section>
+{% endif %}
 
+<!-- ─── CTA ───────────────────────────────────────────── -->
+<section class="fq-cta">
+  <div class="container-aq">
+    <div class="fq-cta-card fade-up">
+      <div class="fq-cta-glow" aria-hidden="true"></div>
+      <span class="fq-cta-badge"><i class="fas fa-sparkles"></i> Seller community</span>
+      <h2 class="fq-cta-title">Ready to grow your store?</h2>
+      <p class="fq-cta-sub">
+        Join thousands of sellers who trust Shop-Seed. List your products, reach new
+        customers, and let our support team handle the rest.
+      </p>
+      <div class="fq-cta-actions">
+        <a href="{% url 'accounts:seller_register' %}" class="fq-btn-primary fq-btn-primary--light">Start selling <i class="fas fa-arrow-right"></i></a>
+        <a href="{% url 'contact:contact' %}" class="fq-btn-ghost">Talk to support</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <br>
-    <!-- shop-seed contributer start -->
-<hr class="my-5">
+{% endblock %}
 
-<h3 class="mb-4 text-center font-weight-bold">Shop-Seed Contributer's </h3>
+{% block extra_js %}
+<script>
+  (function () {
+    var items = Array.prototype.slice.call(document.querySelectorAll('.fq-item'));
+    var search = document.getElementById('fq-search');
+    var count = document.getElementById('fq-count');
+    var emptyState = document.getElementById('fq-no-results');
+    var total = items.length;
 
-
-
-
-   <!-- shop-seed contributer close -->
-
-<style>
-    /* faq start */
-  .faq-question-text {
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-  }
-
-  @media (max-width: 576px) {
-    .faq-question-text {
-      font-size: 1rem;
+    function setExpanded(item, open) {
+      item.classList.toggle('is-open', open);
+      var btn = item.querySelector('.fq-q');
+      var region = item.querySelector('.fq-a');
+      if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (region) region.setAttribute('aria-hidden', open ? 'false' : 'true');
     }
 
-    .faq-icon {
-      font-size: 1.2rem;
-    }
-  }
-  /* faq end */
-  /* success story start */
-  #success-scroll {
-    scroll-behavior: smooth;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
+    items.forEach(function (item) {
+      var btn = item.querySelector('.fq-q');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        setExpanded(item, !item.classList.contains('is-open'));
+      });
+    });
 
-  /* Optional: hide scrollbar */
-  #success-scroll::-webkit-scrollbar {
-    height: 8px;
-  }
-  #success-scroll::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 4px;
-  }
+    function applyFilter() {
+      var q = search.value.trim().toLowerCase();
+      var visible = 0;
 
-  /* Responsive cards */
-  @media (max-width: 576px) {
-    #success-scroll .card {
-      width: 240px !important;
-      min-width: 240px !important;
+      items.forEach(function (item) {
+        var haystack = item.getAttribute('data-search') || '';
+        var match = !q || haystack.indexOf(q) !== -1;
+        item.classList.toggle('is-hidden', !match);
+        if (match) {
+          visible += 1;
+          setExpanded(item, q.length > 0);
+        }
+      });
+
+      if (count) {
+        count.textContent = q
+          ? 'Showing ' + visible + ' of ' + total + ' questions'
+          : 'Showing all ' + total + ' questions';
+      }
+      if (emptyState) emptyState.hidden = visible > 0;
     }
-  }
-  /* success story close */
-</style>
+
+    if (search) {
+      search.addEventListener('input', applyFilter);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === '/' && document.activeElement !== search) {
+          e.preventDefault();
+          search.focus();
+        }
+        if (e.key === 'Escape') {
+          search.value = '';
+          applyFilter();
+          search.blur();
+        }
+      });
+    }
+
+    var chips = document.querySelectorAll('.fq-chip');
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var term = chip.getAttribute('data-term') || '';
+        search.value = search.value === term ? '' : term;
+        applyFilter();
+      });
+    });
+
+    var scrollWrap = document.getElementById('fq-stories-scroll');
+    var prev = document.querySelector('.fq-arrow-prev');
+    var next = document.querySelector('.fq-arrow-next');
+    if (scrollWrap && prev) {
+      prev.addEventListener('click', function () {
+        scrollWrap.scrollBy({ left: -320, behavior: 'smooth' });
+      });
+    }
+    if (scrollWrap && next) {
+      next.addEventListener('click', function () {
+        scrollWrap.scrollBy({ left: 320, behavior: 'smooth' });
+      });
+    }
+
+    if (window.AOS) AOS.refresh();
+  })();
+</script>
 {% endblock %}

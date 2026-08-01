@@ -1,4 +1,5 @@
 {% extends "shop/base/base.html" %}
+{% load preference_extras %}
 {% block title %}Payment Successful{% endblock %}
 
 {% block content %}
@@ -7,7 +8,7 @@
     <div class="card shadow-sm mx-auto" style="max-width: 500px;">
         <div class="card-body">
             <p>Your payment for Order #{{ order.id }} has been completed.</p>
-            <p><strong>Amount Paid:</strong> ₹{{ order.get_total_cost }}</p>
+            <p><strong>Amount Paid:</strong> {% price order.get_total_cost %}</p>
             <p>You will receive a confirmation email shortly.</p>
             <a href="{% url 'shop:product_list' %}" class="btn btn-success">Continue Shopping</a>
         </div>

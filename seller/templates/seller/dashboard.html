@@ -1,5 +1,6 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
+{% load preference_extras %}
 
 {% block title %}Seller Dashboard — Shop-Seed{% endblock %}
 
@@ -123,7 +124,7 @@
                   </div>
                 </div>
               </td>
-              <td class="seller-dash-price">₹{{ product.price }}</td>
+              <td class="seller-dash-price">{% price product.price %}</td>
               <td>
                 {% if product.available %}
                   <span class="seller-dash-badge seller-dash-badge-active">Active</span>

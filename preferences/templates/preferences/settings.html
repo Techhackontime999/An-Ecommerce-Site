@@ -1,0 +1,240 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load preference_extras %}
+
+{% block title %}{% trans "Settings" %} — Shop-Seed{% endblock %}
+
+{% block content %}
+{{ currencies|json_script:"pref-currencies" }}
+
+<section class="settings-page">
+  <div class="settings-glow settings-glow-a"></div>
+  <div class="settings-glow settings-glow-b"></div>
+
+  <div class="container-aq settings-inner">
+    <header class="settings-head fade-up">
+      <span class="hero-aq-badge mx-auto" style="justify-content:center">
+        <i class="fas fa-sliders-h"></i> {% trans "Personalize" %}
+      </span>
+      <h1 class="display-section" style="margin-top:0.75rem">{% trans "Site Settings" %}</h1>
+      <p class="body-large" style="max-width:55ch;margin:0.75rem auto 0;">
+        {% trans "Set how Shop-Seed looks and feels for you — theme, language, currency, font and accent color." %}
+      </p>
+    </header>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="settings-alert fade-up">
+        <i class="fas fa-check-circle"></i>
+        <div>
+          <strong>{% trans "Saved!" %}</strong>
+          <span>{{ message }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="settings-preview fade-up" id="settings-preview" aria-live="polite">
+      <div class="settings-preview-copy">
+        <span class="settings-preview-tag">{% trans "Live preview" %}</span>
+        <h3>{% trans "This is how your site will look" %}</h3>
+        <p>
+          <span id="preview-currency-name">{{ CURRENCY.name }}</span> ·
+          <span id="preview-lang-name">{{ prefs.language|default:"en" }}</span> ·
+          <span id="preview-theme-name">{% if prefs.theme == "dark" %}{% trans "Dark" %}{% else %}{% trans "Light" %}{% endif %}</span>
+        </p>
+        <div class="settings-preview-price">
+          <del id="preview-price-old">$19.99</del>
+          <strong id="preview-price-now">{% price 19.99 %}</strong>
+        </div>
+      </div>
+      <div class="settings-preview-sample">
+        <div class="sps-top">
+          <span class="sps-dots"><i></i><i></i><i></i></span>
+          <span class="sps-toggle"><i class="fas fa-moon"></i></span>
+        </div>
+        <div class="sps-btn">{% trans "Shop Now" %}</div>
+        <p class="sps-text">{% trans "Preview of your chosen theme, font and accent." %}</p>
+      </div>
+    </div>
+
+    <form method="post" class="settings-form fade-up" id="settings-form" novalidate>
+      {% csrf_token %}
+
+      <div class="settings-group">
+        <div class="settings-group-head">
+          <span class="settings-group-icon"><i class="fas fa-palette"></i></span>
+          <div>
+            <h2>{% trans "Appearance" %}</h2>
+            <p>{% trans "Choose between light and dark mode." %}</p>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-option">
+            <label class="settings-pill">
+              <input type="radio" name="theme" value="light" {% if form.theme.value == 'light' %}checked{% endif %}>
+              <span><i class="fas fa-sun"></i> {% trans "Light" %}</span>
+            </label>
+            <label class="settings-pill">
+              <input type="radio" name="theme" value="dark" {% if form.theme.value == 'dark' %}checked{% endif %}>
+              <span><i class="fas fa-moon"></i> {% trans "Dark" %}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-head">
+          <span class="settings-group-icon"><i class="fas fa-language"></i></span>
+          <div>
+            <h2>{% trans "Language" %}</h2>
+            <p>{% trans "Pick the language for the site." %}</p>
+          </div>
+        </div>
+        <div class="settings-row">
+          {{ form.language }}
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-head">
+          <span class="settings-group-icon"><i class="fas fa-coins"></i></span>
+          <div>
+            <h2>{% trans "Currency" %}</h2>
+            <p>{% trans "Prices will be converted to your chosen currency." %}</p>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-currency-picker">
+            {{ form.currency }}
+            <span class="settings-sample">{% trans "Sample:" %} <strong id="preview-sample-price">$19.99</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-head">
+          <span class="settings-group-icon"><i class="fas fa-font"></i></span>
+          <div>
+            <h2>{% trans "Font Style" %}</h2>
+            <p>{% trans "Change the typography across the site." %}</p>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-option">
+            {% for value, label in form.font_style.field.choices %}
+            <label class="settings-pill">
+              <input type="radio" name="font_style" value="{{ value }}" {% if form.font_style.value == value %}checked{% endif %}>
+              <span>{{ label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-head">
+          <span class="settings-group-icon"><i class="fas fa-paint-brush"></i></span>
+          <div>
+            <h2>{% trans "Accent Color" %}</h2>
+            <p>{% trans "Tint buttons, links and highlights." %}</p>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-accents">
+            {% for value, label in form.accent.field.choices %}
+            <label class="settings-accent" title="{{ label }}">
+              <input type="radio" name="accent" value="{{ value }}" {% if form.accent.value == value %}checked{% endif %}>
+              <span class="swatch" data-accent="{{ value }}"></span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button type="submit" class="btn-aq settings-reset" name="reset" value="1">
+          {% trans "Reset to Defaults" %}
+          <span class="icon-wrapper"><i class="fas fa-rotate-left"></i></span>
+        </button>
+        <button type="submit" class="btn-aq settings-save">
+          {% trans "Save Preferences" %}
+          <span class="icon-wrapper"><i class="fas fa-check"></i></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var root = document.documentElement;
+  var CURRENCIES = JSON.parse(document.getElementById('pref-currencies').textContent || '{}');
+  var SAMPLE_USD = 19.99;
+  var currencySelect = document.querySelector('#settings-form select[name="currency"]');
+  var previewNow = document.getElementById('preview-price-now');
+  var previewOld = document.getElementById('preview-price-old');
+  var previewSample = document.getElementById('preview-sample-price');
+  var previewThemeName = document.getElementById('preview-theme-name');
+  var previewCurrencyName = document.getElementById('preview-currency-name');
+  var previewSampleBtn = document.querySelector('.sps-btn');
+  var previewSampleText = document.querySelector('.sps-text');
+  var previewPanel = document.getElementById('settings-preview');
+
+  function format(value, code) {
+    var info = CURRENCIES[code] || { symbol: '$', rate: 1, decimals: 2, name: 'US Dollar' };
+    var amount = value * info.rate;
+    var formatted = amount.toLocaleString(undefined, {
+      minimumFractionDigits: info.decimals,
+      maximumFractionDigits: info.decimals
+    });
+    return (info.symbol && info.symbol.endsWith(' ')) ? info.symbol + formatted : info.symbol + formatted;
+  }
+
+  function updateCurrency() {
+    var code = currencySelect ? currencySelect.value : 'USD';
+    var info = CURRENCIES[code] || { name: 'US Dollar' };
+    if (previewNow) previewNow.textContent = format(SAMPLE_USD, code);
+    if (previewOld) previewOld.textContent = format(SAMPLE_USD * 1.4, code);
+    if (previewSample) previewSample.textContent = format(SAMPLE_USD, code);
+    if (previewCurrencyName) previewCurrencyName.textContent = info.name;
+  }
+
+  function readTheme() {
+    return (root.getAttribute('data-theme') === 'dark') ? 'dark' : 'light';
+  }
+
+  function updateThemeLabel() {
+    if (!previewThemeName) return;
+    previewThemeName.textContent = readTheme() === 'dark' ? 'Dark' : 'Light';
+  }
+
+  function applyRadio() {
+    var checked = document.querySelector('#settings-form input[name="theme"]:checked');
+    if (checked) root.setAttribute('data-theme', checked.value);
+    updateThemeLabel();
+  }
+
+  document.querySelectorAll('#settings-form input[type="radio"]').forEach(function (input) {
+    input.addEventListener('change', applyRadio);
+  });
+  if (currencySelect) currencySelect.addEventListener('change', updateCurrency);
+
+  function previewFlash() {
+    if (!previewPanel) return;
+    previewPanel.classList.remove('settings-preview-flash');
+    void previewPanel.offsetWidth;
+    previewPanel.classList.add('settings-preview-flash');
+  }
+  document.querySelectorAll('#settings-form input, #settings-form select').forEach(function (el) {
+    el.addEventListener('change', previewFlash);
+  });
+
+  updateCurrency();
+  updateThemeLabel();
+})();
+</script>
+{% endblock %}

@@ -1,6 +1,8 @@
 {% load static %}
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ CURRENT_LANGUAGE }}" data-theme="{{ user_prefs.theme|default:'light' }}" data-font="{{ user_prefs.font_style|default:'default' }}" data-accent="{{ user_prefs.accent|default:'orange' }}">
 <head>
     <title>{% block title %}Shop-Seed — Premium E-Commerce{% endblock %}</title>
     <meta charset="utf-8">

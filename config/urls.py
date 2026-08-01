@@ -26,6 +26,8 @@ urlpatterns = [
     path('seller/', include('seller.urls', namespace='seller')),
     path('payments/', include('payments.urls', namespace='payments')),
     path('shipping/', include('shipping.urls', namespace='shipping')),
+    path('i18n/', include('django.conf.urls.i18n')),
+    path('preferences/', include('preferences.urls', namespace='preferences')),
     path('', include('shop.urls', namespace='shop')),
 ]
 

@@ -1,69 +1,352 @@
-{% extends 'shop/base/base.html' %}
-{% block content %}
-<div class="container-fluid my-5 px-4">
-  <div class="d-flex justify-content-end mb-3">
-    <a href="{% url 'doc:download_pdf' %}" class="btn btn-danger mx-2">Download PDF</a>
-    <a href="{% url 'doc:download_word' %}" class="btn btn-primary">Download Word</a>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shop-Seed Documentation</title>
+<style>
+@font-face { font-family: 'Outfit'; font-weight: 400; src: url('file://{{ font_dir }}/Outfit-400.ttf'); }
+@font-face { font-family: 'Outfit'; font-weight: 500; src: url('file://{{ font_dir }}/Outfit-500.ttf'); }
+@font-face { font-family: 'Outfit'; font-weight: 600; src: url('file://{{ font_dir }}/Outfit-600.ttf'); }
+@font-face { font-family: 'Outfit'; font-weight: 700; src: url('file://{{ font_dir }}/Outfit-700.ttf'); }
 
-  <div class="row">
-    <!-- Sidebar -->
-    <div class="col-md-3">
-      <div class="list-group position-sticky" style="top: 100px;">
-        {% for section in documentation_sections %}
-        <a href="#{{ section.slug }}" class="list-group-item list-group-item-action" data-target="{{ section.slug }}">{{ section.title }}</a>
-        {% endfor %}
+@page {
+  size: A4;
+  margin: 24mm 20mm 22mm 20mm;
+  @top-left { content: "Shop-Seed"; font-family: 'Outfit'; font-size: 8pt; font-weight: 600; color: #0F172A; }
+  @top-right { content: "Documentation · v1.0"; font-family: 'Outfit'; font-size: 8pt; color: #94A3B8; }
+  @bottom-left { content: "shopseed.com"; font-family: 'Outfit'; font-size: 8pt; color: #94A3B8; }
+  @bottom-right { content: counter(page) " / " counter(pages); font-family: 'Outfit'; font-size: 8pt; font-weight: 600; color: #0F172A; }
+}
+
+@page cover {
+  margin: 0;
+  @top-left { content: none; }
+  @top-right { content: none; }
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { font-family: 'Outfit'; font-size: 10pt; line-height: 1.65; color: #475569; }
+
+/* ─── Cover ─── */
+.cover {
+  page: cover;
+  position: relative;
+  width: 210mm;
+  height: 296mm;
+  overflow: hidden;
+  page-break-after: always;
+  background: #0F172A;
+}
+
+.cover-glow-a {
+  position: absolute;
+  top: -30mm;
+  right: -30mm;
+  width: 120mm;
+  height: 120mm;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.35), rgba(249, 115, 22, 0));
+}
+
+.cover-glow-b {
+  position: absolute;
+  left: -40mm;
+  bottom: -40mm;
+  width: 130mm;
+  height: 130mm;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30, 64, 175, 0.28), rgba(30, 64, 175, 0));
+}
+
+.cover-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18mm 20mm;
+}
+
+.cover-brand { display: block; }
+.cover-logo {
+  display: inline-block;
+  width: 12mm;
+  height: 12mm;
+  line-height: 12mm;
+  text-align: center;
+  border-radius: 3.5mm;
+  background: linear-gradient(135deg, #EA580C, #F97316, #FB923C);
+  color: #FFFFFF;
+  font-size: 13pt;
+  font-weight: 700;
+}
+.cover-brand-text {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 4mm;
+  font-size: 14pt;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+}
+
+.cover-mid { position: absolute; top: 42%; left: 20mm; right: 20mm; }
+.cover-label {
+  display: inline-block;
+  padding: 1.5mm 4mm;
+  border-radius: 999pt;
+  background: rgba(249, 115, 22, 0.14);
+  border: 0.3pt solid rgba(249, 115, 22, 0.5);
+  color: #FB923C;
+  font-size: 7.5pt;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.cover-title {
+  margin-top: 6mm;
+  font-size: 27pt;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+}
+.cover-title em { font-style: normal; color: #FB923C; }
+.cover-sub {
+  margin-top: 6mm;
+  font-size: 11pt;
+  line-height: 1.6;
+  color: #A5B4CF;
+  max-width: 130mm;
+}
+
+.cover-foot {
+  position: absolute;
+  left: 20mm;
+  right: 20mm;
+  bottom: 16mm;
+  padding-top: 5mm;
+  border-top: 0.4pt solid rgba(255, 255, 255, 0.14);
+}
+.cover-meta { font-size: 9pt; color: #94A3B8; }
+.cover-meta b { color: #FFFFFF; font-weight: 600; }
+.cover-meta .divider { margin: 0 2.5mm; color: rgba(255, 255, 255, 0.3); }
+.cover-contact { margin-top: 3mm; font-size: 8.5pt; color: #64748B; }
+.cover-contact b { color: #FB923C; font-weight: 600; }
+
+/* ─── TOC ─── */
+.toc { page-break-before: always; }
+.toc-head {
+  padding-bottom: 5mm;
+  margin-bottom: 6mm;
+  border-bottom: 0.5pt solid #E2E8F0;
+}
+.toc-eyebrow {
+  font-size: 8pt;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #EA580C;
+}
+.toc-h1 {
+  margin-top: 2mm;
+  font-size: 20pt;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #0F172A;
+}
+.toc-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.toc-row td { padding: 4mm 0; border-bottom: 0.3pt solid #EEF2F7; vertical-align: middle; }
+.toc-num { width: 14mm; font-size: 10pt; font-weight: 700; color: #F97316; font-variant-numeric: tabular-nums; }
+.toc-title { width: 52mm; font-size: 11pt; font-weight: 600; color: #0F172A; }
+.toc-leader { border-bottom: 0.6pt dotted #CBD5E1; }
+.toc-page { width: 16mm; text-align: right; font-size: 10pt; font-weight: 600; color: #0F172A; }
+.toc-page a { text-decoration: none; color: #0F172A; }
+.toc-page a::after { content: target-counter(attr(href), page); }
+
+/* ─── Sections ─── */
+.doc-section { page-break-before: always; }
+.sec-head {
+  padding-bottom: 4mm;
+  margin-bottom: 6mm;
+  border-bottom: 0.5pt solid #E2E8F0;
+}
+.sec-badge {
+  display: inline-block;
+  width: 13mm;
+  height: 13mm;
+  line-height: 13mm;
+  text-align: center;
+  border-radius: 4mm;
+  background: linear-gradient(135deg, #EA580C, #F97316);
+  color: #FFFFFF;
+  font-size: 10pt;
+  font-weight: 700;
+}
+.sec-meta {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 4mm;
+}
+.sec-eyebrow {
+  display: block;
+  font-size: 7.5pt;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94A3B8;
+}
+.sec-title {
+  display: block;
+  font-size: 18pt;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #0F172A;
+}
+
+.sec-body p { margin: 0 0 4mm; }
+.sec-body h2, .sec-body h3, .sec-body h4 { color: #0F172A; font-weight: 700; margin: 6mm 0 3mm; }
+.sec-body h2 { font-size: 13pt; }
+.sec-body h3 { font-size: 11pt; }
+.sec-body h4 { font-size: 10pt; }
+.sec-body ul, .sec-body ol { margin: 0 0 4mm; padding-left: 6mm; }
+.sec-body li { margin-bottom: 1.5mm; }
+.sec-body ul li::marker { color: #F97316; }
+.sec-body a { color: #EA580C; }
+.sec-body blockquote {
+  margin: 5mm 0;
+  padding: 3mm 5mm;
+  border-left: 1.2mm solid #F97316;
+  border-radius: 0 2mm 2mm 0;
+  background: #FDF1E7;
+  color: #0F172A;
+}
+.sec-body code {
+  font-family: 'Courier New', monospace;
+  font-size: 8.5pt;
+  padding: 0.5mm 1.5mm;
+  border-radius: 1mm;
+  background: #F1F5F9;
+  color: #EA580C;
+}
+.sec-body pre {
+  margin: 5mm 0;
+  padding: 4mm 5mm;
+  border-radius: 2.5mm;
+  background: #0F172A;
+  color: #E2E8F0;
+  font-size: 8.5pt;
+  line-height: 1.5;
+}
+.sec-body pre code { background: none; padding: 0; color: inherit; }
+.sec-body img { max-width: 100%; border-radius: 2.5mm; }
+.sec-body table { width: 100%; border-collapse: collapse; margin: 5mm 0; font-size: 9pt; }
+.sec-body th, .sec-body td { padding: 2mm 3mm; border: 0.3pt solid #E2E8F0; text-align: left; }
+.sec-body th { background: #F8FAFC; color: #0F172A; font-weight: 600; }
+
+.sec-figure { margin-top: 5mm; }
+.sec-figure img { width: 100%; border-radius: 2.5mm; }
+
+/* ─── End page ─── */
+.doc-end { page-break-before: always; text-align: center; padding-top: 40mm; }
+.doc-end-logo {
+  display: inline-block;
+  width: 16mm;
+  height: 16mm;
+  line-height: 16mm;
+  text-align: center;
+  border-radius: 5mm;
+  background: linear-gradient(135deg, #EA580C, #F97316);
+  color: #FFFFFF;
+  font-size: 16pt;
+  font-weight: 700;
+}
+.doc-end-h2 { margin-top: 8mm; font-size: 20pt; font-weight: 700; letter-spacing: -0.02em; color: #0F172A; }
+.doc-end-sub {
+  margin: 4mm auto 0;
+  font-size: 10.5pt;
+  color: #475569;
+  max-width: 120mm;
+}
+.doc-end-contact { margin-top: 10mm; font-size: 9pt; color: #64748B; }
+.doc-end-contact b { color: #EA580C; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-glow-a"></div>
+  <div class="cover-glow-b"></div>
+  <div class="cover-inner">
+    <div class="cover-brand">
+      <span class="cover-logo">S</span>
+      <span class="cover-brand-text">Shop-Seed</span>
+    </div>
+    <div class="cover-mid">
+      <span class="cover-label">Documentation · v1.0</span>
+      <div class="cover-title">Everything you need to <em>get started</em> with Shop-Seed</div>
+      <p class="cover-sub">
+        Step-by-step guides for buyers and sellers — from placing your first
+        order to growing a full store on the platform.
+      </p>
+    </div>
+    <div class="cover-foot">
+      <div class="cover-meta">
+        <b>{{ documentation_sections.count }} sections</b><span class="divider">·</span><b>~{{ read_time }} min read</b><span class="divider">·</span><b>{{ today|date:"d M Y" }}</b>
       </div>
+      <div class="cover-contact"><b>support@shopseed.com</b> &nbsp;&nbsp;·&nbsp;&nbsp; shopseed.com</div>
     </div>
-
-   <!-- Content -->
-<div class="col-md-9">
-  {% for section in documentation_sections %}
-  <section style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;" id="{{ section.slug }}">
-    
-    <!-- Content on the left -->
-    <div style="flex: 1; padding-right: 20px;">
-      <h2>{{ section.icon|safe }} {{ section.title }}</h2>
-      <p>{{ section.content|safe }}</p>
-    </div>
-
-    <!-- Display the image on the right if it exists -->
-    {% if section.image %}
-    <div style="flex-shrink: 0;">
-      <img src="{{ section.image.url }}" alt="{{ section.title }}" class="img-fluid my-3">
-    </div>
-    {% endif %}
-    
-  </section>
-  <hr>
-  {% endfor %}
-</div>
-
   </div>
 </div>
 
-<!-- Add this JavaScript at the end of the block to ensure smooth scrolling and active link management -->
-<script>
-  // Smooth scroll behavior
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
+<div class="toc">
+  <div class="toc-head">
+    <div class="toc-eyebrow">Table of contents</div>
+    <div class="toc-h1">What's inside</div>
+  </div>
+  <table class="toc-table">
+    {% for section in documentation_sections %}
+    <tr class="toc-row">
+      <td class="toc-num">{{ forloop.counter|stringformat:"02d" }}</td>
+      <td class="toc-title">{{ section.title }}</td>
+      <td class="toc-leader"></td>
+      <td class="toc-page"><a href="#{{ section.slug }}"></a></td>
+    </tr>
+    {% empty %}
+    <tr><td class="toc-title" style="color:#94A3B8;">No documentation available yet.</td></tr>
+    {% endfor %}
+  </table>
+</div>
 
-      // Scroll to the target section
-      document.querySelector(this.getAttribute('href')).scrollIntoView({
-        behavior: 'smooth'
-      });
-    });
-  });
+{% for section in documentation_sections %}
+<section class="doc-section" id="{{ section.slug }}">
+  <div class="sec-head">
+    <span class="sec-badge">{{ forloop.counter|stringformat:"02d" }}</span>
+    <span class="sec-meta">
+      <span class="sec-eyebrow">Section {{ forloop.counter|stringformat:"02d" }}</span>
+      <span class="sec-title">{{ section.title }}</span>
+    </span>
+  </div>
+  <div class="sec-body">{{ section.content|safe }}</div>
+  {% if section.image %}
+  <figure class="sec-figure"><img src="{{ section.image.path }}" alt="{{ section.title }}"></figure>
+  {% endif %}
+</section>
+{% endfor %}
 
-  // Add/remove 'active' class when clicking on sidebar links
-  const links = document.querySelectorAll('.list-group-item');
-  
-  links.forEach(link => {
-    link.addEventListener('click', function () {
-      links.forEach(link => link.classList.remove('active'));  // Remove 'active' from all links
-      this.classList.add('active');  // Add 'active' to the clicked link
-    });
-  });
-</script>
-{% endblock %}
+<div class="doc-end">
+  <span class="doc-end-logo">S</span>
+  <div class="doc-end-h2">Thank you for choosing Shop-Seed</div>
+  <p class="doc-end-sub">This guide is a living document. Need more help with your store or an order?</p>
+  <div class="doc-end-contact"><b>support@shopseed.com</b> &nbsp;&nbsp;·&nbsp;&nbsp; +91 98765 43210 &nbsp;&nbsp;·&nbsp;&nbsp; shopseed.com</div>
+</div>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
+{% load preference_extras %}
 
 {% block title %}Reviews — {{ product.name }} — Shop-Seed{% endblock %}
 
@@ -64,7 +65,7 @@
               </div>
               <div class="blog-product-card-body">
                 <h4 class="blog-product-card-name">{{ product.name }}</h4>
-                <div class="blog-product-card-price"><span>${{ product.current_price }}</span></div>
+                <div class="blog-product-card-price"><span>{% price product.current_price %}</span></div>
                 <span class="blog-product-card-cta">View product <i class="fas fa-arrow-right"></i></span>
               </div>
             </a>

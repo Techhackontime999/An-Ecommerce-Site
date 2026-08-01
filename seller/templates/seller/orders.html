@@ -1,5 +1,6 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
+{% load preference_extras %}
 
 {% block title %}Your Orders — Shop-Seed{% endblock %}
 
@@ -99,7 +100,7 @@
                 </div>
               </td>
               <td>{{ item.quantity }}</td>
-              <td class="seller-dash-price">₹{{ item.get_cost }}</td>
+              <td class="seller-dash-price">{% price item.get_cost %}</td>
               <td class="seller-dash-date">{{ item.order.created|date:"M d, Y" }}</td>
               <td>
                 {% if item.order.paid %}

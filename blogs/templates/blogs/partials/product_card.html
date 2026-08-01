@@ -1,3 +1,4 @@
+{% load preference_extras %}
 <div class="blog-product-card">
   <a class="blog-product-card-link" href="{{ product.get_absolute_url }}">
     <div class="blog-product-card-media">
@@ -13,9 +14,9 @@
       </span>
       <h4 class="blog-product-card-name">{{ product.name }}</h4>
       <div class="blog-product-card-price">
-        <span>${{ product.current_price }}</span>
+        <span>{% price product.current_price %}</span>
         {% if product.current_price != product.price %}
-        <del>${{ product.price }}</del>
+        <del>{% price product.price %}</del>
         {% endif %}
       </div>
       {% if product.seller %}

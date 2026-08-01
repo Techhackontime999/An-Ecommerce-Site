@@ -1,5 +1,6 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
+{% load preference_extras %}
 
 {% block title %}{{ profile.shop_name }} — Shop-Seed{% endblock %}
 
@@ -76,7 +77,7 @@
             {% if product.brand %}
             <span class="pd-product-brand">{{ product.brand }}</span>
             {% endif %}
-            <span class="pd-product-price">₹{{ product.price }}</span>
+            <span class="pd-product-price">{% price product.price %}</span>
             <a href="{% url 'shop:product_detail' product.id product.slug %}" class="pd-product-btn">
               View Product <i class="fas fa-arrow-right"></i>
             </a>

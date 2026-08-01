@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <nav class="nav-aq" role="navigation">
   <div class="nav-aq-inner">
@@ -8,22 +9,28 @@
     </a>
 
     <ul class="nav-aq-links">
-      <li><a href="{% url 'shop:home' %}">Home</a></li>
-      <li><a href="{% url 'shop:product_list' %}">Shop</a></li>
-      <li><a href="{% url 'deals:todays_deals' %}">Deals</a></li>
-      <li><a href="{% url 'about:about' %}">About</a></li>
-      <li><a href="{% url 'seller:best_sellers' %}">Best Sellers</a></li>
-      <li><a href="{% url 'services:services_list' %}">Services</a></li>
-      <li><a href="{% url 'blogs:blog_home' %}">Blog</a></li>
+      <li><a href="{% url 'shop:home' %}">{% trans "Home" %}</a></li>
+      <li><a href="{% url 'shop:product_list' %}">{% trans "Shop" %}</a></li>
+      <li><a href="{% url 'deals:todays_deals' %}">{% trans "Deals" %}</a></li>
+      <li><a href="{% url 'about:about' %}">{% trans "About" %}</a></li>
+      <li><a href="{% url 'seller:best_sellers' %}">{% trans "Best Sellers" %}</a></li>
+      <li><a href="{% url 'services:services_list' %}">{% trans "Services" %}</a></li>
+      <li><a href="{% url 'blogs:blog_home' %}">{% trans "Blog" %}</a></li>
     </ul>
 
     <div class="nav-aq-actions">
       <div class="nav-aq-search">
         <span class="search-icon"><i class="fas fa-search"></i></span>
         <form method="GET" action="{% url 'shop:product_search' %}">
-          <input type="text" placeholder="Search products..." name="q" value="{{ query|default:'' }}">
+          <input type="text" placeholder="{% trans 'Search products...' %}" name="q" value="{{ query|default:'' }}">
         </form>
       </div>
+
+      <button type="button" class="nav-aq-theme" data-theme-toggle title="Toggle theme" aria-label="Toggle dark mode"
+              data-url="{% url 'preferences:toggle_theme' %}" data-csrf="{{ csrf_token }}">
+        <i class="fas fa-sun"></i>
+        <i class="fas fa-moon"></i>
+      </button>
 
       <a href="{% url 'cart:cart_detail' %}" class="nav-aq-cart">
         <i class="fas fa-bag-shopping"></i>
@@ -42,15 +49,16 @@
         <div class="nav-aq-dropdown-menu">
           <div class="nav-aq-dropdown-menu-inner">
             {% if is_seller %}
-            <a href="{% url 'seller:seller_dashboard' %}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="{% url 'seller:seller_dashboard' %}"><i class="fas fa-chart-pie"></i> {% trans "Dashboard" %}</a>
             {% endif %}
             {% if user.is_staff %}
-            <a href="{% url 'admin:index' %}"><i class="fas fa-shield-alt"></i> Admin</a>
+            <a href="{% url 'admin:index' %}"><i class="fas fa-shield-alt"></i> {% trans "Admin" %}</a>
             {% endif %}
-            <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> Your Profile</a>
-            <a href="{% url 'order:my_orders' %}"><i class="fas fa-box"></i> Returns &amp; Orders</a>
+            <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> {% trans "Your Profile" %}</a>
+            <a href="{% url 'order:my_orders' %}"><i class="fas fa-box"></i> {% trans "Returns & Orders" %}</a>
+            <a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a>
             <div class="nav-aq-dropdown-divider"></div>
-            <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> {% trans "Logout" %}</a>
           </div>
         </div>
       </div>
@@ -71,17 +79,20 @@
 
 <aside class="mobile-menu-aq">
   <ul>
-    <li style="--index: 0"><a href="{% url 'shop:home' %}">Home</a></li>
-    <li style="--index: 1"><a href="{% url 'shop:product_list' %}">Shop</a></li>
-    <li style="--index: 2"><a href="{% url 'deals:todays_deals' %}">Today's Deals</a></li>
-    <li style="--index: 3"><a href="{% url 'about:about' %}">About</a></li>
-    <li style="--index: 4"><a href="{% url 'deals:todays_deals' %}">Big Billion Days</a></li>
-    <li style="--index: 5"><a href="{% url 'seller:best_sellers' %}">Best Sellers</a></li>
-    <li style="--index: 6"><a href="{% url 'services:services_list' %}">Customer Services</a></li>
-    <li style="--index: 7"><a href="{% url 'blogs:blog_home' %}">Market Blog</a></li>
-    <li style="--index: 8"><a href="{% url 'accounts:seller_register' %}">Sellers Registration</a></li>
-    <li style="--index: 9"><a href="{% url 'contact:contact' %}">Contact Us</a></li>
-    <li style="--index: 10"><a href="{% url 'accounts:signup' %}">Join Shop-Seed</a></li>
-    <li style="--index: 11"><a href="{% url 'faq:faq' %}">FAQ</a></li>
+    <li style="--index: 0"><a href="{% url 'shop:home' %}">{% trans "Home" %}</a></li>
+    <li style="--index: 1"><a href="{% url 'shop:product_list' %}">{% trans "Shop" %}</a></li>
+    <li style="--index: 2"><a href="{% url 'deals:todays_deals' %}">{% trans "Today's Deals" %}</a></li>
+    <li style="--index: 3"><a href="{% url 'about:about' %}">{% trans "About" %}</a></li>
+    <li style="--index: 4"><a href="{% url 'deals:todays_deals' %}">{% trans "Big Billion Days" %}</a></li>
+    <li style="--index: 5"><a href="{% url 'seller:best_sellers' %}">{% trans "Best Sellers" %}</a></li>
+    <li style="--index: 6"><a href="{% url 'services:services_list' %}">{% trans "Customer Services" %}</a></li>
+    <li style="--index: 7"><a href="{% url 'blogs:blog_home' %}">{% trans "Market Blog" %}</a></li>
+    <li style="--index: 8"><a href="{% url 'accounts:seller_register' %}">{% trans "Sellers Registration" %}</a></li>
+    <li style="--index: 9"><a href="{% url 'contact:contact' %}">{% trans "Contact Us" %}</a></li>
+    <li style="--index: 10"><a href="{% url 'accounts:signup' %}">{% trans "Join Shop-Seed" %}</a></li>
+    <li style="--index: 11"><a href="{% url 'faq:faq' %}">{% trans "FAQ" %}</a></li>
+    {% if user.is_authenticated %}
+    <li style="--index: 12"><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a></li>
+    {% endif %}
   </ul>
 </aside>

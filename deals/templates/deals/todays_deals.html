@@ -1,6 +1,7 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
 {% load deals_tags %}
+{% load preference_extras %}
 
 {% block title %}
 {% if category %}{{ category.name }} Deals — Shop-Seed{% else %}Today's Deals — Shop-Seed{% endif %}
@@ -67,8 +68,8 @@
                 </div>
 
                 <div class="td-card-prices">
-                  <span class="td-card-price">${{ deal.deal_price }}</span>
-                  <del class="td-card-old-price">${{ deal.product.price }}</del>
+                  <span class="td-card-price">{% price deal.deal_price %}</span>
+                  <del class="td-card-old-price">{% price deal.product.price %}</del>
                 </div>
 
                 <div class="td-card-cta">
@@ -143,10 +144,10 @@
               <h3 class="td-slide-title">{{ product.name }}</h3>
               <div class="td-slide-prices">
                 {% if product.current_price != product.price %}
-                <span class="td-slide-price">${{ product.current_price }}</span>
-                <del class="td-slide-old-price">${{ product.price }}</del>
+                <span class="td-slide-price">{% price product.current_price %}</span>
+                <del class="td-slide-old-price">{% price product.price %}</del>
                 {% else %}
-                <span class="td-slide-price">${{ product.price }}</span>
+                <span class="td-slide-price">{% price product.price %}</span>
                 {% endif %}
               </div>
             </div>

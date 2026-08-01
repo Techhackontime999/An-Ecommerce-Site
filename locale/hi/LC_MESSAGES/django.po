@@ -1,0 +1,304 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-01 01:27+0000\n"
+"PO-Revision-Date: 2026-08-01 01:27+0000\n"
+"Last-Translator: Shop-Seed Team <translations@shop-seed.local>\n"
+"Language-Team: Hindi <LL@li.org>\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: core/templates/admin/login.html:21
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] "कृपया नीचे दी गई त्रुटियों को सुधारें।"
+msgstr[1] "कृपया नीचे दी गई त्रुटियों को सुधारें।"
+
+#: core/templates/admin/login.html:33
+#, python-format
+msgid "You are authenticated as %(username)s, but are not authorized to access this page. Would you like to login to a different account?"
+msgstr "आप %(username)s के रूप में प्रमाणित हैं, लेकिन आपको इस पृष्ठ तक पहुंच की अनुमति नहीं है। क्या आप किसी अन्य खाते से लॉगिन करना चाहेंगे?"
+
+#: core/templates/admin/login.html:53
+msgid "Forgotten your login credentials?"
+msgstr "अपने लॉगिन क्रेडेंशियल भूल गए?"
+
+#: core/templates/admin/login.html:56
+msgid "Log in"
+msgstr "लॉग इन करें"
+
+#: preferences/templates/preferences/settings.html:5
+#: shop/templates/shop/base/navbar.html:59
+#: shop/templates/shop/base/navbar.html:95
+msgid "Settings"
+msgstr "सेटिंग्स"
+
+#: preferences/templates/preferences/settings.html:17
+msgid "Personalize"
+msgstr "वैयक्तिकृत करें"
+
+#: preferences/templates/preferences/settings.html:19
+msgid "Site Settings"
+msgstr "साइट सेटिंग्स"
+
+#: preferences/templates/preferences/settings.html:21
+msgid "Set how Shop-Seed looks and feels for you — theme, language, currency, font and accent color."
+msgstr "चुनें कि Shop-Seed आपके लिए कैसा दिखे — थीम, भाषा, मुद्रा, फ़ॉन्ट और एक्सेंट रंग।"
+
+#: preferences/templates/preferences/settings.html:30
+msgid "Saved!"
+msgstr "सहेजा गया!"
+
+#: preferences/templates/preferences/settings.html:39
+msgid "Live preview"
+msgstr "लाइव पूर्वावलोकन"
+
+#: preferences/templates/preferences/settings.html:40
+msgid "This is how your site will look"
+msgstr "आपकी साइट ऐसी दिखेगी"
+
+#: preferences/templates/preferences/settings.html:44
+#: preferences/templates/preferences/settings.html:80
+msgid "Dark"
+msgstr "डार्क"
+
+#: preferences/templates/preferences/settings.html:44
+#: preferences/templates/preferences/settings.html:76
+msgid "Light"
+msgstr "लाइट"
+
+#: preferences/templates/preferences/settings.html:56
+msgid "Shop Now"
+msgstr "अभी खरीदें"
+
+#: preferences/templates/preferences/settings.html:57
+msgid "Preview of your chosen theme, font and accent."
+msgstr "आपकी चुनी हुई थीम, फ़ॉन्ट और एक्सेंट का पूर्वावलोकन।"
+
+#: preferences/templates/preferences/settings.html:68
+msgid "Appearance"
+msgstr "रूप-रंग"
+
+#: preferences/templates/preferences/settings.html:69
+msgid "Choose between light and dark mode."
+msgstr "लाइट और डार्क मोड के बीच चुनें।"
+
+#: preferences/templates/preferences/settings.html:90
+msgid "Language"
+msgstr "भाषा"
+
+#: preferences/templates/preferences/settings.html:91
+msgid "Pick the language for the site."
+msgstr "साइट के लिए भाषा चुनें।"
+
+#: preferences/templates/preferences/settings.html:103
+msgid "Currency"
+msgstr "मुद्रा"
+
+#: preferences/templates/preferences/settings.html:104
+msgid "Prices will be converted to your chosen currency."
+msgstr "कीमतें आपकी चुनी हुई मुद्रा में बदल जाएंगी।"
+
+#: preferences/templates/preferences/settings.html:110
+msgid "Sample:"
+msgstr "नमूना:"
+
+#: preferences/templates/preferences/settings.html:119
+msgid "Font Style"
+msgstr "फ़ॉन्ट शैली"
+
+#: preferences/templates/preferences/settings.html:120
+msgid "Change the typography across the site."
+msgstr "पूरी साइट पर टाइपोग्राफी बदलें।"
+
+#: preferences/templates/preferences/settings.html:139
+msgid "Accent Color"
+msgstr "एक्सेंट रंग"
+
+#: preferences/templates/preferences/settings.html:140
+msgid "Tint buttons, links and highlights."
+msgstr "बटन, लिंक और हाइलाइट्स को रंगें।"
+
+#: preferences/templates/preferences/settings.html:157
+msgid "Reset to Defaults"
+msgstr "डिफ़ॉल्ट पर रीसेट करें"
+
+#: preferences/templates/preferences/settings.html:161
+msgid "Save Preferences"
+msgstr "प्राथमिकताएं सहेजें"
+
+#: preferences/views.py:67
+msgid "Your preferences have been reset to defaults."
+msgstr "आपकी प्राथमिकताएं डिफ़ॉल्ट पर रीसेट कर दी गई हैं।"
+
+#: preferences/views.py:83
+msgid "Your preferences have been saved."
+msgstr "आपकी प्राथमिकताएं सहेज ली गई हैं।"
+
+#: shop/templates/shop/base/footer.html:16
+msgid "India's most trusted e-commerce platform. Discover premium products at unbeatable prices with fast delivery."
+msgstr "भारत का सबसे भरोसेमंद ई-कॉमर्स प्लेटफ़ॉर्म। तेज़ डिलीवरी के साथ बेजोड़ कीमतों पर प्रीमियम उत्पाद खोजें।"
+
+#: shop/templates/shop/base/footer.html:18
+msgid "Enter your email"
+msgstr "अपना ईमेल दर्ज करें"
+
+#: shop/templates/shop/base/footer.html:19
+msgid "Subscribe"
+msgstr "सदस्यता लें"
+
+#: shop/templates/shop/base/footer.html:31
+#: shop/templates/shop/base/navbar.html:13
+#: shop/templates/shop/base/navbar.html:83
+msgid "Shop"
+msgstr "शॉप"
+
+#: shop/templates/shop/base/footer.html:33
+msgid "All Products"
+msgstr "सभी उत्पाद"
+
+#: shop/templates/shop/base/footer.html:34
+#: shop/templates/shop/base/navbar.html:84
+msgid "Today's Deals"
+msgstr "आज के सौदे"
+
+#: shop/templates/shop/base/footer.html:35
+#: shop/templates/shop/base/navbar.html:16
+#: shop/templates/shop/base/navbar.html:87
+msgid "Best Sellers"
+msgstr "बेस्ट सेलर्स"
+
+#: shop/templates/shop/base/footer.html:36
+msgid "New Arrivals"
+msgstr "नए आगमन"
+
+#: shop/templates/shop/base/footer.html:37
+msgid "Categories"
+msgstr "श्रेणियाँ"
+
+#: shop/templates/shop/base/footer.html:42
+msgid "Support"
+msgstr "सहायता"
+
+#: shop/templates/shop/base/footer.html:44
+#: shop/templates/shop/base/navbar.html:91
+msgid "Contact Us"
+msgstr "संपर्क करें"
+
+#: shop/templates/shop/base/footer.html:45
+#: shop/templates/shop/base/navbar.html:93
+msgid "FAQ"
+msgstr "सामान्य प्रश्न"
+
+#: shop/templates/shop/base/footer.html:46
+#: shop/templates/shop/base/navbar.html:17
+msgid "Services"
+msgstr "सेवाएं"
+
+#: shop/templates/shop/base/footer.html:47
+msgid "Shipping Info"
+msgstr "शिपिंग जानकारी"
+
+#: shop/templates/shop/base/footer.html:48
+msgid "Returns"
+msgstr "वापसी"
+
+#: shop/templates/shop/base/footer.html:53
+msgid "Company"
+msgstr "कंपनी"
+
+#: shop/templates/shop/base/footer.html:55
+msgid "About Us"
+msgstr "हमारे बारे में"
+
+#: shop/templates/shop/base/footer.html:56
+msgid "Sell With Us"
+msgstr "हमारे साथ बेचें"
+
+#: shop/templates/shop/base/footer.html:57
+#: shop/templates/shop/base/navbar.html:92
+msgid "Join Shop-Seed"
+msgstr "Shop-Seed से जुड़ें"
+
+#: shop/templates/shop/base/footer.html:58
+msgid "Documentation"
+msgstr "दस्तावेज़ीकरण"
+
+#: shop/templates/shop/base/footer.html:59
+msgid "Privacy Policy"
+msgstr "गोपनीयता नीति"
+
+#: shop/templates/shop/base/footer.html:60
+msgid "Terms of Service"
+msgstr "सेवा की शर्तें"
+
+#: shop/templates/shop/base/footer.html:66
+msgid "&copy; 2026 Shop-Seed. All rights reserved."
+msgstr "© 2026 Shop-Seed. सर्वाधिकार सुरक्षित।"
+
+#: shop/templates/shop/base/navbar.html:12
+#: shop/templates/shop/base/navbar.html:82
+msgid "Home"
+msgstr "होम"
+
+#: shop/templates/shop/base/navbar.html:14
+msgid "Deals"
+msgstr "सौदे"
+
+#: shop/templates/shop/base/navbar.html:15
+#: shop/templates/shop/base/navbar.html:85
+msgid "About"
+msgstr "परिचय"
+
+#: shop/templates/shop/base/navbar.html:18
+msgid "Blog"
+msgstr "ब्लॉग"
+
+#: shop/templates/shop/base/navbar.html:25
+msgid "Search products..."
+msgstr "उत्पाद खोजें..."
+
+#: shop/templates/shop/base/navbar.html:52
+msgid "Dashboard"
+msgstr "डैशबोर्ड"
+
+#: shop/templates/shop/base/navbar.html:55
+msgid "Admin"
+msgstr "एडमिन"
+
+#: shop/templates/shop/base/navbar.html:57
+msgid "Your Profile"
+msgstr "आपकी प्रोफ़ाइल"
+
+#: shop/templates/shop/base/navbar.html:58
+msgid "Returns & Orders"
+msgstr "वापसी और ऑर्डर"
+
+#: shop/templates/shop/base/navbar.html:61
+msgid "Logout"
+msgstr "लॉगआउट"
+
+#: shop/templates/shop/base/navbar.html:86
+msgid "Big Billion Days"
+msgstr "बिग बिलियन डेज़"
+
+#: shop/templates/shop/base/navbar.html:88
+msgid "Customer Services"
+msgstr "ग्राहक सेवाएं"
+
+#: shop/templates/shop/base/navbar.html:89
+msgid "Market Blog"
+msgstr "मार्केट ब्लॉग"
+
+#: shop/templates/shop/base/navbar.html:90
+msgid "Sellers Registration"
+msgstr "विक्रेता पंजीकरण"

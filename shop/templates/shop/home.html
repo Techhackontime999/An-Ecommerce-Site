@@ -1,5 +1,6 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
+{% load preference_extras %}
 
 {% block title %}Shop-Seed — Premium E-Commerce{% endblock %}
 
@@ -233,10 +234,10 @@
             {% endwith %}
             <div class="product-aq-price">
               {% if product.current_price and product.current_price != product.price %}
-              <span>${{ product.current_price }}</span>
-              <span class="original">${{ product.price }}</span>
+              <span>{% price product.current_price %}</span>
+              <span class="original">{% price product.price %}</span>
               {% else %}
-              <span>${{ product.price }}</span>
+              <span>{% price product.price %}</span>
               {% endif %}
             </div>
             <div class="product-aq-actions">
@@ -320,10 +321,10 @@
             {% endwith %}
             <div class="product-aq-price">
               {% if product.current_price and product.current_price != product.price %}
-              <span>${{ product.current_price }}</span>
-              <span class="original">${{ product.price }}</span>
+              <span>{% price product.current_price %}</span>
+              <span class="original">{% price product.price %}</span>
               {% else %}
-              <span>${{ product.price }}</span>
+              <span>{% price product.price %}</span>
               {% endif %}
             </div>
             <div class="product-aq-actions">

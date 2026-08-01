@@ -1,0 +1,305 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-01 01:27+0000\n"
+"PO-Revision-Date: 2026-08-01 01:27+0000\n"
+"Last-Translator: Shop-Seed Team <translations@shop-seed.local>\n"
+"Language-Team: Spanish <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
+
+#: core/templates/admin/login.html:21
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] "Corrija los errores a continuación."
+msgstr[1] "Corrija los errores a continuación."
+
+#: core/templates/admin/login.html:33
+#, python-format
+msgid "You are authenticated as %(username)s, but are not authorized to access this page. Would you like to login to a different account?"
+msgstr "Está autenticado como %(username)s, pero no está autorizado a acceder a esta página. ¿Desea iniciar sesión con una cuenta diferente?"
+
+#: core/templates/admin/login.html:53
+msgid "Forgotten your login credentials?"
+msgstr "¿Olvidó sus credenciales de inicio de sesión?"
+
+#: core/templates/admin/login.html:56
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+#: preferences/templates/preferences/settings.html:5
+#: shop/templates/shop/base/navbar.html:59
+#: shop/templates/shop/base/navbar.html:95
+msgid "Settings"
+msgstr "Ajustes"
+
+#: preferences/templates/preferences/settings.html:17
+msgid "Personalize"
+msgstr "Personalizar"
+
+#: preferences/templates/preferences/settings.html:19
+msgid "Site Settings"
+msgstr "Ajustes del sitio"
+
+#: preferences/templates/preferences/settings.html:21
+msgid "Set how Shop-Seed looks and feels for you — theme, language, currency, font and accent color."
+msgstr "Elige cómo se ve Shop-Seed para ti: tema, idioma, moneda, tipografía y color de acento."
+
+#: preferences/templates/preferences/settings.html:30
+msgid "Saved!"
+msgstr "¡Guardado!"
+
+#: preferences/templates/preferences/settings.html:39
+msgid "Live preview"
+msgstr "Vista previa en vivo"
+
+#: preferences/templates/preferences/settings.html:40
+msgid "This is how your site will look"
+msgstr "Así se verá tu sitio"
+
+#: preferences/templates/preferences/settings.html:44
+#: preferences/templates/preferences/settings.html:80
+msgid "Dark"
+msgstr "Oscuro"
+
+#: preferences/templates/preferences/settings.html:44
+#: preferences/templates/preferences/settings.html:76
+msgid "Light"
+msgstr "Claro"
+
+#: preferences/templates/preferences/settings.html:56
+msgid "Shop Now"
+msgstr "Comprar ahora"
+
+#: preferences/templates/preferences/settings.html:57
+msgid "Preview of your chosen theme, font and accent."
+msgstr "Vista previa de tu tema, tipografía y acento elegidos."
+
+#: preferences/templates/preferences/settings.html:68
+msgid "Appearance"
+msgstr "Apariencia"
+
+#: preferences/templates/preferences/settings.html:69
+msgid "Choose between light and dark mode."
+msgstr "Elige entre modo claro y oscuro."
+
+#: preferences/templates/preferences/settings.html:90
+msgid "Language"
+msgstr "Idioma"
+
+#: preferences/templates/preferences/settings.html:91
+msgid "Pick the language for the site."
+msgstr "Elige el idioma del sitio."
+
+#: preferences/templates/preferences/settings.html:103
+msgid "Currency"
+msgstr "Moneda"
+
+#: preferences/templates/preferences/settings.html:104
+msgid "Prices will be converted to your chosen currency."
+msgstr "Los precios se convertirán a tu moneda elegida."
+
+#: preferences/templates/preferences/settings.html:110
+msgid "Sample:"
+msgstr "Ejemplo:"
+
+#: preferences/templates/preferences/settings.html:119
+msgid "Font Style"
+msgstr "Estilo de letra"
+
+#: preferences/templates/preferences/settings.html:120
+msgid "Change the typography across the site."
+msgstr "Cambia la tipografía de todo el sitio."
+
+#: preferences/templates/preferences/settings.html:139
+msgid "Accent Color"
+msgstr "Color de acento"
+
+#: preferences/templates/preferences/settings.html:140
+msgid "Tint buttons, links and highlights."
+msgstr "Colorea botones, enlaces y resaltados."
+
+#: preferences/templates/preferences/settings.html:157
+msgid "Reset to Defaults"
+msgstr "Restablecer valores"
+
+#: preferences/templates/preferences/settings.html:161
+msgid "Save Preferences"
+msgstr "Guardar preferencias"
+
+#: preferences/views.py:67
+msgid "Your preferences have been reset to defaults."
+msgstr "Tus preferencias se han restablecido."
+
+#: preferences/views.py:83
+msgid "Your preferences have been saved."
+msgstr "Tus preferencias se han guardado."
+
+#: shop/templates/shop/base/footer.html:16
+msgid "India's most trusted e-commerce platform. Discover premium products at unbeatable prices with fast delivery."
+msgstr "La plataforma de comercio electrónico más confiable de la India. Descubre productos premium a precios imbatibles con entrega rápida."
+
+#: shop/templates/shop/base/footer.html:18
+msgid "Enter your email"
+msgstr "Introduce tu correo"
+
+#: shop/templates/shop/base/footer.html:19
+msgid "Subscribe"
+msgstr "Suscribirse"
+
+#: shop/templates/shop/base/footer.html:31
+#: shop/templates/shop/base/navbar.html:13
+#: shop/templates/shop/base/navbar.html:83
+msgid "Shop"
+msgstr "Tienda"
+
+#: shop/templates/shop/base/footer.html:33
+msgid "All Products"
+msgstr "Todos los productos"
+
+#: shop/templates/shop/base/footer.html:34
+#: shop/templates/shop/base/navbar.html:84
+msgid "Today's Deals"
+msgstr "Ofertas de hoy"
+
+#: shop/templates/shop/base/footer.html:35
+#: shop/templates/shop/base/navbar.html:16
+#: shop/templates/shop/base/navbar.html:87
+msgid "Best Sellers"
+msgstr "Más vendidos"
+
+#: shop/templates/shop/base/footer.html:36
+msgid "New Arrivals"
+msgstr "Novedades"
+
+#: shop/templates/shop/base/footer.html:37
+msgid "Categories"
+msgstr "Categorías"
+
+#: shop/templates/shop/base/footer.html:42
+msgid "Support"
+msgstr "Soporte"
+
+#: shop/templates/shop/base/footer.html:44
+#: shop/templates/shop/base/navbar.html:91
+msgid "Contact Us"
+msgstr "Contáctanos"
+
+#: shop/templates/shop/base/footer.html:45
+#: shop/templates/shop/base/navbar.html:93
+msgid "FAQ"
+msgstr "Preguntas frecuentes"
+
+#: shop/templates/shop/base/footer.html:46
+#: shop/templates/shop/base/navbar.html:17
+msgid "Services"
+msgstr "Servicios"
+
+#: shop/templates/shop/base/footer.html:47
+msgid "Shipping Info"
+msgstr "Información de envío"
+
+#: shop/templates/shop/base/footer.html:48
+msgid "Returns"
+msgstr "Devoluciones"
+
+#: shop/templates/shop/base/footer.html:53
+msgid "Company"
+msgstr "Empresa"
+
+#: shop/templates/shop/base/footer.html:55
+msgid "About Us"
+msgstr "Sobre nosotros"
+
+#: shop/templates/shop/base/footer.html:56
+msgid "Sell With Us"
+msgstr "Vende con nosotros"
+
+#: shop/templates/shop/base/footer.html:57
+#: shop/templates/shop/base/navbar.html:92
+msgid "Join Shop-Seed"
+msgstr "Únete a Shop-Seed"
+
+#: shop/templates/shop/base/footer.html:58
+msgid "Documentation"
+msgstr "Documentación"
+
+#: shop/templates/shop/base/footer.html:59
+msgid "Privacy Policy"
+msgstr "Política de privacidad"
+
+#: shop/templates/shop/base/footer.html:60
+msgid "Terms of Service"
+msgstr "Términos del servicio"
+
+#: shop/templates/shop/base/footer.html:66
+msgid "&copy; 2026 Shop-Seed. All rights reserved."
+msgstr "© 2026 Shop-Seed. Todos los derechos reservados."
+
+#: shop/templates/shop/base/navbar.html:12
+#: shop/templates/shop/base/navbar.html:82
+msgid "Home"
+msgstr "Inicio"
+
+#: shop/templates/shop/base/navbar.html:14
+msgid "Deals"
+msgstr "Ofertas"
+
+#: shop/templates/shop/base/navbar.html:15
+#: shop/templates/shop/base/navbar.html:85
+msgid "About"
+msgstr "Acerca de"
+
+#: shop/templates/shop/base/navbar.html:18
+msgid "Blog"
+msgstr "Blog"
+
+#: shop/templates/shop/base/navbar.html:25
+msgid "Search products..."
+msgstr "Buscar productos..."
+
+#: shop/templates/shop/base/navbar.html:52
+msgid "Dashboard"
+msgstr "Panel"
+
+#: shop/templates/shop/base/navbar.html:55
+msgid "Admin"
+msgstr "Administración"
+
+#: shop/templates/shop/base/navbar.html:57
+msgid "Your Profile"
+msgstr "Tu perfil"
+
+#: shop/templates/shop/base/navbar.html:58
+msgid "Returns & Orders"
+msgstr "Devoluciones y pedidos"
+
+#: shop/templates/shop/base/navbar.html:61
+msgid "Logout"
+msgstr "Cerrar sesión"
+
+#: shop/templates/shop/base/navbar.html:86
+msgid "Big Billion Days"
+msgstr "Big Billion Days"
+
+#: shop/templates/shop/base/navbar.html:88
+msgid "Customer Services"
+msgstr "Atención al cliente"
+
+#: shop/templates/shop/base/navbar.html:89
+msgid "Market Blog"
+msgstr "Blog del mercado"
+
+#: shop/templates/shop/base/navbar.html:90
+msgid "Sellers Registration"
+msgstr "Registro de vendedores"

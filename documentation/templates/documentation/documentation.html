@@ -1,70 +1,209 @@
 {% extends 'shop/base/base.html' %}
-{{ your_model.rich_text_field|safe }}
+{% load static %}
+
+{% block title %}Documentation — Shop-Seed{% endblock %}
 
 {% block content %}
-<div class="container-fluid my-5 px-4">
-  <div class="d-flex justify-content-end mb-3 mx-auto">
-    <a style="color: #7971ea;" href="{% url 'doc:download_pdf' %}" class="btn btn-white mr-3"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#999999"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg> pdf</a>
-    <a style="color: #7971ea;" href="{% url 'doc:download_word' %}" class="btn btn-white "><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#999999"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg> Word doc</a>
-  </div>
 
-  <div class="row">
-    <!-- Sidebar -->
-    <div class="col-md-3 my-3 ">
-      <div class="list-group position-sticky" style="top: 100px;">
-        {% for section in documentation_sections %}
-        <a href="#{{ section.slug }}" class="list-group-item list-group-item-action" data-target="{{ section.slug }}">{{ section.title }}</a>
-        {% endfor %}
+<!-- ─── Hero ───────────────────────────────────────────── -->
+<section class="doc-hero">
+  <div class="doc-hero-glow doc-hero-glow-a" aria-hidden="true"></div>
+  <div class="doc-hero-glow doc-hero-glow-b" aria-hidden="true"></div>
+  <div class="doc-hero-dots" aria-hidden="true"></div>
+
+  <div class="container-aq doc-hero-inner">
+    <div class="doc-hero-copy">
+      <span class="hero-aq-badge fade-up"><i class="fas fa-book-open"></i> Documentation <span class="doc-hero-ver">v1.0</span></span>
+      <h1 class="doc-hero-title fade-up fade-up-delay-1">
+        Everything you need to <span class="doc-hero-accent">get started</span>
+      </h1>
+      <p class="doc-hero-sub fade-up fade-up-delay-2">
+        Step-by-step guides for buyers and sellers — from placing your first
+        order to growing a full store on Shop-Seed.
+      </p>
+      <div class="doc-hero-actions fade-up fade-up-delay-3">
+        <a href="{% url 'doc:download_pdf' %}" class="doc-btn-primary"><i class="fas fa-file-pdf"></i> Download PDF</a>
+        <a href="{% url 'doc:download_word' %}" class="doc-btn-ghost"><i class="fas fa-file-word"></i> Word doc</a>
       </div>
     </div>
 
-   <!-- Content -->
-<div class="col-md-9">
-  {% for section in documentation_sections %}
-  <section class="row align-items-start mb-5" id="{{ section.slug }}">
-    <!-- Content Left -->
-    <div class="col-12 col-md-8 mb-3 mb-md-0">
-      <h2>{{ section.icon|safe }} {{ section.title }}</h2>
-      <pre>{{ section.content|safe }}</pre>
+    <div class="doc-hero-visual fade-up fade-up-delay-2">
+      <div class="doc-quick-card">
+        <div class="doc-quick-head">
+          <span class="doc-quick-icon"><i class="fas fa-bolt"></i></span>
+          <div>
+            <strong>Inside this guide</strong>
+            <small>{{ documentation_sections.count }} sections · ~{{ read_time }} min read</small>
+          </div>
+        </div>
+        <div class="doc-quick-list">
+          {% for section in documentation_sections %}
+          <a href="#{{ section.slug }}" class="doc-quick-item">
+            <span class="doc-quick-num">{{ forloop.counter|stringformat:"02d" }}</span>
+            <span class="doc-quick-title">{{ section.title }}</span>
+            <i class="fas fa-arrow-right doc-quick-arrow" aria-hidden="true"></i>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
     </div>
-  
-    <!-- Image Right -->
-    {% if section.image %}
-    <div class="col-12 col-md-4">
-      <img src="{{ section.image.url }}" alt="{{ section.title }}" class="img-fluid rounded shadow-sm">
-    </div>
-    {% endif %}
-  </section>
-  
-  <hr>
-  {% endfor %}
-</div>
-
   </div>
-</div>
+</section>
 
-<!-- Add this JavaScript at the end of the block to ensure smooth scrolling and active link management -->
+<!-- ─── Body ───────────────────────────────────────────── -->
+<section class="doc-body">
+  <div class="container-aq doc-grid">
+    <aside class="doc-aside fade-up fade-up-delay-1">
+      <div class="doc-nav">
+        <div class="doc-nav-head">
+          <strong>On this page</strong>
+          <span class="doc-nav-count">{{ documentation_sections.count }} sections</span>
+        </div>
+        <div class="doc-nav-search">
+          <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="text" id="doc-search" placeholder="Filter guide..." autocomplete="off" aria-label="Filter documentation sections">
+        </div>
+        <nav class="doc-nav-list" id="doc-nav-list" aria-label="Documentation sections">
+          {% for section in documentation_sections %}
+          <a href="#{{ section.slug }}" class="doc-nav-link" data-target="{{ section.slug }}">
+            <span class="doc-nav-num">{{ forloop.counter|stringformat:"02d" }}</span>
+            <span class="doc-nav-text">{{ section.title }}</span>
+          </a>
+          {% endfor %}
+        </nav>
+        <div class="doc-nav-download">
+          <span>Prefer a file?</span>
+          <a href="{% url 'doc:download_pdf' %}"><i class="fas fa-file-pdf"></i> PDF</a>
+          <a href="{% url 'doc:download_word' %}"><i class="fas fa-file-word"></i> Word</a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="doc-main fade-up fade-up-delay-1">
+      <div class="doc-empty" id="doc-no-results" role="status" hidden>
+        <i class="fas fa-magnifying-glass"></i>
+        <h3>No sections found</h3>
+        <p>Nothing matches your search. Try a different keyword.</p>
+      </div>
+
+      {% for section in documentation_sections %}
+      <article class="doc-section" id="{{ section.slug }}" data-search="{{ section.title|lower }} {{ section.content|striptags|lower }}">
+        <header class="doc-section-head">
+          <span class="doc-section-icon"><i class="fas {{ section.disp_icon }}"></i></span>
+          <div>
+            <span class="doc-section-index">Section {{ forloop.counter|stringformat:"02d" }}</span>
+            <h2 class="doc-section-title">{{ section.title }}</h2>
+          </div>
+        </header>
+
+        <div class="doc-content">
+          {{ section.content|safe }}
+        </div>
+
+        {% if section.image %}
+        <figure class="doc-figure">
+          <img src="{{ section.image.url }}" alt="{{ section.title }}">
+        </figure>
+        {% endif %}
+      </article>
+      {% empty %}
+      <div class="doc-empty">
+        <i class="fas fa-inbox"></i>
+        <h3>No documentation yet</h3>
+        <p>We're writing the guide. Check back soon.</p>
+      </div>
+      {% endfor %}
+
+      {% if documentation_sections %}
+      <div class="doc-end">
+        <span class="doc-end-icon"><i class="fas fa-flag-checkered"></i></span>
+        <div>
+          <h3>You've reached the end</h3>
+          <p>That covers everything in the guide. Need more help? Reach out any time.</p>
+        </div>
+        <a href="#" class="doc-end-top" id="doc-back-top">Back to top <i class="fas fa-arrow-up"></i></a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ───────────────────────────────────────────── -->
+<section class="doc-cta">
+  <div class="container-aq">
+    <div class="doc-cta-card fade-up">
+      <div class="doc-cta-glow" aria-hidden="true"></div>
+      <span class="doc-cta-icon"><i class="fas fa-comments"></i></span>
+      <h2 class="doc-cta-title">Can't find what you're looking for?</h2>
+      <p class="doc-cta-sub">
+        Our support team is happy to help with anything not covered in the guide.
+      </p>
+      <div class="doc-cta-actions">
+        <a href="{% url 'contact:contact' %}" class="doc-btn-primary">Contact support</a>
+        <a href="{% url 'faq:faq' %}" class="doc-btn-ghost doc-btn-ghost--soft">Browse the FAQ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
 <script>
-  // Smooth scroll behavior
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
+  (function () {
+    var sections = Array.prototype.slice.call(document.querySelectorAll('.doc-section'));
+    var navLinks = Array.prototype.slice.call(document.querySelectorAll('.doc-nav-link'));
+    var search = document.getElementById('doc-search');
+    var emptyState = document.getElementById('doc-no-results');
+    var backTop = document.getElementById('doc-back-top');
 
-      // Scroll to the target section
-      document.querySelector(this.getAttribute('href')).scrollIntoView({
-        behavior: 'smooth'
+    function setActive(id) {
+      navLinks.forEach(function (link) {
+        link.classList.toggle('is-active', link.getAttribute('data-target') === id);
+      });
+    }
+
+    navLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        setActive(link.getAttribute('data-target'));
       });
     });
-  });
 
-  // Add/remove 'active' class when clicking on sidebar links
-  const links = document.querySelectorAll('.list-group-item');
-  
-  links.forEach(link => {
-    link.addEventListener('click', function () {
-      links.forEach(link => link.classList.remove('active'));  // Remove 'active' from all links
-      this.classList.add('active');  // Add 'active' to the clicked link
-    });
-  });
+    if ('IntersectionObserver' in window) {
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      sections.forEach(function (section) { spy.observe(section); });
+    }
+
+    if (search) {
+      search.addEventListener('input', function () {
+        var q = search.value.trim().toLowerCase();
+        var visible = 0;
+        sections.forEach(function (section) {
+          var hay = section.getAttribute('data-search') || '';
+          var match = !q || hay.indexOf(q) !== -1;
+          section.classList.toggle('is-hidden', !match);
+          if (match) visible += 1;
+        });
+        navLinks.forEach(function (link) {
+          var section = document.getElementById(link.getAttribute('data-target'));
+          if (section) link.classList.toggle('is-hidden', section.classList.contains('is-hidden'));
+        });
+        if (emptyState) emptyState.hidden = visible > 0;
+      });
+    }
+
+    if (backTop) {
+      backTop.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    if (window.AOS) AOS.refresh();
+  })();
 </script>
 {% endblock %}

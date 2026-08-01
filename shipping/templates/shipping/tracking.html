@@ -1,4 +1,5 @@
 {% extends "shop/base/base.html" %}
+{% load preference_extras %}
 {% block title %}Order Tracking{% endblock %}
 
 {% block content %}
@@ -23,9 +24,9 @@
                 <div class="card-body">
                     <p class="mb-1"><strong>Placed on:</strong> {{ order.created|date:"F j, Y, g:i A" }}</p>
                     {% if order.shipping_method_name %}
-                    <p class="mb-1"><strong>Shipping:</strong> {{ order.shipping_method_name }} (₹{{ order.shipping_cost }})</p>
+                    <p class="mb-1"><strong>Shipping:</strong> {{ order.shipping_method_name }} ({% price order.shipping_cost %})</p>
                     {% endif %}
-                    <p class="mb-0"><strong>Total:</strong> ₹{{ order.get_total_cost }}</p>
+                    <p class="mb-0"><strong>Total:</strong> {% price order.get_total_cost %}</p>
                 </div>
             </div>
 
@@ -119,7 +120,7 @@
                 <div class="card-body">
                     <p class="mb-1"><strong>{{ shipment.shipping_method.name }}</strong></p>
                     <p class="mb-1">Estimated delivery: {{ shipment.shipping_method.estimated_delivery_days }}</p>
-                    <p class="mb-0">Cost: ₹{{ shipment.shipping_method.price }}</p>
+                    <p class="mb-0">Cost: {% price shipment.shipping_method.price %}</p>
                 </div>
             </div>
             {% endif %}

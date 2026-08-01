@@ -14,6 +14,7 @@
       this.scrollProgress();
       this.heroParallax();
       this.parallaxShowcase();
+      this.themeManager();
     },
 
     navbar: function() {
@@ -330,6 +331,43 @@
       window.addEventListener('scroll', requestUpdate, { passive: true });
       window.addEventListener('resize', requestUpdate, { passive: true });
       update();
+    },
+
+    themeManager: function() {
+      const root = document.documentElement;
+      const toggle = document.querySelector('[data-theme-toggle]');
+      if (!toggle) return;
+
+      const STORAGE_KEY = 'aq-theme';
+
+      const persist = (theme) => {
+        try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
+        if (!window.fetch) return;
+        const form = new URLSearchParams();
+        form.set('theme', theme);
+        fetch(toggle.getAttribute('data-url') || '/preferences/toggle-theme/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': toggle.getAttribute('data-csrf') || '',
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          credentials: 'same-origin',
+          body: form.toString()
+        }).catch(() => {});
+      };
+
+      // Apply a brief transition only while switching (avoids flashing on load).
+      const enableTransition = () => {
+        root.classList.add('aq-theming');
+        window.setTimeout(() => root.classList.remove('aq-theming'), 450);
+      };
+
+      toggle.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        enableTransition();
+        root.setAttribute('data-theme', next);
+        persist(next);
+      });
     }
   };
 
