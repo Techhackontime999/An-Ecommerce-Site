@@ -10160,6 +10160,130 @@ a.contact-info-value:hover {
   background: var(--aq-accent-subtle);
 }
 
+/* ─── Legal pages (privacy / terms) ─── */
+
+.lg-body {
+  padding: 1rem 0 5rem;
+}
+
+.lg-card {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: var(--aq-surface);
+  border: 1px solid var(--aq-border);
+  border-radius: var(--aq-radius-lg);
+  box-shadow: var(--aq-shadow);
+}
+
+.lg-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem 1.25rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--aq-border);
+}
+
+.lg-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--aq-body);
+}
+
+.lg-meta i {
+  color: var(--aq-accent);
+}
+
+.lg-section {
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--aq-border);
+}
+
+.lg-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.lg-section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 0.875rem;
+}
+
+.lg-section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: var(--aq-radius-sm);
+  background: var(--aq-accent-subtle);
+  color: var(--aq-accent-dark);
+  font-size: 1rem;
+}
+
+.lg-section-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--aq-ink);
+  letter-spacing: -0.01em;
+}
+
+.lg-section-body {
+  padding-left: 0;
+}
+
+@media (min-width: 640px) {
+  .lg-section-body {
+    padding-left: 3.375rem;
+  }
+}
+
+.lg-section-body p {
+  margin: 0 0 0.875rem;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--aq-body);
+}
+
+.lg-section-body p:last-child {
+  margin-bottom: 0;
+}
+
+.lg-section-body ul {
+  margin: 0 0 0.875rem;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.lg-section-body li {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--aq-body);
+}
+
+.lg-section-body li::marker {
+  color: var(--aq-accent);
+}
+
+.lg-section-body a {
+  color: var(--aq-accent-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lg-section-body a:hover {
+  text-decoration: none;
+}
+
 /* ─── User preferences: themes, fonts, accents ─── */
 
 html[data-theme="dark"] {

@@ -56,8 +56,8 @@
           <li><a href="{% url 'accounts:seller_register' %}">{% trans "Sell With Us" %}</a></li>
           <li><a href="{% url 'accounts:signup' %}">{% trans "Join Shop-Seed" %}</a></li>
           <li><a href="{% url 'doc:documentation' %}">{% trans "Documentation" %}</a></li>
-          <li><a href="#">{% trans "Privacy Policy" %}</a></li>
-          <li><a href="#">{% trans "Terms of Service" %}</a></li>
+          <li><a href="{% url 'legal:privacy' %}">{% trans "Privacy Policy" %}</a></li>
+          <li><a href="{% url 'legal:terms' %}">{% trans "Terms of Service" %}</a></li>
         </ul>
       </div>
     </div>

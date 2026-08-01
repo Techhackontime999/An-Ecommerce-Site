@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'shipping.apps.ShippingConfig',
     'preferences.apps.PreferencesConfig',
     'news.apps.NewsConfig',
+    'legal.apps.LegalConfig',
 ]
 
 MIDDLEWARE = [

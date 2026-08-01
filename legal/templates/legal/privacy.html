@@ -1,0 +1,147 @@
+{% extends 'shop/base/base.html' %}
+
+{% block title %}Privacy Policy — Shop-Seed{% endblock %}
+
+{% block content %}
+<section class="fq-hero">
+  <div class="fq-hero-glow fq-hero-glow-a" aria-hidden="true"></div>
+  <div class="fq-hero-glow fq-hero-glow-b" aria-hidden="true"></div>
+  <div class="fq-hero-dots" aria-hidden="true"></div>
+
+  <div class="container-aq fq-hero-inner">
+    <nav class="breadcrumb-aq ord-breadcrumb" aria-label="breadcrumb">
+      <a href="{% url 'shop:home' %}">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Privacy Policy</span>
+    </nav>
+    <span class="hero-aq-badge fade-up"><i class="fas fa-shield-halved"></i> Legal</span>
+    <h1 class="fq-hero-title fade-up fade-up-delay-1">Our <span class="fq-hero-accent">Privacy Policy</span></h1>
+    <p class="fq-hero-sub fade-up fade-up-delay-2">
+      Your privacy matters to us. This policy explains what information we collect,
+      how we use it, and the choices you have to keep your data safe.
+    </p>
+  </div>
+</section>
+
+<section class="lg-body">
+  <div class="container-aq">
+    <div class="lg-card">
+      <div class="lg-meta">
+        <span><i class="fas fa-calendar-day"></i> Last updated: August 1, 2026</span>
+        <span><i class="fas fa-clock"></i> Effective immediately</span>
+      </div>
+
+      <article class="lg-section">
+        <div class="lg-section-head">
+          <span class="lg-section-icon"><i class="fas fa-database"></i></span>
+          <h2 class="lg-section-title">1. Information we collect</h2>
+        </div>
+        <div class="lg-section-body">
+          <p>We collect the minimum information needed to provide our services. Depending on how you use Shop-Seed, this may include:</p>
+          <ul>
+            <li>Account details such as your name, email address, phone number, and password.</li>
+            <li>Delivery information such as your shipping address and postal code.</li>
+            <li>Order history, wishlist, reviews, and payment status (payment itself is processed by secure third-party gateways).</li>
+            <li>Device and usage data such as browser type, pages visited, and preferences like language, currency, and theme.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="lg-section">
+        <div class="lg-section-head">
+          <span class="lg-section-icon"><i class="fas fa-circle-check"></i></span>
+          <h2 class="lg-section-title">2. How we use your information</h2>
+        </div>
+        <div class="lg-section-body">
+          <p>We use your information only for legitimate business purposes, including to:</p>
+          <ul>
+            <li>Process and deliver your orders, including arranging shipping and updates.</li>
+            <li>Personalise your experience with themes, language, and currency preferences.</li>
+            <li>Provide customer support and respond to your requests.</li>
+            <li>Send order confirmations, service notifications, and — only with your consent — promotional offers.</li>
+            <li>Prevent fraud, abuse, and secure our platform.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="lg-section">
+        <div class="lg-section-head">
+          <span class="lg-section-icon"><i class="fas fa-share-nodes"></i></span>
+          <h2 class="lg-section-title">3. Sharing your information</h2>
+        </div>
+        <div class="lg-section-body">
+          <p>We never sell your personal information. We share it only when necessary with:</p>
+          <ul>
+            <li>Delivery partners to ship your orders to you.</li>
+            <li>Payment providers to securely process transactions.</li>
+            <li>Service providers who help us run the platform, under strict confidentiality agreements.</li>
+            <li>Law enforcement or regulators when required by law.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="lg-section">
+        <div class="lg-section-head">
+          <span class="lg-section-icon"><i class="fas fa-cookie-bite"></i></span>
+          <h2 class="lg-section-title">4. Cookies and local storage</h2>
+        </div>
+        <div class="lg-section-body">
+          <p>
+            We use cookies and browser local storage to keep you signed in, remember your
+            shopping cart, and remember your preferences such as theme and language.
+            You can clear or block these in your browser settings at any time.
+          </p>
+        </div>
+      </article>
+
+      <article class="lg-section">
+        <div class="lg-section-head">
+          <span class="lg-section-icon"><i class="fas fa-lock"></i></span>
+          <h2 class="lg-section-title">5. Data security</h2>
+        </div>
+        <div class="lg-section-body">
+          <p>
+            We use industry-standard safeguards including encrypted connections (HTTPS),
+            hashed passwords, and restricted access controls to protect your data.
+            While no method is 100% secure, we work hard to keep your information safe.
+          </p>
+        </div>
+      </article>
+
+      <article class="lg-section">
+        <div class="lg-section-head">
+          <span class="lg-section-icon"><i class="fas fa-user-gear"></i></span>
+          <h2 class="lg-section-title">6. Your rights</h2>
+        </div>
+        <div class="lg-section-body">
+          <p>Depending on your location, you may have the right to:</p>
+          <ul>
+            <li>Access, update, or correct your personal information.</li>
+            <li>Request deletion of your account and data.</li>
+            <li>Object to or restrict certain processing.</li>
+            <li>Export your data in a portable format.</li>
+          </ul>
+          <p>
+            To exercise any of these rights, contact us and we will respond within a
+            reasonable time. You can also reach us any time via the contact page.
+          </p>
+        </div>
+      </article>
+
+      <article class="lg-section">
+        <div class="lg-section-head">
+          <span class="lg-section-icon"><i class="fas fa-envelope"></i></span>
+          <h2 class="lg-section-title">7. Contact us</h2>
+        </div>
+        <div class="lg-section-body">
+          <p>
+            If you have questions about this policy or how we handle your data, email us at
+            <a href="mailto:support@shopseed.com">support@shopseed.com</a> or visit our
+            <a href="{% url 'contact:contact' %}">contact page</a>.
+          </p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+{% endblock %}
