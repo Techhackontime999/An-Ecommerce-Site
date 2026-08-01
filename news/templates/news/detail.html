@@ -1,0 +1,52 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ item.title }} — Shop-Seed{% endblock %}
+
+{% block content %}
+<div class="news-page-aq">
+  <div class="news-page-aq-hero news-page-aq-hero--detail">
+    <div class="news-page-aq-hero-inner">
+      <a href="{% url 'news:list' %}" class="news-detail-aq-back">
+        <i class="fas fa-arrow-left"></i> {% trans "All announcements" %}
+      </a>
+      <span class="hero-aq-badge">
+        <i class="fas {% if item.kind == 'event' %}fa-calendar-check{% elif item.kind == 'news' %}fa-newspaper{% else %}fa-bullhorn{% endif %}"></i>
+        {{ item.get_kind_display }}
+      </span>
+      <h1 class="display-section">{{ item.title }}</h1>
+      <p class="news-detail-aq-meta">
+        <i class="fas fa-user"></i> {{ item.author.get_full_name|default:item.author.username }} &nbsp;•&nbsp;
+        <i class="fas fa-clock"></i> {{ item.publish_at|date:"F j, Y" }}
+      </p>
+    </div>
+  </div>
+
+  <div class="container-aq">
+    <div class="news-detail-aq-layout">
+      <article class="news-detail-aq-body">
+        {{ item.body|safe }}
+      </article>
+
+      {% if other_items %}
+      <aside class="news-detail-aq-side">
+        <h3 class="news-detail-aq-side-title">{% trans "More updates" %}</h3>
+        {% for other in other_items %}
+        <a href="{{ other.get_absolute_url }}" class="news-detail-aq-more-item">
+          <span class="news-detail-aq-more-kind">
+            <i class="fas {% if other.kind == 'event' %}fa-calendar-check{% elif other.kind == 'news' %}fa-newspaper{% else %}fa-bullhorn{% endif %}"></i>
+          </span>
+          <div>
+            <span class="news-detail-aq-more-date">{{ other.publish_at|date:"M j, Y" }}</span>
+            <span class="news-detail-aq-more-title">{{ other.title }}</span>
+          </div>
+        </a>
+        {% endfor %}
+        <a href="{% url 'news:list' %}" class="btn-aq btn-aq-ghost">{% trans "View all" %}</a>
+      </aside>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

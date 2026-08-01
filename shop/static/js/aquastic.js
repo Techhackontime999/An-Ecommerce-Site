@@ -15,18 +15,17 @@
       this.heroParallax();
       this.parallaxShowcase();
       this.themeManager();
+      this.quickPrefs();
     },
 
     navbar: function() {
       const nav = document.querySelector('.nav-aq');
-      if (!nav) return;
 
       const handleScroll = () => {
         requestAnimationFrame(() => {
-          if (window.scrollY > 50) {
-            nav.classList.add('scrolled');
-          } else {
-            nav.classList.remove('scrolled');
+          document.body.classList.toggle('scrolled', window.scrollY > 5);
+          if (nav) {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
           }
         });
       };
@@ -367,6 +366,38 @@
         enableTransition();
         root.setAttribute('data-theme', next);
         persist(next);
+      });
+    },
+
+    quickPrefs: function() {
+      const selects = document.querySelectorAll('.aq-quick-select[data-pref]');
+      if (!selects.length) return;
+
+      selects.forEach(select => {
+        select.addEventListener('change', () => {
+          const field = select.getAttribute('data-pref');
+          const csrf = select.getAttribute('data-csrf') || '';
+          const url = select.getAttribute('data-url') || '/preferences/quick-prefs/';
+          const form = new URLSearchParams();
+          form.set(field, select.value);
+
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': csrf,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            credentials: 'same-origin',
+            body: form.toString()
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.ok) {
+                window.location.reload();
+              }
+            })
+            .catch(() => {});
+        });
       });
     }
   };

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'payments.apps.PaymentsConfig',
     'shipping.apps.ShippingConfig',
     'preferences.apps.PreferencesConfig',
+    'news.apps.NewsConfig',
 ]
 
 MIDDLEWARE = [
@@ -94,6 +95,7 @@ TEMPLATES = [
                 'seller.context_processors.seller_context',
                 'blogs.context_processors.blog_nav',
                 'preferences.context_processors.user_preferences',
+                'news.context_processors.news_ticker',
             ],
         },
     },
@@ -139,11 +141,39 @@ LANGUAGES = [
     ('es', 'Español'),
     ('fr', 'Français'),
     ('de', 'Deutsch'),
+    ('pt', 'Português'),
+    ('it', 'Italiano'),
+    ('ja', '日本語'),
+    ('ko', '한국어'),
+    ('zh-hans', '简体中文'),
+    ('ar', 'العربية'),
+    ('ru', 'Русский'),
+    ('tr', 'Türkçe'),
+    ('nl', 'Nederlands'),
+    ('pl', 'Polski'),
+    ('bn', 'বাংলা'),
+    ('ta', 'தமிழ்'),
+    ('te', 'తెలుగు'),
+    ('mr', 'मराठी'),
 ]
 
 LOCALE_PATHS = [
     os.path.join(PROJECT_DIR, 'locale'),
 ]
+
+# Live currency conversion — fetched from a free exchange-rate API and cached.
+EXCHANGE_RATE_API_URL = os.getenv(
+    'EXCHANGE_RATE_API_URL', 'https://open.er-api.com/v6/latest/{base}'
+)
+EXCHANGE_RATE_API_KEY = os.getenv('EXCHANGE_RATE_API_KEY', '')
+EXCHANGE_RATE_CACHE_HOURS = int(os.getenv('EXCHANGE_RATE_CACHE_HOURS', '12'))
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'shopseed',
+    },
+}
 USE_L10N = True
 USE_TZ = True
 

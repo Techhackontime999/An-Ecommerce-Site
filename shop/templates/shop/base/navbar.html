@@ -43,11 +43,30 @@
 
       {% if user.is_authenticated %}
       <div class="nav-aq-profile-dropdown">
-        <button class="nav-aq-user" title="Profile">
+        <button class="nav-aq-user" title="{% trans 'Account' %}">
           <i class="fas fa-user"></i>
         </button>
         <div class="nav-aq-dropdown-menu">
           <div class="nav-aq-dropdown-menu-inner">
+            <div class="nav-aq-quick-prefs">
+              <label>{% trans "Language" %}
+                <select class="aq-quick-select" data-pref="language"
+                        data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
+                  {% for code, name in LANGUAGES %}
+                  <option value="{{ code }}" {% if user_prefs.language == code %}selected{% endif %}>{{ name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>{% trans "Currency" %}
+                <select class="aq-quick-select" data-pref="currency"
+                        data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
+                  {% for code, info in CURRENCIES.items %}
+                  <option value="{{ code }}" {% if user_prefs.currency == code %}selected{% endif %}>{{ info.name }} ({{ code }})</option>
+                  {% endfor %}
+                </select>
+              </label>
+            </div>
+            <div class="nav-aq-dropdown-divider"></div>
             {% if is_seller %}
             <a href="{% url 'seller:seller_dashboard' %}"><i class="fas fa-chart-pie"></i> {% trans "Dashboard" %}</a>
             {% endif %}
@@ -63,9 +82,38 @@
         </div>
       </div>
       {% else %}
-      <a href="{% url 'accounts:login' %}" class="nav-aq-user">
-        <i class="fas fa-user"></i>
-      </a>
+      <div class="nav-aq-profile-dropdown">
+        <button class="nav-aq-user" title="{% trans 'Account' %}">
+          <i class="fas fa-user"></i>
+        </button>
+        <div class="nav-aq-dropdown-menu">
+          <div class="nav-aq-dropdown-menu-inner">
+            <div class="nav-aq-quick-prefs">
+              <label>{% trans "Language" %}
+                <select class="aq-quick-select" data-pref="language"
+                        data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
+                  {% for code, name in LANGUAGES %}
+                  <option value="{{ code }}" {% if user_prefs.language == code %}selected{% endif %}>{{ name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>{% trans "Currency" %}
+                <select class="aq-quick-select" data-pref="currency"
+                        data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
+                  {% for code, info in CURRENCIES.items %}
+                  <option value="{{ code }}" {% if user_prefs.currency == code %}selected{% endif %}>{{ info.name }} ({{ code }})</option>
+                  {% endfor %}
+                </select>
+              </label>
+            </div>
+            <div class="nav-aq-dropdown-divider"></div>
+            <a href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt"></i> {% trans "Sign In" %}</a>
+            <a href="{% url 'accounts:signup' %}"><i class="fas fa-user-plus"></i> {% trans "Create Account" %}</a>
+            <div class="nav-aq-dropdown-divider"></div>
+            <a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a>
+          </div>
+        </div>
+      </div>
       {% endif %}
 
       <button class="nav-aq-hamburger" aria-label="Toggle menu">
@@ -93,6 +141,8 @@
     <li style="--index: 11"><a href="{% url 'faq:faq' %}">{% trans "FAQ" %}</a></li>
     {% if user.is_authenticated %}
     <li style="--index: 12"><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a></li>
+    {% else %}
+    <li style="--index: 12"><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Preferences" %}</a></li>
     {% endif %}
   </ul>
 </aside>

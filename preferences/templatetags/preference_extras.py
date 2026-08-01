@@ -1,6 +1,7 @@
 from django import template
 
-from ..currencies import CURRENCIES, DEFAULT_CURRENCY
+from ..currencies import DEFAULT_CURRENCY
+from ..exchange import currency_info
 
 register = template.Library()
 
@@ -10,7 +11,7 @@ def _format(value, code):
         value = float(value)
     except (TypeError, ValueError):
         return value
-    info = CURRENCIES.get(code or DEFAULT_CURRENCY) or CURRENCIES[DEFAULT_CURRENCY]
+    info = currency_info(code or DEFAULT_CURRENCY)
     amount = value * info['rate']
     try:
         formatted = f"{amount:,.{info['decimals']}f}"

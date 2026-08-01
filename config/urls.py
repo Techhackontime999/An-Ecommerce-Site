@@ -28,6 +28,7 @@ urlpatterns = [
     path('shipping/', include('shipping.urls', namespace='shipping')),
     path('i18n/', include('django.conf.urls.i18n')),
     path('preferences/', include('preferences.urls', namespace='preferences')),
+    path('news/', include('news.urls', namespace='news')),
     path('', include('shop.urls', namespace='shop')),
 ]
 

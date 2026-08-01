@@ -2,7 +2,7 @@
 {% load i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 <!DOCTYPE html>
-<html lang="{{ CURRENT_LANGUAGE }}" data-theme="{{ user_prefs.theme|default:'light' }}" data-font="{{ user_prefs.font_style|default:'default' }}" data-accent="{{ user_prefs.accent|default:'orange' }}">
+<html lang="{{ CURRENT_LANGUAGE }}" data-theme="{{ user_prefs.theme|default:'light' }}" data-font="{{ user_prefs.font_style|default:'default' }}" data-accent="{{ user_prefs.accent|default:'orange' }}" data-size="{{ user_prefs.text_size|default:'regular' }}">
 <head>
     <title>{% block title %}Shop-Seed — Premium E-Commerce{% endblock %}</title>
     <meta charset="utf-8">
@@ -10,11 +10,12 @@
     <meta name="description" content="Shop-Seed — Premium e-commerce platform">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Comic+Neue:wght@400;700&family=Caveat:wght@400;600;700&family=Baloo+2:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
     <link rel="stylesheet" href="{% static "css/aquastic.css" %}">
     <link rel="stylesheet" href="{% static "css/blog.css" %}">
+    <link rel="stylesheet" href="{% static "css/news.css" %}">
     <link rel="stylesheet" href="{% static "css/owl.carousel.min.css" %}">
     <link rel="stylesheet" href="{% static "css/owl.theme.default.min.css" %}">
     <link rel="stylesheet" href="{% static "css/aos.css" %}">
@@ -23,8 +24,9 @@
       html { margin: 0; padding: 0; box-sizing: border-box; }
     </style>
 </head>
-<body>
+<body class="{% if news_ticker_items %}has-news-ticker{% endif %}">
     <div class="aq-scroll-progress" id="aq-scroll-progress" aria-hidden="true"></div>
+    {% include 'news/ticker.html' %}
     {% include 'shop/base/navbar.html' %}
     <main>
         {% block content %}{% endblock %}

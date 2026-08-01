@@ -19,7 +19,7 @@
       </span>
       <h1 class="display-section" style="margin-top:0.75rem">{% trans "Site Settings" %}</h1>
       <p class="body-large" style="max-width:55ch;margin:0.75rem auto 0;">
-        {% trans "Set how Shop-Seed looks and feels for you — theme, language, currency, font and accent color." %}
+        {% trans "Set how Shop-Seed looks and feels for you — theme, language, currency, font, text size and accent color." %}
       </p>
     </header>
 
@@ -41,7 +41,8 @@
         <h3>{% trans "This is how your site will look" %}</h3>
         <p>
           <span id="preview-currency-name">{{ CURRENCY.name }}</span> ·
-          <span id="preview-lang-name">{{ prefs.language|default:"en" }}</span> ·
+          {% get_language_info for prefs.language as LANG_INFO %}
+          <span id="preview-lang-name">{{ LANG_INFO.name_local }}</span> ·
           <span id="preview-theme-name">{% if prefs.theme == "dark" %}{% trans "Dark" %}{% else %}{% trans "Light" %}{% endif %}</span>
         </p>
         <div class="settings-preview-price">
@@ -110,6 +111,17 @@
             {{ form.currency }}
             <span class="settings-sample">{% trans "Sample:" %} <strong id="preview-sample-price">$19.99</strong></span>
           </div>
+          {% if rates_updated_at %}
+          <p class="settings-rates-note">
+            <i class="fas fa-sync-alt"></i>
+            {% blocktrans with updated=rates_updated_at|date:"M j, Y H:i" %}Live rates updated {{ updated }} UTC.{% endblocktrans %}
+          </p>
+          {% else %}
+          <p class="settings-rates-note settings-rates-fallback">
+            <i class="fas fa-exclamation-triangle"></i>
+            {% trans "Live rates unavailable right now — showing cached rates." %}
+          </p>
+          {% endif %}
         </div>
       </div>
 
@@ -126,6 +138,26 @@
             {% for value, label in form.font_style.field.choices %}
             <label class="settings-pill">
               <input type="radio" name="font_style" value="{{ value }}" {% if form.font_style.value == value %}checked{% endif %}>
+              <span>{{ label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-head">
+          <span class="settings-group-icon"><i class="fas fa-text-height"></i></span>
+          <div>
+            <h2>{% trans "Text Size" %}</h2>
+            <p>{% trans "Make text smaller or larger for comfortable reading." %}</p>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-option">
+            {% for value, label in form.text_size.field.choices %}
+            <label class="settings-pill">
+              <input type="radio" name="text_size" value="{{ value }}" {% if form.text_size.value == value %}checked{% endif %}>
               <span>{{ label }}</span>
             </label>
             {% endfor %}
@@ -215,6 +247,8 @@
   function applyRadio() {
     var checked = document.querySelector('#settings-form input[name="theme"]:checked');
     if (checked) root.setAttribute('data-theme', checked.value);
+    var size = document.querySelector('#settings-form input[name="text_size"]:checked');
+    if (size) root.setAttribute('data-size', size.value);
     updateThemeLabel();
   }
 

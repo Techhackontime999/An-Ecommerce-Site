@@ -1,0 +1,46 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "News & Announcements" %} — Shop-Seed{% endblock %}
+
+{% block content %}
+<div class="news-page-aq">
+  <div class="news-page-aq-hero">
+    <div class="news-page-aq-hero-inner">
+      <span class="hero-aq-badge"><i class="fas fa-bullhorn"></i> {% trans "News & Events" %}</span>
+      <h1 class="display-section">{% trans "Announcements" %}</h1>
+      <p class="body-large">{% trans "Stay up to date with the latest updates, events, and announcements from Shop-Seed." %}</p>
+    </div>
+  </div>
+
+  <div class="container-aq">
+    <div class="news-page-aq-grid">
+      {% for item in page_obj %}
+      <a href="{{ item.get_absolute_url }}" class="news-card-aq">
+        <div class="news-card-aq-top">
+          <span class="news-card-aq-kind news-card-aq-kind--{{ item.kind }}">
+            <i class="fas {% if item.kind == 'event' %}fa-calendar-check{% elif item.kind == 'news' %}fa-newspaper{% else %}fa-bullhorn{% endif %}"></i>
+            {{ item.get_kind_display }}
+          </span>
+          <span class="news-card-aq-date">{{ item.publish_at|date:"M j, Y" }}</span>
+        </div>
+        <h3 class="news-card-aq-title">{{ item.title }}</h3>
+        <p class="news-card-aq-excerpt">{{ item.short_excerpt|striptags|truncatechars:120 }}</p>
+        <span class="news-card-aq-more">
+          {% trans "Read more" %} <i class="fas fa-arrow-right"></i>
+        </span>
+      </a>
+      {% empty %}
+      <div class="empty-aq" style="grid-column:1/-1">
+        <div class="empty-aq-icon"><i class="fas fa-newspaper"></i></div>
+        <h3>{% trans "No announcements yet" %}</h3>
+        <p>{% trans "Check back soon for updates." %}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% include 'blogs/partials/pagination.html' with page_obj=items %}
+  </div>
+</div>
+{% endblock %}

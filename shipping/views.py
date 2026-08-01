@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from decimal import Decimal
 from .models import ShippingAddress, ShippingMethod, Shipment
 from .forms import ShippingAddressForm
 from cart.cart import Cart
@@ -24,6 +25,9 @@ def address_create(request):
                 ShippingAddress.objects.filter(user=request.user, is_default=True).update(is_default=False)
             address.save()
             messages.success(request, 'Address added successfully.')
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+                return redirect(next_url)
             return redirect('shipping:address_list')
     else:
         form = ShippingAddressForm()
@@ -63,6 +67,10 @@ def shipping_select(request, order_id):
     addresses = ShippingAddress.objects.filter(user=request.user)
     methods = ShippingMethod.objects.filter(is_active=True)
 
+    subtotal_usd = order.get_total_cost()
+    first_method = methods.first()
+    total_usd = subtotal_usd + (first_method.price if first_method else Decimal('0.00'))
+
     if request.method == 'POST':
         method_id = request.POST.get('shipping_method')
         address_id = request.POST.get('shipping_address')
@@ -71,6 +79,7 @@ def shipping_select(request, order_id):
             return render(request, 'shipping/select.html', {
                 'order': order, 'cart': cart,
                 'addresses': addresses, 'methods': methods,
+                'subtotal_usd': subtotal_usd, 'total_usd': total_usd,
             })
         shipping_method = get_object_or_404(ShippingMethod, id=method_id, is_active=True)
 
@@ -103,6 +112,7 @@ def shipping_select(request, order_id):
     return render(request, 'shipping/select.html', {
         'order': order, 'cart': cart,
         'addresses': addresses, 'methods': methods,
+        'subtotal_usd': subtotal_usd, 'total_usd': total_usd,
     })
 
 

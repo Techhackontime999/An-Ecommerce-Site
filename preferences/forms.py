@@ -26,3 +26,7 @@ class PreferenceForm(forms.Form):
         choices=UserPreference.ACCENT_CHOICES,
         required=False,
     )
+    text_size = forms.ChoiceField(
+        choices=UserPreference.TEXT_SIZE_CHOICES,
+        required=False,
+    )

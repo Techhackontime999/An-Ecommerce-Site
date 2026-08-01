@@ -13,12 +13,29 @@ class UserPreference(models.Model):
         ('es', 'Español'),
         ('fr', 'Français'),
         ('de', 'Deutsch'),
+        ('pt', 'Português'),
+        ('it', 'Italiano'),
+        ('ja', '日本語'),
+        ('ko', '한국어'),
+        ('zh-hans', '简体中文'),
+        ('ar', 'العربية'),
+        ('ru', 'Русский'),
+        ('tr', 'Türkçe'),
+        ('nl', 'Nederlands'),
+        ('pl', 'Polski'),
+        ('bn', 'বাংলা'),
+        ('ta', 'தமிழ்'),
+        ('te', 'తెలుగు'),
+        ('mr', 'मराठी'),
     ]
     FONT_CHOICES = [
         ('default', 'Default'),
         ('serif', 'Serif'),
         ('mono', 'Monospace'),
         ('rounded', 'Rounded'),
+        ('elegant', 'Elegant'),
+        ('playful', 'Playful'),
+        ('hand', 'Handwritten'),
     ]
     ACCENT_CHOICES = [
         ('orange', 'Orange'),
@@ -27,6 +44,18 @@ class UserPreference(models.Model):
         ('purple', 'Purple'),
         ('green', 'Green'),
         ('rose', 'Rose'),
+        ('indigo', 'Indigo'),
+        ('cyan', 'Cyan'),
+        ('amber', 'Amber'),
+        ('pink', 'Pink'),
+        ('lime', 'Lime'),
+        ('gold', 'Gold'),
+    ]
+    TEXT_SIZE_CHOICES = [
+        ('small', 'Small'),
+        ('regular', 'Regular'),
+        ('large', 'Large'),
+        ('xl', 'Extra Large'),
     ]
 
     user = models.OneToOneField(
@@ -39,6 +68,7 @@ class UserPreference(models.Model):
     currency = models.CharField(max_length=3, default='USD')
     font_style = models.CharField(max_length=10, choices=FONT_CHOICES, default='default')
     accent = models.CharField(max_length=10, choices=ACCENT_CHOICES, default='orange')
+    text_size = models.CharField(max_length=10, choices=TEXT_SIZE_CHOICES, default='regular')
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

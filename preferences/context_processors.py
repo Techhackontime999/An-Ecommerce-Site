@@ -1,4 +1,5 @@
-from .currencies import CURRENCIES, DEFAULT_CURRENCY
+from .currencies import DEFAULT_CURRENCY
+from .exchange import all_currencies, currency_info
 from .models import UserPreference
 
 DEFAULTS = {
@@ -7,6 +8,7 @@ DEFAULTS = {
     'currency': DEFAULT_CURRENCY,
     'font_style': 'default',
     'accent': 'orange',
+    'text_size': 'regular',
 }
 
 
@@ -27,9 +29,9 @@ def user_preferences(request):
                 if field in session_prefs:
                     prefs[field] = session_prefs[field]
 
-    currency_info = CURRENCIES.get(prefs['currency']) or CURRENCIES[DEFAULT_CURRENCY]
     return {
         'user_prefs': prefs,
         'CURRENCY_CODE': prefs['currency'],
-        'CURRENCY': currency_info,
+        'CURRENCY': currency_info(prefs['currency']),
+        'CURRENCIES': all_currencies(),
     }

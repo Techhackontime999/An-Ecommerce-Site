@@ -1,0 +1,393 @@
+/* ═══════════ News ticker (marquee) ═══════════ */
+.news-ticker-aq {
+  display: flex;
+  align-items: stretch;
+  height: 40px;
+  background: var(--aq-dark, #0F172A);
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  will-change: transform;
+  transition: transform var(--aq-transition);
+}
+
+/* Ticker sits above the fixed navbar; on scroll the ticker slides away
+   and the navbar rises to the very top. Ticker + navbar animate with GPU
+   transforms, and the body padding is the only layout transition, so the
+   whole collapse feels smooth. */
+body.has-news-ticker {
+  padding-top: 40px;
+  transition: padding-top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.has-news-ticker .nav-aq {
+  top: 40px;
+  will-change: transform;
+}
+
+body.has-news-ticker.scrolled {
+  padding-top: 0;
+}
+
+body.has-news-ticker.scrolled .news-ticker-aq {
+  transform: translateY(-100%);
+}
+
+body.has-news-ticker.scrolled .nav-aq {
+  transform: translateY(-40px);
+}
+
+.news-ticker-aq-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  background: var(--aq-accent);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.55rem 1.6rem 0.55rem 1rem;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+}
+
+.news-ticker-aq-viewport {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.news-ticker-aq-track {
+  display: flex;
+  width: max-content;
+  animation: news-ticker-aq-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.news-ticker-aq:hover .news-ticker-aq-track {
+  animation-play-state: paused;
+}
+
+.news-ticker-aq-group {
+  display: flex;
+  align-items: center;
+}
+
+.news-ticker-aq-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.55rem 0;
+  white-space: nowrap;
+  transition: color var(--aq-transition);
+}
+
+.news-ticker-aq-item i {
+  color: var(--aq-accent-light);
+  font-size: 0.85rem;
+}
+
+.news-ticker-aq-item:hover {
+  color: #fff;
+}
+
+.news-ticker-aq-sep {
+  color: rgba(255, 255, 255, 0.28);
+  margin: 0 1.1rem;
+}
+
+.news-ticker-aq-more {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0 1.1rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  transition: color var(--aq-transition);
+}
+
+.news-ticker-aq-more:hover {
+  color: var(--aq-accent-light);
+}
+
+@keyframes news-ticker-aq-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-ticker-aq-track {
+    animation: none;
+    flex-wrap: wrap;
+  }
+}
+
+/* ═══════════ News pages (list + detail) ═══════════ */
+.news-page-aq {
+  padding-bottom: 4rem;
+}
+
+.news-page-aq-hero {
+  background:
+    radial-gradient(1000px 320px at 80% -10%, rgba(249, 115, 22, 0.16), transparent 60%),
+    radial-gradient(800px 300px at 10% 110%, rgba(30, 64, 175, 0.1), transparent 60%),
+    var(--aq-canvas);
+  border-bottom: 1px solid var(--aq-border);
+  padding: 4rem 1rem 3rem;
+  text-align: center;
+}
+
+.news-page-aq-hero--detail {
+  padding-bottom: 2.5rem;
+}
+
+.news-page-aq-hero-inner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.news-page-aq-hero-inner .display-section {
+  margin-top: 0.75rem;
+}
+
+.news-page-aq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 3rem 0 2rem;
+}
+
+.news-card-aq {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--aq-surface);
+  border: 1px solid var(--aq-border);
+  border-radius: var(--aq-radius-md);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: var(--aq-body);
+  box-shadow: 0 2px 10px var(--aq-shadow);
+  transition: transform var(--aq-transition), box-shadow var(--aq-transition), border-color var(--aq-transition);
+}
+
+.news-card-aq:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px var(--aq-shadow);
+  border-color: rgba(249, 115, 22, 0.35);
+  color: var(--aq-body);
+}
+
+.news-card-aq-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.news-card-aq-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.1);
+  color: var(--aq-accent-dark);
+}
+
+.news-card-aq-kind--news {
+  background: rgba(30, 64, 175, 0.1);
+  color: var(--aq-blue);
+}
+
+.news-card-aq-kind--event {
+  background: rgba(5, 150, 105, 0.12);
+  color: #047857;
+}
+
+.news-card-aq-date {
+  font-size: 0.78rem;
+  color: var(--aq-tertiary);
+}
+
+.news-card-aq-title {
+  font-size: 1.25rem;
+  color: var(--aq-ink);
+  margin: 0;
+}
+
+.news-card-aq-excerpt {
+  font-size: 0.925rem;
+  line-height: 1.6;
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.news-card-aq-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--aq-accent);
+}
+
+.news-card-aq:hover .news-card-aq-more {
+  color: var(--aq-accent-dark);
+}
+
+/* ─── Detail ─── */
+.news-detail-aq-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--aq-body);
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+  transition: color var(--aq-transition);
+}
+
+.news-detail-aq-back:hover {
+  color: var(--aq-accent);
+}
+
+.news-detail-aq-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  color: var(--aq-tertiary);
+  font-size: 0.875rem;
+  margin: 1rem 0 0;
+}
+
+.news-detail-aq-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 3rem;
+  padding-top: 2.5rem;
+}
+
+.news-detail-aq-body {
+  background: var(--aq-surface);
+  border: 1px solid var(--aq-border);
+  border-radius: var(--aq-radius-md);
+  padding: 2.5rem;
+  box-shadow: 0 2px 10px var(--aq-shadow);
+  color: var(--aq-body);
+  font-size: 1.02rem;
+  line-height: 1.8;
+}
+
+.news-detail-aq-body p {
+  margin: 0 0 1.25rem;
+}
+
+.news-detail-aq-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.news-detail-aq-side-title {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+
+.news-detail-aq-more-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  text-decoration: none;
+  background: var(--aq-surface);
+  border: 1px solid var(--aq-border);
+  border-radius: var(--aq-radius-sm);
+  padding: 1rem;
+  transition: border-color var(--aq-transition), transform var(--aq-transition);
+}
+
+.news-detail-aq-more-item:hover {
+  border-color: rgba(249, 115, 22, 0.35);
+  transform: translateX(3px);
+}
+
+.news-detail-aq-more-kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: rgba(249, 115, 22, 0.1);
+  color: var(--aq-accent-dark);
+}
+
+.news-detail-aq-more-date {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--aq-tertiary);
+}
+
+.news-detail-aq-more-title {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--aq-ink);
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .news-detail-aq-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .news-detail-aq-body {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .news-ticker-aq-label {
+    font-size: 0;
+    gap: 0;
+    padding: 0 1rem;
+  }
+
+  .news-ticker-aq-label i {
+    font-size: 0.9rem;
+  }
+
+  .news-ticker-aq-more {
+    font-size: 0;
+    padding: 0 0.85rem;
+  }
+
+  .news-ticker-aq-more i {
+    font-size: 0.9rem;
+  }
+}

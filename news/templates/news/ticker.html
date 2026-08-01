@@ -1,0 +1,36 @@
+{% load i18n %}
+{% if news_ticker_items %}
+<div class="news-ticker-aq" role="region" aria-label="{{ news_ticker_label }}">
+  <span class="news-ticker-aq-label">
+    <i class="fas fa-bullhorn"></i>
+    <span>{{ news_ticker_label }}</span>
+  </span>
+
+  <div class="news-ticker-aq-viewport">
+    <div class="news-ticker-aq-track">
+      <div class="news-ticker-aq-group">
+        {% for item in news_ticker_items %}
+        <a href="{{ item.get_absolute_url }}" class="news-ticker-aq-item">
+          <i class="fas {% if item.kind == 'event' %}fa-calendar-check{% elif item.kind == 'news' %}fa-newspaper{% else %}fa-bullhorn{% endif %}"></i>
+          <span>{{ item.title }}</span>
+          <span class="news-ticker-aq-sep">•</span>
+        </a>
+        {% endfor %}
+      </div>
+      <div class="news-ticker-aq-group" aria-hidden="true">
+        {% for item in news_ticker_items %}
+        <a href="{{ item.get_absolute_url }}" class="news-ticker-aq-item" tabindex="-1">
+          <i class="fas {% if item.kind == 'event' %}fa-calendar-check{% elif item.kind == 'news' %}fa-newspaper{% else %}fa-bullhorn{% endif %}"></i>
+          <span>{{ item.title }}</span>
+          <span class="news-ticker-aq-sep">•</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <a href="{% url 'news:list' %}" class="news-ticker-aq-more">
+    {% trans "All News" %} <i class="fas fa-arrow-right"></i>
+  </a>
+</div>
+{% endif %}

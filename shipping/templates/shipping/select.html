@@ -1,122 +1,234 @@
 {% extends "shop/base/base.html" %}
 {% load preference_extras %}
-{% block title %}Shipping{% endblock %}
+{% block title %}Shipping · Shop-Seed{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h1 class="text-center mb-4">Shipping Details</h1>
+{{ CURRENCIES|json_script:"shp-currencies" }}
 
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+<section class="ord-hero">
+  <div class="ord-hero-glow ord-hero-glow-a" aria-hidden="true"></div>
+  <div class="ord-hero-glow ord-hero-glow-b" aria-hidden="true"></div>
+  <div class="ord-hero-dots" aria-hidden="true"></div>
+  <div class="container-aq ord-hero-inner">
+    <nav class="breadcrumb-aq ord-breadcrumb" aria-label="breadcrumb">
+      <a href="{% url 'shop:home' %}">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="{% url 'cart:cart_detail' %}">Cart</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="{% url 'order:order_create' %}">Details</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Shipping</span>
+    </nav>
+    <div class="ord-hero-copy fade-up">
+      <span class="hero-aq-badge"><i class="fas fa-truck-fast"></i> Shipping</span>
+      <h1 class="ord-hero-title">Pick how it gets <span class="ord-hero-accent">to your door</span></h1>
+      <p class="ord-hero-sub">Choose a delivery method and confirm where we should send your order. You can review everything before paying.</p>
     </div>
-    {% endfor %}
+    <ol class="ord-steps fade-up fade-up-delay-1">
+      <li class="ord-step is-done"><span class="ord-step-dot"><i class="fas fa-check"></i></span><span class="ord-step-label">Cart</span></li>
+      <li class="ord-step is-done"><span class="ord-step-dot"><i class="fas fa-check"></i></span><span class="ord-step-label">Details</span></li>
+      <li class="ord-step is-active"><span class="ord-step-dot">3</span><span class="ord-step-label">Shipping</span></li>
+      <li class="ord-step"><span class="ord-step-dot">4</span><span class="ord-step-label">Payment</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="ord-body">
+  <div class="container-aq">
+    {% if messages %}
+    <div class="shp-messages">
+      {% for message in messages %}
+      <div class="shp-alert shp-alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+        <i class="fas fa-{% if message.tags == 'error' %}triangle-exclamation{% else %}circle-check{% endif %}"></i>
+        <span>{{ message }}</span>
+      </div>
+      {% endfor %}
+    </div>
     {% endif %}
 
-    <div class="row">
-        <div class="col-lg-8">
-            <form method="post">
-                {% csrf_token %}
-
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0"><i class="fas fa-truck"></i> Shipping Method</h5>
-                    </div>
-                    <div class="card-body">
-                        {% for method in methods %}
-                        <div class="custom-control custom-radio mb-3">
-                            <input type="radio" id="method_{{ method.id }}" name="shipping_method" value="{{ method.id }}" class="custom-control-input" required>
-                            <label class="custom-control-label d-flex justify-content-between align-items-center w-100" for="method_{{ method.id }}">
-                                <span>
-                                    <strong>{{ method.name }}</strong>
-                                    {% if method.description %}
-                                    <br><small class="text-muted">{{ method.description }}</small>
-                                    {% endif %}
-                                    <br><small class="text-muted">Estimated delivery: {{ method.estimated_delivery_days }}</small>
-                                </span>
-                                <span class="font-weight-bold text-primary">{% price method.price %}</span>
-                            </label>
-                        </div>
-                        {% empty %}
-                        <p class="text-muted">No shipping methods available.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Shipping Address</h5>
-                        <a href="{% url 'shipping:address_create' %}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-plus"></i> Add New
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <div class="custom-control custom-radio mb-3">
-                            <input type="radio" id="address_order" name="shipping_address" value="order_address" class="custom-control-input" required>
-                            <label class="custom-control-label" for="address_order">
-                                <strong>{{ order.first_name }} {{ order.last_name }}</strong>
-                                <span class="badge badge-info">From Order</span>
-                                <br>{{ order.address }}
-                                <br>{{ order.city }} - {{ order.postal_code }}
-                                <br><small class="text-muted">Use the address entered during checkout</small>
-                            </label>
-                        </div>
-                        {% if addresses %}
-                        <hr>
-                        <h6 class="text-muted mb-3">Saved Addresses</h6>
-                        {% endif %}
-                        {% for address in addresses %}
-                        <div class="custom-control custom-radio mb-3">
-                            <input type="radio" id="address_{{ address.id }}" name="shipping_address" value="{{ address.id }}" class="custom-control-input" required>
-                            <label class="custom-control-label" for="address_{{ address.id }}">
-                                <strong>{{ address.full_name }}</strong>
-                                {% if address.is_default %}<span class="badge badge-primary">Default</span>{% endif %}
-                                <br>{{ address.address_line1 }}
-                                {% if address.address_line2 %}<br>{{ address.address_line2 }}{% endif %}
-                                <br>{{ address.city }}, {{ address.state }} - {{ address.postal_code }}
-                                <br>{{ address.country }}
-                                <br><small class="text-muted">Phone: {{ address.phone }}</small>
-                            </label>
-                        </div>
-                        {% empty %}
-                        <p class="text-muted">
-                            No saved addresses.
-                        </p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-lg btn-block">
-                    <i class="fas fa-arrow-right"></i> Continue to Payment
-                </button>
-            </form>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Order Summary</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        {% for item in cart %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            {{ item.quantity }} x {{ item.product.name }}
-                            <span>{% price item.total_price %}</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    <div class="d-flex justify-content-between mt-3">
-                        <strong>Subtotal</strong>
-                        <strong>{% price cart.get_total_price %}</strong>
-                    </div>
-                </div>
+    <form method="post" class="ord-form" id="shp-form" novalidate>
+      {% csrf_token %}
+      <div class="ord-grid">
+        <div class="ord-main">
+          <fieldset class="ord-card">
+            <legend class="ord-card-head">
+              <span class="ord-card-icon"><i class="fas fa-truck-fast"></i></span>
+              <span class="ord-card-titles">
+                <span class="ord-card-title">Delivery method</span>
+                <span class="ord-card-sub">Choose how fast you want your order</span>
+              </span>
+            </legend>
+            <div class="shp-options">
+              {% for method in methods %}
+              <label class="shp-option">
+                <input type="radio" name="shipping_method" value="{{ method.id }}"
+                       data-usd="{{ method.price }}" data-name="{{ method.name|escapejs }}"
+                       {% if forloop.first %}checked{% endif %} required>
+                <span class="shp-option-card">
+                  <span class="shp-radio" aria-hidden="true"></span>
+                  <span class="shp-option-body">
+                    <span class="shp-option-title">{{ method.name }}</span>
+                    {% if method.description %}
+                    <span class="shp-option-desc">{{ method.description }}</span>
+                    {% endif %}
+                    <span class="shp-option-meta">
+                      <i class="fas fa-clock"></i>
+                      <span>Estimated delivery: {{ method.estimated_delivery_days }}</span>
+                      {% if method.price == 0 %}<span class="shp-free">Free</span>{% endif %}
+                    </span>
+                  </span>
+                  <span class="shp-price">{% price method.price %}</span>
+                </span>
+              </label>
+              {% empty %}
+              <p class="ord-empty-sub">No shipping methods are available right now.</p>
+              {% endfor %}
             </div>
+          </fieldset>
+
+          <fieldset class="ord-card">
+            <legend class="ord-card-head">
+              <span class="ord-card-icon"><i class="fas fa-location-dot"></i></span>
+              <span class="ord-card-titles">
+                <span class="ord-card-title">Delivery address</span>
+                <span class="ord-card-sub">Where should we send your order?</span>
+              </span>
+            </legend>
+            <div class="shp-options">
+              <label class="shp-option">
+                <input type="radio" name="shipping_address" value="order_address" required>
+                <span class="shp-option-card">
+                  <span class="shp-radio" aria-hidden="true"></span>
+                  <span class="shp-option-body">
+                    <span class="shp-option-title">
+                      {{ order.first_name }} {{ order.last_name }}
+                      <span class="shp-badge">From order</span>
+                    </span>
+                    <span class="shp-option-desc">{{ order.address }}</span>
+                    <span class="shp-option-meta">
+                      <i class="fas fa-map-pin"></i>
+                      <span>{{ order.city }} · {{ order.postal_code }}</span>
+                    </span>
+                  </span>
+                </span>
+              </label>
+
+              {% for address in addresses %}
+              <label class="shp-option">
+                <input type="radio" name="shipping_address" value="{{ address.id }}" required>
+                <span class="shp-option-card">
+                  <span class="shp-radio" aria-hidden="true"></span>
+                  <span class="shp-option-body">
+                    <span class="shp-option-title">
+                      {{ address.full_name }}
+                      {% if address.is_default %}<span class="shp-badge shp-badge-accent">Default</span>{% endif %}
+                    </span>
+                    <span class="shp-option-desc">{{ address.address_line1 }}{% if address.address_line2 %}, {{ address.address_line2 }}{% endif %}</span>
+                    <span class="shp-option-meta">
+                      <i class="fas fa-map-pin"></i>
+                      <span>{{ address.city }}{% if address.state %}, {{ address.state }}{% endif %} · {{ address.postal_code }}</span>
+                    </span>
+                    {% if address.phone %}
+                    <span class="shp-option-meta">
+                      <i class="fas fa-phone"></i>
+                      <span>{{ address.phone }}</span>
+                    </span>
+                    {% endif %}
+                  </span>
+                </span>
+              </label>
+              {% empty %}
+              <p class="ord-empty-sub">No saved addresses yet.</p>
+              {% endfor %}
+            </div>
+            <a class="shp-add-address" href="{% url 'shipping:address_create' %}?next={% url 'shipping:shipping_select' order.id %}">
+              <i class="fas fa-plus"></i> Add a new address
+            </a>
+          </fieldset>
         </div>
-    </div>
-</div>
+
+        <aside class="ord-aside">
+          <div class="ord-card ord-summary">
+            <h3 class="ord-summary-title">Order summary</h3>
+            <ul class="ord-items">
+              {% for item in order.items.all %}
+              <li class="ord-item">
+                <span class="ord-item-name">
+                  <span class="ord-qty mono">{{ item.quantity }}×</span>
+                  {{ item.product.name }}
+                </span>
+                <span class="ord-item-price mono">{% price item.price %}</span>
+              </li>
+              {% endfor %}
+            </ul>
+            <div class="ord-totals">
+              <div class="ord-row">
+                <span>Subtotal</span>
+                <span class="mono" id="shp-subtotal">{% price subtotal_usd %}</span>
+              </div>
+              <div class="ord-row">
+                <span>Shipping</span>
+                <span class="mono ord-ship-note" id="shp-shipping">
+                  {% with methods|first as first_method %}
+                    {% if first_method %}{% price first_method.price %}{% else %}—{% endif %}
+                  {% endwith %}
+                </span>
+              </div>
+              <div class="ord-row ord-total">
+                <span>Total</span>
+                <strong class="mono" id="shp-total">{% price total_usd %}</strong>
+              </div>
+            </div>
+            <button type="submit" class="ord-btn-primary">
+              <span>Continue to payment</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+            <a class="ord-back" href="{% url 'order:order_create' %}">
+              <i class="fas fa-arrow-left"></i> Back to details
+            </a>
+            <ul class="ord-trust">
+              <li><i class="fas fa-lock"></i> Secure payment</li>
+              <li><i class="fas fa-rotate-left"></i> Easy 30-day returns</li>
+              <li><i class="fas fa-headset"></i> Support 7 days a week</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var currencies = JSON.parse(document.getElementById('shp-currencies').textContent || '{}');
+  var code = "{{ CURRENCY_CODE|escapejs }}";
+  var subtotalUsd = parseFloat('{{ subtotal_usd }}') || 0;
+  var elShipping = document.getElementById('shp-shipping');
+  var elTotal = document.getElementById('shp-total');
+
+  function fmt(usd) {
+    var info = currencies[code] || { symbol: '$', rate: 1, decimals: 2 };
+    var amount = (parseFloat(usd) || 0) * (parseFloat(info.rate) || 1);
+    return (info.symbol || '') + amount.toLocaleString(undefined, {
+      minimumFractionDigits: info.decimals,
+      maximumFractionDigits: info.decimals
+    });
+  }
+
+  function update() {
+    var checked = document.querySelector('input[name="shipping_method"]:checked');
+    var usd = checked ? (parseFloat(checked.getAttribute('data-usd')) || 0) : 0;
+    elShipping.textContent = checked ? fmt(usd) : 'Select method';
+    elTotal.textContent = fmt(subtotalUsd + usd);
+  }
+
+  var radios = document.querySelectorAll('input[name="shipping_method"]');
+  for (var i = 0; i < radios.length; i++) {
+    radios[i].addEventListener('change', update);
+  }
+  update();
+})();
+</script>
 {% endblock %}

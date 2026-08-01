@@ -43,6 +43,7 @@ def checkout(request, order_id):
 
     context = {
         'order': order,
+        'subtotal': sum(item.get_cost() for item in order.items.all()),
         'payment': payment,
         'razorpay_key_id': settings.RAZORPAY_KEY_ID,
         'razorpay_order_id': payment.razorpay_order_id,
