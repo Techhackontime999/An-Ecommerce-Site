@@ -95,7 +95,7 @@
                   {% endif %}
                   <div>
                     <div class="seller-dash-product-name">{{ item.product.name }}</div>
-                    <div class="seller-dash-product-sku">{{ item.product.brand|default:"No brand" }}</div>
+                    <div class="seller-dash-product-sku">{% if item.variant_name %}{{ item.variant_name }} · {% endif %}{{ item.product.brand|default:"No brand" }}</div>
                   </div>
                 </div>
               </td>

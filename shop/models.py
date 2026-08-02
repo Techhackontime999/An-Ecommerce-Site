@@ -72,10 +72,75 @@ class Product(models.Model):
     def rating_count(self):
         return self.reviews.count()
 
-   
+    def gallery_images(self):
+        return self.images.all()
+
+    @property
+    def active_variants(self):
+        return self.variants.filter(active=True)
+
+    @property
+    def first_active_variant(self):
+        return self.active_variants.first()
 
 
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, related_name='images',
+                                on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='products/%Y/%m/%d')
+    is_main = models.BooleanField(default=False)
+    alt_text = models.CharField(max_length=200, blank=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ('sort_order', 'id')
+
+    def __str__(self):
+        return f'Image for {self.product.name} ({self.id})'
+
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, related_name='variants',
+                                on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    sku = models.CharField(max_length=50, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2,
+                                null=True, blank=True,
+                                help_text='Optional. Defaults to the product price.')
+    stock = models.PositiveIntegerField(default=0)
+    description = RichTextField(blank=True,
+                                help_text='Optional. Own description for this variant.')
+    image = models.ImageField(upload_to='products/%Y/%m/%d/variants', blank=True)
+    active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('id',)
+
+    def __str__(self):
+        return f'{self.product.name} — {self.name}'
+
+    @property
+    def effective_price(self):
+        if self.price is not None:
+            return self.price
+        return self.product.current_price
+
+
+class VariantImage(models.Model):
+    variant = models.ForeignKey(ProductVariant, related_name='images',
+                                on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='products/%Y/%m/%d/variants')
+    sort_order = models.PositiveIntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('sort_order', 'id')
+
+    def __str__(self):
+        return f'Image for variant {self.variant.name} ({self.id})'
 
 
 

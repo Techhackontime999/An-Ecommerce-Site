@@ -14,10 +14,12 @@
           Shop-Seed
         </a>
         <p>{% trans "India's most trusted e-commerce platform. Discover premium products at unbeatable prices with fast delivery." %}</p>
-        <div class="newsletter-aq">
-          <input type="email" placeholder="{% trans 'Enter your email' %}">
+        <form class="newsletter-aq" id="newsletter-form" action="{% url 'newsletter:subscribe' %}" method="post" novalidate>
+          {% csrf_token %}
+          <input type="email" name="email" placeholder="{% trans 'Enter your email' %}" aria-label="Email address" required>
           <button type="submit">{% trans "Subscribe" %}</button>
-        </div>
+        </form>
+        <p class="newsletter-aq-msg" id="newsletter-msg" role="status" aria-live="polite"></p>
         <div class="footer-aq-social">
           <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
           <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
@@ -74,3 +76,48 @@
     </div>
   </div>
 </footer>
+
+<script>
+  (function () {
+    var form = document.getElementById('newsletter-form');
+    var msg = document.getElementById('newsletter-msg');
+    if (!form || !msg) return;
+
+    function show(text, ok) {
+      msg.textContent = text;
+      msg.classList.remove('newsletter-aq-msg-ok', 'newsletter-aq-msg-err');
+      msg.classList.add(ok ? 'newsletter-aq-msg-ok' : 'newsletter-aq-msg-err');
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var input = form.querySelector('input[name="email"]');
+      var email = (input.value || '').trim();
+      if (!email || email.indexOf('@') === -1) {
+        show('Please enter a valid email address.', false);
+        return;
+      }
+      var data = new FormData(form);
+      msg.textContent = '';
+      fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': data.get('csrfmiddlewaretoken')
+        },
+        body: data
+      })
+        .then(function (res) {
+          return res.json().then(function (d) { return { ok: res.ok, d: d }; });
+        })
+        .then(function (r) {
+          show(r.d.message || (r.ok ? 'Subscribed!' : 'Something went wrong. Please try again.'), r.ok);
+          if (r.ok) form.reset();
+        })
+        .catch(function () {
+          show('Something went wrong. Please try again.', false);
+        });
+    });
+  })();
+</script>
+

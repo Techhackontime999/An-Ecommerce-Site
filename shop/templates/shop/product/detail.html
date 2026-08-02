@@ -1,59 +1,113 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
-{% load crispy_forms_tags %}
 {% load preference_extras %}
 
 {% block title %}{{ product.name }} — Shop-Seed{% endblock %}
 
-{% block content %}
-<!-- Breadcrumb -->
-<div class="container-aq" style="padding-top:6rem;">
-  <div class="breadcrumb-aq">
-    <a href="{% url 'shop:home' %}">Home</a>
-    <span class="sep"><i class="fas fa-chevron-right"></i></span>
-    <a href="{% url 'shop:product_list' %}">Shop</a>
-    <span class="sep"><i class="fas fa-chevron-right"></i></span>
-    {% if product.category %}
-    <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
-    <span class="sep"><i class="fas fa-chevron-right"></i></span>
-    {% endif %}
-    <span class="current">{{ product.name }}</span>
-  </div>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
+{% endblock %}
 
-<!-- Product Detail -->
-<section class="section-aq" style="padding-top:0;">
+{% block content %}
+<section class="pdp-section">
   <div class="container-aq">
-    <div class="row g-4">
-      <!-- Image -->
-      <div class="col-md-6">
-        <div class="glass-card" style="overflow:hidden;padding:0;">
-          {% if product.image %}
-          <img src="{{ product.image.url }}" alt="{{ product.name }}"
-               style="width:100%;height:auto;min-height:400px;object-fit:cover;display:block;">
-          {% else %}
-          <div style="width:100%;min-height:400px;display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:5rem;background:var(--aq-gradient-2);">
-            <i class="fas fa-box-open"></i>
-          </div>
+
+    <!-- Breadcrumb -->
+    <nav class="pdp-breadcrumb" aria-label="Breadcrumb">
+      <a href="{% url 'shop:home' %}">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="{% url 'shop:product_list' %}">Shop</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      {% if product.category %}
+      <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      {% endif %}
+      <span class="current">{{ product.name }}</span>
+    </nav>
+
+    <div class="pdp-grid">
+      <!-- ── Gallery ── -->
+      <div class="pdp-gallery fade-up">
+        {% with fav=first_available_variant pv=product.first_active_variant %}
+        {% if product.active_variants %}
+        {% for variant in product.active_variants %}
+        <div class="pdp-thumbs" data-variant-id="{{ variant.id }}"{% if not forloop.first %} style="display:none;"{% endif %}>
+          {% for img in variant.images.all %}
+          <button type="button" class="pdp-thumb{% if forloop.first %} is-active{% endif %}" data-src="{{ img.image.url }}" data-full="{{ img.image.url }}" aria-label="{{ variant.name }} photo {{ forloop.counter }}">
+            <img src="{{ img.image.url }}" alt="{{ variant.name }} — photo {{ forloop.counter }}" loading="lazy">
+          </button>
+          {% endfor %}
+          {% if not variant.images.all and variant.image %}
+          <button type="button" class="pdp-thumb{% if forloop.parentloop.first %} is-active{% endif %}" data-src="{{ variant.image.url }}" data-full="{{ variant.image.url }}" aria-label="{{ variant.name }}">
+            <img src="{{ variant.image.url }}" alt="{{ variant.name }}" loading="lazy">
+          </button>
+          {% endif %}
+          {% if not variant.images.all and not variant.image %}
+            {% for img in product.images.all %}
+            <button type="button" class="pdp-thumb{% if forloop.first and forloop.parentloop.first %} is-active{% endif %}" data-src="{{ img.image.url }}" data-full="{{ img.image.url }}" aria-label="Photo {{ forloop.counter }}">
+              <img src="{{ img.image.url }}" alt="{{ product.name }} — photo {{ forloop.counter }}" loading="lazy">
+            </button>
+            {% endfor %}
+            {% if product.image %}
+            <button type="button" class="pdp-thumb{% if forloop.parentloop.first %} is-active{% endif %}" data-src="{{ product.image.url }}" data-full="{{ product.image.url }}" aria-label="Main photo">
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            </button>
+            {% endif %}
           {% endif %}
         </div>
+        {% endfor %}
+        {% elif product.image or product.images.all %}
+        <div class="pdp-thumbs">
+          {% if product.image %}
+          <button type="button" class="pdp-thumb is-active" data-src="{{ product.image.url }}" data-full="{{ product.image.url }}" aria-label="Main photo">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+          </button>
+          {% endif %}
+          {% for img in product.images.all %}
+          <button type="button" class="pdp-thumb" data-src="{{ img.image.url }}" data-full="{{ img.image.url }}" aria-label="Photo {{ forloop.counter }}">
+            <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" loading="lazy">
+          </button>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="pdp-stage">
+          {% if discount_percent %}
+          <span class="pdp-stage-badge"><i class="fas fa-bolt"></i>{{ discount_percent }}% OFF</span>
+          {% endif %}
+          {% if fav and fav.images.first %}
+          <img id="pdp-stage-img" src="{{ fav.images.first.image.url }}" alt="{{ product.name }}">
+          {% elif fav and fav.image %}
+          <img id="pdp-stage-img" src="{{ fav.image.url }}" alt="{{ product.name }}">
+          {% elif product.images.all %}
+          <img id="pdp-stage-img" src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+          {% elif product.image %}
+          <img id="pdp-stage-img" src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% else %}
+          <div id="pdp-stage-img" class="pdp-stage-placeholder"><i class="fas fa-box-open"></i></div>
+          {% endif %}
+          <span class="pdp-stage-count" id="pdp-stage-count" aria-live="polite"></span>
+          <button type="button" class="pdp-stage-zoom" id="pdp-stage-zoom" aria-label="View full size">
+            <i class="fas fa-expand"></i>
+          </button>
+        </div>
+        {% endwith %}
       </div>
 
-      <!-- Info -->
-      <div class="col-md-6">
-        <div class="fade-up">
-          <span class="hero-aq-badge" style="margin-bottom:1rem;">
-            <i class="fas fa-tag"></i>
-            {% if product.category %}{{ product.category.name }}{% else %}General{% endif %}
-          </span>
+      <!-- ── Info column ── -->
+      <div class="pdp-info fade-up">
+        <div class="pdp-kicker">
+          <i class="fas fa-tag"></i>
+          {% if product.category %}{{ product.category.name }}{% else %}General{% endif %}
+          {% if product.brand %}<span class="sep" style="opacity:.5;">·</span>{{ product.brand }}{% endif %}
+        </div>
 
-          <h1 style="font-size:clamp(1.5rem,3vw,2.25rem);font-weight:700;letter-spacing:-0.025em;margin-bottom:0.75rem;">
-            {{ product.name }}
-          </h1>
+        <h1 class="pdp-title">{{ product.name }}</h1>
 
-          {% with total=product.average_rating %}
-          <div class="product-aq-rating" style="margin-bottom:1rem;">
+        <div class="pdp-meta">
+          <div class="pdp-rating">
             <span class="stars">
+              {% with total=product.average_rating %}
               {% if total %}
               {% for i in "12345"|make_list %}
                 {% if forloop.counter <= total|floatformat:"0"|add:"0" %}
@@ -65,57 +119,193 @@
                 {% endif %}
               {% endfor %}
               {% else %}
-              <i class="far fa-star"></i>
-              <i class="far fa-star"></i>
-              <i class="far fa-star"></i>
-              <i class="far fa-star"></i>
-              <i class="far fa-star"></i>
+              <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
               {% endif %}
+              {% endwith %}
             </span>
-            {% if product.rating_count %}
-            <span class="count">({{ product.rating_count }} review{{ product.rating_count|pluralize }})</span>
+            {% if widget_total %}
+            <a class="count" href="#pdp-reviews">{{ widget_total }} review{{ widget_total|pluralize }}</a>
             {% endif %}
           </div>
-          {% endwith %}
+          {% if widget_recommend %}
+          <span class="pdp-recommend"><i class="fas fa-thumbs-up"></i>{{ widget_recommend }}% recommend</span>
+          {% endif %}
+        </div>
 
-          <div class="product-aq-price" style="font-size:1.5rem;margin-bottom:1.5rem;">
-            {% if product.current_price != product.price %}
-            <span>{% price product.current_price %}</span>
-            <span class="original" style="font-size:1.125rem;">{% price product.price %}</span>
-            {% else %}
-            <span>{% price product.price %}</span>
-            {% endif %}
+        <hr class="pdp-rule">
+
+        <div class="pdp-price-line">
+          <span class="pdp-price-big">{% price display_price %}</span>
+          <span class="pdp-original"{% if not discount_percent %} style="display:none;"{% endif %}>{% price mrp %}</span>
+          <span class="pdp-discount{% if discount_percent %} on{% endif %}">{{ discount_percent }}% OFF</span>
+        </div>
+
+        {% if has_variant_options %}
+        <div class="pdp-variants">
+          <div class="pdp-variants-label">
+            Select option <small id="pdp-selected-name">{% if first_available_variant %}{{ first_available_variant.name }}{% else %}{{ product.first_active_variant.name }}{% endif %}</small>
           </div>
-
-          <p style="font-size:1rem;line-height:1.7;color:var(--aq-body);margin-bottom:2rem;">
-            {{ product.description|safe }}
-          </p>
-
-          <div style="display:flex;flex-direction:column;gap:1rem;max-width:400px;">
-            {% if user.is_authenticated %}
-            <form action="{% url 'cart:cart_add' product.id %}" method="post" style="display:flex;gap:0.75rem;align-items:end;">
-              {% csrf_token %}
-              <div style="flex:1;">
-                <label style="font-size:0.8125rem;font-weight:500;color:var(--aq-ink);margin-bottom:0.375rem;display:block;">Quantity</label>
-                {{ cart_product_form|crispy }}
-              </div>
-              <button type="submit" class="btn-aq btn-aq-primary" style="white-space:nowrap;">
-                <i class="fas fa-cart-plus"></i>
-                Add to Cart
-              </button>
-            </form>
-            {% else %}
-            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn-aq btn-aq-primary" style="width:fit-content;">
-              <i class="fas fa-sign-in-alt"></i>
-              Login to Purchase
-            </a>
-            {% endif %}
+          <div class="pdp-variant-list">
+            {% for variant in product.active_variants %}
+            <button type="button" class="pdp-variant-btn{% if first_available_variant and variant.id == first_available_variant.id %} is-active{% endif %}{% if not variant.stock %} is-oos{% endif %}"
+                    data-variant-id="{{ variant.id }}"
+                    data-price-display="{% price variant.effective_price %}"
+                    data-price-raw="{{ variant.effective_price }}"
+                    data-original-display="{% price product.price %}"
+                    data-has-original="{% if variant.effective_price < product.price %}1{% else %}0{% endif %}"
+                    data-stock="{{ variant.stock }}"
+                    data-image="{% if variant.images.first %}{{ variant.images.first.image.url }}{% elif variant.image %}{{ variant.image.url }}{% elif product.images.first %}{{ product.images.first.image.url }}{% elif product.image %}{{ product.image.url }}{% endif %}"
+                    data-name="{{ variant.name }}"
+                    data-sku="{{ variant.sku }}">
+              <span class="pdp-variant-name">{{ variant.name }}</span>
+              <span class="pdp-variant-price">{% price variant.effective_price %}</span>
+              {% if not variant.stock %}<span class="pdp-variant-oos">Out of stock</span>{% endif %}
+            </button>
+            {% endfor %}
           </div>
+          <div class="pdp-variant-note" id="pdp-variant-note" hidden>
+            <i class="fas fa-circle-info"></i>
+            <div class="pdp-variant-note-body" id="pdp-variant-note-body"></div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if has_variant_options %}
+        {{ variant_descriptions|json_script:"pdp-variant-descriptions" }}
+        {% endif %}
+
+        <details class="pdp-details">
+          <summary>
+            <i class="fas fa-info-circle" style="color:var(--aq-accent);"></i>
+            Product details
+            <i class="fas fa-chevron-right chev"></i>
+          </summary>
+          <table class="pdp-details-table">
+            {% with pv=first_available_variant %}
+            {% if pv %}
+            {% if has_variant_options %}<tr><td>Option</td><td id="pdp-detail-name">{{ pv.name }}</td></tr>{% endif %}
+            <tr><td>SKU</td><td id="pdp-detail-sku">{{ pv.sku|default:'—' }}</td></tr>
+            {% endif %}
+            {% endwith %}
+            <tr><td>Brand</td><td>{{ product.brand|default:'—' }}</td></tr>
+            <tr><td>Category</td><td>{% if product.category %}{{ product.category.name }}{% else %}General{% endif %}</td></tr>
+            <tr><td>Availability</td><td id="pdp-detail-avail">{% if first_available_variant %}{% if first_available_variant.stock %}In Stock{% else %}Currently unavailable{% endif %}{% else %}In Stock{% endif %}</td></tr>
+          </table>
+        </details>
+      </div>
+
+      <!-- ── Buy box ── -->
+      <aside class="pdp-buybox fade-up" data-mrp-raw="{{ mrp }}" data-stock-raw="{% if first_available_variant %}{{ first_available_variant.stock }}{% endif %}">
+        <div class="pdp-buybox-price">
+          <span class="pdp-price-big">{% price display_price %}</span>
+          <span class="pdp-original"{% if not discount_percent %} style="display:none;"{% endif %}>{% price mrp %}</span>
+          <span class="pdp-discount{% if discount_percent %} on{% endif %}">{{ discount_percent }}% OFF</span>
+        </div>
+
+        <div class="pdp-availability {% if first_available_variant %}{% if first_available_variant.stock %}in-stock{% else %}out-of-stock{% endif %}{% else %}in-stock{% endif %}">
+          <span class="dot"></span>
+          <span data-avail-label>{% if first_available_variant %}{% if first_available_variant.stock %}In Stock{% else %}Currently unavailable{% endif %}{% else %}In Stock{% endif %}</span>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="pdp-qty-row">
+          <span class="pdp-qty-label">Quantity:</span>
+          <select name="quantity" id="pdp-qty" class="pdp-qty" aria-label="Quantity">
+            {% for value, label in cart_product_form.fields.quantity.choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+
+        <form action="{% url 'cart:cart_add' product.id %}" method="post" id="pdp-form-add">
+          {% csrf_token %}
+          <input type="hidden" name="variant_id" class="pdp-variant-field" value="{% if first_available_variant %}{{ first_available_variant.id }}{% elif product.first_active_variant %}{{ product.first_active_variant.id }}{% endif %}">
+          <input type="hidden" name="update" value="false">
+          <input type="hidden" name="quantity" id="pdp-qty-add">
+          <button type="submit" class="pdp-btn pdp-btn-add"{% if first_available_variant and not first_available_variant.stock %}disabled{% endif %}>
+            <i class="fas fa-cart-plus"></i><span>Add to Cart</span>
+          </button>
+        </form>
+
+        <form action="{% url 'cart:cart_add' product.id %}" method="post" id="pdp-form-buy">
+          {% csrf_token %}
+          <input type="hidden" name="variant_id" class="pdp-variant-field" value="{% if first_available_variant %}{{ first_available_variant.id }}{% elif product.first_active_variant %}{{ product.first_active_variant.id }}{% endif %}">
+          <input type="hidden" name="update" value="false">
+          <input type="hidden" name="next" value="{% url 'order:order_create' %}">
+          <input type="hidden" name="quantity" id="pdp-qty-buy">
+          <button type="submit" class="pdp-btn pdp-btn-buy"{% if first_available_variant and not first_available_variant.stock %}disabled{% endif %}>
+            <i class="fas fa-bolt"></i><span>Buy Now</span>
+          </button>
+        </form>
+        {% else %}
+        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="pdp-btn pdp-btn-add">
+          <i class="fas fa-sign-in-alt"></i><span>Login to Purchase</span>
+        </a>
+        {% endif %}
+
+        <div class="pdp-trust">
+          <i class="fas fa-shield-alt"></i>
+          <div><b>Secure transaction</b><br>Your information is encrypted and never shared.</div>
+        </div>
+
+        <ul class="pdp-ship-list">
+          <li><i class="fas fa-truck"></i> Free delivery &amp; 2–5 business day dispatch</li>
+          <li><i class="fas fa-undo"></i> Easy 7-day returns &amp; instant refunds</li>
+          <li><i class="fas fa-shield-halved"></i> 100% genuine, quality-checked items</li>
+        </ul>
+
+        {% if product.seller %}
+        <div class="pdp-seller">
+          Sold by <b>{{ product.seller.shop_name }}</b>
+          {% if product.seller.is_verified %}<i class="fas fa-badge-check" style="color:var(--aq-blue);" title="Verified seller"></i>{% endif %}
+          {% if product.seller.slug %}
+          · <a href="{% url 'seller:profile_details' product.seller.slug %}" style="color:var(--aq-blue);">Visit store</a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+
+    <!-- ── Below: description + delivery ── -->
+    <div class="pdp-below">
+      <div class="pdp-description fade-up">
+        <h2>
+          <i class="fas fa-align-left"></i> Product Description
+        </h2>
+        <div class="pdp-description-body" id="pdp-desc-product">
+          {{ merged_description|safe }}
+        </div>
+      </div>
+
+      <div>
+        <div class="pdp-detail-card fade-up">
+          <h3><i class="fas fa-truck-fast"></i> Delivery &amp; Returns</h3>
+          <ul class="pdp-ship-list">
+            <li><i class="fas fa-box"></i> Carefully packed &amp; quality checked before dispatch</li>
+            <li><i class="fas fa-truck"></i> Free shipping, 2–5 business days</li>
+            <li><i class="fas fa-undo"></i> 7-day no-questions-asked returns</li>
+            <li><i class="fas fa-headset"></i> Friendly support on every order</li>
+          </ul>
+        </div>
+        <div class="pdp-detail-card fade-up">
+          <h3><i class="fas fa-lock"></i> Why Shop-Seed</h3>
+          <ul class="pdp-ship-list">
+            <li><i class="fas fa-shield-halved"></i> Buyer protection on every purchase</li>
+            <li><i class="fas fa-credit-card"></i> Secure checkout &amp; payment options</li>
+            <li><i class="fas fa-bolt"></i> Flash deals updated daily</li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Lightbox -->
+<div class="pdp-lightbox" id="pdp-lightbox" hidden>
+  <button type="button" class="pdp-lightbox-close" aria-label="Close"><i class="fas fa-xmark"></i></button>
+  <button type="button" class="pdp-lightbox-nav pdp-lightbox-prev" aria-label="Previous photo"><i class="fas fa-chevron-left"></i></button>
+  <div class="pdp-lightbox-img"><img id="pdp-lightbox-img" alt="Full size product photo"></div>
+  <button type="button" class="pdp-lightbox-nav pdp-lightbox-next" aria-label="Next photo"><i class="fas fa-chevron-right"></i></button>
+  <span class="pdp-lightbox-count" id="pdp-lightbox-count"></span>
+</div>
 
 <!-- Suggested products slider -->
 {% if suggested_products %}
@@ -135,30 +325,30 @@
         </div>
       </div>
       <div class="td-slider-track" data-slider-track>
-        {% for product in suggested_products %}
+        {% for item in suggested_products %}
         <div class="td-slide">
-          <a href="{{ product.get_absolute_url }}" class="td-slide-link">
+          <a href="{{ item.get_absolute_url }}" class="td-slide-link">
             <div class="td-slide-media">
-              {% if product.image %}
-              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="td-slide-img">
+              {% if item.image %}
+              <img src="{{ item.image.url }}" alt="{{ item.name }}" class="td-slide-img">
               {% else %}
               <div class="td-slide-img td-slide-img-placeholder"><i class="fas fa-box-open"></i></div>
               {% endif %}
             </div>
             <div class="td-slide-body">
-              <h3 class="td-slide-title">{{ product.name }}</h3>
+              <h3 class="td-slide-title">{{ item.name }}</h3>
               <div class="td-slide-prices">
-                {% if product.current_price != product.price %}
-                <span class="td-slide-price">{% price product.current_price %}</span>
-                <del class="td-slide-old-price">{% price product.price %}</del>
+                {% if item.current_price != item.price %}
+                <span class="td-slide-price">{% price item.current_price %}</span>
+                <del class="td-slide-old-price">{% price item.price %}</del>
                 {% else %}
-                <span class="td-slide-price">{% price product.price %}</span>
+                <span class="td-slide-price">{% price item.price %}</span>
                 {% endif %}
               </div>
             </div>
           </a>
           {% if user.is_authenticated %}
-          <form action="{% url 'cart:cart_add' product.id %}" method="post" class="td-slide-cart-form">
+          <form action="{% url 'cart:cart_add' item.id %}" method="post" class="td-slide-cart-form">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="1">
             <button type="submit" class="td-slide-cart-btn"><i class="fas fa-cart-plus"></i> Add to Cart</button>
@@ -177,14 +367,329 @@
 {% endif %}
 
 <!-- Reviews -->
-<section class="section-aq" style="background:var(--aq-gradient-2);">
+<section class="section-aq" id="pdp-reviews" style="background:var(--aq-gradient-2);">
   <div class="container-aq">
     {% include 'reviews/partials/product_reviews_widget.html' %}
   </div>
 </section>
+
+<!-- Mobile sticky buy bar -->
+{% if user.is_authenticated %}
+<div class="pdp-mobilebar" id="pdp-mobilebar">
+  <div class="pdp-mobilebar-price">
+    <span class="pdp-price-big">{% price display_price %}</span>
+    <span class="pdp-original"{% if not discount_percent %} style="display:none;"{% endif %}>{% price mrp %}</span>
+  </div>
+  <form action="{% url 'cart:cart_add' product.id %}" method="post" id="pdp-form-mobile">
+    {% csrf_token %}
+    <input type="hidden" name="variant_id" class="pdp-variant-field" value="{% if first_available_variant %}{{ first_available_variant.id }}{% elif product.first_active_variant %}{{ product.first_active_variant.id }}{% endif %}">
+    <input type="hidden" name="update" value="false">
+    <input type="hidden" name="quantity" id="pdp-qty-mobile" value="1">
+    <button type="submit" class="pdp-btn pdp-btn-add"{% if first_available_variant and not first_available_variant.stock %}disabled{% endif %}>
+      <i class="fas fa-cart-plus"></i><span>Add to Cart</span>
+    </button>
+  </form>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+<script>
+  (function () {
+    var stageEl = document.getElementById('pdp-stage-img');
+    var buybox = document.querySelector('.pdp-buybox');
+    var mrpRaw = buybox ? (parseFloat(buybox.getAttribute('data-mrp-raw')) || 0) : 0;
+
+    var priceEls = document.querySelectorAll('.pdp-price-big');
+    var originalEls = document.querySelectorAll('.pdp-original');
+    var discountEls = document.querySelectorAll('.pdp-discount');
+    var availEl = document.querySelector('.pdp-availability');
+    var availLabel = availEl ? availEl.querySelector('[data-avail-label]') : null;
+    var variantInputs = document.querySelectorAll('input.pdp-variant-field');
+    var addBtns = document.querySelectorAll('.pdp-btn-add');
+    var buyBtns = document.querySelectorAll('.pdp-btn-buy');
+    var selectedName = document.getElementById('pdp-selected-name');
+    var detailName = document.getElementById('pdp-detail-name');
+    var detailSku = document.getElementById('pdp-detail-sku');
+    var detailAvail = document.getElementById('pdp-detail-avail');
+    var stageCount = document.getElementById('pdp-stage-count');
+    var stageZoom = document.getElementById('pdp-stage-zoom');
+    var lightbox = document.getElementById('pdp-lightbox');
+    var lightboxImg = document.getElementById('pdp-lightbox-img');
+    var lightboxCount = document.getElementById('pdp-lightbox-count');
+
+    var currentGallery = [];
+    var currentIndex = 0;
+    var currentStock = 0;
+
+    var variantDescNote = document.getElementById('pdp-variant-note');
+    var variantDescBody = document.getElementById('pdp-variant-note-body');
+    var variantDescMap = {};
+    var descScript = document.getElementById('pdp-variant-descriptions');
+    if (descScript) {
+      try { variantDescMap = JSON.parse(descScript.textContent) || {}; } catch (err) { variantDescMap = {}; }
+    }
+
+    (function dedupeThumbs() {
+      var seen = {};
+      document.querySelectorAll('.pdp-thumb').forEach(function (t) {
+        var src = t.getAttribute('data-src');
+        if (seen[src]) t.remove();
+        else seen[src] = true;
+      });
+    })();
+
+    function collectGallery() {
+      var groups = document.querySelectorAll('.pdp-thumbs');
+      var items = [];
+      for (var i = 0; i < groups.length; i++) {
+        var g = groups[i];
+        if (g.style.display === 'none') continue;
+        if (!g.querySelector('.pdp-thumb')) continue;
+        g.querySelectorAll('.pdp-thumb').forEach(function (t) {
+          items.push({ src: t.getAttribute('data-src'), full: t.getAttribute('data-full') || t.getAttribute('data-src') });
+        });
+        break;
+      }
+      return items;
+    }
+
+    function renderCount() {
+      if (!stageCount) return;
+      stageCount.textContent = currentGallery.length > 1
+        ? (currentIndex + 1) + ' / ' + currentGallery.length
+        : '';
+    }
+
+    function setStage(src, idx) {
+      if (stageEl && stageEl.tagName && stageEl.tagName === 'IMG') {
+        if (stageEl.getAttribute('src') !== src) {
+          stageEl.classList.add('swap');
+          var done = false;
+          var clear = function () {
+            if (done) return;
+            done = true;
+            stageEl.classList.remove('swap');
+          };
+          stageEl.onload = clear;
+          stageEl.onerror = clear;
+          stageEl.src = src;
+          setTimeout(clear, 600);
+        }
+      }
+      if (typeof idx === 'number') {
+        currentIndex = idx;
+      } else {
+        currentIndex = currentGallery.findIndex(function (i) { return i.src === src; });
+        if (currentIndex < 0) currentIndex = 0;
+      }
+      renderCount();
+    }
+
+    function setPrices(priceDisplay, origDisplay, showOrig, priceRaw) {
+      priceEls.forEach(function (el) { el.textContent = priceDisplay; });
+      originalEls.forEach(function (el) {
+        el.textContent = origDisplay;
+        el.style.display = showOrig ? '' : 'none';
+      });
+      discountEls.forEach(function (el) {
+        var pct = 0;
+        if (showOrig && priceRaw && mrpRaw) {
+          pct = Math.round((1 - priceRaw / mrpRaw) * 100);
+        }
+        if (pct > 0) {
+          el.classList.add('on');
+          el.textContent = pct + '% OFF';
+        } else {
+          el.classList.remove('on');
+        }
+      });
+    }
+
+    function setAvailability(stock) {
+      if (!availEl) return;
+      var ok = stock > 0;
+      availEl.classList.toggle('in-stock', ok);
+      availEl.classList.toggle('out-of-stock', !ok);
+      if (availLabel) availLabel.textContent = ok ? 'In Stock' : 'Currently unavailable';
+      if (detailAvail) detailAvail.textContent = ok ? 'In Stock' : 'Currently unavailable';
+    }
+
+    function setButtons(stock) {
+      var ok = stock > 0;
+      addBtns.forEach(function (b) { b.disabled = !ok; });
+      buyBtns.forEach(function (b) { b.disabled = !ok; });
+    }
+
+    function syncQty(stock) {
+      var addQty = document.getElementById('pdp-qty-add');
+      var buyQty = document.getElementById('pdp-qty-buy');
+      var addSel = document.getElementById('pdp-qty');
+      var buySel = document.querySelector('#pdp-form-buy select.pdp-qty') || addSel;
+      var qty = parseInt(addSel ? addSel.value : 1, 10) || 1;
+      if (stock <= 0) qty = 1;
+      if (addQty) addQty.value = qty;
+      if (buyQty) buyQty.value = qty;
+      var mQty = document.getElementById('pdp-qty-mobile');
+      if (mQty) mQty.value = qty;
+      [addSel, buySel].forEach(function (sel) {
+        if (!sel) return;
+        Array.prototype.forEach.call(sel.options, function (opt) {
+          opt.disabled = stock > 0 && parseInt(opt.value, 10) > stock;
+        });
+        if (stock > 0 && parseInt(sel.value, 10) > stock) sel.value = String(stock);
+      });
+    }
+
+    function renderVariantNote(vid) {
+      if (!variantDescNote || !variantDescBody) return;
+      var html = (variantDescMap[vid] || '').trim();
+      if (html) {
+        variantDescBody.innerHTML = html;
+        variantDescNote.hidden = false;
+      } else {
+        variantDescBody.innerHTML = '';
+        variantDescNote.hidden = true;
+      }
+    }
+
+    document.querySelectorAll('.pdp-thumb').forEach(function (t) {
+      t.addEventListener('click', function () {
+        var group = t.closest('.pdp-thumbs');
+        if (group) {
+          group.querySelectorAll('.pdp-thumb').forEach(function (x) { x.classList.remove('is-active'); });
+          t.classList.add('is-active');
+        }
+        currentGallery = collectGallery();
+        setStage(t.getAttribute('data-src'));
+      });
+    });
+
+    document.querySelectorAll('.pdp-variant-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.pdp-variant-btn').forEach(function (x) { x.classList.remove('is-active'); });
+        b.classList.add('is-active');
+
+        var vid = b.getAttribute('data-variant-id');
+        variantInputs.forEach(function (inp) { inp.value = vid; });
+
+        var stock = parseInt(b.getAttribute('data-stock'), 10) || 0;
+        currentStock = stock;
+        setPrices(
+          b.getAttribute('data-price-display'),
+          b.getAttribute('data-original-display'),
+          b.getAttribute('data-has-original') === '1',
+          parseFloat(b.getAttribute('data-price-raw')) || 0
+        );
+        setAvailability(stock);
+        setButtons(stock);
+        syncQty(stock);
+
+        if (selectedName) selectedName.textContent = b.getAttribute('data-name');
+        if (detailName) detailName.textContent = b.getAttribute('data-name');
+        if (detailSku) detailSku.textContent = b.getAttribute('data-sku') || '—';
+        renderVariantNote(vid);
+
+        var group = null;
+        document.querySelectorAll('.pdp-thumbs[data-variant-id]').forEach(function (g) {
+          var show = g.getAttribute('data-variant-id') === vid;
+          g.style.display = show ? '' : 'none';
+          if (show) group = g;
+        });
+
+        currentGallery = collectGallery();
+        var first = group ? group.querySelector('.pdp-thumb') : null;
+        if (first) {
+          group.querySelectorAll('.pdp-thumb').forEach(function (x) { x.classList.remove('is-active'); });
+          first.classList.add('is-active');
+          setStage(first.getAttribute('data-src'), 0);
+        } else {
+          var img = b.getAttribute('data-image');
+          if (img) setStage(img, 0);
+        }
+        renderCount();
+      });
+    });
+
+    var addSel = document.getElementById('pdp-qty');
+    if (addSel) {
+      addSel.addEventListener('change', function () { syncQty(currentStock); });
+    }
+
+    ['pdp-form-add', 'pdp-form-buy', 'pdp-form-mobile'].forEach(function (id) {
+      var form = document.getElementById(id);
+      if (!form) return;
+      form.addEventListener('submit', function () {
+        if (!addSel) return;
+        var v = parseInt(addSel.value, 10) || 1;
+        var qtyId = id === 'pdp-form-add' ? 'pdp-qty-add'
+                  : id === 'pdp-form-buy' ? 'pdp-qty-buy' : 'pdp-qty-mobile';
+        var target = document.getElementById(qtyId);
+        if (target) target.value = v;
+      });
+    });
+
+    /* ── Lightbox ── */
+    function openLightbox() {
+      if (!lightbox || !currentGallery.length) return;
+      var src = (stageEl && stageEl.tagName === 'IMG') ? stageEl.getAttribute('src') : null;
+      currentIndex = src ? currentGallery.findIndex(function (i) { return i.src === src; }) : 0;
+      if (currentIndex < 0) currentIndex = 0;
+      lightboxImg.src = currentGallery[currentIndex].full;
+      if (lightboxCount) lightboxCount.textContent = (currentIndex + 1) + ' / ' + currentGallery.length;
+      lightbox.hidden = false;
+      document.body.classList.add('pdp-lightbox-open');
+    }
+
+    function showLbIndex(i) {
+      if (!currentGallery.length) return;
+      currentIndex = (i + currentGallery.length) % currentGallery.length;
+      lightboxImg.src = currentGallery[currentIndex].full;
+      if (lightboxCount) lightboxCount.textContent = (currentIndex + 1) + ' / ' + currentGallery.length;
+    }
+
+    function closeLightbox() {
+      if (!lightbox) return;
+      lightbox.hidden = true;
+      lightboxImg.src = '';
+      document.body.classList.remove('pdp-lightbox-open');
+    }
+
+    if (stageZoom) stageZoom.addEventListener('click', openLightbox);
+    if (stageEl && stageEl.tagName === 'IMG') {
+      stageEl.addEventListener('click', openLightbox);
+    }
+    if (lightbox) {
+      lightbox.addEventListener('click', function (e) { if (e.target === lightbox) closeLightbox(); });
+      var lbClose = lightbox.querySelector('.pdp-lightbox-close');
+      var lbPrev = lightbox.querySelector('.pdp-lightbox-prev');
+      var lbNext = lightbox.querySelector('.pdp-lightbox-next');
+      if (lbClose) lbClose.addEventListener('click', closeLightbox);
+      if (lbPrev) lbPrev.addEventListener('click', function () { showLbIndex(currentIndex - 1); });
+      if (lbNext) lbNext.addEventListener('click', function () { showLbIndex(currentIndex + 1); });
+      document.addEventListener('keydown', function (e) {
+        if (lightbox.hidden) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') showLbIndex(currentIndex - 1);
+        if (e.key === 'ArrowRight') showLbIndex(currentIndex + 1);
+      });
+    }
+
+    /* ── Init ── */
+    var firstVariant = document.querySelector('.pdp-variant-btn.is-active');
+    if (firstVariant) {
+      firstVariant.click();
+    } else {
+      currentGallery = collectGallery();
+      currentIndex = 0;
+      renderCount();
+      currentStock = buybox ? (parseInt(buybox.getAttribute('data-stock-raw'), 10) || 0) : 0;
+      setAvailability(currentStock);
+      setButtons(currentStock);
+      syncQty(currentStock);
+    }
+  })();
+</script>
 <script>
   document.querySelectorAll('[data-slider-track]').forEach(function (track) {
     var section = track.closest('.td-slider-section');

@@ -12,19 +12,19 @@ class TestViews(TestCase):
 
     def test_product_list_view(self):
         response = self.client.get(reverse('shop:product_list'))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'shop/product/list.html')
 
     def test_product_list_by_category_view(self):
         response = self.client.get(reverse('shop:product_list_by_category', kwargs={"category_slug": "fastfood1"}))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'shop/product/list.html')
 
     def test_product_detail_view(self):
         response = self.client.get(reverse('shop:product_detail', kwargs={'id': 20, 'slug': 'testproduct'}))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'shop/product/detail.html')
 
     def test_product_detail_view_error(self):
         response = self.client.get(reverse('shop:product_detail', kwargs={'id': 21, 'slug': 'nottestproduct'}))
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)

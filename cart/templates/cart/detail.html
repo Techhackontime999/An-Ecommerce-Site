@@ -76,6 +76,9 @@
 
             <div class="crt-item-body">
               <a class="crt-name" href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+              {% if item.variant %}
+              <span class="crt-variant">{{ item.variant.name }}</span>
+              {% endif %}
               {% if product.brand %}
               <span class="crt-brand">{{ product.brand }}</span>
               {% endif %}
@@ -92,6 +95,9 @@
 
             <form class="crt-qty-form" action="{% url 'cart:cart_add' product.id %}" method="post" data-qty-form>
               {% csrf_token %}
+              {% if item.variant %}
+              <input type="hidden" name="variant_id" value="{{ item.variant.id }}">
+              {% endif %}
               {{ item.update_quantity_form.quantity }}
               {{ item.update_quantity_form.update }}
               <button type="button" class="crt-step" data-step="-1" aria-label="Decrease quantity">
@@ -109,10 +115,17 @@
               <strong class="mono">{% price item.total_price %}</strong>
             </div>
 
+            {% if item.variant %}
+            <a class="crt-remove" href="{% url 'cart:cart_remove_variant' product.id item.variant.id %}"
+               title="Remove {{ product.name }} ({{ item.variant.name }})" aria-label="Remove {{ product.name }} ({{ item.variant.name }})">
+              <i class="fas fa-xmark"></i>
+            </a>
+            {% else %}
             <a class="crt-remove" href="{% url 'cart:cart_remove' product.id %}"
                title="Remove {{ product.name }}" aria-label="Remove {{ product.name }}">
               <i class="fas fa-xmark"></i>
             </a>
+            {% endif %}
           </article>
           {% endwith %}
           {% endfor %}

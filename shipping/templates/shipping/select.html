@@ -156,6 +156,7 @@
                 <span class="ord-item-name">
                   <span class="ord-qty mono">{{ item.quantity }}×</span>
                   {{ item.product.name }}
+                  {% if item.variant_name %}<span class="ord-variant">{{ item.variant_name }}</span>{% endif %}
                 </span>
                 <span class="ord-item-price mono">{% price item.price %}</span>
               </li>

@@ -24,13 +24,19 @@ def order_create(request):
             order.save()                      # ✅ Then save the order
             for item in cart:
                 is_deal = item['product'].price != item['price']
+                variant = item.get('variant')
                 OrderItem.objects.create(
                     order=order,
                     product=item['product'],
+                    variant=variant,
+                    variant_name=variant.name if variant else '',
                     price=item['price'],
                     quantity=item['quantity'],
                     deal_applied=is_deal
                 )
+                if variant:
+                    variant.stock = max(0, variant.stock - item['quantity'])
+                    variant.save(update_fields=['stock'])
             cart.clear()
             notify(
                 request.user,

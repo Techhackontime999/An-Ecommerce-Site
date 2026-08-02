@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'news.apps.NewsConfig',
     'legal.apps.LegalConfig',
     'notifications.apps.NotificationsConfig',
+    'newsletter.apps.NewsletterConfig',
 ]
 
 MIDDLEWARE = [

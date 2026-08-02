@@ -1,40 +1,617 @@
 {% extends 'shop/base/base.html' %}
 {% load static %}
-{% block title %}Add Product — Shop-Seed{% endblock %}
+{% block title %}List a New Product — Shop-Seed{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/seller-listing.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="sp-page">
-  <div class="sp-inner">
-    <div class="sp-card">
-      <div class="sp-card-header">
-        <div class="sp-card-heading">
-          <i class="fas fa-plus-circle"></i>
-          <h2 class="sp-title">Add New Product</h2>
-        </div>
-        <p class="sp-subtitle">Fill in the details below to list a new product on the marketplace.</p>
+<div class="sl-page">
+  <div class="sl-inner">
+    <header class="sl-header">
+      <div>
+        <h1 class="sl-title">List a new product</h1>
+        <p class="sl-sub">Give buyers the details they need to hit “Add to Cart”. Every section below helps your listing look complete and get found in search.</p>
       </div>
-      <div class="sp-card-body">
-        <form method="post" enctype="multipart/form-data" novalidate>
-          {{ form.media }}
-          {% csrf_token %}
-          {% for field in form %}
+      <a href="{% url 'seller:seller_dashboard' %}" class="sp-btn sp-btn-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    </header>
+
+    <div class="sl-grid">
+      <!-- ── Listing form ── -->
+      <form id="sl-form" method="post" enctype="multipart/form-data" novalidate class="sl-form-card">
+        {{ form.media }}
+        {% csrf_token %}
+
+        <!-- 1 · Identity -->
+        <div class="sl-section">
+          <div class="sl-section-head">
+            <span class="sl-step">1</span>
+            <div>
+              <h2 class="sl-section-title">Product identity</h2>
+              <p class="sl-section-desc">How buyers find and recognize your product.</p>
+            </div>
+          </div>
+          <div class="sl-grid-fields">
+            <div class="sl-col-12 sp-field">
+              <label class="sp-label" for="{{ form.name.id_for_label }}">Title *</label>
+              {{ form.name }}
+              <span class="sl-counter"><span class="sl-counter-bar"><i></i></span><span id="sl-name-count">0 / 120</span></span>
+              <p class="sp-help">Clear titles sell. Include what it is plus the details buyers search for — color, size or material.</p>
+              {% for error in form.name.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="sl-col-8 sp-field">
+              <label class="sp-label" for="{{ form.slug.id_for_label }}">URL slug</label>
+              {{ form.slug }}
+              <p class="sp-help">Auto-suggested from your title — edit it if you like.</p>
+              {% for error in form.slug.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="sl-col-4 sp-field">
+              <label class="sp-label" for="{{ form.category.id_for_label }}">Category *</label>
+              {{ form.category }}
+              <p class="sp-help">Helps buyers find you in the right aisle.</p>
+              {% for error in form.category.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 · Pricing & brand -->
+        <div class="sl-section">
+          <div class="sl-section-head">
+            <span class="sl-step">2</span>
+            <div>
+              <h2 class="sl-section-title">Pricing &amp; brand</h2>
+              <p class="sl-section-desc">What buyers pay, and who made it.</p>
+            </div>
+          </div>
+          <div class="sl-grid-fields">
+            <div class="sl-col-4 sp-field">
+              <label class="sp-label" for="{{ form.price.id_for_label }}">Price *</label>
+              {{ form.price }}
+              <p class="sp-help">The amount buyers pay for this item.</p>
+              {% for error in form.price.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="sl-col-8 sp-field">
+              <label class="sp-label" for="{{ form.brand.id_for_label }}">Brand</label>
+              {{ form.brand }}
+              <p class="sp-help">Optional — the manufacturer or your store name.</p>
+              {% for error in form.brand.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+          <div class="sl-tip"><i class="fas fa-lightbulb"></i><span><b>Pricing tip:</b> keep your price and stock honest. A fair price builds trust and repeat purchases, while real stock counts keep buyers from ordering what you can't ship.</span></div>
+        </div>
+
+        <!-- 3 · Description -->
+        <div class="sl-section">
+          <div class="sl-section-head">
+            <span class="sl-step">3</span>
+            <div>
+              <h2 class="sl-section-title">Description</h2>
+              <p class="sl-section-desc">Tell buyers exactly what they're getting.</p>
+            </div>
+          </div>
           <div class="sp-field">
-            <label class="sp-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}
-            <p class="sp-help">{{ field.help_text }}</p>
-            {% endif %}
-            {% for error in field.errors %}
-            <p class="sp-error">{{ error }}</p>
+            <label class="sp-label" for="{{ form.description.id_for_label }}">Product description</label>
+            {{ form.description }}
+            <p class="sp-help">Describe materials, what's included, and how it's used. Rich descriptions answer questions before buyers ask.</p>
+            {% for error in form.description.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <!-- 4 · Photos -->
+        <div class="sl-section">
+          <div class="sl-section-head">
+            <span class="sl-step">4</span>
+            <div>
+              <h2 class="sl-section-title">Photos</h2>
+              <p class="sl-section-desc">Products with clear photos get more clicks. Upload a cover plus an optional gallery.</p>
+            </div>
+          </div>
+          <div class="sl-grid-fields">
+            <div class="sl-col-5 sp-field">
+              <label class="sp-label">Main photo</label>
+              <label class="sl-drop sl-drop-main">
+                <span class="sl-drop-preview"><i class="fas fa-image"></i></span>
+                <span><b>Click to upload</b> your main photo</span>
+                <span>JPG or PNG · square works best</span>
+                {{ form.image }}
+              </label>
+              {% for error in form.image.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="sl-col-7 sp-field">
+              <label class="sp-label">More photos <span class="sl-badge-new">gallery</span></label>
+              <label class="sl-drop" id="sl-drop-gallery">
+                <i class="fas fa-images"></i>
+                <span><b>Add multiple photos</b> — show angles &amp; details</span>
+                <span>Select several files at once</span>
+                {{ form.gallery_images }}
+              </label>
+              <p class="sp-help">Extra angles, packaging, or the item in use. These appear as thumbnails on the product page.</p>
+              {% for error in form.gallery_images.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+              <div class="sl-new-photos" id="sl-new-gallery" hidden></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 · Availability -->
+        <div class="sl-section">
+          <div class="sl-section-head">
+            <span class="sl-step">5</span>
+            <div>
+              <h2 class="sl-section-title">Availability</h2>
+              <p class="sl-section-desc">When buyers can start ordering this item.</p>
+            </div>
+          </div>
+          <label class="sl-avail">
+            {{ form.available }}
+            <span class="sl-avail-body">
+              <b>Make this product available for purchase</b>
+              <p>Uncheck to keep it hidden from the store while you prepare the listing.</p>
+            </span>
+          </label>
+        </div>
+
+        <!-- 6 · Variants -->
+        <div class="sl-section">
+          <div class="sl-section-head">
+            <span class="sl-step">6</span>
+            <div>
+              <h2 class="sl-section-title">Options &amp; stock</h2>
+              <p class="sl-section-desc">Sizes, colors or packs — each with its own price, stock, photo and description.</p>
+            </div>
+          </div>
+
+          {{ variant_formset.management_form }}
+          <div class="sl-variant-list" data-variant-list>
+            {% for vf in variant_formset %}
+            <div class="sl-variant-row" data-variant-row>
+              {{ vf.id }}
+              {% with is_default=vf.initial.name|default:vf.instance.name %}
+              {% if is_default == 'Default' %}
+              <span class="sl-variant-badge"><i class="fas fa-star"></i> Default option — shown first on the product page</span>
+              {% endif %}
+              <div class="sp-variant-fields">
+                <div class="sp-field sp-variant-field-name">
+                  <label class="sp-label">Name *</label>
+                  {{ vf.name }}
+                  <p class="sp-help">A clear label for this option, e.g. "Size M" or "Blue".</p>
+                  {% for error in vf.name.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div class="sp-field">
+                  <label class="sp-label">SKU</label>
+                  {{ vf.sku }}
+                  <p class="sp-help">Optional code you use to track this option.</p>
+                </div>
+                {% if is_default != 'Default' %}
+                <div class="sp-field">
+                  <label class="sp-label">Price</label>
+                  {{ vf.price }}
+                  <p class="sp-help">Leave blank to inherit the product price.</p>
+                </div>
+                {% endif %}
+                <div class="sp-field{% if is_default == 'Default' %} sp-variant-field-stock-span{% endif %}">
+                  <label class="sp-label">Stock *</label>
+                  {{ vf.stock }}
+                  <p class="sp-help">Units ready to ship for this option.</p>
+                </div>
+                {% if is_default != 'Default' %}
+                <div class="sp-field sp-variant-field-image">
+                  <label class="sp-label">Option image</label>
+                  {{ vf.image }}
+                  <p class="sp-help">Single cover photo for this option.</p>
+                </div>
+                <div class="sp-field sp-variant-field-gallery">
+                  <label class="sp-label">Option gallery <span class="sl-badge-new">photos</span></label>
+                  <label class="sl-drop sl-drop-sm" data-variant-drop>
+                    <i class="fas fa-images"></i>
+                    <span><b>Add photos</b></span>
+                    <span>Select several files at once</span>
+                    {{ vf.gallery_images }}
+                  </label>
+                  <div class="sl-new-photos sl-variant-new-photos" data-variant-new-photos hidden></div>
+                </div>
+                {% endif %}
+              </div>
+              {% if is_default != 'Default' %}
+              <div class="sp-field sp-variant-desc">
+                <label class="sp-label" for="{{ vf.description.id_for_label }}">Description (optional)</label>
+                {{ vf.description }}
+                <p class="sp-help">Each option can have its own description, shown when buyers pick it on the product page.</p>
+              </div>
+              {% else %}
+              <div class="sl-variant-note">
+                <i class="fas fa-circle-info"></i>
+                <span><b>The default option reuses the product's own price, photos and description.</b> Set those in the sections above — only stock, SKU and availability apply here.</span>
+              </div>
+              {% endif %}
+              <div class="sp-variant-actions">
+                <div class="sp-field sp-field-check">
+                  <label class="sp-label">Active</label>
+                  {{ vf.active }}
+                </div>
+                <button type="button" class="sp-variant-remove" data-variant-remove title="Remove option">
+                  <i class="fas fa-xmark"></i>
+                </button>
+              </div>
+              {% endwith %}
+            </div>
             {% endfor %}
           </div>
-          {% endfor %}
-          <div class="sp-actions">
+          <button type="button" class="sp-variant-add" data-variant-add>
+            <i class="fas fa-plus"></i> Add another option
+          </button>
+          <script type="text/html" id="variant-row-template">
+            <div class="sl-variant-row" data-variant-row>
+              {{ variant_formset.empty_form.id }}
+              <div class="sp-variant-fields">
+                <div class="sp-field sp-variant-field-name">
+                  <label class="sp-label">Name *</label>
+                  {{ variant_formset.empty_form.name }}
+                  <p class="sp-help">A clear label for this option, e.g. "Size M" or "Blue".</p>
+                </div>
+                <div class="sp-field">
+                  <label class="sp-label">SKU</label>
+                  {{ variant_formset.empty_form.sku }}
+                  <p class="sp-help">Optional code you use to track this option.</p>
+                </div>
+                <div class="sp-field">
+                  <label class="sp-label">Price</label>
+                  {{ variant_formset.empty_form.price }}
+                  <p class="sp-help">Leave blank to inherit the product price.</p>
+                </div>
+                <div class="sp-field">
+                  <label class="sp-label">Stock *</label>
+                  {{ variant_formset.empty_form.stock }}
+                  <p class="sp-help">Units ready to ship for this option.</p>
+                </div>
+                <div class="sp-field sp-variant-field-image">
+                  <label class="sp-label">Option image</label>
+                  {{ variant_formset.empty_form.image }}
+                  <p class="sp-help">Single cover photo for this option.</p>
+                </div>
+                <div class="sp-field sp-variant-field-gallery">
+                  <label class="sp-label">Option gallery <span class="sl-badge-new">photos</span></label>
+                  <label class="sl-drop sl-drop-sm" data-variant-drop>
+                    <i class="fas fa-images"></i>
+                    <span><b>Add photos</b></span>
+                    <span>Select several files at once</span>
+                    {{ variant_formset.empty_form.gallery_images }}
+                  </label>
+                  <div class="sl-new-photos sl-variant-new-photos" data-variant-new-photos hidden></div>
+                </div>
+              </div>
+              <div class="sp-field sp-variant-desc">
+                <label class="sp-label" for="{{ variant_formset.empty_form.description.id_for_label }}">Description (optional)</label>
+                {{ variant_formset.empty_form.description }}
+                <p class="sp-help">Each option can have its own description, shown when buyers pick it on the product page.</p>
+              </div>
+              <div class="sp-variant-actions">
+                <div class="sp-field sp-field-check">
+                  <label class="sp-label">Active</label>
+                  {{ variant_formset.empty_form.active }}
+                </div>
+                <button type="button" class="sp-variant-remove" data-variant-remove title="Remove option">
+                  <i class="fas fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </script>
+          {% if variant_formset.errors %}
+          <p class="sp-error">{{ variant_formset.errors }}</p>
+          {% endif %}
+        </div>
+
+        <div class="sl-section" style="border-top:1px solid var(--aq-border);">
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:1rem;">
             <a href="{% url 'seller:seller_dashboard' %}" class="sp-btn sp-btn-secondary">Cancel</a>
-            <button type="submit" class="sp-btn sp-btn-primary">Add Product</button>
+            <button type="submit" class="sp-btn sp-btn-primary"><i class="fas fa-check"></i> Publish listing</button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
+
+      <!-- ── Side panel ── -->
+      <aside class="sl-side">
+        <div class="sl-side-card">
+          <h2 class="sl-side-title"><i class="fas fa-eye"></i> Live preview</h2>
+          <div class="sl-preview">
+            <div class="sl-preview-media" id="sl-preview-media"><i class="fas fa-box-open"></i></div>
+            <div class="sl-preview-name" id="sl-preview-name">Your product name appears here</div>
+            <div class="sl-preview-cat" id="sl-preview-cat">Pick a category</div>
+            <div class="sl-preview-price" id="sl-preview-price">—</div>
+          </div>
+        </div>
+
+        <div class="sl-side-card">
+          <h2 class="sl-side-title"><i class="fas fa-clipboard-check"></i> Listing readiness</h2>
+          <div class="sl-score-row">
+            <span>Ready to publish</span>
+            <div class="sl-score" id="sl-score">0<em>%</em></div>
+          </div>
+          <div class="sl-progress"><span class="sl-progress-bar" id="sl-progress-bar"></span></div>
+          <ul class="sl-check-list">
+            <li class="sl-check" data-check="title"><span class="ic"><i class="fas fa-check"></i></span> Give your product a clear title</li>
+            <li class="sl-check" data-check="category"><span class="ic"><i class="fas fa-check"></i></span> Choose a category</li>
+            <li class="sl-check" data-check="price"><span class="ic"><i class="fas fa-check"></i></span> Set a price</li>
+            <li class="sl-check" data-check="description"><span class="ic"><i class="fas fa-check"></i></span> Add a description</li>
+            <li class="sl-check" data-check="photo"><span class="ic"><i class="fas fa-check"></i></span> Add a product photo</li>
+            <li class="sl-check" data-check="variant"><span class="ic"><i class="fas fa-check"></i></span> Add at least one option</li>
+            <li class="sl-check" data-check="stock"><span class="ic"><i class="fas fa-check"></i></span> Set stock for an option</li>
+          </ul>
+        </div>
+
+        <div class="sl-side-card">
+          <div class="sl-side-cta">
+            <button type="submit" form="sl-form" class="sp-btn sp-btn-primary"><i class="fas fa-check"></i> Publish listing</button>
+            <a href="{% url 'seller:seller_dashboard' %}" class="sp-btn sp-btn-secondary">Cancel</a>
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
 </div>
+
+<!-- Mobile publish bar -->
+<div class="sl-mobilebar">
+  <div class="sl-mobilebar-score"><b id="sl-mobile-score">0% ready</b> Listing readiness</div>
+  <button type="submit" form="sl-form" class="sp-btn sp-btn-primary"><i class="fas fa-check"></i> Publish</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    var list = document.querySelector('[data-variant-list]');
+    var tpl = document.getElementById('variant-row-template');
+
+    function reindex() {
+      if (!list) return;
+      var rows = list.querySelectorAll('[data-variant-row]');
+      rows.forEach(function (row, idx) {
+        row.querySelectorAll('[name]').forEach(function (el) {
+          el.name = el.name.replace(/^variants-\d+/, 'variants-' + idx);
+          el.id = el.id.replace(/^id_variants-\d+/, 'id_variants-' + idx);
+        });
+      });
+      var total = document.getElementById('id_variants-TOTAL_FORMS');
+      if (total) total.value = rows.length;
+    }
+
+    function initCk(row) {
+      if (!window.CKEDITOR) return;
+      row.querySelectorAll('textarea[data-type="ckeditortype"][data-processed="0"]').forEach(function (t) {
+        t.setAttribute('data-processed', '1');
+        try {
+          var ext = JSON.parse(t.getAttribute('data-external-plugin-resources'));
+          ext.forEach(function (e) { CKEDITOR.plugins.addExternal(e[0], e[1], e[2]); });
+        } catch (err) {}
+        CKEDITOR.replace(t.id, JSON.parse(t.getAttribute('data-config')));
+      });
+    }
+
+    var addBtn = document.querySelector('[data-variant-add]');
+    if (addBtn) addBtn.addEventListener('click', function () {
+      var idx = list.querySelectorAll('[data-variant-row]').length;
+      var wrapper = document.createElement('div');
+      wrapper.innerHTML = tpl.innerHTML.replace(/__prefix__/g, idx);
+      var row = wrapper.firstElementChild;
+      list.appendChild(row);
+      reindex();
+      initCk(row);
+      wireVariantGallery(row);
+      evalChecklist();
+    });
+
+    if (list) list.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-variant-remove]');
+      if (!btn) return;
+      var row = btn.closest('[data-variant-row]');
+      if (!row) return;
+      var del = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+      if (del) {
+        del.checked = true;
+        row.style.display = 'none';
+      } else {
+        row.remove();
+        reindex();
+      }
+      evalChecklist();
+    });
+
+    /* ── Live preview + readiness checklist ── */
+    var nameInput = document.getElementById('id_name');
+    var slugInput = document.getElementById('id_slug');
+    var priceInput = document.getElementById('id_price');
+    var catSelect = document.getElementById('id_category');
+    var imageInput = document.getElementById('id_image');
+    var galleryInput = document.getElementById('id_gallery_images');
+    var pName = document.getElementById('sl-preview-name');
+    var pCat = document.getElementById('sl-preview-cat');
+    var pPrice = document.getElementById('sl-preview-price');
+    var pMedia = document.getElementById('sl-preview-media');
+    var countEl = document.getElementById('sl-name-count');
+    var counter = document.querySelector('#id_name').parentNode.querySelector('.sl-counter');
+
+    var slugTouched = false;
+
+    function slugify(s) {
+      return String(s).toLowerCase().trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/[\s_]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+    }
+
+    function descHasContent() {
+      var t = document.getElementById('id_description');
+      if (window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances['id_description']) {
+        return CKEDITOR.instances['id_description'].getData().trim().length > 0;
+      }
+      return t ? t.value.trim().length > 0 : false;
+    }
+
+    function variantState() {
+      var named = false, stock = false;
+      if (!list) return { named: named, stock: stock };
+      list.querySelectorAll('[data-variant-row]').forEach(function (r) {
+        if (r.style.display === 'none') return;
+        var n = r.querySelector('[name$="-name"]');
+        var s = r.querySelector('[name$="-stock"]');
+        if (n && n.value.trim()) named = true;
+        if (s && parseInt(s.value, 10) > 0) stock = true;
+      });
+      return { named: named, stock: stock };
+    }
+
+    function fmtPrice(v) {
+      v = String(v).trim();
+      if (!v) return '—';
+      var n = parseFloat(v);
+      if (isNaN(n)) return v;
+      return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function updatePreview() {
+      var name = nameInput.value.trim();
+      pName.textContent = name || 'Your product name appears here';
+      pPrice.textContent = priceInput.value ? fmtPrice(priceInput.value) : '—';
+      var cat = catSelect.options[catSelect.selectedIndex];
+      pCat.textContent = (cat && cat.value) ? 'In ' + cat.text : 'Pick a category';
+    }
+
+    function updateCounter() {
+      var n = nameInput.value.length;
+      if (countEl) countEl.textContent = n + ' / 120';
+      if (counter) {
+        counter.classList.toggle('ok', n >= 10);
+        var bar = counter.querySelector('.sl-counter-bar i');
+        if (bar) bar.style.width = Math.min(100, (n / 120) * 100) + '%';
+      }
+    }
+
+    function updateImagePreview(file) {
+      var img = document.getElementById('sl-preview-img');
+      if (img) img.remove();
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var im = document.createElement('img');
+        im.id = 'sl-preview-img';
+        im.src = e.target.result;
+        im.alt = 'Preview';
+        pMedia.appendChild(im);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderFilePreviews(files, container) {
+      if (!container) return;
+      container.innerHTML = '';
+      Array.prototype.forEach.call(files || [], function (file, i) {
+        if (!/^image\//.test(file.type)) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var tile = document.createElement('div');
+          tile.className = 'sl-new-photo';
+          tile.innerHTML = '<img src="' + e.target.result + '" alt="New photo ' + (i + 1) + '">' +
+            '<span>' + (i + 1) + '</span>';
+          container.appendChild(tile);
+        };
+        reader.readAsDataURL(file);
+      });
+      container.hidden = !(container.childElementCount > 0) && !(files && files.length > 0);
+    }
+
+    function updateGalleryPreview() {
+      var container = document.getElementById('sl-new-gallery');
+      var drop = document.getElementById('sl-drop-gallery');
+      renderFilePreviews(galleryInput ? galleryInput.files : null, container);
+      if (drop) drop.classList.toggle('has-file', !!(galleryInput && galleryInput.files.length > 0));
+    }
+
+    function wireVariantGallery(row) {
+      var input = row.querySelector('input[type="file"][name$="-gallery_images"]');
+      var container = row.querySelector('[data-variant-new-photos]');
+      var drop = row.querySelector('[data-variant-drop]');
+      if (!input) return;
+      input.addEventListener('change', function () {
+        renderFilePreviews(input.files, container);
+        if (drop) drop.classList.toggle('has-file', input.files.length > 0);
+      });
+    }
+
+    function evalChecklist() {
+      var title = (nameInput.value || '').trim().length >= 3;
+      var category = !!(catSelect && catSelect.value);
+      var price = !!(priceInput && priceInput.value.trim() !== '');
+      var desc = descHasContent();
+      var photo = !!(imageInput && imageInput.files.length > 0);
+      var vs = variantState();
+      var items = {
+        title: title, category: category, price: price,
+        description: desc, photo: photo, variant: vs.named, stock: vs.stock
+      };
+      var done = 0, total = 0;
+      Object.keys(items).forEach(function (k) {
+        var el = document.querySelector('.sl-check[data-check="' + k + '"]');
+        if (!el) return;
+        total++;
+        if (items[k]) { el.classList.add('done'); done++; }
+        else { el.classList.remove('done'); }
+      });
+      var score = total ? Math.round((done / total) * 100) : 0;
+      var bar = document.getElementById('sl-progress-bar');
+      var scoreEl = document.getElementById('sl-score');
+      var mScore = document.getElementById('sl-mobile-score');
+      if (bar) bar.style.width = score + '%';
+      if (scoreEl) scoreEl.innerHTML = score + '<em>%</em>';
+      if (mScore) mScore.textContent = score + '% ready';
+    }
+
+    if (nameInput) {
+      nameInput.addEventListener('input', function () {
+        updateCounter();
+        updatePreview();
+        if (!slugTouched && slugInput) slugInput.value = slugify(nameInput.value);
+        evalChecklist();
+      });
+    }
+    if (slugInput) slugInput.addEventListener('input', function () { slugTouched = true; });
+    if (priceInput) priceInput.addEventListener('input', function () { updatePreview(); evalChecklist(); });
+    if (catSelect) catSelect.addEventListener('change', function () { updatePreview(); evalChecklist(); });
+    if (imageInput) {
+      imageInput.addEventListener('change', function () {
+        var drop = imageInput.closest('.sl-drop');
+        if (drop) drop.classList.toggle('has-file', imageInput.files.length > 0);
+        updateImagePreview(imageInput.files[0]);
+        evalChecklist();
+      });
+    }
+    if (galleryInput) {
+      galleryInput.addEventListener('change', updateGalleryPreview);
+    }
+    if (list) {
+      list.querySelectorAll('[data-variant-row]').forEach(wireVariantGallery);
+      list.addEventListener('input', evalChecklist);
+      list.addEventListener('change', evalChecklist);
+    }
+
+    (function watchDesc() {
+      if (window.CKEDITOR && CKEDITOR.instances && CKEDITOR.instances['id_description']) {
+        var inst = CKEDITOR.instances['id_description'];
+        if (!inst._slWired) {
+          inst._slWired = true;
+          inst.on('change', evalChecklist);
+        }
+        evalChecklist();
+        return;
+      }
+      setTimeout(watchDesc, 300);
+    })();
+
+    updateCounter();
+    updatePreview();
+    updateGalleryPreview();
+    evalChecklist();
+  })();
+</script>
 {% endblock %}

@@ -256,7 +256,9 @@
               </div>
               <div>
                 <a href="{{ item.product.get_absolute_url }}" class="myo-item-link">{{ item.product.name }}</a>
-                <div class="myo-item-meta">{{ item.product.brand|default:"Shop-Seed" }}</div>
+                <div class="myo-item-meta">
+                  {% if item.variant_name %}{{ item.variant_name }} · {% endif %}{{ item.product.brand|default:"Shop-Seed" }}
+                </div>
               </div>
               <div class="myo-item-price">
                 {% price item.get_cost %}
@@ -266,6 +268,7 @@
               <form method="post" action="{% url 'cart:cart_add' item.product.id %}" class="myo-buy-form">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
+                {% if item.variant %}<input type="hidden" name="variant_id" value="{{ item.variant.id }}">{% endif %}
                 <button type="submit" class="myo-buy-btn" title="Buy this product again">
                   <i class="fas fa-cart-plus"></i> Buy Again
                 </button>

@@ -130,6 +130,30 @@ def product_detail(request, id, slug):
         others = []
     suggested_products = list(same_category) + others
 
+    first_variant = product.first_active_variant
+    first_available_variant = product.active_variants.filter(stock__gt=0).first() or first_variant
+    default_variant = first_available_variant or first_variant
+    has_variant_options = product.active_variants.count() > 1
+    variant_descriptions = {
+        v.id: (v.description or '') for v in product.active_variants.all()
+    }
+    merged_description = product.description or ''
+    if default_variant and default_variant.description:
+        extra = default_variant.description.strip()
+        if extra and extra != (product.description or '').strip():
+            merged_description = (merged_description + '\n' + extra).strip()
+    if first_variant:
+        display_price = first_variant.effective_price
+    else:
+        display_price = product.current_price
+    mrp = product.price
+    try:
+        discount_percent = round((1 - float(display_price) / float(mrp)) * 100) if mrp else 0
+    except (TypeError, ValueError, ZeroDivisionError):
+        discount_percent = 0
+    if discount_percent < 0:
+        discount_percent = 0
+
     context = {
         'product': product,
         'cart_product_form': cart_product_form,
@@ -139,6 +163,13 @@ def product_detail(request, id, slug):
         'widget_average': widget_average,
         'widget_recommend': widget_recommend,
         'user_review': user_review,
+        'first_available_variant': first_available_variant,
+        'has_variant_options': has_variant_options,
+        'variant_descriptions': variant_descriptions,
+        'merged_description': merged_description,
+        'display_price': display_price,
+        'mrp': mrp,
+        'discount_percent': discount_percent,
     }
     return render(request, 'shop/product/detail.html', context)
 

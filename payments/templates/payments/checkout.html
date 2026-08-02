@@ -81,6 +81,7 @@
                 <a class="pay-item-name" href="{{ product.get_absolute_url }}">{{ product.name }}</a>
                 <div class="pay-item-meta">
                   <span class="pay-qty mono">{{ item.quantity }}×</span>
+                  {% if item.variant_name %}<span class="pay-item-variant">{{ item.variant_name }}</span>{% endif %}
                   {% if product.brand %}<span class="pay-item-brand">{{ product.brand }}</span>{% endif %}
                 </div>
               </div>

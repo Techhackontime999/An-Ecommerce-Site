@@ -1,7 +1,7 @@
 from decimal import Decimal
 from django.conf import settings
 from coupons.models import Coupon
-from shop.models import Product
+from shop.models import Product, ProductVariant
 
 class Cart():
 
@@ -18,17 +18,30 @@ class Cart():
         # store current applied coupon
         self.coupon_id = self.session.get('coupon_id')
 
-    def add(self, product, quantity=1, update_quantity=False):
+    @staticmethod
+    def _key(product_id, variant_id=None):
+        if variant_id:
+            return f'{product_id}:{variant_id}'
+        return str(product_id)
+
+    def add(self, product, quantity=1, update_quantity=False, variant_id=None, price=None):
         """
         Add a product to the cart or update its quantity.
         """
-        product_id = str(product.id)
-        if product_id not in self.cart:
-            self.cart[product_id] = {'quantity': 0, 'price': str(product.price)}
+        key = self._key(product.id, variant_id)
+        if price is None:
+            price = product.price
+        if key not in self.cart:
+            self.cart[key] = {
+                'quantity': 0,
+                'price': str(price),
+                'variant_id': variant_id,
+            }
         if update_quantity:
-            self.cart[product_id]['quantity'] = quantity
+            self.cart[key]['quantity'] = quantity
         else:
-            self.cart[product_id]['quantity'] += quantity
+            self.cart[key]['quantity'] += quantity
+        self.cart[key]['price'] = str(price)
         self.save()
 
     def save(self):
@@ -37,56 +50,58 @@ class Cart():
         """
         self.session.modified = True
 
-    def remove(self, product):
+    def remove(self, product, variant_id=None):
         """
         Remove a product from the cart.
         """
-        product_id = str(product.id)
-        if product_id in self.cart:
-            del self.cart[product_id]
+        key = self._key(product.id, variant_id)
+        if key in self.cart:
+            del self.cart[key]
             self.save()
-
-    # def __iter__(self):
-    #     """
-    #     Iterate over the items in the cart and get the products
-    #     from the database.
-    #     """
-    #     product_ids = self.cart.keys()
-    #     # get the product objects and add them to the cart
-    #     products = Product.objects.filter(id__in=product_ids)
-    #     cart = self.cart.copy()
-    #     for product in products:
-    #         cart[str(product.id)]['product'] = product
-    #     for item in cart.values():
-    #         item['price'] = Decimal(item['price'])
-    #         item['total_price'] = item['price'] * item['quantity']
-    #         yield item
 
     def __iter__(self):
         """
         Iterate over the items in the cart and get the products
-        from the database, applying deal prices if available.
+        from the database, applying deal/variant prices if available.
         """
-        product_ids = self.cart.keys()
+        product_ids = set()
+        variant_ids = set()
+        for key in self.cart.keys():
+            if ':' in key:
+                pid, vid = key.split(':', 1)
+                product_ids.add(int(pid))
+                variant_ids.add(int(vid))
+            else:
+                product_ids.add(int(key))
+
         products = Product.objects.filter(id__in=product_ids)
+        variants = {v.id: v for v in ProductVariant.objects.filter(id__in=variant_ids)}
         cart = self.cart.copy()
 
         for product in products:
-            product_id = str(product.id)
-
-            # ✅ Use the current price (which includes deal logic)
             current_price = product.current_price
-
-            # Update the cart's stored price to current price
-            cart[product_id]['product'] = product
-            cart[product_id]['price'] = str(current_price)  # update price string
-            cart[product_id]['total_price'] = current_price * cart[product_id]['quantity']
+            for key, entry in list(cart.items()):
+                if key.startswith(f'{product.id}:'):
+                    variant = variants.get(entry.get('variant_id'))
+                    if variant and not variant.active:
+                        continue
+                    entry['product'] = product
+                    if variant:
+                        entry['variant'] = variant
+                        entry['price'] = str(variant.effective_price)
+                    else:
+                        entry['price'] = str(current_price)
+                    entry['total_price'] = Decimal(entry['price']) * entry['quantity']
+                elif key == str(product.id):
+                    entry['product'] = product
+                    entry['price'] = str(current_price)
+                    entry['total_price'] = current_price * entry['quantity']
 
         for item in cart.values():
-            # Convert price to Decimal (again for safety)
+            if 'product' not in item:
+                continue
             item['price'] = Decimal(item['price'])
             yield item
-    
 
     def __len__(self):
         """

@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.db import models
-from shop.models import Product
+from shop.models import Product, ProductVariant
 from django.contrib.auth.models import User 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')  # 👈 Add this line
@@ -30,6 +30,9 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='order_items', on_delete=models.CASCADE)
+    variant = models.ForeignKey(ProductVariant, related_name='order_items',
+                                on_delete=models.SET_NULL, null=True, blank=True)
+    variant_name = models.CharField(max_length=100, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
     deal_applied = models.BooleanField(default=False)  # ✅ New field
