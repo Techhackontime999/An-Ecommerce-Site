@@ -3,10 +3,34 @@ from django import forms
 from .models import ProductReview, ReviewReport
 
 
+class MultipleFileInput(forms.FileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def clean(self, data, initial=None):
+        if data is None:
+            return []
+        if not isinstance(data, (list, tuple)):
+            data = [data]
+        cleaned = []
+        for single_file in data:
+            cleaned.append(super().clean(single_file))
+        return cleaned
+
+
 class ProductReviewForm(forms.ModelForm):
     overall_rating = forms.ChoiceField(
         choices=[(i, f'{i} star' + ('' if i == 1 else 's')) for i in range(1, 6)],
         widget=forms.RadioSelect(attrs={'class': 'review-star-input'}),
+    )
+
+    image = MultipleFileField(
+        required=False,
+        widget=MultipleFileInput(attrs={
+            'class': 'form-control blog-field-input',
+            'accept': 'image/*',
+        }),
     )
 
     class Meta:
@@ -20,7 +44,6 @@ class ProductReviewForm(forms.ModelForm):
             'pros',
             'cons',
             'review_text',
-            'image',
             'video_url',
         )
         widgets = {
@@ -47,12 +70,17 @@ class ProductReviewForm(forms.ModelForm):
                 'rows': 5,
                 'placeholder': 'Share your honest experience with this product...',
             }),
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control blog-field-input'}),
             'video_url': forms.URLInput(attrs={
                 'class': 'form-control blog-field-input',
                 'placeholder': 'https://youtube.com/watch?v=...',
             }),
         }
+
+    def clean_image(self):
+        images = self.files.getlist('image') if self.files else []
+        if len(images) > ProductReview.MAX_IMAGES:
+            raise forms.ValidationError(f'You can upload a maximum of {ProductReview.MAX_IMAGES} photos.')
+        return images
 
     def clean_recommendation_rating(self):
         value = self.cleaned_data.get('recommendation_rating') or 0

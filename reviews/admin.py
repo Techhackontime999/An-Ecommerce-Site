@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Review, SellerReview, ProductReview, ReviewReport
+from .models import Review, SellerReview, ProductReview, ProductReviewImage, ReviewReport
+
+
+class ProductReviewImageInline(admin.TabularInline):
+    model = ProductReviewImage
+    extra = 0
 
 
 @admin.register(Review)
@@ -31,6 +36,7 @@ class ProductReviewAdmin(admin.ModelAdmin):
     list_select_related = ('reviewer', 'product')
     raw_id_fields = ('reviewer', 'product')
     filter_horizontal = ('helpful_votes',)
+    inlines = [ProductReviewImageInline]
     actions = ('approve_reviews', 'reject_reviews', 'mark_verified_reviewer')
 
     @admin.action(description='Approve selected reviews')

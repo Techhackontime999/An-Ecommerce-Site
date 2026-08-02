@@ -334,8 +334,9 @@
 
     themeManager: function() {
       const root = document.documentElement;
-      const toggle = document.querySelector('[data-theme-toggle]');
-      if (!toggle) return;
+      const toggles = document.querySelectorAll('[data-theme-toggle]');
+      if (!toggles.length) return;
+      const toggle = toggles[0];
 
       const STORAGE_KEY = 'aq-theme';
 
@@ -361,11 +362,13 @@
         window.setTimeout(() => root.classList.remove('aq-theming'), 450);
       };
 
-      toggle.addEventListener('click', () => {
-        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        enableTransition();
-        root.setAttribute('data-theme', next);
-        persist(next);
+      toggles.forEach((t) => {
+        t.addEventListener('click', () => {
+          const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          enableTransition();
+          root.setAttribute('data-theme', next);
+          persist(next);
+        });
       });
     },
 

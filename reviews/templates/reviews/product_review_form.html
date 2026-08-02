@@ -76,8 +76,23 @@
           </div>
 
           <div class="blog-field-block">
-            <label class="blog-field-label" for="{{ form.image.id_for_label }}">Photo</label>
+            <label class="blog-field-label" for="{{ form.image.id_for_label }}">Photos (up to 3)</label>
             {{ form.image }}
+            <small class="blog-field-hint">You can attach up to 3 photos. The first one becomes the cover.</small>
+            {% for error in form.image.errors %}<p class="blog-field-error">{{ error }}</p>{% endfor %}
+            {% if editing and review.images.all %}
+            <div class="review-image-manage">
+              {% for img in review.images.all %}
+              <label class="review-image-manage-item">
+                <img src="{{ img.image.url }}" alt="Review photo">
+                <span>
+                  <input type="checkbox" name="remove_images" value="{{ img.pk }}">
+                  Remove
+                </span>
+              </label>
+              {% endfor %}
+            </div>
+            {% endif %}
           </div>
 
           <div class="blog-form-actions">

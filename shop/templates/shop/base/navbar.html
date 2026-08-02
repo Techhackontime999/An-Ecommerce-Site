@@ -1,153 +1,248 @@
 {% load static %}
 {% load i18n %}
-
-<nav class="nav-aq" role="navigation">
+{% with url_name=request.resolver_match.url_name %}
+<nav class="nav-aq" role="navigation" aria-label="{% trans 'Main navigation' %}">
   <div class="nav-aq-inner">
-    <a href="{% url 'shop:home' %}" class="nav-aq-logo">
-      <span class="logo-mark">S</span>
-      Shop-Seed
-    </a>
 
-    <ul class="nav-aq-links">
-      <li><a href="{% url 'shop:home' %}">{% trans "Home" %}</a></li>
-      <li><a href="{% url 'shop:product_list' %}">{% trans "Shop" %}</a></li>
-      <li><a href="{% url 'deals:todays_deals' %}">{% trans "Deals" %}</a></li>
-      <li><a href="{% url 'about:about' %}">{% trans "About" %}</a></li>
-      <li><a href="{% url 'seller:best_sellers' %}">{% trans "Best Sellers" %}</a></li>
-      <li><a href="{% url 'services:services_list' %}">{% trans "Services" %}</a></li>
-      <li><a href="{% url 'blogs:blog_home' %}">{% trans "Blog" %}</a></li>
-    </ul>
+    <!-- ═══ Desktop row (≥1024px) ═══ -->
+    <div class="nav-aq-row-desktop">
+      <a href="{% url 'shop:home' %}" class="nav-aq-logo" aria-label="{% trans 'Shop-Seed home' %}">
+        <span class="logo-mark">S</span>
+        Shop-Seed
+      </a>
 
-    <div class="nav-aq-actions">
+      <ul class="nav-aq-links">
+        <li><a href="{% url 'shop:home' %}" {% if url_name == 'home' %}class="is-active"{% endif %}>{% trans "Home" %}</a></li>
+        <li><a href="{% url 'shop:product_list' %}" {% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %}class="is-active"{% endif %}>{% trans "Shop" %}</a></li>
+        <li><a href="{% url 'deals:todays_deals' %}" {% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %}class="is-active"{% endif %}>{% trans "Deals" %}</a></li>
+        <li><a href="{% url 'about:about' %}">{% trans "About" %}</a></li>
+        <li><a href="{% url 'seller:best_sellers' %}">{% trans "Best Sellers" %}</a></li>
+        <li><a href="{% url 'services:services_list' %}">{% trans "Services" %}</a></li>
+        <li><a href="{% url 'blogs:blog_home' %}">{% trans "Blog" %}</a></li>
+      </ul>
+
       <div class="nav-aq-search">
         <span class="search-icon"><i class="fas fa-search"></i></span>
-        <form method="GET" action="{% url 'shop:product_search' %}">
-          <input type="text" placeholder="{% trans 'Search products...' %}" name="q" value="{{ query|default:'' }}">
+        <form method="GET" action="{% url 'shop:product_search' %}" role="search">
+          <input type="text" placeholder="{% trans 'Search products...' %}" name="q" value="{{ query|default:'' }}" aria-label="{% trans 'Search products' %}">
         </form>
       </div>
 
-      <button type="button" class="nav-aq-theme" data-theme-toggle title="Toggle theme" aria-label="Toggle dark mode"
-              data-url="{% url 'preferences:toggle_theme' %}" data-csrf="{{ csrf_token }}">
-        <i class="fas fa-sun"></i>
-        <i class="fas fa-moon"></i>
-      </button>
-
-      <a href="{% url 'cart:cart_detail' %}" class="nav-aq-cart">
-        <i class="fas fa-bag-shopping"></i>
-        <span class="cart-count">
-          {% with total_items=cart|length %}
-            {% if total_items > 0 %}{{ total_items }}{% else %}0{% endif %}
-          {% endwith %}
-        </span>
-      </a>
-
-      {% if user.is_authenticated %}
-      {% include 'notifications/dropdown.html' %}
-      <div class="nav-aq-profile-dropdown">
-        <button class="nav-aq-user" title="{% trans 'Account' %}">
-          <i class="fas fa-user"></i>
+      <div class="nav-aq-actions">
+        <button type="button" class="nav-aq-theme" data-theme-toggle title="{% trans 'Toggle theme' %}" aria-label="{% trans 'Toggle dark mode' %}"
+                data-url="{% url 'preferences:toggle_theme' %}" data-csrf="{{ csrf_token }}">
+          <i class="fas fa-sun"></i>
+          <i class="fas fa-moon"></i>
         </button>
-        <div class="nav-aq-dropdown-menu">
-          <div class="nav-aq-dropdown-menu-inner">
-            <div class="nav-aq-quick-prefs">
-              <label>{% trans "Language" %}
-                <select class="aq-quick-select" data-pref="language"
-                        data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
-                  {% for code, name in LANGUAGES %}
-                  <option value="{{ code }}" {% if user_prefs.language == code %}selected{% endif %}>{{ name }}</option>
-                  {% endfor %}
-                </select>
-              </label>
-              <label>{% trans "Currency" %}
-                <select class="aq-quick-select" data-pref="currency"
-                        data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
-                  {% for code, info in CURRENCIES.items %}
-                  <option value="{{ code }}" {% if user_prefs.currency == code %}selected{% endif %}>{{ info.name }} ({{ code }})</option>
-                  {% endfor %}
-                </select>
-              </label>
+
+        {% if user.is_authenticated %}
+        {% include 'notifications/dropdown.html' %}
+        {% endif %}
+
+        <a href="{% url 'cart:cart_detail' %}" class="nav-aq-cart" aria-label="{% trans 'Shopping cart' %}">
+          <i class="fas fa-bag-shopping"></i>
+          <span class="cart-count" data-cart-count>
+            {% with total_items=cart|length %}
+              {% if total_items > 0 %}{{ total_items }}{% else %}0{% endif %}
+            {% endwith %}
+          </span>
+        </a>
+
+        {% if user.is_authenticated %}
+        <div class="nav-aq-profile-dropdown">
+          <button class="nav-aq-user" title="{% trans 'Account' %}" aria-label="{% trans 'Account menu' %}">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="nav-aq-dropdown-menu">
+            <div class="nav-aq-dropdown-menu-inner">
+              <div class="nav-aq-quick-prefs">
+                <label>{% trans "Language" %}
+                  <select class="aq-quick-select" data-pref="language"
+                          data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
+                    {% for code, name in LANGUAGES %}
+                    <option value="{{ code }}" {% if user_prefs.language == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+                <label>{% trans "Currency" %}
+                  <select class="aq-quick-select" data-pref="currency"
+                          data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
+                    {% for code, info in CURRENCIES.items %}
+                    <option value="{{ code }}" {% if user_prefs.currency == code %}selected{% endif %}>{{ info.name }} ({{ code }})</option>
+                    {% endfor %}
+                  </select>
+                </label>
+              </div>
+              <div class="nav-aq-dropdown-divider"></div>
+              {% if is_seller %}
+              <a href="{% url 'seller:seller_dashboard' %}"><i class="fas fa-chart-pie"></i> {% trans "Dashboard" %}</a>
+              {% endif %}
+              {% if user.is_staff %}
+              <a href="{% url 'admin:index' %}"><i class="fas fa-shield-alt"></i> {% trans "Admin" %}</a>
+              {% endif %}
+              <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> {% trans "Your Profile" %}</a>
+              <a href="{% url 'order:my_orders' %}"><i class="fas fa-box"></i> {% trans "Returns & Orders" %}</a>
+              <a href="{% url 'notifications:list' %}"><i class="fas fa-bell"></i> {% trans "Notifications" %}{% if notification_unread_count %}<span class="nav-aq-dropdown-badge">{{ notification_unread_count }}</span>{% endif %}</a>
+              <a href="{% url 'notifications:settings' %}"><i class="fas fa-bell-slash"></i> {% trans "Notification Settings" %}</a>
+              <a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a>
+              <div class="nav-aq-dropdown-divider"></div>
+              <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> {% trans "Logout" %}</a>
             </div>
-            <div class="nav-aq-dropdown-divider"></div>
-            {% if is_seller %}
-            <a href="{% url 'seller:seller_dashboard' %}"><i class="fas fa-chart-pie"></i> {% trans "Dashboard" %}</a>
-            {% endif %}
-            {% if user.is_staff %}
-            <a href="{% url 'admin:index' %}"><i class="fas fa-shield-alt"></i> {% trans "Admin" %}</a>
-            {% endif %}
-            <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> {% trans "Your Profile" %}</a>
-            <a href="{% url 'order:my_orders' %}"><i class="fas fa-box"></i> {% trans "Returns & Orders" %}</a>
-            <a href="{% url 'notifications:list' %}"><i class="fas fa-bell"></i> {% trans "Notifications" %}{% if notification_unread_count %}<span class="nav-aq-dropdown-badge">{{ notification_unread_count }}</span>{% endif %}</a>
-            <a href="{% url 'notifications:settings' %}"><i class="fas fa-bell-slash"></i> {% trans "Notification Settings" %}</a>
-            <a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a>
-            <div class="nav-aq-dropdown-divider"></div>
-            <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> {% trans "Logout" %}</a>
           </div>
         </div>
-      </div>
-      {% else %}
-      <div class="nav-aq-profile-dropdown">
-        <button class="nav-aq-user" title="{% trans 'Account' %}">
-          <i class="fas fa-user"></i>
-        </button>
-        <div class="nav-aq-dropdown-menu">
-          <div class="nav-aq-dropdown-menu-inner">
-            <div class="nav-aq-quick-prefs">
-              <label>{% trans "Language" %}
-                <select class="aq-quick-select" data-pref="language"
-                        data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
-                  {% for code, name in LANGUAGES %}
-                  <option value="{{ code }}" {% if user_prefs.language == code %}selected{% endif %}>{{ name }}</option>
-                  {% endfor %}
-                </select>
-              </label>
-              <label>{% trans "Currency" %}
-                <select class="aq-quick-select" data-pref="currency"
-                        data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
-                  {% for code, info in CURRENCIES.items %}
-                  <option value="{{ code }}" {% if user_prefs.currency == code %}selected{% endif %}>{{ info.name }} ({{ code }})</option>
-                  {% endfor %}
-                </select>
-              </label>
+        {% else %}
+        <div class="nav-aq-profile-dropdown">
+          <button class="nav-aq-user" title="{% trans 'Account' %}" aria-label="{% trans 'Account menu' %}">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="nav-aq-dropdown-menu">
+            <div class="nav-aq-dropdown-menu-inner">
+              <div class="nav-aq-quick-prefs">
+                <label>{% trans "Language" %}
+                  <select class="aq-quick-select" data-pref="language"
+                          data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
+                    {% for code, name in LANGUAGES %}
+                    <option value="{{ code }}" {% if user_prefs.language == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+                <label>{% trans "Currency" %}
+                  <select class="aq-quick-select" data-pref="currency"
+                          data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}">
+                    {% for code, info in CURRENCIES.items %}
+                    <option value="{{ code }}" {% if user_prefs.currency == code %}selected{% endif %}>{{ info.name }} ({{ code }})</option>
+                    {% endfor %}
+                  </select>
+                </label>
+              </div>
+              <div class="nav-aq-dropdown-divider"></div>
+              <a href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt"></i> {% trans "Sign In" %}</a>
+              <a href="{% url 'accounts:signup' %}"><i class="fas fa-user-plus"></i> {% trans "Create Account" %}</a>
+              <div class="nav-aq-dropdown-divider"></div>
+              <a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a>
             </div>
-            <div class="nav-aq-dropdown-divider"></div>
-            <a href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt"></i> {% trans "Sign In" %}</a>
-            <a href="{% url 'accounts:signup' %}"><i class="fas fa-user-plus"></i> {% trans "Create Account" %}</a>
-            <div class="nav-aq-dropdown-divider"></div>
-            <a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a>
           </div>
         </div>
+        {% endif %}
       </div>
-      {% endif %}
-
-      <button class="nav-aq-hamburger" aria-label="Toggle menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
     </div>
+
+    <!-- ═══ Mobile rows (<1024px) ═══ -->
+    <div class="nav-aq-row-mobile">
+      <div class="nav-aq-mobile-top">
+        <button type="button" class="nav-aq-hamburger" data-drawer-open aria-label="{% trans 'Open menu' %}" aria-controls="mobile-drawer" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <a href="{% url 'shop:home' %}" class="nav-aq-logo" aria-label="{% trans 'Shop-Seed home' %}">
+          <span class="logo-mark">S</span>
+          Shop-Seed
+        </a>
+
+        <div class="nav-aq-mobile-actions">
+          <button type="button" class="nav-aq-theme nav-aq-mobile-icon" data-theme-toggle title="{% trans 'Toggle theme' %}" aria-label="{% trans 'Toggle dark mode' %}"
+                  data-url="{% url 'preferences:toggle_theme' %}" data-csrf="{{ csrf_token }}">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+          </button>
+          <a href="{% url 'cart:cart_detail' %}" class="nav-aq-cart" aria-label="{% trans 'Shopping cart' %}">
+            <i class="fas fa-bag-shopping"></i>
+            <span class="cart-count" data-cart-count>
+              {% with total_items=cart|length %}
+                {% if total_items > 0 %}{{ total_items }}{% else %}0{% endif %}
+              {% endwith %}
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-aq-search">
+        <span class="search-icon"><i class="fas fa-search"></i></span>
+        <form method="GET" action="{% url 'shop:product_search' %}" role="search">
+          <input type="text" placeholder="{% trans 'Search products...' %}" name="q" value="{{ query|default:'' }}" aria-label="{% trans 'Search products' %}">
+        </form>
+      </div>
+    </div>
+
   </div>
 </nav>
 
-<aside class="mobile-menu-aq">
-  <ul>
-    <li style="--index: 0"><a href="{% url 'shop:home' %}">{% trans "Home" %}</a></li>
-    <li style="--index: 1"><a href="{% url 'shop:product_list' %}">{% trans "Shop" %}</a></li>
-    <li style="--index: 2"><a href="{% url 'deals:todays_deals' %}">{% trans "Today's Deals" %}</a></li>
-    <li style="--index: 3"><a href="{% url 'about:about' %}">{% trans "About" %}</a></li>
-    <li style="--index: 4"><a href="{% url 'deals:todays_deals' %}">{% trans "Big Billion Days" %}</a></li>
-    <li style="--index: 5"><a href="{% url 'seller:best_sellers' %}">{% trans "Best Sellers" %}</a></li>
-    <li style="--index: 6"><a href="{% url 'services:services_list' %}">{% trans "Customer Services" %}</a></li>
-    <li style="--index: 7"><a href="{% url 'blogs:blog_home' %}">{% trans "Market Blog" %}</a></li>
-    <li style="--index: 8"><a href="{% url 'accounts:seller_register' %}">{% trans "Sellers Registration" %}</a></li>
-    <li style="--index: 9"><a href="{% url 'contact:contact' %}">{% trans "Contact Us" %}</a></li>
-    <li style="--index: 10"><a href="{% url 'accounts:signup' %}">{% trans "Join Shop-Seed" %}</a></li>
-    <li style="--index: 11"><a href="{% url 'faq:faq' %}">{% trans "FAQ" %}</a></li>
+<!-- ═══ Mobile side drawer ═══ -->
+<div class="ds-drawer-overlay" data-drawer-close aria-hidden="true"></div>
+<aside class="mobile-menu-aq" id="mobile-drawer" role="dialog" aria-modal="true" aria-label="{% trans 'Menu' %}">
+  <div class="ds-drawer-head">
+    <button type="button" class="ds-drawer-close" data-drawer-close aria-label="{% trans 'Close menu' %}"><i class="fas fa-times"></i></button>
+
     {% if user.is_authenticated %}
-    <li style="--index: 12"><a href="{% url 'notifications:list' %}"><i class="fas fa-bell"></i> {% trans "Notifications" %}{% if notification_unread_count %} ({{ notification_unread_count }}){% endif %}</a></li>
-    <li style="--index: 13"><a href="{% url 'notifications:settings' %}"><i class="fas fa-bell-slash"></i> {% trans "Notification Settings" %}</a></li>
-    <li style="--index: 14"><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a></li>
+    <a href="{% url 'accounts:profile' %}" class="ds-drawer-user">
+      <span class="ds-drawer-avatar">{{ user.username|first|upper }}</span>
+      <span class="ds-drawer-user-meta">
+        <span class="ds-drawer-user-name">{{ user.get_full_name|default:user.username }}</span>
+        <span class="ds-drawer-user-email">{{ user.email }}</span>
+      </span>
+    </a>
     {% else %}
-    <li style="--index: 12"><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Preferences" %}</a></li>
+    <a href="{% url 'accounts:login' %}" class="ds-drawer-user">
+      <span class="ds-drawer-avatar"><i class="fas fa-user"></i></span>
+      <span class="ds-drawer-user-meta">
+        <span class="ds-drawer-user-name">{% trans "Sign In / Sign Up" %}</span>
+        <span class="ds-drawer-user-email">{% trans "Access your account" %}</span>
+      </span>
+    </a>
+    {% endif %}
+  </div>
+
+  <div class="ds-drawer-quick">
+    <label class="ds-drawer-section-label">{% trans "Preferences" %}</label>
+    <select class="aq-quick-select" data-pref="language"
+            data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}" aria-label="{% trans 'Language' %}">
+      {% for code, name in LANGUAGES %}
+      <option value="{{ code }}" {% if user_prefs.language == code %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <select class="aq-quick-select" data-pref="currency"
+            data-url="{% url 'preferences:quick_prefs' %}" data-csrf="{{ csrf_token }}" aria-label="{% trans 'Currency' %}">
+      {% for code, info in CURRENCIES.items %}
+      <option value="{{ code }}" {% if user_prefs.currency == code %}selected{% endif %}>{{ info.name }} ({{ code }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <ul class="ds-drawer-nav">
+    <li><a href="{% url 'shop:home' %}" {% if url_name == 'home' %}class="is-active"{% endif %}><i class="fas fa-house"></i> {% trans "Home" %}</a></li>
+    <li><a href="{% url 'shop:product_list' %}" {% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %}class="is-active"{% endif %}><i class="fas fa-store"></i> {% trans "Shop" %}</a></li>
+    <li><a href="{% url 'deals:todays_deals' %}" {% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %}class="is-active"{% endif %}><i class="fas fa-bolt"></i> {% trans "Today's Deals" %}</a></li>
+    <li><a href="{% url 'seller:best_sellers' %}"><i class="fas fa-crown"></i> {% trans "Best Sellers" %}</a></li>
+    <li><a href="{% url 'blogs:blog_home' %}"><i class="fas fa-newspaper"></i> {% trans "Market Blog" %}</a></li>
+    <li><a href="{% url 'services:services_list' %}"><i class="fas fa-headset"></i> {% trans "Customer Services" %}</a></li>
+    <li><a href="{% url 'about:about' %}"><i class="fas fa-circle-info"></i> {% trans "About" %}</a></li>
+    <li><a href="{% url 'contact:contact' %}"><i class="fas fa-envelope"></i> {% trans "Contact Us" %}</a></li>
+    <li><a href="{% url 'faq:faq' %}"><i class="fas fa-circle-question"></i> {% trans "FAQ" %}</a></li>
+
+    <li class="ds-drawer-divider" role="presentation"></li>
+    <li class="ds-drawer-section-label" aria-hidden="true">{% trans "Account" %}</li>
+
+    {% if user.is_authenticated %}
+    {% if is_seller %}
+    <li><a href="{% url 'seller:seller_dashboard' %}"><i class="fas fa-chart-pie"></i> {% trans "Dashboard" %}</a></li>
+    {% endif %}
+    {% if user.is_staff %}
+    <li><a href="{% url 'admin:index' %}"><i class="fas fa-shield-alt"></i> {% trans "Admin" %}</a></li>
+    {% endif %}
+    <li><a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> {% trans "Your Profile" %}</a></li>
+    <li><a href="{% url 'order:my_orders' %}"><i class="fas fa-box"></i> {% trans "Returns & Orders" %}</a></li>
+    <li><a href="{% url 'notifications:list' %}"><i class="fas fa-bell"></i> {% trans "Notifications" %}{% if notification_unread_count %}<span class="nav-aq-dropdown-badge">{{ notification_unread_count }}</span>{% endif %}</a></li>
+    <li><a href="{% url 'notifications:settings' %}"><i class="fas fa-bell-slash"></i> {% trans "Notification Settings" %}</a></li>
+    <li><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Settings" %}</a></li>
+    <li><a href="{% url 'accounts:logout' %}"><i class="fas fa-right-from-bracket"></i> {% trans "Logout" %}</a></li>
+    {% else %}
+    <li><a href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt"></i> {% trans "Sign In" %}</a></li>
+    <li><a href="{% url 'accounts:signup' %}"><i class="fas fa-user-plus"></i> {% trans "Create Account" %}</a></li>
+    <li><a href="{% url 'accounts:seller_register' %}"><i class="fas fa-store"></i> {% trans "Sellers Registration" %}</a></li>
+    <li><a href="{% url 'preferences:settings' %}"><i class="fas fa-sliders-h"></i> {% trans "Preferences" %}</a></li>
     {% endif %}
   </ul>
 </aside>
+{% endwith %}

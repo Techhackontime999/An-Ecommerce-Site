@@ -506,7 +506,7 @@
 /* ── Buy box ── */
 .pdp-buybox {
   position: sticky;
-  top: 6.5rem;
+  top: calc(var(--ds-navbar-h) + 16px);
   background: var(--aq-surface);
   border: 1px solid var(--aq-border);
   border-radius: var(--aq-radius-lg);
@@ -911,8 +911,8 @@ body.pdp-lightbox-open {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 0;
-    z-index: 50;
+    bottom: calc(var(--ds-bottombar-h) + env(safe-area-inset-bottom, 0px) + 0.625rem);
+    z-index: 1040;
     background: var(--aq-surface);
     border-top: 1px solid var(--aq-border);
     box-shadow: 0 -10px 30px -12px rgba(0, 0, 0, 0.18);
@@ -942,7 +942,7 @@ body.pdp-lightbox-open {
     margin-bottom: 0;
   }
   body {
-    padding-bottom: 4.5rem;
+    padding-bottom: calc(var(--ds-bottombar-h) + env(safe-area-inset-bottom, 0px) + 4.5rem);
   }
 }
 

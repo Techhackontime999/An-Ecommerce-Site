@@ -29,9 +29,12 @@
         </div>
       </div>
 
-      <div>
-        <h4>{% trans "Shop" %}</h4>
-        <ul>
+      <div class="footer-aq-col" data-acc-col>
+        <button type="button" class="ds-facc" data-acc-toggle aria-expanded="false" aria-controls="footer-col-shop">
+          {% trans "Shop" %}
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+        <ul id="footer-col-shop">
           <li><a href="{% url 'shop:product_list' %}">{% trans "All Products" %}</a></li>
           <li><a href="{% url 'deals:todays_deals' %}">{% trans "Today's Deals" %}</a></li>
           <li><a href="{% url 'seller:best_sellers' %}">{% trans "Best Sellers" %}</a></li>
@@ -40,9 +43,12 @@
         </ul>
       </div>
 
-      <div>
-        <h4>{% trans "Support" %}</h4>
-        <ul>
+      <div class="footer-aq-col" data-acc-col>
+        <button type="button" class="ds-facc" data-acc-toggle aria-expanded="false" aria-controls="footer-col-support">
+          {% trans "Support" %}
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+        <ul id="footer-col-support">
           <li><a href="{% url 'contact:contact' %}">{% trans "Contact Us" %}</a></li>
           <li><a href="{% url 'faq:faq' %}">{% trans "FAQ" %}</a></li>
           <li><a href="{% url 'services:services_list' %}">{% trans "Services" %}</a></li>
@@ -51,9 +57,12 @@
         </ul>
       </div>
 
-      <div>
-        <h4>{% trans "Company" %}</h4>
-        <ul>
+      <div class="footer-aq-col" data-acc-col>
+        <button type="button" class="ds-facc" data-acc-toggle aria-expanded="false" aria-controls="footer-col-company">
+          {% trans "Company" %}
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+        <ul id="footer-col-company">
           <li><a href="{% url 'about:about' %}">{% trans "About Us" %}</a></li>
           <li><a href="{% url 'accounts:seller_register' %}">{% trans "Sell With Us" %}</a></li>
           <li><a href="{% url 'accounts:signup' %}">{% trans "Join Shop-Seed" %}</a></li>
@@ -120,4 +129,3 @@
     });
   })();
 </script>
-

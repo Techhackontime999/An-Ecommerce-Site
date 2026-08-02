@@ -190,6 +190,20 @@
           </ul>
         </div>
       </aside>
+
+      <!-- Mobile sticky checkout bar (below 1024px) -->
+      <div class="crt-sticky-checkout">
+        <div class="crt-sticky-total">
+          <span class="crt-line-label">Total</span>
+          <strong class="mono">{% price cart.get_total_price_after_discount %}</strong>
+        </div>
+        <form action="{% url 'order:order_create' %}" method="get">
+          <button type="submit" class="crt-btn-primary">
+            <span>Checkout</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </form>
+      </div>
     </div>
     {% else %}
     <!-- Empty state -->

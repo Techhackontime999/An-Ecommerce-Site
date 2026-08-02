@@ -19,7 +19,7 @@
     {% if user.is_authenticated %}
       {% if user_review %}
       <a href="{% url 'reviews:product_review_detail' user_review.pk %}" class="btn-aq btn-aq-ghost"><i class="fas fa-edit"></i> My review</a>
-      {% else %}
+      {% elif user_purchased %}
       <a href="{% url 'reviews:create_product_review' product.pk %}" class="btn-aq btn-aq-primary"><i class="fas fa-pen"></i> Write a detailed review</a>
       {% endif %}
     {% else %}

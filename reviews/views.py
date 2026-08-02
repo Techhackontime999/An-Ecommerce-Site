@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from shop.models import Product
 
 from .forms import ProductReviewForm, ReviewReportForm
-from .models import ProductReview, Review, ReviewReport
+from .models import ProductReview, ProductReviewImage, Review, ReviewReport, has_paid_order
 from notifications.models import Notification
 from notifications.services import notify
 
@@ -22,7 +22,7 @@ def _approved_reviews(product):
     return ProductReview.objects.filter(
         product=product,
         status=ProductReview.Status.APPROVED,
-    ).select_related('reviewer')
+    ).select_related('reviewer').prefetch_related('images')
 
 
 def product_review_list(request, product_id):
@@ -41,6 +41,7 @@ def product_review_list(request, product_id):
         'average': round(overall['avg_rating'], 1) if overall['avg_rating'] else 0,
         'total': overall['total'],
         'recommend_pct': _recommend_percent(reviews),
+        'user_purchased': has_paid_order(request.user, product) if request.user.is_authenticated else False,
     }
     return render(request, 'reviews/product_review_list.html', context)
 
@@ -53,9 +54,26 @@ def _recommend_percent(reviews):
     return round(recommended / total * 100)
 
 
+def _handle_review_image_removal(review, remove_ids):
+    if remove_ids:
+        ProductReviewImage.objects.filter(review=review, id__in=remove_ids).delete()
+
+
+def _save_review_images(review, files):
+    remaining = ProductReview.MAX_IMAGES - review.images.count()
+    if remaining <= 0:
+        return
+    for f in files[:remaining]:
+        ProductReviewImage.objects.create(review=review, image=f)
+
+
 @login_required
 def create_product_review(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+
+    if not has_paid_order(request.user, product):
+        messages.error(request, 'Only customers who purchased this product can write a review.')
+        return redirect(product.get_absolute_url())
 
     existing = ProductReview.objects.filter(product=product, reviewer=request.user).first()
     if existing:
@@ -69,6 +87,7 @@ def create_product_review(request, product_id):
             review.product = product
             review.reviewer = request.user
             review.save()
+            _save_review_images(review, request.FILES.getlist('image'))
             seller = product.seller
             if seller and seller.user_id and seller.user != request.user:
                 notify(
@@ -92,12 +111,15 @@ def create_product_review(request, product_id):
 @login_required
 def edit_product_review(request, review_id):
     review = get_object_or_404(ProductReview, pk=review_id)
-    if review.reviewer != request.user and not request.user.is_staff:
-        raise PermissionError
+    if review.reviewer != request.user:
+        from django.http import Http404
+        raise Http404
     if request.method == 'POST':
         form = ProductReviewForm(request.POST, request.FILES, instance=review)
         if form.is_valid():
             review = form.save()
+            _handle_review_image_removal(review, request.POST.getlist('remove_images'))
+            _save_review_images(review, request.FILES.getlist('image'))
             messages.success(request, 'Your review has been updated.')
             return redirect('reviews:product_review_detail', review_id=review.pk)
     else:

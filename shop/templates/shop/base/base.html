@@ -20,19 +20,22 @@
     <link rel="stylesheet" href="{% static "css/owl.theme.default.min.css" %}">
     <link rel="stylesheet" href="{% static "css/aos.css" %}">
     <link rel="stylesheet" href="{% static "notifications/css/notifications.css" %}">
+    <link rel="stylesheet" href="{% static "css/design-system.css" %}">
     {% block extra_css %}{% endblock %}
     <style>
       html { margin: 0; padding: 0; box-sizing: border-box; }
     </style>
 </head>
 <body class="{% block body_class %}{% if news_ticker_items %}has-news-ticker{% endif %}{% endblock %}">
+    <a class="ds-skip-link" href="#main-content">{% trans "Skip to content" %}</a>
     <div class="aq-scroll-progress" id="aq-scroll-progress" aria-hidden="true"></div>
     {% block news_ticker %}{% include 'news/ticker.html' %}{% endblock %}
     {% include 'shop/base/navbar.html' %}
-    <main>
+    <main id="main-content" tabindex="-1">
         {% block content %}{% endblock %}
     </main>
     {% include 'shop/base/footer.html' %}
+    {% include 'shop/base/bottomnav.html' %}
 
     <button type="button" class="aq-to-top" id="aq-to-top" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
 
@@ -41,6 +44,7 @@
     <script src="{% static "js/owl.carousel.min.js" %}"></script>
     <script src="{% static "js/aos.js" %}"></script>
     <script src="{% static "js/aquastic.js" %}"></script>
+    <script src="{% static "js/responsive.js" %}"></script>
     <script src="{% static "notifications/js/notifications.js" %}"></script>
     <script>
         AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true });

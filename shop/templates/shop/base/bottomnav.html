@@ -1,0 +1,28 @@
+{% load i18n %}
+{% with url_name=request.resolver_match.url_name %}
+<nav class="ds-bottombar" aria-label="{% trans 'Bottom navigation' %}">
+  <a href="{% url 'shop:home' %}" class="ds-tab{% if url_name == 'home' %} is-active{% endif %}"{% if url_name == 'home' %} aria-current="page"{% endif %} aria-label="{% trans 'Home' %}">
+    <i class="fas fa-house"></i>
+    <span>{% trans "Home" %}</span>
+  </a>
+  <a href="{% url 'shop:product_list' %}" class="ds-tab{% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %} is-active{% endif %}"{% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %} aria-current="page"{% endif %} aria-label="{% trans 'Shop' %}">
+    <i class="fas fa-store"></i>
+    <span>{% trans "Shop" %}</span>
+  </a>
+  <a href="{% url 'deals:todays_deals' %}" class="ds-tab{% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %} is-active{% endif %}"{% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %} aria-current="page"{% endif %} aria-label="{% trans 'Deals' %}">
+    <i class="fas fa-bolt"></i>
+    <span>{% trans "Deals" %}</span>
+  </a>
+  <a href="{% url 'cart:cart_detail' %}" class="ds-tab{% if url_name == 'cart_detail' %} is-active{% endif %}"{% if url_name == 'cart_detail' %} aria-current="page"{% endif %} aria-label="{% trans 'Cart' %}">
+    <i class="fas fa-bag-shopping"></i>
+    <span>{% trans "Cart" %}</span>
+    {% with total_items=cart|length %}
+      {% if total_items > 0 %}<span class="ds-tab-badge" data-cart-count>{{ total_items }}</span>{% endif %}
+    {% endwith %}
+  </a>
+  <a href="{% if user.is_authenticated %}{% url 'accounts:profile' %}{% else %}{% url 'accounts:login' %}{% endif %}" class="ds-tab{% if url_name == 'profile' or url_name == 'login' or url_name == 'signup' or url_name == 'my_orders' or url_name == 'settings' or url_name == 'seller_dashboard' or url_name == 'private_profile' %} is-active{% endif %}"{% if url_name == 'profile' or url_name == 'login' or url_name == 'signup' or url_name == 'my_orders' or url_name == 'settings' or url_name == 'seller_dashboard' or url_name == 'private_profile' %} aria-current="page"{% endif %} aria-label="{% trans 'Account' %}">
+    <i class="fas fa-user"></i>
+    <span>{% trans "Account" %}</span>
+  </a>
+</nav>
+{% endwith %}

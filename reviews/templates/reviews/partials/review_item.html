@@ -43,7 +43,13 @@
   {% if review.review_text %}
   <p class="review-card-text">{{ review.review_text|linebreaksbr }}</p>
   {% endif %}
-  {% if review.image %}
+  {% if review.images.all %}
+  <div class="review-image-grid">
+    {% for img in review.images.all %}
+    <img class="review-card-image" src="{{ img.image.url }}" alt="Review photo">
+    {% endfor %}
+  </div>
+  {% elif review.image %}
   <img class="review-card-image" src="{{ review.image.url }}" alt="Review photo">
   {% endif %}
   {% if review.video_url %}

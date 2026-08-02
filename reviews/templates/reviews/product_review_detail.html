@@ -68,7 +68,13 @@
         <div class="review-cons"><i class="fas fa-minus-circle"></i> <strong>Cons:</strong> {{ review.cons|linebreaksbr }}</div>
         {% endif %}
         <p class="review-detail-text">{{ review.review_text|linebreaksbr }}</p>
-        {% if review.image %}
+        {% if review.images.all %}
+        <div class="review-image-grid">
+          {% for img in review.images.all %}
+          <img class="review-card-image" src="{{ img.image.url }}" alt="Review photo">
+          {% endfor %}
+        </div>
+        {% elif review.image %}
         <img class="review-card-image" src="{{ review.image.url }}" alt="Review photo">
         {% endif %}
         {% if review.video_url %}
@@ -86,7 +92,7 @@
           {% else %}
           <span class="blog-helpful-btn"><i class="fas fa-thumbs-up"></i> {{ review.helpful_count }} helpful</span>
           {% endif %}
-          {% if user == review.reviewer or user.is_staff %}
+          {% if user == review.reviewer %}
           <a class="blog-action-btn" href="{% url 'reviews:edit_product_review' review.pk %}"><i class="fas fa-edit"></i> Edit</a>
           {% endif %}
           <a class="blog-action-btn blog-action-btn--danger" href="{% url 'reviews:report_review' review.pk %}"><i class="fas fa-flag"></i> Report</a>

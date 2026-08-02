@@ -6,6 +6,15 @@ from accounts.models import SellerProfile,CustomerProfile
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+
+def has_paid_order(user, product):
+    from order.models import OrderItem
+    return OrderItem.objects.filter(
+        order__user=user,
+        product=product,
+        order__paid=True,
+    ).exists()
+
 class Review(models.Model):
 
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
@@ -61,6 +70,8 @@ class SellerReview(models.Model):
 
 
 class ProductReview(models.Model):
+    MAX_IMAGES = 3
+
     class Status(models.TextChoices):
         PENDING = 'pending', 'Pending'
         APPROVED = 'approved', 'Approved'
@@ -137,17 +148,25 @@ class ProductReview(models.Model):
         super().save(*args, **kwargs)
 
     def _has_paid_order(self):
-        from order.models import OrderItem
-        return OrderItem.objects.filter(
-            order__user=self.reviewer,
-            product=self.product,
-            order__paid=True,
-        ).exists()
+        return has_paid_order(self.reviewer, self.product)
 
     def _is_verified_reviewer(self):
         if self.reviewer.is_staff:
             return True
         return SellerReview.objects.filter(customer__user=self.reviewer).exists()
+
+
+class ProductReviewImage(models.Model):
+    review = models.ForeignKey(
+        ProductReview,
+        related_name='images',
+        on_delete=models.CASCADE,
+    )
+    image = models.ImageField(upload_to='reviews/%Y/%m/%d')
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image for review #{self.review_id}"
 
 
 class ReviewReport(models.Model):

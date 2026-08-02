@@ -101,7 +101,7 @@ def product_detail(request, id, slug):
     approved = ProductReview.objects.filter(
         product=product,
         status=ProductReview.Status.APPROVED,
-    ).select_related('reviewer').prefetch_related('helpful_votes')
+    ).select_related('reviewer').prefetch_related('helpful_votes', 'images')
     aggregate = approved.aggregate(average=Avg('overall_rating'))
     widget_total = approved.count()
     widget_average = round(aggregate['average'], 1) if aggregate['average'] else 0
@@ -113,6 +113,9 @@ def product_detail(request, id, slug):
         ProductReview.objects.filter(product=product, reviewer=request.user).first()
         if request.user.is_authenticated else None
     )
+
+    from reviews.models import has_paid_order
+    user_purchased = has_paid_order(request.user, product) if request.user.is_authenticated else False
 
     related_qs = Product.objects.filter(available=True).prefetch_related('deals')
     same_category = related_qs.filter(category=product.category).exclude(id=product.id)[:6]
@@ -163,6 +166,7 @@ def product_detail(request, id, slug):
         'widget_average': widget_average,
         'widget_recommend': widget_recommend,
         'user_review': user_review,
+        'user_purchased': user_purchased,
         'first_available_variant': first_available_variant,
         'has_variant_options': has_variant_options,
         'variant_descriptions': variant_descriptions,

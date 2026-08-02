@@ -27,7 +27,9 @@
         <small>would recommend</small>
       </div>
       {% endif %}
+      {% if user_purchased %}
       <a href="{% url 'reviews:create_product_review' product.pk %}" class="btn-aq btn-aq-primary"><i class="fas fa-pen"></i> Write a review</a>
+      {% endif %}
     </div>
   </div>
 </section>
