@@ -248,6 +248,33 @@ body {
   color: #fff !important;
 }
 
+/* ===== SEED FORM ===== */
+.seed-form {
+  margin-top: 12px;
+}
+.seed-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.seed-select {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border-radius: var(--aq-radius);
+  border: 1px solid var(--aq-border);
+  background: var(--aq-bg);
+  color: var(--aq-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.seed-select:focus {
+  outline: none;
+  border-color: var(--aq-primary);
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.15);
+}
+
 /* ===== STATS GRID ===== */
 .dashboard-stats {
   display: grid;

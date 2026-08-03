@@ -420,9 +420,58 @@ NEWS_ITEMS = [
      'profile page.</p>', False),
 ]
 
+# Quick-generation presets. Individual --options always override the preset value.
+QUICK_PRESETS = {
+    'tiny': {
+        'users': 2, 'products': 6, 'orders': 1, 'reviews': 1,
+        'posts': 1, 'news': 1, 'subscribers': 3, 'seller_products': 3,
+    },
+    'small': {
+        'users': 4, 'products': 12, 'orders': 3, 'reviews': 2,
+        'posts': 3, 'news': 2, 'subscribers': 6, 'seller_products': 8,
+    },
+    'medium': {
+        'users': 8, 'products': 24, 'orders': 6, 'reviews': 3,
+        'posts': 5, 'news': 3, 'subscribers': 10, 'seller_products': 15,
+    },
+    'large': {
+        'users': 12, 'products': 40, 'orders': 10, 'reviews': 4,
+        'posts': 8, 'news': 4, 'subscribers': 15, 'seller_products': 25,
+    },
+    'full': {
+        'users': 12, 'products': 40, 'orders': 12, 'reviews': 5,
+        'posts': 8, 'news': 4, 'subscribers': 20, 'seller_products': 40,
+    },
+}
+
 
 class Command(BaseCommand):
-    help = 'Seed complete demo data for every feature of Shop-Seed, with category-matched images.'
+    help = 'Seed demo data for every feature of Shop-Seed, with category-matched images.'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--preset',
+            choices=list(QUICK_PRESETS),
+            default='medium',
+            help='Quick generation size. Individual options override this. '
+                 '(tiny | small | medium | large | full)',
+        )
+        parser.add_argument('--users', type=int, default=None,
+                            help='Number of customer users to create.')
+        parser.add_argument('--products', type=int, default=None,
+                            help='Number of products to create (max 40).')
+        parser.add_argument('--orders', type=int, default=None,
+                            help='Number of orders to create.')
+        parser.add_argument('--reviews', type=int, default=None,
+                            help='Approximate reviews per product.')
+        parser.add_argument('--posts', type=int, default=None,
+                            help='Number of blog posts to create (max 8).')
+        parser.add_argument('--news', type=int, default=None,
+                            help='Number of news items to create (max 4).')
+        parser.add_argument('--subscribers', type=int, default=None,
+                            help='Number of newsletter subscribers to create.')
+        parser.add_argument('--seller-products', type=int, default=None,
+                            help='Number of listings per seller to create.')
 
     def handle(self, *args, **options):
         self._image_cache = {}
@@ -436,7 +485,15 @@ class Command(BaseCommand):
         self.shipping_methods = []
         self.paid_combos = set()
 
-        self.stdout.write('Seeding Shop-Seed database...')
+        self.cfg = dict(QUICK_PRESETS[options['preset']])
+        for key in ('users', 'products', 'orders', 'reviews', 'posts',
+                    'news', 'subscribers', 'seller_products'):
+            if options.get(key) is not None:
+                self.cfg[key] = max(1, options[key])
+
+        self.stdout.write(
+            f'Seeding Shop-Seed database [{options["preset"]} preset]...'
+        )
 
         self._create_groups()
         self._create_users()
@@ -461,7 +518,7 @@ class Command(BaseCommand):
         self._create_documentation()
 
         self.stdout.write(self.style.SUCCESS(
-            'Database seeded successfully! '
+            f'Database seeded successfully! '
             f'({Product.objects.count()} products, {Order.objects.count()} orders, '
             f'{Review.objects.count()} reviews, {Post.objects.count()} posts)'
         ))
@@ -541,8 +598,12 @@ class Command(BaseCommand):
             ('arjun.nair', 'Arjun', 'Nair'),
             ('kavita.joshi', 'Kavita', 'Joshi'),
             ('rohit.kumar', 'Rohit', 'Kumar'),
+            ('sneha.reddy', 'Sneha', 'Reddy'),
+            ('amit.jain', 'Amit', 'Jain'),
+            ('pooja.malhotra', 'Pooja', 'Malhotra'),
+            ('karan.chopra', 'Karan', 'Chopra'),
         ]
-        for uname, fn, ln in test_users:
+        for uname, fn, ln in test_users[:self.cfg['users']]:
             u, created = User.objects.get_or_create(username=uname, defaults={
                 'first_name': fn, 'last_name': ln, 'email': f'{uname}@example.com',
             })
@@ -560,7 +621,9 @@ class Command(BaseCommand):
             self._attach_image(profile, 'profile_picture', 'abstract', f'{uname}.jpg')
             self.users[uname] = u
             self.customers.append(profile)
-        self.stdout.write(f'  {len(test_users)} customer users created')
+        self.stdout.write(
+            f'  {len(self.customers)}/{self.cfg["users"]} customer users ensured'
+        )
 
         sellers_data = [
             ('fashion_hub', 'Fashion Hub', 'Delhi, India'),
@@ -629,7 +692,7 @@ class Command(BaseCommand):
     def _create_products(self):
         admin_seller = self.sellers_by_username['admin']
         created = 0
-        for name, desc, price, cat_slug, brand, variants in PRODUCTS:
+        for name, desc, price, cat_slug, brand, variants in PRODUCTS[:self.cfg['products']]:
             slug = slugify(name)[:50]
             product, was_created = Product.objects.get_or_create(
                 slug=slug,
@@ -668,7 +731,9 @@ class Command(BaseCommand):
 
         for i, seller in enumerate(self.sellers):
             listed = 0
-            for j, (name, desc, price, cat_slug, brand, variants) in enumerate(PRODUCTS):
+            for j, (name, desc, price, cat_slug, brand, variants) in enumerate(PRODUCTS[:self.cfg['products']]):
+                if listed >= self.cfg['seller_products']:
+                    break
                 if (i + j) % 4 != 0:
                     continue
                 product = self.products_by_slug[slugify(name)[:50]]
@@ -744,7 +809,7 @@ class Command(BaseCommand):
             return
         products = list(self.products_by_slug.values())
         created = 0
-        for i in range(min(10, len(self.customers))):
+        for i in range(min(self.cfg['orders'], len(self.customers))):
             profile = self.customers[i]
             user = profile.user
             order, _ = Order.objects.get_or_create(
@@ -829,7 +894,8 @@ class Command(BaseCommand):
         users = [c.user for c in self.customers]
         products = list(self.products_by_slug.values())
         created_reviews = 0
-        for product in products[:18]:
+        rpp = self.cfg['reviews']
+        for product in products[: min(len(products), rpp * 4)]:
             for user in random.sample(users, min(3, len(users))):
                 _, was_created = Review.objects.get_or_create(
                     product=product, user=user,
@@ -840,7 +906,7 @@ class Command(BaseCommand):
 
         created_product_reviews = 0
         verified_user_ids = {uid for uid, _ in self.paid_combos}
-        for product in random.sample(products, min(10, len(products))):
+        for product in random.sample(products, min(len(products), max(1, rpp * 3))):
             if not product.images.exists():
                 continue
             candidates = list(verified_user_ids)
@@ -913,14 +979,14 @@ class Command(BaseCommand):
             tags.append(tag)
         tags_by_name = {t.name: t for t in tags}
 
-        authors = [self.users['priya.sharma'], self.users['rahul.verma'],
-                   self.users['anjali.singh'], self.users['admin']]
-        commenters = [self.users[u] for u in
-                      ['neha.gupta', 'arjun.nair', 'kavita.joshi', 'rohit.kumar']]
+        customer_users = [c.user for c in self.customers]
+        authors = (customer_users + [self.users['admin']])[:4]
+        commenters = customer_users or authors
         now = timezone.now()
 
         posts = []
-        for i, (title, ptype, tag_name, prod_slug, role, days_ago, pinned) in enumerate(BLOG_POST_SPECS):
+        for i, (title, ptype, tag_name, prod_slug, role, days_ago, pinned) in enumerate(
+                BLOG_POST_SPECS[:self.cfg['posts']]):
             author = authors[i % len(authors)]
             product = self.products_by_slug.get(prod_slug)
             cat_slug = product.category.slug if product else 'abstract'
@@ -982,7 +1048,7 @@ class Command(BaseCommand):
                     parent=comment,
                     body='Totally agree — I bought one after reading this.',
                 )
-            for voter in random.sample(commenters, 2):
+            for voter in random.sample(commenters, min(2, len(commenters))):
                 comment.helpful_votes.add(voter)
 
             for liker in random.sample(commenters, min(3, len(commenters))):
@@ -1008,11 +1074,12 @@ class Command(BaseCommand):
                 BlogPostView.objects.get_or_create(post=post, user=viewer,
                                                    ip_address=f'103.{random.randint(10, 90)}.{random.randint(10, 250)}.{random.randint(1, 254)}')
 
-        for follower, following in [
-            (commenters[0], authors[0]), (commenters[1], authors[1]),
-            (commenters[2], authors[0]), (commenters[3], authors[2]),
-        ]:
-            BlogFollow.objects.get_or_create(follower=follower, following=following)
+        num_follows = min(4, len(commenters), len(authors))
+        for k in range(num_follows):
+            follower = commenters[k]
+            following = authors[(k * 2 + 1) % len(authors)]
+            if follower != following:
+                BlogFollow.objects.get_or_create(follower=follower, following=following)
 
         for user in commenters[:3]:
             profile = ensure_blog_profile(user)
@@ -1039,7 +1106,7 @@ class Command(BaseCommand):
 
             if not BlogPostReport.objects.exists():
                 BlogPostReport.objects.create(
-                    post=post, reporter=commenters[1],
+                    post=post, reporter=commenters[1] if len(commenters) > 1 else commenters[0],
                     reason=BlogPostReport.Reason.SPAM,
                     details='Possible promotional content in this post.',
                     status=BlogPostReport.Status.PENDING,
@@ -1056,7 +1123,7 @@ class Command(BaseCommand):
         author = self.users['admin']
         now = timezone.now()
         created = 0
-        for index, (title, kind, body, pinned) in enumerate(NEWS_ITEMS):
+        for index, (title, kind, body, pinned) in enumerate(NEWS_ITEMS[:self.cfg['news']]):
             _, was_created = NewsItem.objects.get_or_create(
                 title=title,
                 defaults={
@@ -1076,9 +1143,12 @@ class Command(BaseCommand):
             'vikram@example.com', 'neha@example.com', 'arjun@example.com',
             'kavita@example.com', 'rohit@example.com', 'fashion_hub@example.com',
             'tech_store@example.com', 'home_decor@example.com', 'sneha@example.com',
+            'amit@example.com', 'pooja@example.com', 'karan@example.com',
+            'divya@example.com', 'manish@example.com', 'reena@example.com',
+            'sunil@example.com', 'farah@example.com',
         ]
         created = 0
-        for email in emails:
+        for email in emails[:self.cfg['subscribers']]:
             _, was_created = Subscriber.objects.get_or_create(
                 email=email, defaults={'is_active': True},
             )

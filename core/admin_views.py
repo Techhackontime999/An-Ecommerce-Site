@@ -29,10 +29,13 @@ ADMIN_MODELS_CLEAR_ORDER = [
 
 def seed_data_view(request):
     buf = StringIO()
+    preset = request.GET.get('preset', 'medium')
+    if preset not in ('tiny', 'small', 'medium', 'large', 'full'):
+        preset = 'medium'
     try:
-        call_command('seed_all', stdout=buf)
+        call_command('seed_all', preset=preset, stdout=buf)
         output = buf.getvalue()
-        messages.success(request, f'Database seeded!\n{output}')
+        messages.success(request, f'Database seeded! [{preset} preset]\n{output}')
     except Exception as e:
         messages.error(request, f'Seeding failed: {e}')
     return redirect('admin:index')
