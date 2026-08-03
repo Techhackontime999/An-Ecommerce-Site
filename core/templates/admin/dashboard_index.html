@@ -5,6 +5,10 @@
 
 {% block sidebar %}{% endblock %}
 
+{% block nav-sidebar %}
+{% include "admin/nav_sidebar.html" %}
+{% endblock %}
+
 {% block content %}
 <div class="dashboard-welcome">
   <div>
@@ -299,6 +303,94 @@
   </div>
 </div>
 
+<div class="dashboard-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Recent Activity</h3>
+      <a class="panel-link" href="{% url 'admin:order_order_changelist' %}">View all orders</a>
+    </div>
+    {% if recent_activity %}
+    <ul class="activity-list">
+      {% for item in recent_activity %}
+      <li>
+        <a href="{% url item.url %}" class="activity-item">
+          <span class="activity-icon tone-{{ item.kind }}">
+            {% if item.kind == 'order' %}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            {% elif item.kind == 'review' %}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            {% elif item.kind == 'message' %}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            {% else %}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            {% endif %}
+          </span>
+          <span class="activity-body">
+            <span class="activity-title">{{ item.title }}</span>
+            <span class="activity-desc">{{ item.desc }}</span>
+          </span>
+          <span class="activity-time">{{ item.time }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-note">No activity yet — seed some data to see live events here.</div>
+    {% endif %}
+  </section>
+
+  <div class="dashboard-rail">
+    <section class="panel">
+      <div class="panel-head">
+        <h3>Quick Stats</h3>
+      </div>
+      {% if quick_stats %}
+      <ul class="qs-list">
+        {% for stat in quick_stats %}
+        <li class="qs-item">
+          <div class="qs-head">
+            <span class="qs-label">{{ stat.label }}</span>
+            <span class="qs-value">{{ stat.value }}</span>
+          </div>
+          <div class="qs-bar">
+            <span class="qs-fill fill-{{ stat.tone }}" style="width: {{ stat.pct }}%"></span>
+          </div>
+          <p class="qs-hint">{{ stat.hint }}</p>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty-note">No stats available.</div>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h3>Top Products</h3>
+        <a class="panel-link" href="{% url 'admin:shop_product_changelist' %}">Manage</a>
+      </div>
+      {% if top_products %}
+      <ul class="tp-list">
+        {% for product in top_products %}
+        <li class="tp-item">
+          <span class="tp-rank{% if forloop.first %} top1{% endif %}">{{ forloop.counter }}</span>
+          <div class="tp-info">
+            <p class="tp-name">{{ product.name }}</p>
+            <div class="tp-bar">
+              <span class="tp-fill" style="width: {{ product.pct }}%"></span>
+            </div>
+          </div>
+          <span class="tp-meta">{{ product.units }} sold<br>&#8377;{{ product.revenue|floatformat:0 }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty-note">No sales yet — products will rank here once orders come in.</div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+
 <div class="dashboard-actions">
   <div class="action-card">
     <h3>
@@ -335,37 +427,35 @@
   </div>
 </div>
 
-<div class="module">
+<div class="module system-health-module">
   <h2>System Health</h2>
-  <div style="padding:16px 20px;">
-    <div class="system-info">
-      <div class="system-info-item">
-        <span class="si-dot" style="background:var(--aq-success)"></span>
-        <div>
-          <div class="si-label">Django</div>
-          <div class="si-value">{{ django_version|default:"5.2" }}</div>
-        </div>
+  <div class="system-info">
+    <div class="system-info-item">
+      <span class="si-dot" style="background:var(--aq-success)"></span>
+      <div>
+        <div class="si-label">Django</div>
+        <div class="si-value">{{ django_version|default:"5.2" }}</div>
       </div>
-      <div class="system-info-item">
-        <span class="si-dot" style="background:var(--aq-primary)"></span>
-        <div>
-          <div class="si-label">Database</div>
-          <div class="si-value">SQLite</div>
-        </div>
+    </div>
+    <div class="system-info-item">
+      <span class="si-dot" style="background:var(--aq-primary)"></span>
+      <div>
+        <div class="si-label">Database</div>
+        <div class="si-value">SQLite</div>
       </div>
-      <div class="system-info-item">
-        <span class="si-dot" style="background:var(--aq-info)"></span>
-        <div>
-          <div class="si-label">Cache</div>
-          <div class="si-value">Local Memory</div>
-        </div>
+    </div>
+    <div class="system-info-item">
+      <span class="si-dot" style="background:var(--aq-info)"></span>
+      <div>
+        <div class="si-label">Cache</div>
+        <div class="si-value">Local Memory</div>
       </div>
-      <div class="system-info-item">
-        <span class="si-dot" style="background:{% if debug %}var(--aq-warning){% else %}var(--aq-success){% endif %}"></span>
-        <div>
-          <div class="si-label">Debug Mode</div>
-          <div class="si-value">{% if debug %}Enabled{% else %}Disabled{% endif %}</div>
-        </div>
+    </div>
+    <div class="system-info-item">
+      <span class="si-dot" style="background:{% if debug %}var(--aq-warning){% else %}var(--aq-success){% endif %}"></span>
+      <div>
+        <div class="si-label">Debug Mode</div>
+        <div class="si-value">{% if debug %}Enabled{% else %}Disabled{% endif %}</div>
       </div>
     </div>
   </div>
