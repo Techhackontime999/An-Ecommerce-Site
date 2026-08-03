@@ -7,6 +7,16 @@ from django.contrib import messages
 
 
 ADMIN_MODELS_CLEAR_ORDER = [
+    'reviews.ReviewReport', 'reviews.ProductReviewImage', 'reviews.ProductReview',
+    'shipping.Shipment', 'shipping.ShippingAddress', 'shipping.ShippingMethod',
+    'blogs.PostReport', 'blogs.PostView', 'blogs.ActivityFeedItem', 'blogs.UserReaction',
+    'blogs.Notification', 'blogs.Follow', 'blogs.Like', 'blogs.Bookmark',
+    'blogs.Comment', 'blogs.PostImage', 'blogs.PostProduct', 'blogs.Post',
+    'blogs.Badge', 'blogs.UserProfile', 'blogs.Tag',
+    'news.NewsItem',
+    'notifications.Notification', 'notifications.NotificationPreference',
+    'preferences.UserPreference',
+    'newsletter.Subscriber',
     'seller.SellerProduct', 'documentation.DocumentationSection',
     'contact.ContactMessage', 'about.TeamMember', 'about.AboutSection',
     'faq.Story', 'faq.FAQ', 'services.Service',
