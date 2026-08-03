@@ -392,10 +392,10 @@ body {
 }
 
 .theme-toggle svg {
-  height: 17px;
-  width: 17px;
-  fill: rgba(255, 255, 255, 0.92);
-  color: var(--aq-header-bg);
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 /* ===== 4. BREADCRUMBS ===== */
