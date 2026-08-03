@@ -1591,3 +1591,425 @@ html[data-theme="dark"] .tone-post    { background: rgba(52, 211, 153, 0.14); co
   .system-info { grid-template-columns: 1fr; }
   .aq-login-card { padding: 32px 24px 28px; }
 }
+
+/* ===== 10. CUSTOM NAV SIDEBAR (collapsible dashboard sidebar) =====
+   Overrides Django's default 275px app-list sidebar with the
+   collapsible "dashboard-with-collapsible-sidebar" design:
+   - expanded: 264px with labels + badges
+   - collapsed: 80px icon-only (state kept via .main.shifted)
+   Uses the existing --aq-* palette so it follows the theme toggle.
+   ============================================================ */
+
+#nav-sidebar.aq-nav {
+  left: 0;
+  margin-left: 0;
+  visibility: visible;
+  z-index: 15;
+  flex: 0 0 80px;
+  background: var(--aq-card);
+  border-right: 1px solid var(--aq-border);
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: flex-basis 0.25s ease;
+}
+
+.main.shifted > #nav-sidebar.aq-nav {
+  flex-basis: 264px;
+}
+
+.main > #nav-sidebar.aq-nav + .content {
+  max-width: calc(100% - 109px);
+}
+
+.main.shifted > #nav-sidebar.aq-nav + .content {
+  max-width: calc(100% - 293px);
+}
+
+.aq-nav-inner {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- title section --- */
+.aq-nav-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 14px 14px;
+  border-bottom: 1px solid var(--aq-border);
+}
+
+.aq-nav-logo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--aq-primary), var(--aq-primary-dark));
+  box-shadow: var(--aq-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aq-nav-logo:hover {
+  transform: scale(1.05);
+  box-shadow: var(--aq-shadow);
+}
+
+.aq-nav-logo svg { width: 22px; height: 22px; }
+
+.aq-nav-brand {
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.aq-nav-brand-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--aq-text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.aq-nav-brand-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--aq-text-muted);
+  white-space: nowrap;
+}
+
+.aq-nav-chevron {
+  color: var(--aq-text-muted);
+  flex-shrink: 0;
+}
+
+/* --- expandable nav group (Marketing) --- */
+.aq-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aq-nav-group-toggle {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-family: var(--aq-font);
+  cursor: pointer;
+  text-align: left;
+}
+
+.aq-nav-group-arrow {
+  color: var(--aq-text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.aq-nav-group.is-open .aq-nav-group-arrow {
+  transform: rotate(180deg);
+}
+
+.aq-nav-sub {
+  display: none;
+  padding: 2px 0 4px;
+}
+
+.aq-nav-group.is-open .aq-nav-sub {
+  display: block;
+}
+
+.aq-nav-subitem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 12px 0 46px;
+  border-radius: 8px;
+  color: var(--aq-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.aq-nav-subitem::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--aq-text-muted);
+  flex-shrink: 0;
+}
+
+.aq-nav-subitem:hover {
+  background: var(--aq-hover);
+  color: var(--aq-text);
+}
+
+.aq-nav-subitem.is-active {
+  background: var(--aq-accent-soft);
+  color: var(--aq-accent);
+  font-weight: 600;
+}
+
+.aq-nav-subitem.is-active::before {
+  background: var(--aq-accent);
+}
+
+/* --- menu --- */
+.aq-nav-menu {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aq-nav-account {
+  padding: 0 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aq-nav-label {
+  padding: 12px 12px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aq-text-muted);
+  white-space: nowrap;
+}
+
+.aq-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 9px;
+  text-decoration: none;
+  color: var(--aq-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.aq-nav-item:hover {
+  background: var(--aq-hover);
+  color: var(--aq-text);
+}
+
+.aq-nav-item.is-active {
+  background: var(--aq-accent-soft);
+  color: var(--aq-accent);
+  font-weight: 600;
+}
+
+.aq-nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--aq-accent);
+}
+
+.aq-nav-ico {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+
+.aq-nav-ico svg {
+  width: 18px;
+  height: 18px;
+}
+
+.aq-nav-lbl {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aq-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--aq-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* --- model navigation --- */
+.aq-nav-models {
+  margin-top: auto;
+  border-top: 1px solid var(--aq-border);
+  padding: 12px;
+}
+
+.aq-nav-models-toggle {
+  border-radius: 9px;
+}
+
+.aq-nav-models-toggle summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 9px;
+  color: var(--aq-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.aq-nav-models-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.aq-nav-models-toggle summary:hover {
+  background: var(--aq-hover);
+  color: var(--aq-text);
+}
+
+.aq-nav-models-toggle summary .aq-nav-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.aq-nav-models-toggle #nav-filter {
+  margin: 10px 0 6px;
+}
+
+.aq-nav-models-toggle .module {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* --- footer collapse button --- */
+.aq-nav-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--aq-border);
+  padding: 8px 12px;
+}
+
+.aq-nav-collapse {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--aq-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--aq-font);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.aq-nav-collapse:hover {
+  background: var(--aq-hover);
+  color: var(--aq-text);
+}
+
+.aq-nav-collapse svg {
+  transition: transform 0.3s ease;
+}
+
+.main.shifted .aq-nav-collapse svg {
+  transform: rotate(180deg);
+}
+
+/* --- collapsed (icon-only) state --- */
+.main:not(.shifted) .aq-nav-title {
+  justify-content: center;
+  padding: 14px 8px;
+}
+
+.main:not(.shifted) .aq-nav-brand,
+.main:not(.shifted) .aq-nav-chevron,
+.main:not(.shifted) .aq-nav-label,
+.main:not(.shifted) .aq-nav-models,
+.main:not(.shifted) .aq-badge {
+  display: none;
+}
+
+.main:not(.shifted) .aq-nav-item,
+.main:not(.shifted) .aq-nav-collapse,
+.main:not(.shifted) .aq-nav-group-toggle {
+  justify-content: center;
+  width: 44px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.main:not(.shifted) .aq-nav-group-arrow,
+.main:not(.shifted) .aq-nav-sub {
+  display: none !important;
+}
+
+.main:not(.shifted) .aq-nav-item.is-active::before {
+  left: -2px;
+}
+
+.main:not(.shifted) .aq-nav-footer {
+  padding: 8px;
+}
+
+[dir="rtl"] .aq-nav-item.is-active::before {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .main:not(.shifted) .aq-nav-item.is-active::before {
+  right: -2px;
+  left: auto;
+}
+
+/* keep mobile behaviour of stock admin (sidebar hidden) */
+@media (max-width: 767px) {
+  #nav-sidebar.aq-nav,
+  #toggle-nav-sidebar {
+    display: none;
+  }
+}

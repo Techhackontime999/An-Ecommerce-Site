@@ -1,0 +1,158 @@
+{% load i18n admin_sidebar %}
+<button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}"></button>
+<nav class="sticky aq-nav" id="nav-sidebar" aria-label="{% translate 'Sidebar' %}">
+  {% admin_sidebar_counts as sidebar_counts %}
+  {% url 'admin:index' as dashboard_path %}
+
+  <div class="aq-nav-inner">
+    <!-- Title section -->
+    <div class="aq-nav-title">
+      <a href="{{ dashboard_path }}" class="aq-nav-logo" title="{% translate 'Dashboard' %}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </a>
+      <a href="{{ dashboard_path }}" class="aq-nav-brand">
+        <span class="aq-nav-brand-name">Shop-Seed</span>
+        <span class="aq-nav-brand-sub">Superuser Admin</span>
+      </a>
+      <svg class="aq-nav-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+
+    <!-- Primary menu -->
+    <div class="aq-nav-menu">
+      <a href="{{ dashboard_path }}" class="aq-nav-item{% if request.path == dashboard_path %} is-active{% endif %}">
+        <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        <span class="aq-nav-lbl">{% translate 'Dashboard' %}</span>
+      </a>
+
+      <a href="{% url 'admin:order_order_changelist' %}" class="aq-nav-item{% if '/admin/order/' in request.path %} is-active{% endif %}">
+        <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <span class="aq-nav-lbl">{% translate 'Sales' %}</span>
+        {% if sidebar_counts.pending_orders %}<span class="aq-badge">{{ sidebar_counts.pending_orders }}</span>{% endif %}
+      </a>
+
+      <a href="{{ site_url }}" target="_blank" rel="noopener" class="aq-nav-item">
+        <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+        <span class="aq-nav-lbl">{% translate 'View Site' %}</span>
+      </a>
+
+      <a href="{{ dashboard_path }}" class="aq-nav-item">
+        <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></span>
+        <span class="aq-nav-lbl">{% translate 'Research & Insights' %}</span>
+      </a>
+
+      <div class="aq-nav-group">
+        <button type="button" id="aq-nav-group-marketing" class="aq-nav-item aq-nav-group-toggle" aria-expanded="false">
+          <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
+          <span class="aq-nav-lbl">{% translate 'Marketing' %}</span>
+          <svg class="aq-nav-group-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="aq-nav-sub">
+          <div class="aq-nav-label">{% translate 'Advertising' %}</div>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Dashboard' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Sponsored Products' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Banner Ads' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Search Ads' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Brand Campaigns' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Ad Campaigns' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Placements' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Ad Requests' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Budget Management' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'CPC Management' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'CPM Management' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'CTR Analytics' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Conversion Reports' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Billing & Invoices' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Seller Ad Wallet' %}</a>
+          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'AI Ad Optimization' %}</a>
+        </div>
+      </div>
+
+      <a href="{{ dashboard_path }}" class="aq-nav-item">
+        <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16v-3"/><path d="M11 16V8"/><path d="M15 16v-5"/><path d="M19 16v-2"/></svg></span>
+        <span class="aq-nav-lbl">{% translate 'Analytics' %}</span>
+      </a>
+    </div>
+
+    <!-- Account -->
+    <div class="aq-nav-account">
+      <div class="aq-nav-label">{% translate 'Account' %}</div>
+      <a href="{% url 'admin:password_change' %}" class="aq-nav-item{% if '/admin/password_change' in request.path %} is-active{% endif %}">
+        <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span class="aq-nav-lbl">{% translate 'Settings' %}</span>
+      </a>
+      <a href="{% url 'doc:documentation' %}" class="aq-nav-item">
+        <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></span>
+        <span class="aq-nav-lbl">{% translate 'Help & Support' %}</span>
+      </a>
+    </div>
+
+    <!-- Model navigation (collapsible, keeps all admin models reachable) -->
+    <div class="aq-nav-models">
+      <details class="aq-nav-models-toggle" open>
+        <summary>
+          <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05"/><path d="M12 22.08V12"/></svg></span>
+          <span class="aq-nav-lbl">{% translate 'All Models' %}</span>
+        </summary>
+        <input type="search" id="nav-filter"
+               placeholder="{% translate 'Start typing to filter…' %}"
+               aria-label="{% translate 'Filter navigation items' %}">
+        {% include 'admin/app_list.html' with app_list=available_apps show_changelinks=False %}
+      </details>
+    </div>
+  </div>
+
+  <div class="aq-nav-footer">
+    <button type="button" id="aq-nav-collapse" class="aq-nav-collapse">
+      <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg></span>
+      <span class="aq-nav-lbl" id="aq-nav-collapse-label">{% translate 'Hide' %}</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+(function () {
+  var nav = document.getElementById('nav-sidebar');
+  var main = document.getElementById('main');
+  var btn = document.getElementById('aq-nav-collapse');
+  var lbl = document.getElementById('aq-nav-collapse-label');
+  var strip = document.getElementById('toggle-nav-sidebar');
+  if (!nav || !main || !btn) return;
+
+  function sync() {
+    var open = main.classList.contains('shifted');
+    nav.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (lbl) lbl.textContent = open ? 'Hide' : 'Show';
+  }
+
+  btn.addEventListener('click', function () {
+    var open = main.classList.contains('shifted');
+    localStorage.setItem('django.admin.navSidebarIsOpen', open ? 'false' : 'true');
+    main.classList.toggle('shifted', !open);
+    sync();
+  });
+
+  if (strip) {
+    strip.addEventListener('click', function () {
+      setTimeout(sync, 0);
+    });
+  }
+
+  var groupBtn = document.getElementById('aq-nav-group-marketing');
+  if (groupBtn) {
+    var group = groupBtn.closest('.aq-nav-group');
+    var stored = localStorage.getItem('django.admin.aqNavMarketingOpen');
+    if (stored === 'true') {
+      group.classList.add('is-open');
+      groupBtn.setAttribute('aria-expanded', 'true');
+    }
+    groupBtn.addEventListener('click', function () {
+      var open = group.classList.toggle('is-open');
+      groupBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      localStorage.setItem('django.admin.aqNavMarketingOpen', open ? 'true' : 'false');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', sync);
+  sync();
+})();
+</script>
