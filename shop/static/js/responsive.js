@@ -82,4 +82,58 @@
       });
     });
   }
+
+  // Bottom-nav Shop/Deals popover
+  var bnTriggers = document.querySelectorAll('[data-bn-toggle]');
+  var bnOpenBar = null;
+
+  var bnSetOpen = function (bar, isOpen) {
+    var trigger = bar.querySelector('[data-bn-toggle]');
+    var popover = bar.querySelector('.ds-popover');
+    if (isOpen) {
+      if (popover) {
+        clearTimeout(popover._closeTimer);
+        popover.hidden = false;
+      }
+      requestAnimationFrame(function () {
+        bar.classList.add('is-open');
+        if (trigger) trigger.setAttribute('aria-expanded', 'true');
+      });
+    } else {
+      bar.classList.remove('is-open');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      if (popover) {
+        clearTimeout(popover._closeTimer);
+        popover._closeTimer = setTimeout(function () {
+          popover.hidden = true;
+        }, 420);
+      }
+    }
+  };
+
+  bnTriggers.forEach(function (trigger) {
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var bar = trigger.closest('.ds-bottombar');
+      if (!bar) return;
+      var isOpen = !bar.classList.contains('is-open');
+      if (bnOpenBar && bnOpenBar !== bar) bnSetOpen(bnOpenBar, false);
+      bnSetOpen(bar, isOpen);
+      bnOpenBar = isOpen ? bar : null;
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    if (bnOpenBar && !bnOpenBar.contains(e.target)) {
+      bnSetOpen(bnOpenBar, false);
+      bnOpenBar = null;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && bnOpenBar) {
+      bnSetOpen(bnOpenBar, false);
+      bnOpenBar = null;
+    }
+  });
 })();

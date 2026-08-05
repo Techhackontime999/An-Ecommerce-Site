@@ -5,13 +5,35 @@
     <i class="fas fa-house"></i>
     <span>{% trans "Home" %}</span>
   </a>
-  <a href="{% url 'shop:product_list' %}" class="ds-tab{% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %} is-active{% endif %}"{% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %} aria-current="page"{% endif %} aria-label="{% trans 'Shop' %}">
-    <i class="fas fa-store"></i>
-    <span>{% trans "Shop" %}</span>
-  </a>
-  <a href="{% url 'deals:todays_deals' %}" class="ds-tab{% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %} is-active{% endif %}"{% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %} aria-current="page"{% endif %} aria-label="{% trans 'Deals' %}">
-    <i class="fas fa-bolt"></i>
-    <span>{% trans "Deals" %}</span>
+  <div class="ds-tab-wrap">
+    <button type="button" class="ds-tab ds-tab-trigger{% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' or url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %} is-active{% endif %}" aria-haspopup="true" aria-expanded="false" data-bn-toggle aria-label="{% trans 'Shop &amp; Deals' %}">
+      <i class="fas fa-store"></i>
+      <span>{% trans "Shop" %}<i class="fas fa-chevron-up ds-tab-caret"></i></span>
+    </button>
+  </div>
+  <span class="ds-popover-caret" aria-hidden="true"></span>
+  <div class="ds-popover" hidden role="group" aria-label="{% trans 'Shop and Deals' %}">
+    <p class="ds-popover-eyebrow">{% trans "Browse" %}</p>
+      <a href="{% url 'shop:product_list' %}" class="ds-popover-item{% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %} is-active{% endif %}">
+        <span class="ds-popover-tile"><i class="fas fa-store"></i></span>
+        <span class="ds-popover-copy">
+          <span class="ds-popover-title">{% trans "Shop" %}</span>
+          <span class="ds-popover-sub">{% trans "All products and categories" %}</span>
+        </span>
+        <i class="fas fa-chevron-right ds-popover-arrow"></i>
+      </a>
+      <a href="{% url 'deals:todays_deals' %}" class="ds-popover-item{% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %} is-active{% endif %}">
+        <span class="ds-popover-tile"><i class="fas fa-bolt"></i></span>
+        <span class="ds-popover-copy">
+          <span class="ds-popover-title">{% trans "Deals" %}</span>
+          <span class="ds-popover-sub">{% trans "Today's best offers" %}</span>
+        </span>
+        <i class="fas fa-chevron-right ds-popover-arrow"></i>
+      </a>
+    </div>
+  <a href="{% url 'blogs:blog_home' %}" class="ds-tab{% if url_name == 'blog_home' or url_name == 'post_detail' or url_name == 'post_search' or url_name == 'post_create' or url_name == 'trending' or url_name == 'editors_picks' or url_name == 'leaderboard' or url_name == 'posts_by_tag' or url_name == 'author_posts' %} is-active{% endif %}"{% if url_name == 'blog_home' or url_name == 'post_detail' or url_name == 'post_search' or url_name == 'post_create' or url_name == 'trending' or url_name == 'editors_picks' or url_name == 'leaderboard' or url_name == 'posts_by_tag' or url_name == 'author_posts' %} aria-current="page"{% endif %} aria-label="{% trans 'Blog' %}">
+    <i class="fas fa-newspaper"></i>
+    <span>{% trans "Blog" %}</span>
   </a>
   <a href="{% url 'cart:cart_detail' %}" class="ds-tab{% if url_name == 'cart_detail' %} is-active{% endif %}"{% if url_name == 'cart_detail' %} aria-current="page"{% endif %} aria-label="{% trans 'Cart' %}">
     <i class="fas fa-bag-shopping"></i>
