@@ -2,7 +2,7 @@
 {% load static %}
 {% load preference_extras %}
 
-{% block title %}Shop-Seed — Premium E-Commerce{% endblock %}
+{% block title %}{{ platform_settings.site_name }} — {{ platform_settings.site_tagline }}{% endblock %}
 
 {% block content %}
 {{ hero_layer_images|json_script:"hero-layer-images" }}
@@ -13,26 +13,25 @@
   <div class="hero-aq-content hero-aq-content--center">
     <span class="hero-aq-badge fade-up">
       <i class="fas fa-bolt"></i>
-      Big Sale — Up to 60% Off
+      {{ platform_settings.hero_badge_text|default:'Big Sale — Up to 60% Off' }}
     </span>
     <h1 class="display-hero">
-      <span class="aq-word aq-word-1">Shop</span>
-      <span class="aq-word aq-word-2">Smarter,</span>
+      <span class="aq-word aq-word-1">{{ platform_settings.hero_title_1|default:'Shop' }}</span>
+      <span class="aq-word aq-word-2">{{ platform_settings.hero_title_2|default:'Smarter,' }}</span>
       <br>
-      <span class="aq-word aq-word-3">Live</span>
-      <span class="aq-word aq-word-4">Better</span>
+      <span class="aq-word aq-word-3">{{ platform_settings.hero_title_3|default:'Live' }}</span>
+      <span class="aq-word aq-word-4">{{ platform_settings.hero_title_4|default:'Better' }}</span>
     </h1>
     <p class="body-large fade-up fade-up-delay-2">
-      India's most trusted online marketplace. From fashion to electronics,
-      find everything you need with fast delivery, easy returns, and best prices.
+      {{ platform_settings.hero_subtitle|default:"India's most trusted online marketplace. From fashion to electronics, find everything you need with fast delivery, easy returns, and best prices." }}
     </p>
     <div class="hero-aq-actions fade-up fade-up-delay-3">
-      <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-hero-cta">
-        Shop Now
+      <a href="{{ platform_settings.hero_cta_url|default:'/shop/' }}" class="btn-aq btn-aq-hero-cta">
+        {{ platform_settings.hero_cta_text|default:'Shop Now' }}
         <span class="icon-wrapper"><i class="fas fa-arrow-right"></i></span>
       </a>
-      <a href="{% url 'deals:todays_deals' %}" class="btn-aq btn-aq-ghost">
-        View Deals
+      <a href="{{ platform_settings.hero_ghost_url|default:'/todays-deals/' }}" class="btn-aq btn-aq-ghost">
+        {{ platform_settings.hero_ghost_text|default:'View Deals' }}
       </a>
     </div>
   </div>
@@ -84,38 +83,38 @@
   <div class="container-aq">
     <div class="text-center mb-5 fade-up">
       <span class="hero-aq-badge mx-auto" style="justify-content:center">
-        <i class="fas fa-star"></i> Why Shop-Seed
+        <i class="fas fa-star"></i> {{ platform_settings.features_badge|default:'Why Shop-Seed' }}
       </span>
-      <h2 class="display-section" style="margin-top:0.75rem">Why Millions Trust Us</h2>
+      <h2 class="display-section" style="margin-top:0.75rem">{{ platform_settings.features_heading|default:'Why Millions Trust Us' }}</h2>
     </div>
 
     <div class="features-aq-grid">
       <div class="feature-aq-card fade-up fade-up-delay-1">
-        <div class="feature-aq-icon"><i class="fas fa-truck"></i></div>
+        <div class="feature-aq-icon"><i class="fas {{ platform_settings.feature_1_icon|default:'fa-truck' }}"></i></div>
         <div class="feature-aq-text">
-          <h3>Free & Fast Delivery</h3>
-          <p>Free delivery on orders above $49. Express shipping available in select cities with real-time tracking.</p>
+          <h3>{{ platform_settings.feature_1_title|default:'Free & Fast Delivery' }}</h3>
+          <p>{{ platform_settings.feature_1_text|default:'Free delivery on orders above $49. Express shipping available in select cities with real-time tracking.' }}</p>
         </div>
       </div>
       <div class="feature-aq-card fade-up fade-up-delay-2">
-        <div class="feature-aq-icon"><i class="fas fa-rotate-left"></i></div>
+        <div class="feature-aq-icon"><i class="fas {{ platform_settings.feature_2_icon|default:'fa-rotate-left' }}"></i></div>
         <div class="feature-aq-text">
-          <h3>Easy Returns</h3>
-          <p>30-day return policy with free pickup. No questions asked — we believe in hassle-free shopping.</p>
+          <h3>{{ platform_settings.feature_2_title|default:'Easy Returns' }}</h3>
+          <p>{{ platform_settings.feature_2_text|default:'30-day return policy with free pickup. No questions asked — we believe in hassle-free shopping.' }}</p>
         </div>
       </div>
       <div class="feature-aq-card fade-up fade-up-delay-3">
-        <div class="feature-aq-icon"><i class="fas fa-headset"></i></div>
+        <div class="feature-aq-icon"><i class="fas {{ platform_settings.feature_3_icon|default:'fa-headset' }}"></i></div>
         <div class="feature-aq-text">
-          <h3>24/7 Customer Care</h3>
-          <p>Dedicated support team available round the clock. Call, chat, or email — we're here for you anytime.</p>
+          <h3>{{ platform_settings.feature_3_title|default:'24/7 Customer Care' }}</h3>
+          <p>{{ platform_settings.feature_3_text|default:"Dedicated support team available round the clock. Call, chat, or email — we're here for you anytime." }}</p>
         </div>
       </div>
       <div class="feature-aq-card fade-up fade-up-delay-4">
-        <div class="feature-aq-icon"><i class="fas fa-shield"></i></div>
+        <div class="feature-aq-icon"><i class="fas {{ platform_settings.feature_4_icon|default:'fa-shield' }}"></i></div>
         <div class="feature-aq-text">
-          <h3>Secure Payments</h3>
-          <p>100% secure transactions with encrypted checkout. Your privacy and data security are our top priority.</p>
+          <h3>{{ platform_settings.feature_4_title|default:'Secure Payments' }}</h3>
+          <p>{{ platform_settings.feature_4_text|default:'100% secure transactions with encrypted checkout. Your privacy and data security are our top priority.' }}</p>
         </div>
       </div>
     </div>
@@ -127,41 +126,41 @@
   <div class="container-aq">
     <div class="text-center mb-5 fade-up">
       <span class="hero-aq-badge mx-auto" style="justify-content:center">
-        <i class="fas fa-layer-group"></i> Categories
+        <i class="fas fa-layer-group"></i> {{ platform_settings.collections_badge|default:'Categories' }}
       </span>
-      <h2 class="display-section" style="margin-top:0.75rem">Shop by Category</h2>
+      <h2 class="display-section" style="margin-top:0.75rem">{{ platform_settings.collections_heading|default:'Shop by Category' }}</h2>
     </div>
 
     <div class="collections-aq-grid">
       <a href="{% url 'shop:product_list' %}" class="collection-aq-card fade-up fade-up-delay-1">
         <div class="collection-aq-card-bg" style="background: linear-gradient(135deg, rgba(13,148,136,0.08), rgba(20,184,166,0.12));"></div>
         <div class="collection-aq-card-content">
-          <span class="eyebrow">Featured</span>
-          <h3>Women's<br>Collection</h3>
+          <span class="eyebrow">{{ platform_settings.collection_1_label|default:'Featured' }}</span>
+          <h3>{{ platform_settings.collection_1_title|default:"Women's Collection" }}</h3>
           <span class="arrow"><i class="fas fa-arrow-right"></i></span>
         </div>
       </a>
       <a href="{% url 'shop:product_list' %}" class="collection-aq-card fade-up fade-up-delay-2">
         <div class="collection-aq-card-bg" style="background: linear-gradient(135deg, rgba(13,148,136,0.05), rgba(20,184,166,0.08));"></div>
         <div class="collection-aq-card-content">
-          <span class="eyebrow">New</span>
-          <h3>Men's<br>Collection</h3>
+          <span class="eyebrow">{{ platform_settings.collection_2_label|default:'New' }}</span>
+          <h3>{{ platform_settings.collection_2_title|default:"Men's Collection" }}</h3>
           <span class="arrow"><i class="fas fa-arrow-right"></i></span>
         </div>
       </a>
       <a href="{% url 'shop:product_list' %}" class="collection-aq-card fade-up fade-up-delay-3">
         <div class="collection-aq-card-bg" style="background: linear-gradient(135deg, rgba(13,148,136,0.06), rgba(20,184,166,0.1));"></div>
         <div class="collection-aq-card-content">
-          <span class="eyebrow">Trending</span>
-          <h3>Accessories</h3>
+          <span class="eyebrow">{{ platform_settings.collection_3_label|default:'Trending' }}</span>
+          <h3>{{ platform_settings.collection_3_title|default:'Accessories' }}</h3>
           <span class="arrow"><i class="fas fa-arrow-right"></i></span>
         </div>
       </a>
       <a href="{% url 'shop:product_list' %}" class="collection-aq-card fade-up fade-up-delay-4">
         <div class="collection-aq-card-bg" style="background: linear-gradient(135deg, rgba(13,148,136,0.04), rgba(20,184,166,0.06));"></div>
         <div class="collection-aq-card-content">
-          <span class="eyebrow">Essentials</span>
-          <h3>Footwear</h3>
+          <span class="eyebrow">{{ platform_settings.collection_4_label|default:'Essentials' }}</span>
+          <h3>{{ platform_settings.collection_4_title|default:'Footwear' }}</h3>
           <span class="arrow"><i class="fas fa-arrow-right"></i></span>
         </div>
       </a>
@@ -174,11 +173,11 @@
   <div class="container-aq">
     <div class="products-aq-header fade-up">
       <span class="hero-aq-badge mx-auto" style="justify-content:center">
-        <i class="fas fa-fire"></i> Featured
+        <i class="fas fa-fire"></i> {{ platform_settings.featured_badge|default:'Featured' }}
       </span>
-      <h2 class="display-section" style="margin-top:0.75rem">Best Sellers</h2>
+      <h2 class="display-section" style="margin-top:0.75rem">{{ platform_settings.featured_heading|default:'Best Sellers' }}</h2>
       <p class="body-large" style="margin: 0.75rem auto 0; max-width: 55ch;">
-        Most-loved products at unbeatable prices. Updated daily with new deals.
+        {{ platform_settings.featured_subtitle|default:'Most-loved products at unbeatable prices. Updated daily with new deals.' }}
       </p>
       <div class="products-aq-toggle-wrap">
         {% include 'shop/product/layout_toggle.html' with target='#featured-grid' %}
@@ -265,11 +264,11 @@
   <div class="container-aq">
     <div class="products-aq-header fade-left" style="text-align:left;">
       <span class="hero-aq-badge">
-        <i class="fas fa-bolt"></i> Limited Time
+        <i class="fas fa-bolt"></i> {{ platform_settings.deals_badge|default:'Limited Time' }}
       </span>
-      <h2 class="display-section" style="margin-top:0.75rem">Today's Hot Deals</h2>
+      <h2 class="display-section" style="margin-top:0.75rem">{{ platform_settings.deals_heading|default:"Today's Hot Deals" }}</h2>
       <p class="body-large" style="margin: 0.5rem 0 0; max-width: 55ch;">
-        Unbeatable discounts on top products. Grab them before they're gone.
+        {{ platform_settings.deals_subtitle|default:"Unbeatable discounts on top products. Grab them before they're gone." }}
       </p>
       <div class="products-aq-toggle-wrap products-aq-toggle-wrap-left">
         {% include 'shop/product/layout_toggle.html' with target='#deals-grid' %}
@@ -347,7 +346,7 @@
 
     <div style="text-align:center;margin-top:2rem;" class="fade-up">
       <a href="{% url 'deals:todays_deals' %}" class="btn-aq btn-aq-ghost">
-        View All Deals
+        {{ platform_settings.deals_link_text|default:'View All Deals' }}
         <i class="fas fa-arrow-right" style="font-size:0.75rem;"></i>
       </a>
     </div>
@@ -362,12 +361,10 @@
         <img src="https://picsum.photos/seed/ariana/128/128" alt="Customer avatar">
       </div>
       <p class="testimonial-aq-text">
-        "Shop-Seed transformed the way I shop online. The quality is unmatched,
-        delivery is lightning-fast, and their support team genuinely cares.
-        I haven't had a single disappointment in over a year of shopping here."
+        {{ platform_settings.testimonial_quote|default:"Shop-Seed transformed the way I shop online. The quality is unmatched, delivery is lightning-fast, and their support team genuinely cares. I haven't had a single disappointment in over a year of shopping here." }}
       </p>
-      <p class="testimonial-aq-name">Priya Sharma</p>
-      <p class="testimonial-aq-role">Verified Buyer, 24 orders</p>
+      <p class="testimonial-aq-name">{{ platform_settings.testimonial_name|default:'Priya Sharma' }}</p>
+      <p class="testimonial-aq-role">{{ platform_settings.testimonial_role|default:'Verified Buyer, 24 orders' }}</p>
     </div>
   </div>
 </section>
@@ -376,10 +373,10 @@
 <section class="section-aq cta-aq">
   <div class="container-aq">
     <div class="cta-aq-inner fade-scale">
-      <h2 class="display-section" style="color:white">Start Shopping Today</h2>
-      <p>Join millions of satisfied customers who trust Shop-Seed for premium products at the best prices with fast delivery.</p>
-      <a href="{% url 'accounts:signup' %}" class="btn-aq">
-        Get Started Free
+      <h2 class="display-section" style="color:white">{{ platform_settings.cta_heading|default:'Start Shopping Today' }}</h2>
+      <p>{{ platform_settings.cta_text|default:'Join millions of satisfied customers who trust Shop-Seed for premium products at the best prices with fast delivery.' }}</p>
+      <a href="{{ platform_settings.cta_button_url|default:'/accounts/signup/' }}" class="btn-aq">
+        {{ platform_settings.cta_button_text|default:'Get Started Free' }}
         <span class="icon-wrapper"><i class="fas fa-arrow-right"></i></span>
       </a>
     </div>

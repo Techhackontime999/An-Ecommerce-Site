@@ -15,6 +15,16 @@ def active_news_items():
 
 
 def news_ticker(request):
+    try:
+        from platform_studio.utils import get_setting
+        enabled = get_setting('show_news_ticker', '1')
+        if str(enabled).strip().lower() not in ('1', 'true', 'yes', 'on'):
+            return {
+                'news_ticker_items': [],
+                'news_ticker_label': 'Announcements',
+            }
+    except Exception:
+        pass
     items = list(active_news_items()[:12])
     return {
         'news_ticker_items': items,

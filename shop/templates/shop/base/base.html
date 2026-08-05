@@ -4,10 +4,24 @@
 <!DOCTYPE html>
 <html lang="{{ CURRENT_LANGUAGE }}" data-theme="{{ user_prefs.theme|default:'light' }}" data-font="{{ user_prefs.font_style|default:'default' }}" data-accent="{{ user_prefs.accent|default:'orange' }}" data-size="{{ user_prefs.text_size|default:'regular' }}">
 <head>
-    <title>{% block title %}Shop-Seed — Premium E-Commerce{% endblock %}</title>
+    <title>{% block title %}{{ platform_settings.site_name }} — {{ platform_settings.site_tagline }}{% endblock %}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Shop-Seed — Premium e-commerce platform">
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    <link rel="alternate icon" href="{% static 'images/favicon.svg' %}">
+    <meta name="description" content="{{ platform_settings.meta_description|default:'Shop-Seed — Premium e-commerce platform' }}">
+    {% if platform_settings.meta_keywords %}<meta name="keywords" content="{{ platform_settings.meta_keywords }}">{% endif %}
+    {% if platform_settings.meta_robots %}<meta name="robots" content="{{ platform_settings.meta_robots }}">{% endif %}
+    {% if platform_settings.google_analytics_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ platform_settings.google_analytics_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ platform_settings.google_analytics_id }}');
+    </script>
+    {% endif %}
+    {{ platform_settings.custom_header_html|safe }}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Comic+Neue:wght@400;700&family=Caveat:wght@400;600;700&family=Baloo+2:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -25,8 +39,14 @@
     <style>
       html { margin: 0; padding: 0; box-sizing: border-box; }
     </style>
+    {% if platform_settings.custom_css %}
+    <style>
+      {{ platform_settings.custom_css|safe }}
+    </style>
+    {% endif %}
 </head>
 <body class="{% block body_class %}{% if news_ticker_items %}has-news-ticker{% endif %}{% endblock %}">
+    {{ platform_settings.custom_body_top|safe }}
     <a class="ds-skip-link" href="#main-content">{% trans "Skip to content" %}</a>
     <div class="aq-scroll-progress" id="aq-scroll-progress" aria-hidden="true"></div>
     {% block news_ticker %}{% include 'news/ticker.html' %}{% endblock %}
@@ -64,5 +84,11 @@
         })();
     </script>
     {% block extra_js %}{% endblock %}
+    {{ platform_settings.custom_body_bottom|safe }}
+    {% if platform_settings.custom_js %}
+    <script>
+        {{ platform_settings.custom_js|safe }}
+    </script>
+    {% endif %}
 </body>
 </html>

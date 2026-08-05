@@ -10,25 +10,28 @@
     <div class="footer-aq-grid">
       <div class="footer-aq-brand">
         <a href="{% url 'shop:home' %}" class="nav-aq-logo">
-          <span class="logo-mark">S</span>
-          Shop-Seed
+          <span class="logo-mark">{{ platform_settings.logo_mark|default:'S' }}</span>
+          {{ platform_settings.site_name|default:'Shop-Seed' }}
         </a>
-        <p>{% trans "India's most trusted e-commerce platform. Discover premium products at unbeatable prices with fast delivery." %}</p>
+        <p>{{ platform_settings.brand_description|default:"India's most trusted e-commerce platform. Discover premium products at unbeatable prices with fast delivery." }}</p>
         <form class="newsletter-aq" id="newsletter-form" action="{% url 'newsletter:subscribe' %}" method="post" novalidate>
           {% csrf_token %}
           <input type="email" name="email" placeholder="{% trans 'Enter your email' %}" aria-label="Email address" required>
           <button type="submit">{% trans "Subscribe" %}</button>
         </form>
         <p class="newsletter-aq-msg" id="newsletter-msg" role="status" aria-live="polite"></p>
+        {% if platform_settings.show_footer_social != '0' %}
         <div class="footer-aq-social">
-          <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
-          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          {% if platform_settings.social_twitter and platform_settings.social_twitter != '#' %}<a href="{{ platform_settings.social_twitter }}" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>{% endif %}
+          {% if platform_settings.social_instagram and platform_settings.social_instagram != '#' %}<a href="{{ platform_settings.social_instagram }}" aria-label="Instagram"><i class="fab fa-instagram"></i></a>{% endif %}
+          {% if platform_settings.social_facebook and platform_settings.social_facebook != '#' %}<a href="{{ platform_settings.social_facebook }}" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>{% endif %}
+          {% if platform_settings.social_linkedin and platform_settings.social_linkedin != '#' %}<a href="{{ platform_settings.social_linkedin }}" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>{% endif %}
+          {% if platform_settings.social_youtube and platform_settings.social_youtube != '#' %}<a href="{{ platform_settings.social_youtube }}" aria-label="YouTube"><i class="fab fa-youtube"></i></a>{% endif %}
         </div>
+        {% endif %}
       </div>
 
+      {% if platform_settings.show_footer_shop != '0' %}
       <div class="footer-aq-col" data-acc-col>
         <button type="button" class="ds-facc" data-acc-toggle aria-expanded="false" aria-controls="footer-col-shop">
           {% trans "Shop" %}
@@ -42,7 +45,9 @@
           <li><a href="{% url 'shop:product_list' %}">{% trans "Categories" %}</a></li>
         </ul>
       </div>
+      {% endif %}
 
+      {% if platform_settings.show_footer_support != '0' %}
       <div class="footer-aq-col" data-acc-col>
         <button type="button" class="ds-facc" data-acc-toggle aria-expanded="false" aria-controls="footer-col-support">
           {% trans "Support" %}
@@ -56,7 +61,9 @@
           <li><a href="#">{% trans "Returns" %}</a></li>
         </ul>
       </div>
+      {% endif %}
 
+      {% if platform_settings.show_footer_company != '0' %}
       <div class="footer-aq-col" data-acc-col>
         <button type="button" class="ds-facc" data-acc-toggle aria-expanded="false" aria-controls="footer-col-company">
           {% trans "Company" %}
@@ -71,10 +78,11 @@
           <li><a href="{% url 'legal:terms' %}">{% trans "Terms of Service" %}</a></li>
         </ul>
       </div>
+      {% endif %}
     </div>
 
     <div class="footer-aq-bottom">
-      <p>{% blocktrans %}&copy; 2026 Shop-Seed. All rights reserved.{% endblocktrans %}</p>
+      <p>{{ platform_settings.footer_copyright|default:'&copy; 2026 Shop-Seed. All rights reserved.' }}</p>
       <div class="payment-icons">
         <i class="fab fa-cc-visa"></i>
         <i class="fab fa-cc-mastercard"></i>

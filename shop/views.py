@@ -4,6 +4,7 @@ from .models import Category, Product
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.utils import timezone
+from platform_studio.utils import get_setting
 
 
 def home(request):
@@ -38,7 +39,14 @@ def product_list(request, category_slug=None):
     else:
         products = Product.objects.filter(available=True)
 
-    paginator = Paginator(products, 12)
+    per_page = 12
+    try:
+        per_page = int(get_setting('products_per_page', '12') or 12)
+    except (TypeError, ValueError):
+        per_page = 12
+    if per_page < 1:
+        per_page = 12
+    paginator = Paginator(products, per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

@@ -11,12 +11,15 @@ from django.utils import timezone
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.conf import settings
+import logging
 import random
 from .forms import SellerRegisterForm, CustomerRegisterForm, SellerProfileForm, CustomerProfileForm
 from .models import SellerProfile, CustomerProfile
 from notifications.services import notify
 from notifications.models import Notification
 
+
+logger = logging.getLogger(__name__)
 
 OTP_EXPIRY_SECONDS = 600  # 10 minutes
 
@@ -46,32 +49,38 @@ def send_email_verification(request, user):
     token = default_token_generator.make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     link = request.build_absolute_uri(reverse('accounts:verify_email', args=[uid, token]))
-    send_mail(
-        subject='Verify your email — Shop-Seed',
-        message='',
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        html_message=render_to_string(
-            'accounts/verify_email_email.html',
-            {'username': user.username, 'verify_link': link},
-        ),
-    )
+    try:
+        send_mail(
+            subject='Verify your email — Shop-Seed',
+            message='',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=render_to_string(
+                'accounts/verify_email_email.html',
+                {'username': user.username, 'verify_link': link},
+            ),
+        )
+    except Exception:
+        logger.exception('Failed to send verification email to %s', user.email)
 
 
 def send_phone_otp(request, user):
     otp = f"{random.randint(0, 999999):06d}"
     request.session['phone_otp'] = otp
     request.session['phone_otp_expiry'] = timezone.now().timestamp() + OTP_EXPIRY_SECONDS
-    send_mail(
-        subject='Your phone verification code — Shop-Seed',
-        message='',
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        html_message=render_to_string(
-            'accounts/phone_otp_email.html',
-            {'username': user.username, 'otp': otp, 'expiry_minutes': OTP_EXPIRY_SECONDS // 60},
-        ),
-    )
+    try:
+        send_mail(
+            subject='Your phone verification code — Shop-Seed',
+            message='',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=render_to_string(
+                'accounts/phone_otp_email.html',
+                {'username': user.username, 'otp': otp, 'expiry_minutes': OTP_EXPIRY_SECONDS // 60},
+            ),
+        )
+    except Exception:
+        logger.exception('Failed to send phone OTP to %s', user.email)
 
 
 def signup(request):

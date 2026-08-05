@@ -7,6 +7,7 @@ from .admin_views import (
     analytics_view,
     marketing_view,
 )
+from platform_studio.views import platform_studio_view, superuser_required
 
 app_name = 'admin'
 
@@ -16,6 +17,7 @@ urlpatterns = [
     path('research-insights/', admin.site.admin_view(research_insights_view), name='research_insights'),
     path('analytics/', admin.site.admin_view(analytics_view), name='analytics'),
     path('marketing/', admin.site.admin_view(marketing_view), name='marketing'),
+    path('platform-studio/', admin.site.admin_view(superuser_required(platform_studio_view)), name='platform_studio'),
 ]
 
 urlpatterns += admin.site.urls[0]

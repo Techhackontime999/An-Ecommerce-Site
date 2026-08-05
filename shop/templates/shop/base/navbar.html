@@ -7,24 +7,34 @@
     <!-- ═══ Desktop row (≥1024px) ═══ -->
     <div class="nav-aq-row-desktop">
       <a href="{% url 'shop:home' %}" class="nav-aq-logo" aria-label="{% trans 'Shop-Seed home' %}">
-        <span class="logo-mark">S</span>
-        Shop-Seed
+        <span class="logo-mark">{{ platform_settings.logo_mark|default:'S' }}</span>
+        {{ platform_settings.site_name|default:'Shop-Seed' }}
       </a>
 
       <ul class="nav-aq-links">
         <li><a href="{% url 'shop:home' %}" {% if url_name == 'home' %}class="is-active"{% endif %}>{% trans "Home" %}</a></li>
         <li><a href="{% url 'shop:product_list' %}" {% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %}class="is-active"{% endif %}>{% trans "Shop" %}</a></li>
+        {% if platform_settings.show_nav_deals != '0' %}
         <li><a href="{% url 'deals:todays_deals' %}" {% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %}class="is-active"{% endif %}>{% trans "Deals" %}</a></li>
+        {% endif %}
+        {% if platform_settings.show_nav_about != '0' %}
         <li><a href="{% url 'about:about' %}">{% trans "About" %}</a></li>
+        {% endif %}
+        {% if platform_settings.show_nav_best_sellers != '0' %}
         <li><a href="{% url 'seller:best_sellers' %}">{% trans "Best Sellers" %}</a></li>
+        {% endif %}
+        {% if platform_settings.show_nav_services != '0' %}
         <li><a href="{% url 'services:services_list' %}">{% trans "Services" %}</a></li>
+        {% endif %}
+        {% if platform_settings.show_nav_blog != '0' %}
         <li><a href="{% url 'blogs:blog_home' %}">{% trans "Blog" %}</a></li>
+        {% endif %}
       </ul>
 
       <div class="nav-aq-search">
         <span class="search-icon"><i class="fas fa-search"></i></span>
         <form method="GET" action="{% url 'shop:product_search' %}" role="search">
-          <input type="text" placeholder="{% trans 'Search products...' %}" name="q" value="{{ query|default:'' }}" aria-label="{% trans 'Search products' %}">
+          <input type="text" placeholder="{{ platform_settings.search_placeholder|default:'Search products...' }}" name="q" value="{{ query|default:'' }}" aria-label="{% trans 'Search products' %}">
         </form>
       </div>
 
@@ -137,8 +147,8 @@
         </button>
 
         <a href="{% url 'shop:home' %}" class="nav-aq-logo" aria-label="{% trans 'Shop-Seed home' %}">
-          <span class="logo-mark">S</span>
-          Shop-Seed
+          <span class="logo-mark">{{ platform_settings.logo_mark|default:'S' }}</span>
+          {{ platform_settings.site_name|default:'Shop-Seed' }}
         </a>
 
         <div class="nav-aq-mobile-actions">
@@ -161,7 +171,7 @@
       <div class="nav-aq-search">
         <span class="search-icon"><i class="fas fa-search"></i></span>
         <form method="GET" action="{% url 'shop:product_search' %}" role="search">
-          <input type="text" placeholder="{% trans 'Search products...' %}" name="q" value="{{ query|default:'' }}" aria-label="{% trans 'Search products' %}">
+          <input type="text" placeholder="{{ platform_settings.search_placeholder|default:'Search products...' }}" name="q" value="{{ query|default:'' }}" aria-label="{% trans 'Search products' %}">
         </form>
       </div>
     </div>
@@ -213,11 +223,21 @@
   <ul class="ds-drawer-nav">
     <li><a href="{% url 'shop:home' %}" {% if url_name == 'home' %}class="is-active"{% endif %}><i class="fas fa-house"></i> {% trans "Home" %}</a></li>
     <li><a href="{% url 'shop:product_list' %}" {% if url_name == 'product_list' or url_name == 'product_list_by_category' or url_name == 'product_search' or url_name == 'product_detail' %}class="is-active"{% endif %}><i class="fas fa-store"></i> {% trans "Shop" %}</a></li>
+    {% if platform_settings.show_nav_deals != '0' %}
     <li><a href="{% url 'deals:todays_deals' %}" {% if url_name == 'todays_deals' or url_name == 'todays_deals_by_category' %}class="is-active"{% endif %}><i class="fas fa-bolt"></i> {% trans "Today's Deals" %}</a></li>
+    {% endif %}
+    {% if platform_settings.show_nav_best_sellers != '0' %}
     <li><a href="{% url 'seller:best_sellers' %}"><i class="fas fa-crown"></i> {% trans "Best Sellers" %}</a></li>
+    {% endif %}
+    {% if platform_settings.show_nav_blog != '0' %}
     <li><a href="{% url 'blogs:blog_home' %}"><i class="fas fa-newspaper"></i> {% trans "Market Blog" %}</a></li>
+    {% endif %}
+    {% if platform_settings.show_nav_services != '0' %}
     <li><a href="{% url 'services:services_list' %}"><i class="fas fa-headset"></i> {% trans "Customer Services" %}</a></li>
+    {% endif %}
+    {% if platform_settings.show_nav_about != '0' %}
     <li><a href="{% url 'about:about' %}"><i class="fas fa-circle-info"></i> {% trans "About" %}</a></li>
+    {% endif %}
     <li><a href="{% url 'contact:contact' %}"><i class="fas fa-envelope"></i> {% trans "Contact Us" %}</a></li>
     <li><a href="{% url 'faq:faq' %}"><i class="fas fa-circle-question"></i> {% trans "FAQ" %}</a></li>
 

@@ -18,6 +18,7 @@ CSRF_TRUSTED_ORIGINS = ['https://shop-seed.onrender.com','https://localhost']
 
 INSTALLED_APPS = [
     'core',
+    'platform_studio.apps.PlatformStudioConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,6 +82,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart',
                 'shop.context_processors.search_action_context',
+                'platform_studio.context_processors.platform_settings_context',
                 'seller.context_processors.seller_context',
                 'blogs.context_processors.blog_nav',
                 'preferences.context_processors.user_preferences',
