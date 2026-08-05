@@ -2006,10 +2006,43 @@ html[data-theme="dark"] .tone-post    { background: rgba(52, 211, 153, 0.14); co
   left: auto;
 }
 
-/* keep mobile behaviour of stock admin (sidebar hidden) */
+/* mobile: nav sidebar becomes an off-canvas drawer opened via the toggle strip */
 @media (max-width: 767px) {
-  #nav-sidebar.aq-nav,
   #toggle-nav-sidebar {
-    display: none;
+    flex-basis: 36px;
+    width: 36px;
+    z-index: 1030;
+  }
+
+  .main > #nav-sidebar.aq-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1020;
+    flex: none;
+    width: min(290px, 84vw);
+    height: auto;
+    max-height: 100%;
+    margin: 0;
+    padding: 14px 12px 24px;
+    overflow: auto;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease, visibility 0.25s ease;
+    visibility: hidden;
+    box-shadow: none;
+  }
+
+  .main.shifted > #nav-sidebar.aq-nav {
+    flex-basis: auto;
+    width: min(290px, 84vw);
+    transform: translateX(0);
+    visibility: visible;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.35);
+  }
+
+  .main > #nav-sidebar.aq-nav + .content,
+  .main.shifted > #nav-sidebar.aq-nav + .content {
+    max-width: 100%;
   }
 }

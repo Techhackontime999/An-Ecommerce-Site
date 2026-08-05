@@ -186,6 +186,7 @@ def seller_orders(request):
 def update_order_status(request, order_id):
     order = get_object_or_404(Order, id=order_id, items__product__seller=request.user.sellerprofile)
     order.paid = True
+    order.status = Order.Status.SHIPPED
     order.save()
     notify(
         order.user,

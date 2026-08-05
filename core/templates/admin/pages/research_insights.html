@@ -1,0 +1,185 @@
+{% extends "admin/pages/base_page.html" %}
+{% load static %}
+
+{% block page_title %}Research &amp; Insights{% endblock %}
+{% block page_subtitle %}Content, review and support research overview{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'admin:blogs_post_add' %}" class="dash-btn dash-btn-primary">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+  New Post
+</a>
+{% endblock %}
+
+{% block page_content %}
+<div class="dashboard-stats">
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:var(--aq-primary)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <span class="stat-trend">total</span>
+    </div>
+    <span class="stat-value">{{ total_posts }}</span>
+    <div class="stat-label">Blog Posts</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:var(--aq-success)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(40,167,69,0.1);color:var(--aq-success);">published</span>
+    </div>
+    <span class="stat-value">{{ published_posts }}</span>
+    <div class="stat-label">Published Posts</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:var(--aq-info)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(23,162,184,0.1);color:var(--aq-info);">views</span>
+    </div>
+    <span class="stat-value">{{ total_views }}</span>
+    <div class="stat-label">Total Views</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#e67e22">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(230,126,34,0.1);color:#e67e22;">feedback</span>
+    </div>
+    <span class="stat-value">{{ total_reviews }}</span>
+    <div class="stat-label">Product Reviews</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:var(--aq-danger)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(220,53,69,0.1);color:var(--aq-danger);">pending</span>
+    </div>
+    <span class="stat-value">{{ pending_reports }}</span>
+    <div class="stat-label">Pending Reports</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#16a085">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(22,160,133,0.1);color:#16a085;">support</span>
+    </div>
+    <span class="stat-value">{{ faq_count }}</span>
+    <div class="stat-label">FAQs</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#7f8c8d">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg>
+      </div>
+      <span class="stat-trend">total</span>
+    </div>
+    <span class="stat-value">{{ news_count }}</span>
+    <div class="stat-label">News Items</div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Recent Posts</h3>
+      <a class="panel-link" href="{% url 'admin:blogs_post_changelist' %}">View all</a>
+    </div>
+    {% if recent_posts %}
+    <ul class="activity-list">
+      {% for post in recent_posts %}
+      <li>
+        <a href="{% url 'admin:blogs_post_change' post.pk %}" class="activity-item">
+          <span class="activity-icon tone-post">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </span>
+          <span class="activity-body">
+            <span class="activity-title">{{ post.title }}</span>
+            <span class="activity-desc">{{ post.post_type|capfirst }} &middot; {{ post.view_count }} views &middot; by {{ post.author.username }}</span>
+          </span>
+          <span class="activity-time">{{ post.created|timesince }} ago</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-note">No blog posts yet — write your first post to start collecting insights.</div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Recent Product Reviews</h3>
+      <a class="panel-link" href="{% url 'admin:reviews_productreview_changelist' %}">View all</a>
+    </div>
+    {% if recent_reviews %}
+    <ul class="activity-list">
+      {% for review in recent_reviews %}
+      <li>
+        <a href="{% url 'admin:reviews_productreview_change' review.pk %}" class="activity-item">
+          <span class="activity-icon tone-review">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          <span class="activity-body">
+            <span class="activity-title">{{ review.product.name }}</span>
+            <span class="activity-desc">{{ review.overall_rating }}&starf; by {{ review.reviewer.username }} &middot; {{ review.status }}</span>
+          </span>
+          <span class="activity-time">{{ review.created|timesince }} ago</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-note">No product reviews yet.</div>
+    {% endif %}
+  </section>
+</div>
+
+<div class="dashboard-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Recent FAQs</h3>
+      <a class="panel-link" href="{% url 'admin:faq_faq_changelist' %}">View all</a>
+    </div>
+    {% if recent_faqs %}
+    <ul class="qs-list">
+      {% for faq in recent_faqs %}
+      <li class="qs-item">
+        <div class="qs-head">
+          <span class="qs-label">{{ faq.question }}</span>
+          <span class="qs-value">{{ faq.created_at|date:"M j" }}</span>
+        </div>
+        <p class="qs-hint">Added {{ faq.created_at|timesince }} ago</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-note">No FAQs yet.</div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Quick Links</h3>
+    </div>
+    <div class="quick-groups">
+      <div class="quick-group">
+        <div class="quick-options-grid">
+          <a href="{% url 'admin:blogs_tag_changelist' %}" class="quick-option"><span>Tags</span></a>
+          <a href="{% url 'admin:blogs_comment_changelist' %}" class="quick-option"><span>Comments</span></a>
+          <a href="{% url 'admin:blogs_postreport_changelist' %}" class="quick-option"><span>Post Reports</span></a>
+          <a href="{% url 'admin:reviews_reviewreport_changelist' %}" class="quick-option"><span>Review Reports</span></a>
+          <a href="{% url 'admin:news_newsitem_changelist' %}" class="quick-option"><span>News</span></a>
+          <a href="{% url 'admin:faq_story_changelist' %}" class="quick-option"><span>Stories</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

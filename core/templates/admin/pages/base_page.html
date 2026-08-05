@@ -1,0 +1,24 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block nav-sidebar %}
+{% include "admin/nav_sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome">
+  <div>
+    <h2>{% block page_title %}{% endblock %}</h2>
+    <p>{% block page_subtitle %}{% endblock %}</p>
+  </div>
+  <div class="welcome-actions">
+    {% block page_actions %}{% endblock %}
+  </div>
+</div>
+
+{% block page_content %}{% endblock %}
+{% endblock %}

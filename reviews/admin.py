@@ -1,4 +1,5 @@
 from django.contrib import admin
+from core.admin_actions import export_as_csv_action
 from .models import Review, SellerReview, ProductReview, ProductReviewImage, ReviewReport
 
 
@@ -37,7 +38,7 @@ class ProductReviewAdmin(admin.ModelAdmin):
     raw_id_fields = ('reviewer', 'product')
     filter_horizontal = ('helpful_votes',)
     inlines = [ProductReviewImageInline]
-    actions = ('approve_reviews', 'reject_reviews', 'mark_verified_reviewer')
+    actions = ('approve_reviews', 'reject_reviews', 'mark_verified_reviewer', 'export_csv')
 
     @admin.action(description='Approve selected reviews')
     def approve_reviews(self, request, queryset):
@@ -53,6 +54,13 @@ class ProductReviewAdmin(admin.ModelAdmin):
     def mark_verified_reviewer(self, request, queryset):
         updated = queryset.update(is_verified_reviewer=True)
         self.message_user(request, f'{updated} review(s) marked verified.')
+
+    export_csv = export_as_csv_action(
+        description='Export selected reviews as CSV',
+        fields=['id', 'reviewer', 'product', 'overall_rating', 'performance',
+                'value', 'quality', 'recommendation_rating', 'verified_purchase',
+                'is_verified_reviewer', 'status', 'created'],
+    )
 
 
 @admin.register(ReviewReport)

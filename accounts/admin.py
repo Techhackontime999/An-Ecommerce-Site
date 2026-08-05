@@ -1,5 +1,21 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
+
+from core.admin_actions import export_as_csv_action
 from .models import SellerProfile, CustomerProfile
+
+
+admin.site.unregister(User)
+
+
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
+    actions = BaseUserAdmin.actions + (export_as_csv_action(
+        description='Export selected users as CSV',
+        fields=['id', 'username', 'first_name', 'last_name', 'email',
+                'is_staff', 'is_superuser', 'is_active', 'date_joined', 'last_login'],
+    ),)
 
 
 @admin.register(SellerProfile)

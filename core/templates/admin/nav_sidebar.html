@@ -30,47 +30,54 @@
         {% if sidebar_counts.pending_orders %}<span class="aq-badge">{{ sidebar_counts.pending_orders }}</span>{% endif %}
       </a>
 
+      <a href="{% url 'admin:order_returnrequest_changelist' %}" class="aq-nav-item{% if '/admin/order/returnrequest/' in request.path or '/admin/order/refund/' in request.path %} is-active{% endif %}">
+        <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></span>
+        <span class="aq-nav-lbl">{% translate 'Returns & Refunds' %}</span>
+        {% if sidebar_counts.open_returns %}<span class="aq-badge">{{ sidebar_counts.open_returns }}</span>{% endif %}
+      </a>
+
       <a href="{{ site_url }}" target="_blank" rel="noopener" class="aq-nav-item">
         <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
         <span class="aq-nav-lbl">{% translate 'View Site' %}</span>
       </a>
 
-      <a href="{{ dashboard_path }}" class="aq-nav-item">
+      <a href="{% url 'admin:research_insights' %}" class="aq-nav-item{% if '/admin/research-insights/' in request.path %} is-active{% endif %}">
         <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></span>
         <span class="aq-nav-lbl">{% translate 'Research & Insights' %}</span>
       </a>
 
       <div class="aq-nav-group">
-        <button type="button" id="aq-nav-group-marketing" class="aq-nav-item aq-nav-group-toggle" aria-expanded="false">
+        <button type="button" id="aq-nav-group-marketing" class="aq-nav-item aq-nav-group-toggle{% if '/admin/marketing/' in request.path %} is-active{% endif %}" aria-expanded="false">
           <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
           <span class="aq-nav-lbl">{% translate 'Marketing' %}</span>
           <svg class="aq-nav-group-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="aq-nav-sub">
           <div class="aq-nav-label">{% translate 'Advertising' %}</div>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Dashboard' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Sponsored Products' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Banner Ads' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Search Ads' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Brand Campaigns' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Ad Campaigns' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Placements' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Ad Requests' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Budget Management' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'CPC Management' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'CPM Management' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'CTR Analytics' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Conversion Reports' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Billing & Invoices' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'Seller Ad Wallet' %}</a>
-          <a href="{{ dashboard_path }}" class="aq-nav-subitem">{% translate 'AI Ad Optimization' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem{% if '/admin/marketing/' in request.path %} is-active{% endif %}">{% translate 'Dashboard' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Sponsored Products' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Banner Ads' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Search Ads' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Brand Campaigns' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Ad Campaigns' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Placements' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Ad Requests' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Budget Management' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'CPC Management' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'CPM Management' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'CTR Analytics' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Conversion Reports' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Billing & Invoices' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'Seller Ad Wallet' %}</a>
+          <a href="{% url 'admin:marketing' %}" class="aq-nav-subitem">{% translate 'AI Ad Optimization' %}</a>
         </div>
       </div>
 
-      <a href="{{ dashboard_path }}" class="aq-nav-item">
+      <a href="{% url 'admin:analytics' %}" class="aq-nav-item{% if '/admin/analytics/' in request.path %} is-active{% endif %}">
         <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16v-3"/><path d="M11 16V8"/><path d="M15 16v-5"/><path d="M19 16v-2"/></svg></span>
         <span class="aq-nav-lbl">{% translate 'Analytics' %}</span>
       </a>
+
     </div>
 
     <!-- Account -->
@@ -141,7 +148,8 @@
   if (groupBtn) {
     var group = groupBtn.closest('.aq-nav-group');
     var stored = localStorage.getItem('django.admin.aqNavMarketingOpen');
-    if (stored === 'true') {
+    var onMarketing = window.location.pathname.indexOf('/admin/marketing/') !== -1;
+    if (stored === 'true' || onMarketing) {
       group.classList.add('is-open');
       groupBtn.setAttribute('aria-expanded', 'true');
     }
@@ -154,5 +162,22 @@
 
   document.addEventListener('DOMContentLoaded', sync);
   sync();
+
+  var mq = window.matchMedia ? window.matchMedia('(max-width: 767px)') : null;
+
+  function closeOnMobile() {
+    if (!mq || !mq.matches) return;
+    localStorage.setItem('django.admin.navSidebarIsOpen', 'false');
+    main.classList.remove('shifted');
+    nav.setAttribute('aria-expanded', 'false');
+    sync();
+  }
+
+  window.addEventListener('load', closeOnMobile);
+  if (mq && typeof mq.addEventListener === 'function') {
+    mq.addEventListener('change', function (e) {
+      if (e.matches) closeOnMobile();
+    });
+  }
 })();
 </script>

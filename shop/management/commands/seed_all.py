@@ -826,6 +826,7 @@ class Command(BaseCommand):
             order.shipping_cost = method.price
             order.shipping_method_name = method.name
             order.paid = random.choice([True, False])
+            order.status = Order.Status.DELIVERED if order.paid else Order.Status.PENDING
             order.save()
 
             for _ in range(random.randint(1, 3)):

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
-from .models import Category, Product, ProductImage, ProductVariant
+from core.admin_actions import export_as_csv_action
+from .models import Category, Product, ProductImage, ProductVariant, VariantImage
 
 
 class ProductImageInline(admin.TabularInline):
@@ -10,6 +11,11 @@ class ProductImageInline(admin.TabularInline):
 
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
+    extra = 0
+
+
+class VariantImageInline(admin.TabularInline):
+    model = VariantImage
     extra = 0
 
 
@@ -37,8 +43,25 @@ class ProductAdmin(admin.ModelAdmin):
     list_select_related = ['category', 'seller']
     date_hierarchy = 'created'
     inlines = [ProductImageInline, ProductVariantInline]
+    actions = [
+        export_as_csv_action(
+            description='Export selected products as CSV',
+            fields=['id', 'name', 'slug', 'category', 'brand', 'seller',
+                    'price', 'available', 'created', 'updated'],
+        ),
+    ]
 
     def has_active_deal(self, obj):
         return obj.deals.filter(end_time__gte=timezone.now()).exists()
     has_active_deal.boolean = True
     has_active_deal.short_description = 'On Deal?'
+
+
+@admin.register(ProductVariant)
+class ProductVariantAdmin(admin.ModelAdmin):
+    list_display = ['name', 'product', 'sku', 'effective_price', 'stock', 'active']
+    list_filter = ['active', 'product__category']
+    list_editable = ['stock', 'active']
+    search_fields = ['name', 'sku', 'product__name']
+    list_select_related = ['product']
+    inlines = [VariantImageInline]

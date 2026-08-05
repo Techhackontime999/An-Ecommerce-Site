@@ -71,6 +71,8 @@
   .myo-chip-shipped { background: rgba(30, 64, 175, 0.1); color: var(--aq-blue); }
   .myo-chip-transit { background: rgba(8, 145, 178, 0.12); color: #0E7490; }
   .myo-chip-failed { background: rgba(225, 29, 72, 0.12); color: #BE123C; }
+  .myo-chip-refunded { background: rgba(124, 58, 237, 0.12); color: #7C3AED; }
+  .myo-chip-processing { background: rgba(8, 145, 178, 0.12); color: #0E7490; }
   .myo-chip-other { background: rgba(100, 116, 139, 0.12); color: var(--aq-tertiary); }
 
   .myo-body { padding: 1.25rem 1.5rem; }
@@ -225,20 +227,18 @@
             <span class="myo-chip myo-chip-pending"><i class="fas fa-clock"></i> Payment pending</span>
             {% endif %}
 
-            {% if shipment %}
-              {% if shipment.status == 'delivered' %}
-              <span class="myo-chip myo-chip-delivered"><i class="fas fa-box-open"></i> Delivered</span>
-              {% elif shipment.status == 'shipped' %}
-              <span class="myo-chip myo-chip-shipped"><i class="fas fa-paper-plane"></i> Shipped</span>
-              {% elif shipment.status == 'in_transit' %}
-              <span class="myo-chip myo-chip-transit"><i class="fas fa-truck-moving"></i> In Transit</span>
-              {% elif shipment.status == 'failed' %}
-              <span class="myo-chip myo-chip-failed"><i class="fas fa-triangle-exclamation"></i> Failed</span>
-              {% else %}
-              <span class="myo-chip myo-chip-other"><i class="fas fa-box"></i> Pending</span>
-              {% endif %}
+            {% if order.status == 'delivered' %}
+            <span class="myo-chip myo-chip-delivered"><i class="fas fa-box-open"></i> Delivered</span>
+            {% elif order.status == 'shipped' %}
+            <span class="myo-chip myo-chip-shipped"><i class="fas fa-paper-plane"></i> Shipped</span>
+            {% elif order.status == 'processing' %}
+            <span class="myo-chip myo-chip-processing"><i class="fas fa-gears"></i> Processing</span>
+            {% elif order.status == 'cancelled' %}
+            <span class="myo-chip myo-chip-failed"><i class="fas fa-ban"></i> Cancelled</span>
+            {% elif order.status == 'refunded' %}
+            <span class="myo-chip myo-chip-refunded"><i class="fas fa-rotate-left"></i> Refunded</span>
             {% else %}
-            <span class="myo-chip myo-chip-other"><i class="fas fa-hourglass-half"></i> Awaiting shipment</span>
+            <span class="myo-chip myo-chip-other"><i class="fas fa-hourglass-half"></i> {{ order.get_status_display }}</span>
             {% endif %}
           </div>
         </div>
@@ -278,7 +278,7 @@
             {% endfor %}
           </div>
 
-          {% if shipment and shipment.status != 'failed' %}
+          {% if shipment and shipment.status != 'failed' and order.status != 'cancelled' and order.status != 'refunded' %}
           <div class="myo-timeline">
             {% for step in shipment.timeline %}
             <div class="myo-step {% if forloop.counter <= shipment.progress %}done{% endif %}{% if forloop.counter == shipment.progress %} current{% endif %}">

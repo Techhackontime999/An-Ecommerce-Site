@@ -1,0 +1,198 @@
+{% extends "admin/pages/base_page.html" %}
+{% load static %}
+
+{% block page_title %}Marketing{% endblock %}
+{% block page_subtitle %}Promotions, campaigns and audience management{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'admin:coupons_coupon_add' %}" class="dash-btn dash-btn-primary">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+  New Coupon
+</a>
+<a href="{% url 'admin:deals_deal_add' %}" class="dash-btn dash-btn-outline">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+  New Deal
+</a>
+{% endblock %}
+
+{% block page_content %}
+<div class="dashboard-stats">
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#8e44ad">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(142,68,173,0.1);color:#8e44ad;">active</span>
+    </div>
+    <span class="stat-value">{{ active_coupons }}</span>
+    <div class="stat-label">Active Coupons</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#f39c12">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(243,156,18,0.1);color:#f39c12;">live</span>
+    </div>
+    <span class="stat-value">{{ active_deals }}</span>
+    <div class="stat-label">Active Deals</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#1abc9c">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(26,188,156,0.1);color:#1abc9c;">active</span>
+    </div>
+    <span class="stat-value">{{ active_subscribers }}</span>
+    <div class="stat-label">Subscribers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#3498db">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(52,152,219,0.1);color:#3498db;">published</span>
+    </div>
+    <span class="stat-value">{{ post_count }}</span>
+    <div class="stat-label">Published Posts</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#7f8c8d">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg>
+      </div>
+      <span class="stat-trend">published</span>
+    </div>
+    <span class="stat-value">{{ news_count }}</span>
+    <div class="stat-label">News Items</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:var(--aq-primary)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      </div>
+      <span class="stat-trend">total</span>
+    </div>
+    <span class="stat-value">{{ product_count }}</span>
+    <div class="stat-label">Products</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="color:#2c3e50">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <span class="stat-trend" style="background:rgba(44,62,80,0.1);color:#2c3e50;">unread</span>
+    </div>
+    <span class="stat-value">{{ message_count }}</span>
+    <div class="stat-label">Messages</div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Recent Coupons</h3>
+      <a class="panel-link" href="{% url 'admin:coupons_coupon_changelist' %}">View all</a>
+    </div>
+    {% if recent_coupons %}
+    <ul class="qs-list">
+      {% for coupon in recent_coupons %}
+      <li class="qs-item">
+        <div class="qs-head">
+          <span class="qs-label">{{ coupon.code }}</span>
+          <span class="qs-value">{{ coupon.discount }}% off</span>
+        </div>
+        <p class="qs-hint">{% if coupon.active %}Active{% else %}Inactive{% endif %} &middot; valid until {{ coupon.valid_to|date:"M j, Y" }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-note">No coupons yet — create one to start promoting.</div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Recent Deals</h3>
+      <a class="panel-link" href="{% url 'admin:deals_deal_changelist' %}">View all</a>
+    </div>
+    {% if recent_deals %}
+    <ul class="activity-list">
+      {% for deal in recent_deals %}
+      <li>
+        <a href="{% url 'admin:deals_deal_change' deal.pk %}" class="activity-item">
+          <span class="activity-icon tone-order">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
+          <span class="activity-body">
+            <span class="activity-title">{{ deal.product.name }}</span>
+            <span class="activity-desc">&#8377;{{ deal.deal_price|floatformat:0 }} &middot; ends {{ deal.end_time|date:"M j" }}</span>
+          </span>
+          <span class="activity-time">{{ deal.start_time|timesince }} ago</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-note">No deals yet.</div>
+    {% endif %}
+  </section>
+</div>
+
+<div class="dashboard-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Recent Subscribers</h3>
+      <a class="panel-link" href="{% url 'admin:newsletter_subscriber_changelist' %}">View all</a>
+    </div>
+    {% if recent_subscribers %}
+    <ul class="activity-list">
+      {% for subscriber in recent_subscribers %}
+      <li>
+        <a href="{% url 'admin:newsletter_subscriber_change' subscriber.pk %}" class="activity-item">
+          <span class="activity-icon tone-message">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </span>
+          <span class="activity-body">
+            <span class="activity-title">{{ subscriber.email }}</span>
+            <span class="activity-desc">{% if subscriber.is_active %}Active{% else %}Unsubscribed{% endif %}</span>
+          </span>
+          <span class="activity-time">{{ subscriber.created_at|timesince }} ago</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-note">No subscribers yet.</div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h3>Recent News</h3>
+      <a class="panel-link" href="{% url 'admin:news_newsitem_changelist' %}">View all</a>
+    </div>
+    {% if recent_news %}
+    <ul class="activity-list">
+      {% for news in recent_news %}
+      <li>
+        <a href="{% url 'admin:news_newsitem_change' news.pk %}" class="activity-item">
+          <span class="activity-icon tone-post">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg>
+          </span>
+          <span class="activity-body">
+            <span class="activity-title">{{ news.title }}</span>
+            <span class="activity-desc">{{ news.get_kind_display }} &middot; {% if news.is_published %}Published{% else %}Draft{% endif %}</span>
+          </span>
+          <span class="activity-time">{{ news.publish_at|timesince }} ago</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-note">No news items yet.</div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
