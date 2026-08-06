@@ -36,6 +36,27 @@
         {% if sidebar_counts.open_returns %}<span class="aq-badge">{{ sidebar_counts.open_returns }}</span>{% endif %}
       </a>
 
+      <div class="aq-nav-group">
+        <button type="button" id="aq-nav-group-logistics" class="aq-nav-item aq-nav-group-toggle{% if '/admin/logistics/' in request.path or '/logistics/dashboards/' in request.path %} is-active{% endif %}" aria-expanded="false">
+          <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></span>
+          <span class="aq-nav-lbl">{% translate 'Fulfilment & Logistics' %}</span>
+          {% if sidebar_counts.in_transit %}<span class="aq-badge">{{ sidebar_counts.in_transit }}</span>{% endif %}
+          <svg class="aq-nav-group-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="aq-nav-sub">
+          <div class="aq-nav-label">{% translate 'Fulfilment' %}</div>
+          <a href="{% url 'logistics:dashboard' %}" class="aq-nav-subitem{% if '/logistics/dashboards/' in request.path %} is-active{% endif %}">{% translate 'Dashboard' %}</a>
+          <a href="{% url 'admin:logistics_shipment_changelist' %}" class="aq-nav-subitem">{% translate 'Shipments' %}</a>
+          <a href="{% url 'admin:logistics_couriercompany_changelist' %}" class="aq-nav-subitem">{% translate 'Couriers' %}</a>
+          <a href="{% url 'admin:logistics_warehouse_changelist' %}" class="aq-nav-subitem">{% translate 'Warehouses' %}</a>
+          <a href="{% url 'admin:logistics_pincodeserviceability_changelist' %}" class="aq-nav-subitem">{% translate 'Pincode Serviceability' %}</a>
+          <a href="{% url 'admin:logistics_pickuprequest_changelist' %}" class="aq-nav-subitem">{% translate 'Pickups' %}</a>
+          <a href="{% url 'admin:logistics_ndrrecord_changelist' %}" class="aq-nav-subitem">{% translate 'NDRs' %}</a>
+          <a href="{% url 'admin:logistics_returnshipment_changelist' %}" class="aq-nav-subitem">{% translate 'Returns' %}</a>
+          <a href="{% url 'admin:logistics_auditlog_changelist' %}" class="aq-nav-subitem">{% translate 'Audit Trail' %}</a>
+        </div>
+      </div>
+
       <a href="{{ site_url }}" target="_blank" rel="noopener" class="aq-nav-item">
         <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
         <span class="aq-nav-lbl">{% translate 'View Site' %}</span>
@@ -193,6 +214,22 @@
       var open = studioGroup.classList.toggle('is-open');
       studioBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
       localStorage.setItem('django.admin.aqNavStudioOpen', open ? 'true' : 'false');
+    });
+  }
+
+  var logisticsBtn = document.getElementById('aq-nav-group-logistics');
+  if (logisticsBtn) {
+    var logisticsGroup = logisticsBtn.closest('.aq-nav-group');
+    var logisticsStored = localStorage.getItem('django.admin.aqNavLogisticsOpen');
+    var onLogistics = window.location.pathname.indexOf('/admin/logistics/') !== -1 || window.location.pathname.indexOf('/logistics/dashboards/') !== -1;
+    if (logisticsStored === 'true' || onLogistics) {
+      logisticsGroup.classList.add('is-open');
+      logisticsBtn.setAttribute('aria-expanded', 'true');
+    }
+    logisticsBtn.addEventListener('click', function () {
+      var open = logisticsGroup.classList.toggle('is-open');
+      logisticsBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      localStorage.setItem('django.admin.aqNavLogisticsOpen', open ? 'true' : 'false');
     });
   }
 

@@ -4,7 +4,7 @@ from .models import Order
 class OrderCreateForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['first_name', 'last_name', 'email', 'address', 'postal_code', 'city']
+        fields = ['first_name', 'last_name', 'email', 'address', 'postal_code', 'city', 'phone', 'state', 'country']
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'placeholder': 'First name',
@@ -31,5 +31,18 @@ class OrderCreateForm(forms.ModelForm):
             'city': forms.TextInput(attrs={
                 'placeholder': 'City',
                 'autocomplete': 'address-level2',
+            }),
+            'phone': forms.TextInput(attrs={
+                'placeholder': 'e.g. 98765 43210',
+                'autocomplete': 'tel',
+                'inputmode': 'tel',
+            }),
+            'state': forms.TextInput(attrs={
+                'placeholder': 'State',
+                'autocomplete': 'address-level1',
+            }),
+            'country': forms.TextInput(attrs={
+                'placeholder': 'India',
+                'autocomplete': 'country-name',
             }),
         }

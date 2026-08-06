@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'reviews',
     'payments.apps.PaymentsConfig',
     'shipping.apps.ShippingConfig',
+    'logistics.apps.LogisticsConfig',
     'preferences.apps.PreferencesConfig',
     'news.apps.NewsConfig',
     'legal.apps.LegalConfig',
@@ -84,6 +85,7 @@ TEMPLATES = [
                 'shop.context_processors.search_action_context',
                 'platform_studio.context_processors.platform_settings_context',
                 'seller.context_processors.seller_context',
+                'logistics.context_processors.logistics_admin_context',
                 'blogs.context_processors.blog_nav',
                 'preferences.context_processors.user_preferences',
                 'news.context_processors.news_ticker',
@@ -177,10 +179,36 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Email — SMTP when configured (Gmail etc.), otherwise console prints to terminal
+# ---------------------------------------------------------------------------
+# Logistics Management System (LMS)
+# ---------------------------------------------------------------------------
+LOGISTICS_AWB_PREFIX = os.getenv('LOGISTICS_AWB_PREFIX', 'SSD')
+LOGISTICS_DEFAULT_CURRENCY = os.getenv('LOGISTICS_DEFAULT_CURRENCY', 'INR')
+LOGISTICS_COURIER_TIMEOUT_SECONDS = int(os.getenv('LOGISTICS_COURIER_TIMEOUT_SECONDS', '30'))
+LOGISTICS_COURIER_MAX_RETRIES = int(os.getenv('LOGISTICS_COURIER_MAX_RETRIES', '3'))
+LOGISTICS_COURIER_RETRY_BACKOFF = int(os.getenv('LOGISTICS_COURIER_RETRY_BACKOFF', '2'))
+LOGISTICS_SHIPMENT_FALLBACK_ATTEMPTS = int(os.getenv('LOGISTICS_SHIPMENT_FALLBACK_ATTEMPTS', '3'))
+LOGISTICS_PICKUP_AUTOSCHEDULE = os.getenv('LOGISTICS_PICKUP_AUTOSCHEDULE', 'True') == 'True'
+LOGISTICS_TRACKING_BASE_URL = os.getenv('LOGISTICS_TRACKING_BASE_URL', '')
+# Per-courier webhook signing secrets, e.g. {"mock": "secret1", "delhivery": "secret2"}
+LOGISTICS_WEBHOOK_SECRETS = {}
+for _key in ('MOCK_COURIER_WEBHOOK_SECRET', 'MOCKEXPRESS_COURIER_WEBHOOK_SECRET', 'DELHIVERY_WEBHOOK_SECRET'):
+    _secret = os.getenv(_key)
+    if _secret:
+        _code = _key.split('_WEBHOOK_SECRET')[0].replace('MOCKEXPRESS', 'mockexpress').replace('MOCK_COURIER', 'mock').replace('DELHIVERY', 'delhivery').lower()
+        LOGISTICS_WEBHOOK_SECRETS[_code] = _secret
+
+
+
+# Email — SMTP only when fully configured (host + user + password),
+# otherwise console backend prints messages to the terminal
+_EMAIL_SMTP_CONFIGURED = all(
+    os.getenv(key)
+    for key in ('EMAIL_HOST', 'EMAIL_HOST_USER', 'EMAIL_HOST_PASSWORD')
+)
 EMAIL_BACKEND = (
     'django.core.mail.backends.smtp.EmailBackend'
-    if os.getenv('EMAIL_HOST')
+    if _EMAIL_SMTP_CONFIGURED
     else 'django.core.mail.backends.console.EmailBackend'
 )
 EMAIL_HOST = os.getenv('EMAIL_HOST', '')

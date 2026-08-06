@@ -1,0 +1,63 @@
+{% extends "logistics/base.html" %}
+{% block lms_title %}Shipments{% endblock %}
+{% block lms_heading %}Shipments{% endblock %}
+
+{% block lms_content %}
+<div class="lms-card">
+  <div class="lms-card-head">
+    <form class="lms-filters" method="get">
+      <input type="text" name="q" value="{{ search }}" placeholder="AWB / shipment / order #">
+      <select name="status">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="courier">
+        <option value="">All couriers</option>
+        {% for c in couriers %}
+        <option value="{{ c.id }}" {% if courier == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+      <button class="lms-btn" type="submit"><i class="fas fa-filter"></i> Filter</button>
+    </form>
+  </div>
+  <div class="lms-card-body">
+    {% if page_obj %}
+    <table class="lms-table">
+      <thead>
+        <tr><th>Shipment</th><th>Order</th><th>Courier</th><th>AWB</th><th>Route</th><th>Status</th><th>Created</th></tr>
+      </thead>
+      <tbody>
+        {% for s in page_obj %}
+        <tr>
+          <td><a href="{% url 'logistics:tracking_detail' s.tracking_number|default:s.shipment_number %}" target="_blank" class="lms-mono">{{ s.shipment_number }}</a></td>
+          <td>{{ s.order.order_number }}</td>
+          <td>{{ s.courier.name|default:"Unassigned" }}</td>
+          <td class="lms-mono">{{ s.tracking_number|default:"—" }}</td>
+          <td>{{ s.source_pincode|default:"?" }} → {{ s.destination_pincode }}</td>
+          <td>
+            {% if s.status == 'delivered' %}<span class="lms-chip lms-chip-green">{{ s.get_status_display }}</span>
+            {% elif s.status in 'picked_up in_transit at_origin_hub at_destination_hub out_for_delivery ready_for_pickup' %}<span class="lms-chip lms-chip-blue">{{ s.get_status_display }}</span>
+            {% elif s.status in 'delivery_failed rto_initiated returned cancelled lost damaged' %}<span class="lms-chip lms-chip-red">{{ s.get_status_display }}</span>
+            {% else %}<span class="lms-chip lms-chip-amber">{{ s.get_status_display }}</span>{% endif %}
+          </td>
+          <td>{{ s.created_at|date:"M j, H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if page_obj.has_other_pages %}
+    <div class="lms-pagination">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ search }}&status={{ status }}&courier={{ courier }}"><i class="fas fa-chevron-left"></i> Prev</a>{% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ search }}&status={{ status }}&courier={{ courier }}">Next <i class="fas fa-chevron-right"></i></a>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="lms-empty"><i class="fas fa-box-open"></i>No shipments match the current filters.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

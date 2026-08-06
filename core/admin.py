@@ -28,7 +28,7 @@ STAT_MODELS = {
     'documentation_count': 'documentation.DocumentationSection',
     'about_count': 'about.AboutSection',
     'team_count': 'about.TeamMember',
-    'shipment_count': 'shipping.Shipment',
+    'shipment_count': 'logistics.Shipment',
     'notification_count': 'notifications.Notification',
 }
 

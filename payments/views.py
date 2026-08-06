@@ -1,3 +1,4 @@
+import logging
 import razorpay
 import hmac
 import hashlib
@@ -11,6 +12,32 @@ from order.models import Order
 from .models import Payment
 from notifications.models import Notification
 from notifications.services import notify
+
+logger = logging.getLogger(__name__)
+
+
+def trigger_fulfilment(order):
+    """Run the LMS fulfilment pipeline for a freshly paid order.
+
+    Best effort — a courier failure must never roll back a successful payment.
+    """
+    try:
+        from logistics.services.fulfillment import FulfillmentService
+        shipments = FulfillmentService.create_shipments_for_order(order)
+        if shipments:
+            names = ', '.join(s.shipment_number for s in shipments)
+            notify(
+                order.user,
+                Notification.Category.SHIPPING,
+                f'Shipment created for order #{order.id}',
+                f'Your order is being packed. AWB(s): {names}. Track it anytime.',
+                link=f'/logistics/track/?q={shipments[0].shipment_number}',
+                icon='truck-fast',
+            )
+        return shipments
+    except Exception as exc:
+        logger.error('Fulfilment failed for order %s: %s', order.id, exc, exc_info=True)
+        return []
 
 
 def get_razorpay_client():
@@ -96,7 +123,11 @@ def payment_callback(request):
 
     order = payment.order
     order.paid = True
+    if order.status == Order.Status.PENDING:
+        order.status = Order.Status.PROCESSING
     order.save()
+
+    trigger_fulfilment(order)
 
     notify(
         order.user,

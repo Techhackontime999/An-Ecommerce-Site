@@ -1,0 +1,326 @@
+{% extends "shop/base/base.html" %}
+{% block title %}Track Shipment — Shop-Seed Logistics{% endblock %}
+
+{% block extra_css %}
+<style>
+  .trk-page { position: relative; padding: 3rem 0 5rem; overflow: hidden; }
+  .trk-page::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(820px 420px at 12% 0%, var(--aq-accent-glow), transparent 60%),
+      radial-gradient(720px 420px at 88% 0%, rgba(30, 64, 175, 0.06), transparent 60%);
+  }
+  .trk-wrap { position: relative; max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+  .trk-head { text-align: center; margin-bottom: 2rem; }
+  .trk-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .4rem 1.1rem; border-radius: 999px;
+    background: var(--aq-accent-subtle); color: var(--aq-accent);
+    border: 1px solid var(--aq-accent-glow);
+    font-size: .8125rem; font-weight: 600; letter-spacing: .02em;
+  }
+  .trk-title { margin: .9rem 0 0; font-size: clamp(1.75rem, 4vw, 2.4rem); font-weight: 800; color: var(--aq-ink); letter-spacing: -.02em; }
+  .trk-title span { color: var(--aq-accent); }
+  .trk-sub { margin: .75rem auto 0; max-width: 52ch; color: var(--aq-tertiary); font-size: 1.05rem; }
+
+  .trk-lookup { max-width: 560px; margin: 0 auto; display: flex; gap: .6rem; }
+  .trk-lookup-input {
+    flex: 1; padding: .85rem 1.1rem; border-radius: 14px;
+    border: 1px solid var(--aq-border); background: var(--aq-surface);
+    color: var(--aq-ink); font-size: 1rem; transition: var(--aq-transition);
+  }
+  .trk-lookup-input:focus { outline: none; border-color: var(--aq-accent); box-shadow: 0 0 0 4px var(--aq-accent-glow); }
+  .trk-lookup-btn {
+    padding: .85rem 1.4rem; border-radius: 14px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--aq-accent), var(--aq-accent-light));
+    color: #fff; font-weight: 700; font-size: .9rem;
+    box-shadow: 0 8px 20px var(--aq-accent-glow); transition: var(--aq-transition);
+  }
+  .trk-lookup-btn:hover { transform: translateY(-1px); }
+  .trk-hint { text-align: center; margin-top: .8rem; font-size: .8rem; color: var(--aq-tertiary); }
+
+  .trk-error {
+    max-width: 560px; margin: 1.5rem auto 0; display: flex; align-items: center; gap: .8rem;
+    padding: 1rem 1.2rem; border-radius: 14px;
+    background: rgba(225, 29, 72, 0.08); border: 1px solid rgba(225, 29, 72, 0.22); color: #BE123C;
+    font-size: .9rem;
+  }
+
+  .trk-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; margin-top: 2rem; }
+  @media (max-width: 900px) { .trk-grid { grid-template-columns: 1fr; } }
+
+  .trk-card {
+    background: var(--aq-surface); border: 1px solid var(--aq-border);
+    border-radius: var(--aq-radius-lg); overflow: hidden; margin-bottom: 1.5rem;
+    transition: var(--aq-transition);
+  }
+  .trk-card:hover { border-color: var(--aq-accent-glow); box-shadow: 0 14px 36px var(--aq-shadow); }
+  .trk-card-head {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--aq-border);
+  }
+  .trk-card-title { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--aq-ink); display: flex; align-items: center; gap: .6rem; }
+  .trk-card-title i { color: var(--aq-accent); }
+  .trk-card-sub { margin: .3rem 0 0; font-size: .8rem; color: var(--aq-tertiary); }
+  .trk-card-body { padding: 1.5rem; }
+
+  .trk-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .38rem .9rem; border-radius: 999px; font-size: .78rem; font-weight: 700; white-space: nowrap;
+  }
+  .trk-chip-delivered { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+  .trk-chip-transit { background: rgba(8, 145, 178, 0.12); color: #0E7490; }
+  .trk-chip-pending { background: rgba(234, 179, 8, 0.14); color: #CA8A04; }
+  .trk-chip-failed { background: rgba(225, 29, 72, 0.12); color: #BE123C; }
+
+  .trk-timeline { display: flex; margin: .5rem 0 .75rem; }
+  .trk-step { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; gap: .55rem; text-align: center; }
+  .trk-step-dot {
+    width: 38px; height: 38px; border-radius: 50%; z-index: 1;
+    background: var(--aq-canvas); border: 2px solid var(--aq-border);
+    display: flex; align-items: center; justify-content: center;
+    color: transparent; font-size: .9rem; transition: var(--aq-transition);
+  }
+  .trk-step.done .trk-step-dot,
+  .trk-step.current .trk-step-dot {
+    background: linear-gradient(135deg, var(--aq-accent), var(--aq-accent-light));
+    border-color: transparent; color: #fff; box-shadow: 0 6px 16px var(--aq-accent-glow);
+  }
+  .trk-step-line { position: absolute; top: 19px; left: -50%; width: 100%; height: 3px; background: var(--aq-border); border-radius: 2px; }
+  .trk-step:first-child .trk-step-line { display: none; }
+  .trk-step.done + .trk-step .trk-step-line,
+  .trk-step.current + .trk-step .trk-step-line { background: linear-gradient(90deg, var(--aq-accent), var(--aq-accent-light)); opacity: .55; }
+  .trk-step-label { font-size: .82rem; font-weight: 700; color: var(--aq-ink); }
+  .trk-step-date { font-size: .72rem; color: var(--aq-tertiary); min-height: 1em; }
+  @media (max-width: 560px) { .trk-step-label { font-size: .7rem; } .trk-step-date { font-size: .64rem; } }
+
+  .trk-event-list { list-style: none; margin: 0; padding: 0; }
+  .trk-event { position: relative; padding: 0 0 1.4rem 2.1rem; }
+  .trk-event:last-child { padding-bottom: 0; }
+  .trk-event::before {
+    content: ''; position: absolute; left: 8px; top: 22px; bottom: -6px; width: 2px;
+    background: var(--aq-border);
+  }
+  .trk-event:last-child::before { display: none; }
+  .trk-event-dot {
+    position: absolute; left: 0; top: 4px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--aq-surface); border: 2px solid var(--aq-border);
+  }
+  .trk-event.current .trk-event-dot {
+    background: linear-gradient(135deg, var(--aq-accent), var(--aq-accent-light));
+    border-color: transparent; box-shadow: 0 0 0 5px var(--aq-accent-glow);
+  }
+  .trk-event-title { font-size: .9rem; font-weight: 700; color: var(--aq-ink); }
+  .trk-event-desc { font-size: .82rem; color: var(--aq-body); margin-top: .15rem; }
+  .trk-event-meta { font-size: .74rem; color: var(--aq-tertiary); margin-top: .35rem; display: flex; gap: .8rem; flex-wrap: wrap; }
+
+  .trk-detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1.25rem; }
+  .trk-detail-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--aq-tertiary); margin-bottom: .4rem; font-weight: 600; }
+  .trk-detail-value { font-size: .95rem; font-weight: 600; color: var(--aq-ink); }
+  .trk-code {
+    display: inline-flex; align-items: center; gap: .6rem; word-break: break-all;
+    padding: .5rem .9rem; border-radius: 10px;
+    background: var(--aq-accent-subtle); border: 1px dashed var(--aq-accent-glow);
+    font-family: 'JetBrains Mono', monospace; font-size: .875rem; color: var(--aq-accent); font-weight: 600;
+  }
+
+  .trk-items { display: flex; flex-direction: column; gap: 1rem; }
+  .trk-item { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+  .trk-thumb {
+    width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; overflow: hidden;
+    background: var(--aq-blue-glow); display: flex; align-items: center; justify-content: center;
+  }
+  .trk-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .trk-thumb i { color: var(--aq-accent); font-size: 1.1rem; }
+  .trk-item-link { font-weight: 600; color: var(--aq-ink); font-size: .92rem; text-decoration: none; }
+  .trk-item-meta { font-size: .78rem; color: var(--aq-tertiary); margin-top: .15rem; }
+  .trk-item-price { margin-left: auto; text-align: right; font-weight: 700; color: var(--aq-ink); font-size: .92rem; }
+  .trk-item-qty { color: var(--aq-tertiary); font-size: .76rem; font-weight: 500; }
+
+  .trk-addr-name { font-weight: 700; color: var(--aq-ink); margin-bottom: .35rem; display: flex; align-items: center; gap: .5rem; }
+  .trk-addr-name i { color: var(--aq-accent); }
+  .trk-addr-line { margin: 0; color: var(--aq-body); font-size: .9rem; line-height: 1.6; }
+
+  .trk-empty { text-align: center; padding: 3rem 1.5rem; }
+  .trk-empty-icon {
+    width: 72px; height: 72px; margin: 0 auto 1rem; border-radius: 22px;
+    background: var(--aq-blue-glow); color: var(--aq-blue);
+    display: flex; align-items: center; justify-content: center; font-size: 1.75rem;
+  }
+  .trk-empty h3 { font-size: 1.25rem; font-weight: 700; color: var(--aq-ink); margin: 0 0 .4rem; }
+  .trk-empty p { color: var(--aq-tertiary); margin: 0; font-size: .9rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="trk-page">
+  <div class="trk-wrap">
+    <header class="trk-head">
+      <span class="trk-badge"><i class="fas fa-truck-fast"></i> Shop-Seed Logistics</span>
+      <h1 class="trk-title">Track your <span>shipment</span></h1>
+      <p class="trk-sub">Enter your AWB / tracking number or the SSD shipment number shown on your invoice.</p>
+    </header>
+
+    <form class="trk-lookup" method="get" action="{% url 'logistics:tracking_lookup' %}">
+      <input class="trk-lookup-input" type="text" name="q" value="{{ query }}" placeholder="e.g. MOCK123456789 or SSD-20260806-...">
+      <button class="trk-lookup-btn" type="submit"><i class="fas fa-magnifying-glass"></i></button>
+    </form>
+    <p class="trk-hint">Public tracking — no login required.</p>
+
+    {% if error %}
+    <div class="trk-error"><i class="fas fa-triangle-exclamation"></i> {{ error }}</div>
+    {% endif %}
+
+    {% if shipment %}
+    <div class="trk-grid">
+      <div class="trk-main">
+
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <div>
+              <h2 class="trk-card-title"><i class="fas fa-route"></i> Shipment Progress</h2>
+              <p class="trk-card-sub">{% if shipment.estimated_delivery_date %}Estimated delivery: {{ shipment.estimated_delivery_date|date:"D, M j, Y" }}{% else %}Tracking updates{% endif %}</p>
+            </div>
+            <span class="trk-chip
+              {% if shipment.status == 'delivered' %}trk-chip-delivered
+              {% elif shipment.status in 'picked_up in_transit at_origin_hub at_destination_hub out_for_delivery' %}trk-chip-transit
+              {% elif shipment.status in 'delivery_failed rto_initiated returned cancelled lost damaged' %}trk-chip-failed
+              {% else %}trk-chip-pending{% endif %}">
+              {% if shipment.status == 'delivered' %}<i class="fas fa-circle-check"></i>{% else %}<i class="fas fa-box"></i>{% endif %}
+              {{ shipment.get_status_display }}
+            </span>
+          </div>
+          <div class="trk-card-body">
+            <div class="trk-timeline">
+              {% for step in shipment.timeline %}
+              <div class="trk-step {% if forloop.counter <= shipment.progress %}done{% endif %}{% if forloop.counter == shipment.progress %} current{% endif %}">
+                <span class="trk-step-line"></span>
+                <span class="trk-step-dot"><i class="fas fa-check"></i></span>
+                <span class="trk-step-label">{{ step }}</span>
+                <span class="trk-step-date">{% if forloop.counter == shipment.progress %}{{ shipment.updated_at|date:"M d" }}{% endif %}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <h2 class="trk-card-title"><i class="fas fa-clock-rotate-left"></i> Tracking History</h2>
+          </div>
+          <div class="trk-card-body">
+            {% if events %}
+            <ul class="trk-event-list">
+              {% for ev in events reversed %}
+              <li class="trk-event{% if forloop.last %} current{% endif %}">
+                <span class="trk-event-dot"></span>
+                <div class="trk-event-title">{{ ev.get_status_display }}</div>
+                {% if ev.description %}<div class="trk-event-desc">{{ ev.description }}</div>{% endif %}
+                <div class="trk-event-meta">
+                  <span><i class="far fa-clock"></i> {{ ev.timestamp|date:"D, M j, Y — H:i" }}</span>
+                  {% if ev.location %}<span><i class="fas fa-location-dot"></i> {{ ev.location }}</span>{% endif %}
+                  {% if ev.courier_status %}<span><i class="fas fa-truck"></i> {{ ev.courier_status }}</span>{% endif %}
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p style="color:var(--aq-tertiary);font-size:.9rem;">No tracking events yet. Check back shortly.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <h2 class="trk-card-title"><i class="fas fa-receipt"></i> Shipment Details</h2>
+          </div>
+          <div class="trk-card-body">
+            <div class="trk-detail-grid">
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">AWB / Tracking</div>
+                <div class="trk-code">{% if shipment.tracking_number %}{{ shipment.tracking_number }}{% else %}Not yet assigned{% endif %}</div>
+              </div>
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">Shipment #</div>
+                <div class="trk-detail-value">{{ shipment.shipment_number }}</div>
+              </div>
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">Courier</div>
+                <div class="trk-detail-value">{{ shipment.courier.name|default:"Pending assignment" }}</div>
+              </div>
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">Payment</div>
+                <div class="trk-detail-value">{{ shipment.get_payment_mode_display }}</div>
+              </div>
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">Weight</div>
+                <div class="trk-detail-value">{{ shipment.chargeable_weight_g|floatformat:0 }} g</div>
+              </div>
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">Service</div>
+                <div class="trk-detail-value">{{ shipment.get_delivery_speed_display|default:"Standard" }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="trk-side">
+
+        {% if shipment.items.all %}
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <h2 class="trk-card-title"><i class="fas fa-bag-shopping"></i> Package Contents</h2>
+          </div>
+          <div class="trk-card-body">
+            <div class="trk-items">
+              {% for item in shipment.items.all %}
+              <div class="trk-item">
+                <div class="trk-thumb">
+                  {% if item.product.image %}<img src="{{ item.product.image.url }}" alt="{{ item.product_name }}">{% else %}<i class="fas fa-box"></i>{% endif %}
+                </div>
+                <div>
+                  <div class="trk-item-link">{{ item.product_name }}</div>
+                  <div class="trk-item-meta">{{ item.sku }} &middot; Qty: {{ item.quantity }}</div>
+                </div>
+                <div class="trk-item-price">₹{{ item.unit_price }}<div class="trk-item-qty">×{{ item.quantity }}</div></div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if shipment.warehouse %}
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <h2 class="trk-card-title"><i class="fas fa-warehouse"></i> Fulfilled From</h2>
+          </div>
+          <div class="trk-card-body">
+            <div class="trk-addr-name"><i class="fas fa-warehouse"></i> {{ shipment.warehouse.name }}</div>
+            <p class="trk-addr-line">{{ shipment.warehouse.full_address }}</p>
+            {% if shipment.warehouse.contact_phone %}<p class="trk-addr-line" style="margin-top:.5rem;"><i class="fas fa-phone" style="color:var(--aq-accent);margin-right:.4rem;"></i> {{ shipment.warehouse.contact_phone }}</p>{% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if shipment.label %}
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <h2 class="trk-card-title"><i class="fas fa-file-pdf"></i> Documents</h2>
+          </div>
+          <div class="trk-card-body">
+            <a href="{{ shipment.label.url }}" target="_blank" style="display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-radius:12px;border:1px solid var(--aq-accent-glow);background:var(--aq-accent-subtle);color:var(--aq-accent);font-weight:600;font-size:.85rem;text-decoration:none;">
+              <i class="fas fa-receipt"></i> Shipping Label
+            </a>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

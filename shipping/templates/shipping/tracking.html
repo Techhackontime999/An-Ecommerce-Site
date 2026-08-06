@@ -1,6 +1,6 @@
 {% extends "shop/base/base.html" %}
 {% load preference_extras %}
-{% block title %}Track Order #{{ order.id }} — Shop-Seed{% endblock %}
+{% block title %}Track Order {{ order.order_number }} — Shop-Seed{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -181,6 +181,25 @@
   }
   .trk-empty h3 { font-size: 1.4rem; font-weight: 700; color: var(--aq-ink); margin: 0 0 .5rem; }
   .trk-empty p { color: var(--aq-tertiary); margin: 0 auto 1.5rem; max-width: 44ch; }
+
+  .trk-event-list { display: flex; flex-direction: column; }
+  .trk-event { display: flex; gap: .9rem; padding: 0 0 1.1rem; position: relative; }
+  .trk-event:not(:last-child)::before {
+    content: ''; position: absolute; left: 6px; top: 18px; bottom: 0; width: 2px;
+    background: var(--aq-border);
+  }
+  .trk-event-dot {
+    width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+    background: var(--aq-border); border: 2px solid var(--aq-surface);
+  }
+  .trk-event.current .trk-event-dot {
+    background: linear-gradient(135deg, var(--aq-accent), var(--aq-accent-light));
+    box-shadow: 0 0 0 3px var(--aq-accent-glow);
+  }
+  .trk-event-title { font-weight: 700; color: var(--aq-ink); font-size: .92rem; }
+  .trk-event-desc { color: var(--aq-body); font-size: .84rem; margin-top: .15rem; }
+  .trk-event-meta { display: flex; flex-wrap: wrap; gap: .9rem; color: var(--aq-tertiary); font-size: .76rem; margin-top: .3rem; }
+  .trk-event-meta i { color: var(--aq-accent); width: 13px; margin-right: .2rem; }
 </style>
 {% endblock %}
 
@@ -189,7 +208,7 @@
   <div class="trk-wrap">
     <header class="trk-head">
       <span class="trk-badge"><i class="fas fa-truck-fast"></i> Package Tracking</span>
-      <h1 class="trk-title">Order <span class="trk-order-id">#{{ order.id }}</span></h1>
+      <h1 class="trk-title">Order <span class="trk-order-id">{{ order.order_number }}</span></h1>
       <p class="trk-sub">Follow your order from checkout to your doorstep.</p>
     </header>
 
@@ -201,27 +220,29 @@
           <div class="trk-card-head">
             <div>
               <h2 class="trk-card-title"><i class="fas fa-route"></i> Shipment Progress</h2>
-              <p class="trk-card-sub">{% if shipment.shipping_method %}Estimated delivery: {{ shipment.shipping_method.estimated_delivery_days }}{% else %}Tracking updates{% endif %}</p>
+              <p class="trk-card-sub">{% if is_logistics and shipment.estimated_delivery_date %}Estimated delivery: {{ shipment.estimated_delivery_date|date:"D, M j, Y" }}{% elif shipment.shipping_method %}Estimated delivery: {{ shipment.shipping_method.estimated_delivery_days }}{% else %}Tracking updates{% endif %}</p>
             </div>
             {% if shipment.status == 'delivered' %}
             <span class="trk-chip trk-chip-delivered"><i class="fas fa-circle-check"></i> Delivered</span>
-            {% elif shipment.status == 'shipped' %}
-            <span class="trk-chip trk-chip-shipped"><i class="fas fa-paper-plane"></i> Shipped</span>
-            {% elif shipment.status == 'in_transit' %}
-            <span class="trk-chip trk-chip-transit"><i class="fas fa-truck-moving"></i> In Transit</span>
             {% elif shipment.status == 'failed' %}
             <span class="trk-chip trk-chip-failed"><i class="fas fa-triangle-exclamation"></i> Delivery Failed</span>
+            {% elif shipment.status == 'shipped' %}
+            <span class="trk-chip trk-chip-shipped"><i class="fas fa-paper-plane"></i> Shipped</span>
+            {% elif shipment.status in 'picked_up in_transit at_origin_hub at_destination_hub out_for_delivery' %}
+            <span class="trk-chip trk-chip-transit"><i class="fas fa-truck-moving"></i> {% if is_logistics %}{{ shipment.get_status_display }}{% else %}In Transit{% endif %}</span>
+            {% elif shipment.status in 'delivery_failed rto_initiated returned cancelled lost damaged customer_unavailable' %}
+            <span class="trk-chip trk-chip-failed"><i class="fas fa-triangle-exclamation"></i> {% if is_logistics %}{{ shipment.get_status_display }}{% else %}Delivery Failed{% endif %}</span>
             {% else %}
-            <span class="trk-chip trk-chip-pending"><i class="fas fa-box"></i> Pending</span>
+            <span class="trk-chip trk-chip-pending"><i class="fas fa-box"></i> {% if is_logistics %}{{ shipment.get_status_display }}{% else %}Pending{% endif %}</span>
             {% endif %}
           </div>
           <div class="trk-card-body">
-            {% if shipment.status == 'failed' %}
+            {% if shipment.status in 'failed delivery_failed rto_initiated returned cancelled lost damaged customer_unavailable' %}
             <div class="trk-failed">
               <div class="trk-failed-icon"><i class="fas fa-truck-ramp-box"></i></div>
               <div>
                 <h3>We couldn't deliver this order</h3>
-                <p>There was a problem with the delivery. Please contact support or update your address to reschedule.</p>
+                <p>{% if is_logistics %}Latest status: {{ shipment.get_status_display }}.{% else %}There was a problem with the delivery.{% endif %} Please contact support or update your address to reschedule.</p>
               </div>
             </div>
             {% else %}
@@ -232,7 +253,7 @@
                 <span class="trk-step-dot"><i class="fas fa-check"></i></span>
                 <span class="trk-step-label">{{ step }}</span>
                 <span class="trk-step-date">
-                  {% if forloop.counter == 1 %}{{ shipment.created_at|date:"M d, Y" }}{% elif forloop.counter == 2 and shipment.shipped_at %}{{ shipment.shipped_at|date:"M d, Y" }}{% elif forloop.counter == 4 and shipment.delivered_at %}{{ shipment.delivered_at|date:"M d, Y" }}{% endif %}
+                  {% if forloop.counter == 1 %}{{ shipment.created_at|date:"M d, Y" }}{% elif forloop.counter == 2 and shipment.shipped_at %}{{ shipment.shipped_at|date:"M d, Y" }}{% elif forloop.counter == 4 and shipment.delivered_at %}{{ shipment.delivered_at|date:"M d, Y" }}{% elif is_logistics and forloop.counter == shipment.progress %}{{ shipment.updated_at|date:"M d, Y" }}{% endif %}
                 </span>
               </div>
               {% endfor %}
@@ -258,6 +279,20 @@
                 <div class="trk-detail-value">Not yet assigned</div>
                 {% endif %}
               </div>
+              {% if is_logistics %}
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">Shipment No.</div>
+                <div class="trk-detail-value">{{ shipment.shipment_number }}</div>
+              </div>
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">Courier</div>
+                <div class="trk-detail-value">{{ shipment.courier.name|default:"—" }}</div>
+              </div>
+              <div class="trk-detail-item">
+                <div class="trk-detail-label">Delivery Speed</div>
+                <div class="trk-detail-value">{{ shipment.get_delivery_speed_display }}</div>
+              </div>
+              {% endif %}
               <div class="trk-detail-item">
                 <div class="trk-detail-label">Placed On</div>
                 <div class="trk-detail-value">{{ order.created|date:"M d, Y" }}</div>
@@ -277,6 +312,37 @@
             </div>
           </div>
         </div>
+
+        {% if is_logistics %}
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <h2 class="trk-card-title"><i class="fas fa-clock-rotate-left"></i> Tracking History</h2>
+          </div>
+          <div class="trk-card-body">
+            {% with events=shipment.tracking_events.all %}
+            {% if events %}
+            <div class="trk-event-list">
+              {% for ev in events reversed %}
+              <div class="trk-event {% if forloop.last %}current{% endif %}">
+                <span class="trk-event-dot"></span>
+                <div>
+                  <div class="trk-event-title">{{ ev.get_status_display }}</div>
+                  {% if ev.description %}<div class="trk-event-desc">{{ ev.description }}</div>{% endif %}
+                  <div class="trk-event-meta">
+                    <span><i class="far fa-clock"></i> {{ ev.timestamp|date:"D, M j, Y — H:i" }}</span>
+                    {% if ev.location %}<span><i class="fas fa-location-dot"></i> {{ ev.location }}</span>{% endif %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:var(--aq-tertiary);font-size:.9rem;margin:0;">No tracking events yet. Check back shortly.</p>
+            {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+        {% endif %}
 
       </div>
 
@@ -325,7 +391,39 @@
           </div>
         </div>
 
-        {% if shipment.shipping_address %}
+        {% if is_logistics %}
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <h2 class="trk-card-title"><i class="fas fa-map-location-dot"></i> Delivery Address</h2>
+          </div>
+          <div class="trk-card-body">
+            <div class="trk-addr-name"><i class="fas fa-user"></i> {{ order.first_name }} {{ order.last_name }}</div>
+            <p class="trk-addr-line">{{ order.address }}</p>
+            <p class="trk-addr-line">{{ order.city }}{% if order.state %}, {{ order.state }}{% endif %} - {{ order.postal_code }}</p>
+            {% if order.phone %}
+            <p class="trk-addr-line" style="margin-top:.5rem;"><i class="fas fa-phone" style="color:var(--aq-accent);margin-right:.4rem;"></i> {{ order.phone }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="trk-card">
+          <div class="trk-card-head">
+            <h2 class="trk-card-title"><i class="fas fa-truck"></i> Courier &amp; Service</h2>
+          </div>
+          <div class="trk-card-body">
+            <div class="trk-method-name">{{ shipment.courier.name|default:"TBD" }}{% if shipment.service %} · {{ shipment.service.name }}{% endif %}</div>
+            {% if shipment.estimated_delivery_date %}
+            <div class="trk-method-row"><i class="fas fa-clock"></i> ETA {{ shipment.estimated_delivery_date|date:"D, M j, Y" }}</div>
+            {% endif %}
+            {% if shipment.courier_charge %}
+            <div class="trk-method-row"><i class="fas fa-tag"></i> <span class="trk-method-price">{% price shipment.courier_charge %}</span></div>
+            {% endif %}
+            {% if shipment.warehouse %}
+            <div class="trk-method-row"><i class="fas fa-warehouse"></i> Shipped from {{ shipment.warehouse.name }} ({{ shipment.warehouse.city }})</div>
+            {% endif %}
+          </div>
+        </div>
+        {% elif shipment.shipping_address %}
         <div class="trk-card">
           <div class="trk-card-head">
             <h2 class="trk-card-title"><i class="fas fa-map-location-dot"></i> Shipping Address</h2>

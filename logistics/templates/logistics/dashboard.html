@@ -1,0 +1,107 @@
+{% extends "logistics/base.html" %}
+{% block lms_title %}Overview{% endblock %}
+{% block lms_heading %}Operations Dashboard{% endblock %}
+
+{% block lms_content %}
+<div class="lms-kpi-grid">
+  <div class="lms-kpi">
+    <div class="lms-kpi-label"><i class="fas fa-boxes-stacked"></i> Total Shipments</div>
+    <div class="lms-kpi-value">{{ kpi.total_shipments }}</div>
+  </div>
+  <div class="lms-kpi">
+    <div class="lms-kpi-label"><i class="fas fa-calendar-day"></i> Today</div>
+    <div class="lms-kpi-value">{{ kpi.today_shipments }}</div>
+  </div>
+  <div class="lms-kpi">
+    <div class="lms-kpi-label"><i class="fas fa-truck-moving"></i> In Transit</div>
+    <div class="lms-kpi-value">{{ kpi.in_transit }}</div>
+  </div>
+  <div class="lms-kpi">
+    <div class="lms-kpi-label"><i class="fas fa-truck-ramp-box"></i> Out for Delivery</div>
+    <div class="lms-kpi-value">{{ kpi.out_for_delivery }}</div>
+  </div>
+  <div class="lms-kpi">
+    <div class="lms-kpi-label"><i class="fas fa-circle-check"></i> Delivered</div>
+    <div class="lms-kpi-value">{{ kpi.delivered }}</div>
+  </div>
+  <div class="lms-kpi">
+    <div class="lms-kpi-label"><i class="fas fa-triangle-exclamation"></i> Open NDRs</div>
+    <div class="lms-kpi-value">{{ kpi.ndr_open }}</div>
+  </div>
+  <div class="lms-kpi">
+    <div class="lms-kpi-label"><i class="fas fa-rotate-left"></i> Returns</div>
+    <div class="lms-kpi-value">{{ kpi.returns_requested }}</div>
+  </div>
+</div>
+
+<div class="lms-card">
+  <div class="lms-card-head">
+    <h2 class="lms-card-title"><i class="fas fa-building"></i> Courier Performance</h2>
+    <a href="{% url 'logistics:shipments' %}" class="lms-btn"><i class="fas fa-arrow-right"></i> All shipments</a>
+  </div>
+  <div class="lms-card-body">
+    {% if by_courier %}
+    <table class="lms-table">
+      <thead><tr><th>Courier</th><th>Shipments</th><th>COD</th><th>Capacity</th></tr></thead>
+      <tbody>
+        {% for c in by_courier %}
+        <tr>
+          <td>{{ c.name }}</td>
+          <td>{{ c.shipment_count }}</td>
+          <td>{% if c.supports_cod %}<span class="lms-chip lms-chip-green">Yes</span>{% else %}<span class="lms-chip lms-chip-gray">No</span>{% endif %}</td>
+          <td>{% if c.has_capacity %}<span class="lms-chip lms-chip-green">Available</span>{% else %}<span class="lms-chip lms-chip-red">Exceeded</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="lms-empty"><i class="fas fa-box-open"></i>No couriers registered yet.</div>{% endif %}
+  </div>
+</div>
+
+<div class="lms-card">
+  <div class="lms-card-head">
+    <h2 class="lms-card-title"><i class="fas fa-clock-rotate-left"></i> Recent Activity</h2>
+  </div>
+  <div class="lms-card-body">
+    {% if recent_events %}
+    <table class="lms-table">
+      <thead><tr><th>Time</th><th>Shipment</th><th>Status</th><th>Location</th></tr></thead>
+      <tbody>
+        {% for ev in recent_events %}
+        <tr>
+          <td class="lms-mono">{{ ev.timestamp|date:"M j, H:i" }}</td>
+          <td><a href="{% url 'logistics:tracking_detail' ev.shipment.tracking_number|default:ev.shipment.shipment_number %}" target="_blank">{{ ev.shipment.shipment_number }}</a></td>
+          <td><span class="lms-chip lms-chip-blue">{{ ev.get_status_display }}</span></td>
+          <td>{{ ev.location|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="lms-empty"><i class="fas fa-clock"></i>No tracking activity yet.</div>{% endif %}
+  </div>
+</div>
+
+<div class="lms-card">
+  <div class="lms-card-head">
+    <h2 class="lms-card-title"><i class="fas fa-triangle-exclamation"></i> Open NDRs</h2>
+    <a href="{% url 'logistics:ndr_queue' %}" class="lms-btn"><i class="fas fa-arrow-right"></i> Manage queue</a>
+  </div>
+  <div class="lms-card-body">
+    {% if open_ndrs %}
+    <table class="lms-table">
+      <thead><tr><th>Shipment</th><th>Reason</th><th>Opened</th><th>Reattempt</th></tr></thead>
+      <tbody>
+        {% for ndr in open_ndrs %}
+        <tr>
+          <td class="lms-mono">{{ ndr.shipment.shipment_number }}</td>
+          <td>{{ ndr.get_reason_display }}</td>
+          <td>{{ ndr.created_at|date:"M j, H:i" }}</td>
+          <td>{% if ndr.reattempt_requested %}<span class="lms-chip lms-chip-green">Requested</span>{% else %}<span class="lms-chip lms-chip-amber">Not yet</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="lms-empty"><i class="fas fa-check"></i>No open NDRs. Nice!</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

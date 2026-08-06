@@ -9,8 +9,14 @@ def admin_sidebar_counts():
 
     from order.models import Order, ReturnRequest
 
+    from logistics.constants import ShipmentStatus
+    from logistics.models import Shipment
+
     return {
         "pending_orders": Order.objects.filter(paid=False).count(),
         "open_returns": ReturnRequest.objects.filter(status="pending").count(),
+        "in_transit": Shipment.objects.filter(
+            status__in=ShipmentStatus.TIMELINE,
+        ).count(),
         "users": User.objects.count(),
     }

@@ -6,7 +6,7 @@
 <div class="container my-5 text-center">
     <h1 class="mb-4">🎉 Thank You for Your Order!</h1>
     <p>Your order has been placed successfully.</p>
-    <p><strong>Order ID:</strong> {{ order.id }}</p>
+    <p><strong>Order ID:</strong> {{ order.order_number }}</p>
 
     {% if order.items.all|length > 0 %}
   <p>Total items: {{ order.items.count }}</p>

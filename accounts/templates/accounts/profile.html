@@ -136,6 +136,11 @@
             <span><i class="fas fa-phone"></i> {{ profile.phone }}</span>
             {% endif %}
           </div>
+          <div class="ap-meta" style="margin-top:0.5rem;">
+            <a href="{% url 'shipping:address_list' %}" class="ap-btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;border-radius:var(--aq-radius-sm);">
+              <i class="fas fa-map-marker-alt"></i> Manage Addresses
+            </a>
+          </div>
         </div>
       </div>
     </div>

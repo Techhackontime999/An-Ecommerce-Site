@@ -41,7 +41,7 @@ def order_create(request):
             notify(
                 request.user,
                 Notification.Category.ORDER,
-                f'Order #{order.id} placed',
+                f'Order #{order.order_number} placed',
                 'We received your order and are preparing it. Choose a shipping method to continue.',
                 link=reverse('shipping:shipping_select', args=[order.id]),
                 icon='box',
@@ -55,7 +55,7 @@ def order_create(request):
                 notify(
                     seller_user,
                     Notification.Category.ORDER,
-                    f'New order #{order.id} for your shop',
+                    f'New order #{order.order_number} for your shop',
                     f'{seller_user.sellerprofile.shop_name if hasattr(seller_user, "sellerprofile") else "Your shop"} received a new order. Review it in your dashboard.',
                     link=reverse('seller:orders'),
                     icon='store',
@@ -71,17 +71,48 @@ def order_create(request):
     return render(request, 'order/create.html', {'cart': cart, 'form': form})
 
 
+# Condensed tracking milestones shown on My Orders (LMS shipments have a
+# 9-step canonical timeline; the card renders a friendlier 5-step summary).
+MYO_STEPS = ['Confirmed', 'Picked Up', 'In Transit', 'Out for Delivery', 'Delivered']
+MYO_STATUS_IDX = {
+    'order_confirmed': 1,
+    'packed': 1,
+    'ready_for_pickup': 1,
+    'picked_up': 2,
+    'at_origin_hub': 2,
+    'in_transit': 3,
+    'at_destination_hub': 3,
+    'out_for_delivery': 4,
+    'delivered': 5,
+}
+
+
 @login_required
 def my_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related('items__product', 'shipment')
+    orders = Order.objects.filter(user=request.user).prefetch_related(
+        'items__product', 'shipment', 'logistics_shipments',
+    )
     statuses = []
     for o in orders:
-        shipment = getattr(o, 'shipment', None)
+        shipment = o.logistics_shipments.first() or getattr(o, 'shipment', None)
         statuses.append(shipment.status if shipment else None)
+        logistics = o.logistics_shipments.first()
+        if logistics:
+            o.tl = MYO_STEPS
+            o.tl_idx = MYO_STATUS_IDX.get(logistics.status, 1)
+            o.tl_shipment = logistics
+        elif shipment:
+            o.tl = shipment.timeline
+            o.tl_idx = shipment.progress
+            o.tl_shipment = None
+        else:
+            o.tl = []
+            o.tl_idx = 0
+            o.tl_shipment = None
     stats = {
         'total': orders.count(),
         'spent': sum(o.get_total_cost() for o in orders),
-        'active': sum(1 for s in statuses if s not in ('delivered', 'failed', None)),
+        'active': sum(1 for s in statuses if s not in ('delivered', 'failed', 'delivery_failed', None)),
         'delivered': sum(1 for s in statuses if s == 'delivered'),
     }
     return render(request, 'order/my_orders.html', {'orders': orders, 'stats': stats})
@@ -132,5 +163,7 @@ def autofill_address(request):
         'address': _join_parts([street, area]),
         'city': city,
         'postal_code': address.get('postcode', ''),
+        'state': address.get('state', ''),
+        'country': address.get('country', ''),
         'display_name': data.get('display_name', ''),
     })

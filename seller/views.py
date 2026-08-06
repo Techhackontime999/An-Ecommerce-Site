@@ -21,7 +21,7 @@ def seller_dashboard(request):
     try:
         profile = request.user.sellerprofile
     except SellerProfile.DoesNotExist:
-        return redirect('accounts:seller_register')
+        return redirect('accounts:become_seller')
 
     if not profile.is_verified:
         return render(request, 'seller/not_verified.html')
@@ -83,7 +83,7 @@ def add_product(request):
     try:
         profile = request.user.sellerprofile
     except SellerProfile.DoesNotExist:
-        return redirect('accounts:seller_register')
+        return redirect('accounts:become_seller')
 
     if not profile.is_verified:
         return render(request, 'seller/not_verified.html')
@@ -173,7 +173,11 @@ def delete_product(request, pk):
 @login_required
 def seller_orders(request):
     profile = request.user.sellerprofile
-    order_items = OrderItem.objects.filter(product__seller=profile).select_related('order')
+    order_items = (
+        OrderItem.objects.filter(product__seller=profile)
+        .select_related('order')
+        .prefetch_related('order__logistics_shipments__courier')
+    )
     context = {
         'order_items': order_items,
         'total_orders': order_items.count(),
@@ -184,19 +188,34 @@ def seller_orders(request):
 
 @login_required
 def update_order_status(request, order_id):
-    order = get_object_or_404(Order, id=order_id, items__product__seller=request.user.sellerprofile)
+    order = get_object_or_404(
+        Order.objects.filter(items__product__seller=request.user.sellerprofile).distinct(),
+        id=order_id,
+    )
     order.paid = True
-    order.status = Order.Status.SHIPPED
-    order.save()
+    if order.status == Order.Status.PENDING:
+        order.status = Order.Status.PROCESSING
+    order.save(update_fields=['paid', 'status', 'updated'])
+
+    created = 0
+    try:
+        from logistics.services.fulfillment import FulfillmentService
+        created = len(FulfillmentService.create_shipments_for_order(order, actor=request.user))
+    except Exception as exc:
+        messages.error(request, f'Fulfilment could not be started: {exc}')
+
     notify(
         order.user,
         Notification.Category.ORDER,
-        f'Order #{order.id} marked as shipped',
-        f'{request.user.sellerprofile.shop_name} has shipped the item(s) in your order.',
+        f'Order #{order.id} confirmed',
+        f'{request.user.sellerprofile.shop_name} confirmed your order. Your item(s) are being prepared for dispatch.',
         link=reverse('order:my_orders'),
         icon='box',
     )
-    messages.success(request, 'Order marked as shipped/paid.')
+    if created:
+        messages.success(request, 'Order confirmed and fulfilment started.')
+    else:
+        messages.success(request, 'Order marked as paid/confirmed.')
     return redirect('seller:orders')
 
 

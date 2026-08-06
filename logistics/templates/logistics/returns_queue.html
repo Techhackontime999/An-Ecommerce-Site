@@ -1,0 +1,56 @@
+{% extends "logistics/base.html" %}
+{% block lms_title %}Returns{% endblock %}
+{% block lms_heading %}Return / Reverse Logistics{% endblock %}
+
+{% block lms_content %}
+<div class="lms-card">
+  <div class="lms-card-head">
+    <form class="lms-filters" method="get">
+      <select name="status">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="lms-btn" type="submit"><i class="fas fa-filter"></i> Filter</button>
+    </form>
+  </div>
+  <div class="lms-card-body">
+    {% if page_obj %}
+    <table class="lms-table">
+      <thead>
+        <tr><th>Return #</th><th>Order</th><th>Type</th><th>Status</th><th>Courier</th><th>AWB</th><th>Refund</th><th>Created</th></tr>
+      </thead>
+      <tbody>
+        {% for r in page_obj %}
+        <tr>
+          <td class="lms-mono">{{ r.return_number }}</td>
+          <td>{{ r.order.order_number }}</td>
+          <td>{{ r.get_return_type_display }}</td>
+          <td>
+            {% if r.status == 'refunded' or r.status == 'restocked' %}<span class="lms-chip lms-chip-green">{{ r.get_status_display }}</span>
+            {% elif r.status in 'requested approved pickup_scheduled picked_up' %}<span class="lms-chip lms-chip-blue">{{ r.get_status_display }}</span>
+            {% else %}<span class="lms-chip lms-chip-amber">{{ r.get_status_display }}</span>{% endif %}
+          </td>
+          <td>{{ r.courier.name|default:"—" }}</td>
+          <td class="lms-mono">{{ r.tracking_number|default:"—" }}</td>
+          <td>{% if r.refund_amount %}{{ r.refund_amount }}{% else %}—{% endif %}</td>
+          <td>{{ r.created_at|date:"M j, H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if page_obj.has_other_pages %}
+    <div class="lms-pagination">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status }}"><i class="fas fa-chevron-left"></i> Prev</a>{% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ status }}">Next <i class="fas fa-chevron-right"></i></a>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="lms-empty"><i class="fas fa-rotate-left"></i>No returns match the current filters.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

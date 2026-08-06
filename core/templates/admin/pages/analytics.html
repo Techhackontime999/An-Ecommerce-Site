@@ -100,7 +100,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           </span>
           <span class="activity-body">
-            <span class="activity-title">Order #{{ order.id }} &middot; &#8377;{{ order.get_total_cost|floatformat:0 }}</span>
+            <span class="activity-title">Order {{ order.order_number }} &middot; &#8377;{{ order.get_total_cost|floatformat:0 }}</span>
             <span class="activity-desc">{{ order.first_name }} {{ order.last_name }} &middot; {{ order.city }} &middot; {% if order.paid %}Paid{% else %}Pending{% endif %}</span>
           </span>
           <span class="activity-time">{{ order.created|timesince }} ago</span>

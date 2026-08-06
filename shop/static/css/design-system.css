@@ -112,6 +112,14 @@ p, h1, h2, h3, h4, h5, h6, li, a, span, td, th {
   word-break: break-word;
 }
 
+/* Seller orders table: wide, scrolls horizontally; keep product names
+   wrapping at word boundaries instead of character-by-character. */
+.seller-dash-table td,
+.seller-dash-table th {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
 /* ─── 3. Accessibility: skip link + focus ──────────────────────────── */
 .ds-skip-link {
   position: fixed;

@@ -84,9 +84,19 @@
                   <i class="fas fa-at" aria-hidden="true"></i>
                   {{ form.email }}
                 </div>
-                {% for err in form.email.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                  {% for err in form.email.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                </div>
+                <div class="ord-field">
+                  <label for="{{ form.phone.id_for_label }}">
+                    Phone {% if form.phone.field.required %}<span class="ord-req">*</span>{% endif %}
+                  </label>
+                  <div class="ord-input-wrap">
+                    <i class="fas fa-phone" aria-hidden="true"></i>
+                    {{ form.phone }}
+                  </div>
+                  {% for err in form.phone.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                </div>
               </div>
-            </div>
           </fieldset>
 
           <fieldset class="ord-card">
@@ -159,6 +169,29 @@
                     {{ form.postal_code }}
                   </div>
                   {% for err in form.postal_code.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                </div>
+              </div>
+
+              <div class="ord-field-grid">
+                <div class="ord-field">
+                  <label for="{{ form.state.id_for_label }}">
+                    State {% if form.state.field.required %}<span class="ord-req">*</span>{% endif %}
+                  </label>
+                  <div class="ord-input-wrap">
+                    <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+                    {{ form.state }}
+                  </div>
+                  {% for err in form.state.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
+                </div>
+                <div class="ord-field">
+                  <label for="{{ form.country.id_for_label }}">
+                    Country {% if form.country.field.required %}<span class="ord-req">*</span>{% endif %}
+                  </label>
+                  <div class="ord-input-wrap">
+                    <i class="fas fa-globe" aria-hidden="true"></i>
+                    {{ form.country }}
+                  </div>
+                  {% for err in form.country.errors %}<p class="ord-error">{{ err }}</p>{% endfor %}
                 </div>
               </div>
             </div>
@@ -336,6 +369,8 @@
       setVal('id_address', d.address);
       setVal('id_city', d.city);
       setVal('id_postal_code', d.postal_code);
+      setVal('id_state', d.state);
+      setVal('id_country', d.country);
       setLoading(false);
       setStatus('Address filled from your location.', true);
     }

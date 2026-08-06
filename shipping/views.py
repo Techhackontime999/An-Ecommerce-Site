@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from decimal import Decimal
-from .models import ShippingAddress, ShippingMethod, Shipment
+from .models import ShippingAddress, ShippingMethod
 from .forms import ShippingAddressForm
 from cart.cart import Cart
 from order.models import Order
@@ -93,23 +93,18 @@ def shipping_select(request, order_id):
                 address_line1=order.address,
                 city=order.city,
                 postal_code=order.postal_code,
-                defaults={'state': '', 'phone': ''}
+                defaults={'state': order.state, 'phone': order.phone, 'country': order.country or 'India'}
             )
         else:
             shipping_address = get_object_or_404(ShippingAddress, id=address_id, user=request.user)
 
         order.shipping_cost = shipping_method.price
         order.shipping_method_name = shipping_method.name
+        order.phone = shipping_address.phone or order.phone
+        order.state = shipping_address.state or order.state
+        order.country = shipping_address.country or order.country or 'India'
         order.save()
 
-        Shipment.objects.update_or_create(
-            order=order,
-            defaults={
-                'shipping_method': shipping_method,
-                'shipping_address': shipping_address,
-                'status': 'pending',
-            }
-        )
         notify(
             order.user,
             Notification.Category.SHIPPING,
@@ -130,8 +125,20 @@ def shipping_select(request, order_id):
 @login_required
 def order_tracking(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    shipment = getattr(order, 'shipment', None)
+    logistics = (
+        order.logistics_shipments.select_related('courier', 'service', 'warehouse')
+        .prefetch_related('tracking_events', 'items__product')
+        .order_by('created_at')
+        .first()
+    )
+    if logistics is not None:
+        shipment = logistics
+        is_logistics = True
+    else:
+        shipment = getattr(order, 'shipment', None)
+        is_logistics = False
     return render(request, 'shipping/tracking.html', {
         'order': order,
         'shipment': shipment,
+        'is_logistics': is_logistics,
     })

@@ -213,11 +213,10 @@
 
     <div class="myo-list">
       {% for order in orders %}
-      {% with shipment=order.shipment %}
       <article class="myo-card">
         <div class="myo-card-head">
           <div>
-            <div class="myo-order-num">Order <span class="myo-order-id">#{{ order.id }}</span></div>
+            <div class="myo-order-num">Order <span class="myo-order-id">{{ order.order_number }}</span></div>
             <div class="myo-date"><i class="fas fa-calendar-day"></i> {{ order.created|date:"M d, Y" }} &middot; {{ order.items.count }} item{{ order.items.count|pluralize }}</div>
           </div>
           <div class="myo-badges">
@@ -278,10 +277,10 @@
             {% endfor %}
           </div>
 
-          {% if shipment and shipment.status != 'failed' and order.status != 'cancelled' and order.status != 'refunded' %}
+          {% if order.tl and order.status != 'cancelled' and order.status != 'refunded' %}
           <div class="myo-timeline">
-            {% for step in shipment.timeline %}
-            <div class="myo-step {% if forloop.counter <= shipment.progress %}done{% endif %}{% if forloop.counter == shipment.progress %} current{% endif %}">
+            {% for step in order.tl %}
+            <div class="myo-step {% if forloop.counter <= order.tl_idx %}done{% endif %}{% if forloop.counter == order.tl_idx %} current{% endif %}">
               <span class="myo-step-line"></span>
               <span class="myo-step-dot"></span>
               <span class="myo-step-label">{{ step }}</span>
@@ -296,12 +295,17 @@
             <div class="myo-total-label">Order total{% if order.shipping_method_name %} &middot; {{ order.shipping_method_name }}{% endif %}</div>
             <div class="myo-total-value">{% price order.get_total_cost %}</div>
           </div>
+          {% if order.tl_shipment %}
+          <a href="{% url 'logistics:tracking_detail' order.tl_shipment.tracking_number|default:order.tl_shipment.shipment_number %}" class="myo-btn myo-btn-outline">
+            <i class="fas fa-location-dot"></i> Track Order
+          </a>
+          {% else %}
           <a href="{% url 'shipping:order_tracking' order.id %}" class="myo-btn myo-btn-outline">
             <i class="fas fa-location-dot"></i> Track Order
           </a>
+          {% endif %}
         </div>
       </article>
-      {% endwith %}
       {% endfor %}
     </div>
     {% else %}

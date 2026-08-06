@@ -28,9 +28,9 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'first_name', 'last_name', 'city', 'status_badge', 'paid', 'shipment_link', 'total', 'created']
+    list_display = ['order_number', 'user', 'first_name', 'last_name', 'city', 'status_badge', 'paid', 'shipment_link', 'total', 'created']
     list_filter = ['status', 'paid', 'created', 'updated', 'city']
-    search_fields = ['first_name', 'last_name', 'email', 'user__username']
+    search_fields = ['order_number', 'first_name', 'last_name', 'email', 'user__username']
     inlines = [OrderItemInline]
     list_select_related = ['user']
     date_hierarchy = 'created'
@@ -45,7 +45,7 @@ class OrderAdmin(admin.ModelAdmin):
         export_as_csv_action(
             description='Export selected orders as CSV',
             fields=[
-                'id', 'first_name', 'last_name', 'email', 'address',
+                'order_number', 'first_name', 'last_name', 'email', 'address',
                 'postal_code', 'city', 'paid', 'status', 'shipping_cost',
                 'shipping_method_name', 'created', 'updated',
             ],
@@ -53,7 +53,7 @@ class OrderAdmin(admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user', 'shipment')
+        return super().get_queryset(request).select_related('user', 'shipment').prefetch_related('logistics_shipments')
 
     def total(self, obj):
         return obj.get_total_cost()
@@ -70,6 +70,13 @@ class OrderAdmin(admin.ModelAdmin):
 
     @admin.display(empty_value='—', description='Shipment')
     def shipment_link(self, obj):
+        shipment = obj.logistics_shipments.first()
+        if shipment is not None:
+            url = reverse('admin:logistics_shipment_change', args=[shipment.pk])
+            return format_html(
+                '<a href="{}">LMS #{} · {}</a>',
+                url, shipment.pk, shipment.get_status_display(),
+            )
         shipment = getattr(obj, 'shipment', None)
         if shipment is None:
             return None
@@ -95,7 +102,7 @@ class OrderAdmin(admin.ModelAdmin):
             updated += 1
             notify(
                 order.user, Notification.Category.ORDER,
-                f'Order #{order.id} is being processed',
+                f'Order #{order.order_number} is being processed',
                 'Your order is being prepared for dispatch.',
                 link=reverse('order:my_orders'), icon='box',
             )
@@ -112,7 +119,7 @@ class OrderAdmin(admin.ModelAdmin):
             updated += 1
             notify(
                 order.user, Notification.Category.ORDER,
-                f'Order #{order.id} has been shipped',
+                f'Order #{order.order_number} has been shipped',
                 'Your order is on its way.',
                 link=reverse('order:my_orders'), icon='box',
             )
@@ -129,7 +136,7 @@ class OrderAdmin(admin.ModelAdmin):
             updated += 1
             notify(
                 order.user, Notification.Category.ORDER,
-                f'Order #{order.id} delivered',
+                f'Order #{order.order_number} delivered',
                 'Your order has been delivered. Enjoy!',
                 link=reverse('order:my_orders'), icon='box',
             )
@@ -147,7 +154,7 @@ class OrderAdmin(admin.ModelAdmin):
             updated += 1
             notify(
                 order.user, Notification.Category.ORDER,
-                f'Order #{order.id} cancelled',
+                f'Order #{order.order_number} cancelled',
                 'Your order has been cancelled. Refunds, if any, will be processed soon.',
                 link=reverse('order:my_orders'), icon='box',
             )
@@ -165,7 +172,7 @@ class OrderAdmin(admin.ModelAdmin):
             updated += 1
             notify(
                 order.user, Notification.Category.ORDER,
-                f'Order #{order.id} refunded',
+                f'Order #{order.order_number} refunded',
                 'Your refund for this order has been processed.',
                 link=reverse('order:my_orders'), icon='box',
             )

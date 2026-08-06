@@ -247,6 +247,8 @@
     {% if user.is_authenticated %}
     {% if is_seller %}
     <li><a href="{% url 'seller:seller_dashboard' %}"><i class="fas fa-chart-pie"></i> {% trans "Dashboard" %}</a></li>
+    {% else %}
+    <li><a href="{% url 'accounts:become_seller' %}"><i class="fas fa-store"></i> {% trans "Become a Seller" %}</a></li>
     {% endif %}
     {% if user.is_staff %}
     <li><a href="{% url 'admin:index' %}"><i class="fas fa-shield-alt"></i> {% trans "Admin" %}</a></li>

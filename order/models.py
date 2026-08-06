@@ -1,7 +1,13 @@
 from decimal import Decimal
 from django.db import models
+from django.utils import timezone
 from shop.models import Product, ProductVariant
 from django.contrib.auth.models import User
+
+
+def _generate_order_number(order_id):
+    year = timezone.localdate().year
+    return 'SEED-{}-{:06d}'.format(year, order_id)
 
 
 class Order(models.Model):
@@ -21,6 +27,9 @@ class Order(models.Model):
     address = models.CharField(max_length=250)
     postal_code = models.CharField(max_length=20)
     city = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20, blank=True, help_text='Delivery contact number')
+    state = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True, default='India')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
@@ -33,12 +42,26 @@ class Order(models.Model):
     )
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     shipping_method_name = models.CharField(max_length=100, blank=True)
+    order_number = models.CharField(
+        max_length=30,
+        unique=True,
+        blank=True,
+        editable=False,
+        db_index=True,
+        help_text='Human-friendly public order reference.',
+    )
 
     class Meta:
         ordering = ('-created',)
 
     def __str__(self):
-        return 'Order {}'.format(self.id)
+        return 'Order {}'.format(self.order_number or self.id)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.order_number:
+            self.order_number = _generate_order_number(self.pk)
+            self.save(update_fields=['order_number'])
 
     def get_total_cost(self):
         total = sum(item.get_cost() for item in self.items.all())
@@ -82,7 +105,7 @@ class ReturnRequest(models.Model):
         ordering = ('-requested_at',)
 
     def __str__(self):
-        return f'Return #{self.id} — Order #{self.order_id} ({self.get_status_display()})'
+        return f'Return #{self.id} — Order {self.order.order_number} ({self.get_status_display()})'
 
 
 class Refund(models.Model):
@@ -125,7 +148,7 @@ class Refund(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return f'Refund #{self.id} — Order #{self.order_id} ({self.get_status_display()})'
+        return f'Refund #{self.id} — Order {self.order.order_number} ({self.get_status_display()})'
 
 
 class OrderItem(models.Model):

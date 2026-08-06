@@ -62,13 +62,13 @@ def todays_deals(request, category_slug=None):
             product__category=category,
             start_time__lte=now,
             end_time__gte=now
-        )
+        ).order_by('start_time')
     else:
         category = None
         deals_list = Deal.objects.filter(
             start_time__lte=now,
             end_time__gte=now
-        )
+        ).order_by('start_time')
 
     paginator = Paginator(deals_list, 9)  # 9 deals per page
     page_number = request.GET.get('page')

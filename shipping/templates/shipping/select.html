@@ -144,6 +144,9 @@
             <a class="shp-add-address" href="{% url 'shipping:address_create' %}?next={% url 'shipping:shipping_select' order.id %}">
               <i class="fas fa-plus"></i> Add a new address
             </a>
+            <a class="shp-add-address" href="{% url 'shipping:address_list' %}" style="margin-left:0.75rem;">
+              <i class="fas fa-pen"></i> Manage saved addresses
+            </a>
           </fieldset>
         </div>
 

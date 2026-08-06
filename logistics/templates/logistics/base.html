@@ -1,0 +1,124 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}LMS {% block lms_title %}{% endblock %} — Shop-Seed{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+  .lms-page { padding: 1.5rem 0 3rem; }
+  .lms-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; }
+  .lms-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .4rem 1.1rem; border-radius: 999px;
+    background: rgba(8, 145, 178, 0.1); color: #0E7490;
+    border: 1px solid rgba(8, 145, 178, 0.25);
+    font-size: .8125rem; font-weight: 600;
+  }
+  .lms-title { margin: .7rem 0 0; font-size: 1.5rem; font-weight: 700; color: var(--body-fg); letter-spacing: -.01em; }
+
+  .lms-tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--hairline-color); padding-bottom: .5rem; }
+  .lms-tab {
+    display: inline-flex; align-items: center; gap: .45rem;
+    padding: .5rem 1rem; border-radius: 8px;
+    color: var(--body-quiet-color); font-size: .84rem; font-weight: 600;
+    text-decoration: none; transition: background .15s ease, color .15s ease;
+  }
+  .lms-tab:hover { color: var(--accent); background: var(--darkened-bg); }
+  .lms-tab.active { color: var(--accent); background: var(--darkened-bg); }
+  .lms-tab .lms-count {
+    padding: .1rem .55rem; border-radius: 999px; font-size: .72rem;
+    background: rgba(8, 145, 178, 0.12); color: #0E7490;
+  }
+
+  .lms-card {
+    background: var(--body-bg); border: 1px solid var(--hairline-color);
+    border-radius: 6px; overflow: hidden; margin-bottom: 1.25rem;
+  }
+  .lms-card-head { padding: .9rem 1.1rem; border-bottom: 1px solid var(--hairline-color); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .lms-card-title { margin: 0; font-size: .95rem; font-weight: 700; color: var(--body-fg); display: flex; align-items: center; gap: .6rem; }
+  .lms-card-title i { color: var(--accent); }
+  .lms-card-body { padding: .5rem 0; overflow-x: auto; }
+
+  .lms-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+  .lms-kpi {
+    background: var(--body-bg); border: 1px solid var(--hairline-color);
+    border-radius: 6px; padding: 1rem 1.1rem;
+    transition: border-color .15s ease;
+  }
+  .lms-kpi:hover { border-color: var(--accent); }
+  .lms-kpi-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--body-quiet-color); font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+  .lms-kpi-label i { color: var(--accent); }
+  .lms-kpi-value { margin-top: .5rem; font-size: 1.6rem; font-weight: 700; color: var(--body-fg); letter-spacing: -.01em; }
+
+  .lms-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+  .lms-table th { text-align: left; padding: .7rem 1rem; color: var(--body-quiet-color); font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--hairline-color); white-space: nowrap; }
+  .lms-table td { padding: .75rem 1rem; border-bottom: 1px solid var(--hairline-color); color: var(--body-fg); vertical-align: middle; }
+  .lms-table tr:last-child td { border-bottom: none; }
+  .lms-table a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .lms-table a:hover { text-decoration: underline; }
+  .lms-mono { font-family: 'JetBrains Mono', monospace; font-size: .8rem; }
+
+  .lms-chip { display: inline-flex; align-items: center; gap: .35rem; padding: .28rem .7rem; border-radius: 999px; font-size: .74rem; font-weight: 700; white-space: nowrap; }
+  .lms-chip-green { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+  .lms-chip-blue { background: rgba(8, 145, 178, 0.12); color: #0E7490; }
+  .lms-chip-amber { background: rgba(234, 179, 8, 0.14); color: #CA8A04; }
+  .lms-chip-red { background: rgba(225, 29, 72, 0.12); color: #BE123C; }
+  .lms-chip-gray { background: rgba(100, 116, 139, 0.12); color: #64748B; }
+
+  .lms-filters { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+  .lms-filters select, .lms-filters input {
+    padding: .5rem .8rem; border-radius: 6px; font-size: .84rem;
+    border: 1px solid var(--border-color); background: var(--field-bg); color: var(--body-fg);
+  }
+  .lms-filters select:focus, .lms-filters input:focus { outline: none; border-color: var(--accent); }
+  .lms-btn {
+    display: inline-flex; align-items: center; gap: .45rem;
+    padding: .5rem 1rem; border-radius: 6px; font-size: .84rem; font-weight: 600;
+    text-decoration: none; cursor: pointer; transition: background .15s ease;
+    border: 1px solid var(--border-color); background: var(--button-bg); color: var(--button-fg);
+  }
+  .lms-btn:hover { background: var(--button-hover-bg); color: var(--button-hover-fg); }
+
+  .lms-pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.25rem; font-size: .85rem; color: var(--body-quiet-color); }
+  .lms-pagination a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  .lms-pagination a:hover { text-decoration: underline; }
+
+  .lms-empty { text-align: center; padding: 3rem 1.5rem; color: var(--body-quiet-color); font-size: .9rem; }
+  .lms-empty i { font-size: 1.6rem; margin-bottom: .5rem; display: block; color: var(--hairline-color); }
+
+  .lms-filters select, .lms-filters input { min-width: 200px; }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  &rsaquo; Logistics Management System
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="lms-page">
+  <div class="lms-head">
+    <div>
+      <span class="lms-badge"><i class="fas fa-route"></i> Logistics Management</span>
+      <h1 class="lms-title">{% block lms_heading %}Operations Dashboard{% endblock %}</h1>
+    </div>
+    <a href="{% url 'logistics:tracking_lookup' %}" class="lms-btn" target="_blank" rel="noopener"><i class="fas fa-magnifying-glass"></i> Public Tracking</a>
+  </div>
+
+  <nav class="lms-tabs">
+    <a href="{% url 'logistics:dashboard' %}" class="lms-tab {% if page == 'dashboard' %}active{% endif %}"><i class="fas fa-gauge-high"></i> Overview</a>
+    <a href="{% url 'logistics:shipments' %}" class="lms-tab {% if page == 'shipments' %}active{% endif %}"><i class="fas fa-boxes-stacked"></i> Shipments</a>
+    <a href="{% url 'logistics:ndr_queue' %}" class="lms-tab {% if page == 'ndr' %}active{% endif %}"><i class="fas fa-triangle-exclamation"></i> NDR Queue</a>
+    <a href="{% url 'logistics:returns_queue' %}" class="lms-tab {% if page == 'returns' %}active{% endif %}"><i class="fas fa-rotate-left"></i> Returns</a>
+  </nav>
+
+  {% block lms_content %}{% endblock %}
+</section>
+{% endblock %}

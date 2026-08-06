@@ -73,6 +73,7 @@
               <th>Total</th>
               <th>Date</th>
               <th>Status</th>
+              <th>Fulfilment</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -80,7 +81,7 @@
             {% for item in order_items %}
             <tr>
               <td>
-                <div class="seller-dash-product-name">#{{ item.order.id }}</div>
+                <div class="seller-dash-product-name">{{ item.order.order_number }}</div>
                 <div class="seller-dash-product-sku"><i class="fas fa-user"></i> {{ item.order.first_name }} {{ item.order.last_name }}</div>
               </td>
               <td class="seller-dash-date">{{ item.order.address|truncatechars:32 }}</td>
@@ -110,9 +111,26 @@
                 {% endif %}
               </td>
               <td>
+                {% with shipments=item.order.logistics_shipments.all %}
+                  {% if shipments %}
+                    {% for shipment in shipments %}
+                      <div class="seller-dash-product-name">
+                        {{ shipment.courier.name|default:"—" }}
+                        {% if shipment.tracking_number %}
+                          · <a href="{% url 'logistics:tracking_detail' shipment.tracking_number %}" style="color: var(--aq-accent);">{{ shipment.tracking_number }}</a>
+                        {% endif %}
+                      </div>
+                      <span class="seller-dash-badge" style="background: rgba(16, 185, 129, 0.12); color: #10B981;">{{ shipment.get_status_display }}</span>
+                    {% endfor %}
+                  {% else %}
+                    <span class="seller-dash-product-sku">Not yet fulfilled</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td>
                 {% if not item.order.paid %}
                   <a href="{% url 'seller:update_order_status' item.order.id %}" class="seller-dash-btn-primary seller-dash-btn-sm">
-                    <i class="fas fa-check"></i> Mark Paid
+                    <i class="fas fa-box"></i> Confirm &amp; Fulfil
                   </a>
                 {% else %}
                   <span class="seller-dash-product-sku"><i class="fas fa-check-circle" style="color: #16A34A;"></i> Completed</span>

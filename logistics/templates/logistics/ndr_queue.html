@@ -1,0 +1,54 @@
+{% extends "logistics/base.html" %}
+{% block lms_title %}NDR Queue{% endblock %}
+{% block lms_heading %}Non-Delivery Report Queue{% endblock %}
+
+{% block lms_content %}
+<div class="lms-card">
+  <div class="lms-card-head">
+    <form class="lms-filters" method="get">
+      <select name="status">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="lms-btn" type="submit"><i class="fas fa-filter"></i> Filter</button>
+    </form>
+  </div>
+  <div class="lms-card-body">
+    {% if page_obj %}
+    <table class="lms-table">
+      <thead>
+        <tr><th>Shipment</th><th>Reason</th><th>Status</th><th>Courier Remarks</th><th>Opened</th><th>Reattempt</th></tr>
+      </thead>
+      <tbody>
+        {% for ndr in page_obj %}
+        <tr>
+          <td class="lms-mono">{{ ndr.shipment.shipment_number }}</td>
+          <td>{{ ndr.get_reason_display }}</td>
+          <td>
+            {% if ndr.status == 'open' %}<span class="lms-chip lms-chip-red">{{ ndr.get_status_display }}</span>
+            {% elif ndr.status == 'resolved' %}<span class="lms-chip lms-chip-green">{{ ndr.get_status_display }}</span>
+            {% else %}<span class="lms-chip lms-chip-amber">{{ ndr.get_status_display }}</span>{% endif %}
+          </td>
+          <td>{{ ndr.courier_remarks|truncatechars:60|default:"—" }}</td>
+          <td>{{ ndr.created_at|date:"M j, H:i" }}</td>
+          <td>{% if ndr.reattempt_requested %}<span class="lms-chip lms-chip-green">Requested{% if ndr.reattempt_at %} · {{ ndr.reattempt_at|date:"M j H:i" }}{% endif %}</span>{% else %}<span class="lms-chip lms-chip-gray">No</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if page_obj.has_other_pages %}
+    <div class="lms-pagination">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status }}"><i class="fas fa-chevron-left"></i> Prev</a>{% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ status }}">Next <i class="fas fa-chevron-right"></i></a>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="lms-empty"><i class="fas fa-check"></i>No NDRs match the current filters.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -95,10 +95,7 @@ class OrderAddressSelectionTests(TestCase):
         self.order.refresh_from_db()
         self.assertEqual(self.order.shipping_cost, 10)
         self.assertEqual(self.order.shipping_method_name, 'Standard')
-        self.assertTrue(Shipment.objects.filter(order=self.order).exists())
-        shipment = Shipment.objects.get(order=self.order)
-        self.assertEqual(shipment.shipping_address.full_name, 'John Doe')
-        self.assertEqual(shipment.shipping_address.address_line1, '123 Order St')
+        self.assertFalse(Shipment.objects.filter(order=self.order).exists())
 
     def test_order_tracking_view_loads(self):
         ShippingAddress.objects.create(

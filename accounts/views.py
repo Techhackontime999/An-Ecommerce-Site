@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -121,7 +121,7 @@ def login_view(request):
         user = form.get_user()
         profile, kind = get_profile_for_user(user)
 
-        if profile and not is_fully_verified(profile):
+        if not (user.is_superuser or user.is_staff) and profile and not is_fully_verified(profile):
             request.session['pending_verify_user_id'] = user.id
             return redirect('accounts:verify')
 
@@ -184,6 +184,57 @@ def seller_register(request):
     else:
         form = SellerRegisterForm()
     return render(request, 'registration/seller_register.html', {'form': form})
+
+
+@login_required
+def become_seller(request):
+    try:
+        seller_profile = request.user.sellerprofile
+    except SellerProfile.DoesNotExist:
+        seller_profile = None
+
+    if seller_profile is not None:
+        return redirect('seller:seller_dashboard')
+
+    if request.method == 'POST':
+        form = SellerProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            seller_profile = form.save(commit=False)
+            seller_profile.user = request.user
+            seller_profile.save()
+            seller_group, created = Group.objects.get_or_create(name='sellers')
+            seller_group.user_set.add(request.user)
+
+            try:
+                customer_profile = request.user.customerprofile
+                seller_profile.is_email_verified = customer_profile.is_email_verified
+                seller_profile.is_phone_verified = customer_profile.is_phone_verified
+                seller_profile.save(update_fields=['is_email_verified', 'is_phone_verified'])
+            except CustomerProfile.DoesNotExist:
+                pass
+
+            if request.user.is_superuser or request.user.is_staff:
+                seller_profile.is_email_verified = True
+                seller_profile.is_phone_verified = True
+                seller_profile.save(update_fields=['is_email_verified', 'is_phone_verified'])
+            elif not is_fully_verified(seller_profile):
+                request.session['pending_verify_user_id'] = request.user.id
+                send_email_verification(request, request.user)
+                send_phone_otp(request, request.user)
+
+            notify(
+                request.user,
+                Notification.Category.ACCOUNT,
+                'Welcome to the seller family!',
+                'Your shop is live. Complete verification and start selling on Shop-Seed.',
+                link=reverse('seller:seller_dashboard'),
+                icon='store',
+            )
+            return redirect('seller:seller_dashboard')
+    else:
+        form = SellerProfileForm()
+
+    return render(request, 'accounts/become_seller.html', {'form': form})
 
 
 @login_required

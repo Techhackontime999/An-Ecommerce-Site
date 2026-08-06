@@ -160,7 +160,7 @@
         <div class="pay-panel fade-up fade-up-delay-2">
           <span class="pay-due-label">Amount due</span>
           <strong class="pay-due">{% price order.get_total_cost %}</strong>
-          <span class="pay-ref"><i class="fas fa-hashtag"></i> Order #{{ order.id }}</span>
+          <span class="pay-ref"><i class="fas fa-hashtag"></i> Order {{ order.order_number }}</span>
 
           <div class="pay-secure">
             <span class="pay-secure-line"></span>
@@ -203,7 +203,7 @@ var options = {
     "amount": "{{ amount }}",
     "currency": "{{ currency }}",
     "name": "An Ecommerce Site",
-    "description": "Order #{{ order.id }}",
+    "description": "Order {{ order.order_number }}",
     "order_id": "{{ razorpay_order_id }}",
     "callback_url": "{{ callback_url }}",
     "prefill": {
