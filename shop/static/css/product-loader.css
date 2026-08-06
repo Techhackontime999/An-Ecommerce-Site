@@ -1,0 +1,57 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Shop-Seed — Per-Product Loading Skeleton
+   -----------------------------------------------------------------------
+   While a product image is loading, its card shows a shimmering skeleton
+   in place of the image; when the image finishes loading it fades in.
+   Replaces the full-screen "screen loader" with a per-card experience.
+
+   Skeleton styles are gated behind `html.aq-img-skeleton`, which is added
+   by product-loader.js — so users without JS always see images normally.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Hide product images until they have finished loading (JS only). */
+html.aq-img-skeleton .product-aq-image > img,
+html.aq-img-skeleton img.td-card-img,
+html.aq-img-skeleton img.td-slide-img,
+html.aq-img-skeleton .blog-product-card-media > img,
+html.aq-img-skeleton #pdp-stage-img {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+html.aq-img-skeleton .product-aq-image > img.is-loaded,
+html.aq-img-skeleton img.td-card-img.is-loaded,
+html.aq-img-skeleton img.td-slide-img.is-loaded,
+html.aq-img-skeleton .blog-product-card-media > img.is-loaded,
+html.aq-img-skeleton #pdp-stage-img.is-loaded {
+  opacity: 1;
+}
+
+/* Skeleton backdrop + moving shimmer shown on the media area while loading */
+.aq-product-loading {
+  position: relative;
+  /* Gray skeleton base (theme-aware) — clearly visible on white cards. */
+  background-color: #e5e7eb;
+  background-color: color-mix(in srgb, var(--aq-body) 12%, var(--aq-surface)) !important;
+}
+
+.aq-product-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 10%, color-mix(in srgb, var(--aq-surface) 45%, rgba(255, 255, 255, 0.95)) 50%, transparent 90%);
+  animation: aqImgShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes aqImgShimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ─── Reduced motion ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .aq-product-loading::after {
+    animation: none;
+  }
+}
