@@ -9314,6 +9314,20 @@ a.contact-info-value:hover {
   outline-offset: 2px;
 }
 
+.crt-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.75rem;
+  border-radius: 50%;
+}
+
 /* ─── Summary aside ─── */
 .crt-aside {
   position: sticky;
@@ -11896,6 +11910,26 @@ html[data-theme="dark"] .aq-to-top {
   font-size: 0.875rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.pay-verify {
+  margin-top: 0.875rem;
+}
+
+.pay-btn-ghost {
+  background: transparent;
+  color: var(--aq-ink);
+  border: 1px solid var(--aq-border);
+  box-shadow: none;
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+
+.pay-btn-ghost:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--aq-accent);
+  color: var(--aq-accent-dark);
 }
 
 /* ─── Note & trust ─── */

@@ -20,8 +20,36 @@ class SellerProfile(models.Model):
     phone = models.CharField(max_length=15)
     address = models.TextField()
     description = models.TextField(blank=True)
-    # add methods to verify seller make it defaut false for testing i do it true
-    is_verified = models.BooleanField(default=True)  # Admin verifies sellers
+
+    # --- Verification -------------------------------------------------------
+    # A seller may only sell once an admin has reviewed their KYC / business
+    # documents and approved them. New registrations start *unverified*.
+    is_verified = models.BooleanField(default=False, db_index=True)  # effective "can sell" flag, set by the verification service
+
+    class VerificationStatus(models.TextChoices):
+        UNSUBMITTED = 'unsubmitted', 'Not submitted for review'
+        PENDING = 'pending', 'Under review'
+        APPROVED = 'approved', 'Approved'
+        REJECTED = 'rejected', 'Rejected'
+        SUSPENDED = 'suspended', 'Suspended'
+
+    verification_status = models.CharField(
+        max_length=12,
+        choices=VerificationStatus.choices,
+        default=VerificationStatus.UNSUBMITTED,
+        db_index=True,
+        help_text='Workflow state of the seller verification review.',
+    )
+    verification_requested_at = models.DateTimeField(null=True, blank=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+    rejected_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True, help_text='Admin feedback shown to the seller when a submission is rejected.')
+    reviewed_by = models.ForeignKey(
+        'auth.User', null=True, blank=True, related_name='seller_reviews_done',
+        on_delete=models.SET_NULL, help_text='Admin who last reviewed this seller.',
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
     is_email_verified = models.BooleanField(default=False)
     is_phone_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -70,3 +98,31 @@ class CustomerProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class SellerDocument(models.Model):
+    """A document uploaded by a seller as part of KYC / business verification."""
+
+    class DocumentType(models.TextChoices):
+        GST_CERTIFICATE = 'gst_certificate', 'GST certificate'
+        BUSINESS_PROOF = 'business_proof', 'Business registration proof'
+        ID_PROOF = 'id_proof', 'Owner ID proof'
+        BANK_PROOF = 'bank_proof', 'Bank account proof'
+        ADDRESS_PROOF = 'address_proof', 'Business address proof'
+        OTHER = 'other', 'Other'
+
+    seller_profile = models.ForeignKey(
+        SellerProfile, on_delete=models.CASCADE, related_name='documents',
+    )
+    document_type = models.CharField(
+        max_length=20, choices=DocumentType.choices, default=DocumentType.OTHER,
+    )
+    file = models.FileField(upload_to='seller_documents/')
+    description = models.CharField(max_length=200, blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-uploaded_at',)
+
+    def __str__(self):
+        return f'{self.get_document_type_display()} — {self.seller_profile.shop_name}'

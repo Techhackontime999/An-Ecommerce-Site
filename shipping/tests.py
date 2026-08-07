@@ -97,6 +97,33 @@ class OrderAddressSelectionTests(TestCase):
         self.assertEqual(self.order.shipping_method_name, 'Standard')
         self.assertFalse(Shipment.objects.filter(order=self.order).exists())
 
+    def test_address_create_rejects_external_next(self):
+        response = self.client.post(reverse('shipping:address_create'), {
+            'full_name': 'John Doe',
+            'address_line1': '123 Order St',
+            'city': 'OrderCity',
+            'state': 'KA',
+            'postal_code': '12345',
+            'country': 'India',
+            'phone': '9999999999',
+            'next': 'https://evil.com/phish',
+        })
+        self.assertRedirects(response, reverse('shipping:address_list'), fetch_redirect_response=False)
+        self.assertNotIn('evil.com', response.url)
+
+    def test_address_create_allows_same_host_next(self):
+        response = self.client.post(reverse('shipping:address_create'), {
+            'full_name': 'John Doe',
+            'address_line1': '123 Order St',
+            'city': 'OrderCity',
+            'state': 'KA',
+            'postal_code': '12345',
+            'country': 'India',
+            'phone': '9999999999',
+            'next': '/accounts/profile/',
+        })
+        self.assertEqual(response.url, '/accounts/profile/')
+
     def test_order_tracking_view_loads(self):
         ShippingAddress.objects.create(
             user=self.user, full_name='John Doe',

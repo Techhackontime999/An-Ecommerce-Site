@@ -1,6 +1,7 @@
 from decimal import Decimal
 from django.conf import settings
 from coupons.models import Coupon
+from coupons.services import discount_for, validate_coupon
 from shop.models import Product, ProductVariant
 from .models import CartItem
 
@@ -171,23 +172,50 @@ class Cart():
 
 
     def clear(self):
+        """Remove the cart from both the session and the database.
+
+        The session value must be reset *and* the in-memory ``self.cart`` dict
+        emptied *and* the persisted ``CartItem`` rows deleted. A previous
+        implementation only deleted the session key while ``self.cart`` still
+        referenced the old dict, so ``_persist_to_db`` re-created the database
+        rows and purchased products reappeared on the next page load.
         """
-        remove cart from session
-        """
-        del self.session[settings.CART_SESSION_ID]
-        self.save()
+        self.cart = {}
+        self.coupon_id = None
+        self.session[settings.CART_SESSION_ID] = {}
+        self.session['coupon_id'] = None
+        if self.user:
+            CartItem.objects.filter(user=self.user).delete()
+        self.session.modified = True
+
+    def _seller_ids(self):
+        ids = set()
+        for item in self:
+            seller_id = getattr(item.get('product'), 'seller_id', None)
+            if seller_id:
+                ids.add(seller_id)
+        return ids
 
     @property
     def coupon(self):
-        if self.coupon_id:
-            return Coupon.objects.get(id=self.coupon_id)
-        return None
+        """Return the applied coupon only when it is still valid for this cart
+        (dates, limits, scoping, minimum total — all re-checked here)."""
+        if not self.coupon_id:
+            return None
+        try:
+            coupon = Coupon.objects.get(pk=self.coupon_id)
+        except Coupon.DoesNotExist:
+            return None
+        ok, _reason = validate_coupon(
+            coupon,
+            user=self.user,
+            cart_total=self.get_total_price(),
+            seller_ids=self._seller_ids(),
+        )
+        return coupon if ok else None
 
     def get_discount(self):
-        if self.coupon:
-            return (self.coupon.discount / Decimal('100')) \
-                * self.get_total_price()
-        return Decimal('0')
+        return discount_for(self.coupon, self.get_total_price())
 
     def get_total_price_after_discount(self):
         return self.get_total_price() - self.get_discount()

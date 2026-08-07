@@ -211,6 +211,44 @@
           </div>
         </article>
         {% endif %}
+
+        <article class="od-card">
+          <div class="od-card-head"><i class="fas fa-rotate-left"></i> Returns</div>
+          <div class="od-card-body">
+            {% for ret in order.return_requests.all %}
+            <div class="od-addr-line">
+              <i class="fas fa-{% if ret.status == 'rejected' %}xmark{% elif ret.status == 'refunded' %}circle-check{% else %}hourglass-half{% endif %}"></i>
+              <span>
+                <b>{{ ret.get_reason_display }}</b> —
+                <span class="od-chip od-chip-other">{{ ret.get_status_display }}</span>
+                <br><small>{{ ret.requested_at|date:"M j, Y" }}{% if ret.details %} · {{ ret.details }}{% endif %}</small>
+              </span>
+            </div>
+            {% empty %}
+            <p style="margin:0 0 .75rem;font-size:.9rem;color:var(--aq-tertiary);">No return requests.</p>
+            {% endfor %}
+
+            {% if order.status == 'delivered' and not has_open_return %}
+              <form method="post" action="{% url 'order:request_return' order.id %}">
+                {% csrf_token %}
+                <div class="od-reason">
+                  <select name="reason" required style="width:100%;padding:.6rem .8rem;border-radius:var(--aq-radius-md);border:1px solid var(--aq-border);background:var(--aq-canvas);color:var(--aq-ink);">
+                    <option value="">Select a reason…</option>
+                    {% for value, label in return_reasons %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="od-reason">
+                  <textarea name="details" rows="2" maxlength="500" placeholder="Details (optional)"></textarea>
+                </div>
+                <button type="submit" class="od-btn od-btn-outline" style="margin-top:.9rem;">
+                  <i class="fas fa-rotate-left"></i> Request a Return
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        </article>
       </div>
 
       <aside style="display:flex;flex-direction:column;gap:1.5rem;">

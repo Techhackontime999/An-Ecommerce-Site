@@ -130,7 +130,7 @@ def product_detail(request, id, slug):
     if len(same_category) < 6:
         popular_qs = (
             Product.objects.filter(available=True)
-            .annotate(review_count=Count('reviews'))
+            .annotate(review_count=Count('product_reviews', filter=Q(product_reviews__status='approved')))
             .order_by('-review_count')
             .prefetch_related('deals')
             .exclude(id=product.id)

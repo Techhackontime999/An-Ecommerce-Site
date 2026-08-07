@@ -1,0 +1,80 @@
+{% extends 'shop/base/base.html' %}
+{% block content %}
+<div class="container py-4">
+    <h2>Seller Verification</h2>
+
+    {% if approved %}
+        <div class="alert alert-success">
+            <strong>Your account is verified.</strong> You can now add products and start selling.
+        </div>
+        <a href="{% url 'seller:seller_dashboard' %}" class="btn btn-success">Go to dashboard</a>
+        <hr>
+        <h4>Uploaded documents</h4>
+        <ul class="list-group">
+            {% for doc in profile.documents.all %}
+                <li class="list-group-item">
+                    {{ doc.get_document_type_display }} — <a href="{{ doc.file.url }}">{{ doc.file.name }}</a>
+                </li>
+            {% empty %}
+                <li class="list-group-item">No documents uploaded.</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'seller:verification' %}?more=1" class="btn btn-link">Upload more documents</a>
+    {% else %}
+        {% if profile.verification_status == 'pending' %}
+            <div class="alert alert-info">
+                Your verification is <strong>under review</strong>. You will be notified once an admin reviews your documents.
+            </div>
+        {% elif profile.verification_status == 'rejected' %}
+            <div class="alert alert-danger">
+                <strong>Your submission was not approved.</strong>
+                <p class="mb-0">{{ profile.rejection_reason }}</p>
+            </div>
+        {% elif profile.verification_status == 'suspended' %}
+            <div class="alert alert-danger">
+                <strong>Your selling account has been suspended.</strong>
+                <p class="mb-0">{{ profile.rejection_reason }}</p>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                You must be approved by an admin before you can sell. Upload your business documents and submit for review.
+            </div>
+        {% endif %}
+
+        {% if not profile.is_email_verified or not profile.is_phone_verified %}
+            <div class="alert alert-secondary">
+                Before submitting, verify your <a href="{% url 'accounts:verify' %}">email and phone</a>.
+            </div>
+        {% endif %}
+
+        <h4 class="mt-4">Upload a KYC / business document</h4>
+        <form method="post" enctype="multipart/form-data" class="mb-3">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Upload document</button>
+        </form>
+
+        <h4>Uploaded documents</h4>
+        <ul class="list-group mb-3">
+            {% for doc in profile.documents.all %}
+                <li class="list-group-item">
+                    {{ doc.get_document_type_display }} — <a href="{{ doc.file.url }}">{{ doc.file.name }}</a>
+                </li>
+            {% empty %}
+                <li class="list-group-item">No documents uploaded yet.</li>
+            {% endfor %}
+        </ul>
+
+        {% if profile.verification_status != 'pending' %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="submit">
+                <button type="submit" class="btn btn-success"
+                        {% if not profile.is_email_verified or not profile.is_phone_verified %}disabled{% endif %}>
+                    Submit for admin review
+                </button>
+            </form>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

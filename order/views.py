@@ -3,44 +3,100 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError, transaction
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 import requests
+import secrets
+import logging
 from cart.cart import Cart
-from .models import Order, OrderItem
+from coupons.models import Coupon, CouponRedemption
+from coupons.services import discount_for, validate_coupon
+from .models import Order, OrderItem, ReturnRequest
 from .forms import OrderCreateForm
 from .services import cancel_order, invoice_number, invoice_totals
 from notifications.models import Notification
 from notifications.services import notify
 from notifications.emails import send_order_confirmation
 
+logger = logging.getLogger(__name__)
+
 @login_required
 def order_create(request):
     cart = Cart(request)
     if not cart:
         return redirect('cart:cart_detail')
+
     if request.method == 'POST':
+        # Idempotency: the same form carries the same token, so a double submit
+        # (double-click, retry, back-button) can never create two orders.
+        token = request.POST.get('checkout_token', '').strip() or secrets.token_urlsafe(32)
+        existing = (
+            Order.objects
+            .filter(user=request.user, checkout_token=token)
+            .exclude(status=Order.Status.CANCELLED)
+            .exclude(status=Order.Status.REFUNDED)
+            .first()
+        )
+        if existing is not None:
+            return redirect('shipping:shipping_select', order_id=existing.id)
+
         form = OrderCreateForm(request.POST)
         if form.is_valid():
-            order = form.save(commit=False)   # ✅ Create order instance without saving
-            order.user = request.user         # ✅ Now assign the user
-            coupon = cart.coupon
-            if coupon is not None:
-                order.coupon = coupon
-                order.discount = cart.get_discount()
-            order.save()                      # ✅ Then save the order
-            for item in cart:
-                is_deal = item['product'].price != item['price']
-                variant = item.get('variant')
-                OrderItem.objects.create(
-                    order=order,
-                    product=item['product'],
-                    variant=variant,
-                    variant_name=variant.name if variant else '',
-                    price=item['price'],
-                    quantity=item['quantity'],
-                    deal_applied=is_deal
-                )
+            try:
+                with transaction.atomic():
+                    order = form.save(commit=False)   # Create order instance without saving
+                    order.user = request.user
+                    order.checkout_token = token
+                    # Re-validate the coupon at the *final* moment of order
+                    # creation — it may have expired, been exhausted, or be out
+                    # of scope since it was applied. The coupon row is locked so
+                    # concurrent checkouts can never exceed the usage limits.
+                    coupon = cart.coupon
+                    if coupon is not None:
+                        coupon = Coupon.objects.select_for_update().get(pk=coupon.pk)
+                        ok, _reason = validate_coupon(
+                            coupon,
+                            user=request.user,
+                            cart_total=cart.get_total_price(),
+                            seller_ids=cart._seller_ids(),
+                        )
+                        if ok:
+                            order.coupon = coupon
+                            order.discount = discount_for(coupon, cart.get_total_price())
+                        else:
+                            order.discount = 0
+                    else:
+                        order.discount = 0
+                    order.save()                      # Then save the order
+                    for item in cart:
+                        is_deal = item['product'].price != item['price']
+                        variant = item.get('variant')
+                        OrderItem.objects.create(
+                            order=order,
+                            product=item['product'],
+                            variant=variant,
+                            variant_name=variant.name if variant else '',
+                            price=item['price'],
+                            quantity=item['quantity'],
+                            deal_applied=is_deal
+                        )
+                    if order.coupon_id:
+                        CouponRedemption.objects.create(
+                            coupon=order.coupon,
+                            user=request.user,
+                            order=order,
+                        )
+            except IntegrityError:
+                # Two concurrent POSTs raced: the other one already created the
+                # order with this token. Reuse it instead of failing.
+                existing = Order.objects.filter(user=request.user, checkout_token=token).first()
+                if existing is not None:
+                    return redirect('shipping:shipping_select', order_id=existing.id)
+                raise
+
+            # Order + items are durable; now clean up the cart (session + DB)
+            # so purchased products never reappear, then notify.
             cart.clear()
             request.session['coupon_id'] = None
             send_order_confirmation(order)
@@ -68,13 +124,14 @@ def order_create(request):
                 )
             return redirect('shipping:shipping_select', order_id=order.id)
     else:
+        token = secrets.token_urlsafe(32)
         initial = {
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
             'email': request.user.email,
         }
         form = OrderCreateForm(initial=initial)
-    return render(request, 'order/create.html', {'cart': cart, 'form': form})
+    return render(request, 'order/create.html', {'cart': cart, 'form': form, 'checkout_token': token})
 
 
 # Condensed tracking milestones shown on My Orders (LMS shipments have a
@@ -178,19 +235,84 @@ def autofill_address(request):
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(
-        Order.objects.prefetch_related('items__product', 'items__variant', 'logistics_shipments__courier', 'refunds'),
+        Order.objects.prefetch_related(
+            'items__product', 'items__variant', 'logistics_shipments__courier',
+            'refunds', 'return_requests', 'audit_logs',
+        ),
         id=order_id,
         user=request.user,
     )
     shipment = order.logistics_shipments.select_related('courier').first() or getattr(order, 'shipment', None)
     payment = getattr(order, 'payment', None)
+    has_open_return = order.return_requests.exclude(
+        status__in=[ReturnRequest.Status.REJECTED, ReturnRequest.Status.CLOSED],
+    ).exists()
     return render(request, 'order/detail.html', {
         'order': order,
         'shipment': shipment,
         'payment': payment,
         'totals': invoice_totals(order),
         'invoice_number': invoice_number(order),
+        'return_reasons': ReturnRequest.Reason.choices,
+        'has_open_return': has_open_return,
     })
+
+
+@login_required
+@require_POST
+def request_return(request, order_id):
+    """Customer asks for a return on a delivered order.
+
+    Creates a ``ReturnRequest`` and kicks off reverse logistics through the LMS
+    when a shipment exists. Never auto-refunds — an admin approves and issues
+    the refund (with over-refund protection on the Refund model).
+    """
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.status != Order.Status.DELIVERED:
+        messages.error(request, 'Returns are only available for delivered orders.')
+        return redirect('order:order_detail', order_id=order.id)
+
+    if order.return_requests.exclude(
+        status__in=[ReturnRequest.Status.REJECTED, ReturnRequest.Status.CLOSED],
+    ).exists():
+        messages.error(request, 'A return request is already open for this order.')
+        return redirect('order:order_detail', order_id=order.id)
+
+    reason = request.POST.get('reason', '')
+    details = request.POST.get('details', '').strip()
+    if reason not in dict(ReturnRequest.Reason.choices):
+        messages.error(request, 'Please choose a valid return reason.')
+        return redirect('order:order_detail', order_id=order.id)
+
+    ret = ReturnRequest.objects.create(
+        order=order, user=request.user, reason=reason, details=details,
+    )
+
+    try:
+        from logistics.services.fulfillment import FulfillmentService
+        original = order.logistics_shipments.select_related('courier').first()
+        if original is not None:
+            FulfillmentService.create_return(
+                original,
+                return_request=ret,
+                reason=reason,
+                notes=details,
+                actor=request.user,
+            )
+    except Exception as exc:
+        logger.warning('Reverse logistics not started for return %s: %s', ret.id, exc)
+
+    notify(
+        request.user,
+        Notification.Category.ORDER,
+        f'Return requested for order {order.order_number}',
+        'Your return request was received. An admin will review it and arrange a pickup.',
+        link=reverse('order:order_detail', args=[order.id]),
+        icon='rotate-left',
+    )
+    messages.success(request, 'Return request submitted.')
+    return redirect('order:order_detail', order_id=order.id)
 
 
 @login_required

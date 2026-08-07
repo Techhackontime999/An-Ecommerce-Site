@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from shop.models import Product
@@ -10,11 +11,11 @@ from .models import WishlistItem
 
 
 def _next_url(request):
-    next_url = request.POST.get('next') or request.GET.get('next')
-    if next_url and next_url.startswith('/') and not next_url.startswith('//'):
-        return next_url
+    url = request.POST.get('next') or request.GET.get('next')
+    if url and url_has_allowed_host_and_scheme(url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return url
     referer = request.META.get('HTTP_REFERER', '')
-    if referer and referer.startswith('/') and not referer.startswith('//'):
+    if referer and url_has_allowed_host_and_scheme(referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
         return referer
     return None
 

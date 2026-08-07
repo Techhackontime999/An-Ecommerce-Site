@@ -65,13 +65,14 @@ class Product(models.Model):
         return self.price
     @property
     def average_rating(self):
-        reviews = self.reviews.all()
+        reviews = self.product_reviews.filter(status='approved')
         if reviews.exists():
-            return round(sum([r.rating for r in reviews]) / reviews.count(), 1)
+            return round(reviews.aggregate(a=Avg('overall_rating'))['a'], 1)
         return 0
+
     @property
     def rating_count(self):
-        return self.reviews.count()
+        return self.product_reviews.filter(status='approved').count()
 
     def gallery_images(self):
         return self.images.all()

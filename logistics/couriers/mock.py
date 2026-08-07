@@ -154,6 +154,8 @@ class MockCourierAdapter(MockLifecycleMixin, BaseCourierAdapter):
             'location': payload.get('location', ''),
             'description': payload.get('description', ''),
             'timestamp': timestamp,
+            'pod_url': payload.get('pod_url', ''),
+            'received_by': payload.get('received_by', ''),
         }]
 
 
@@ -229,4 +231,6 @@ class MockExpressCourierAdapter(MockLifecycleMixin, BaseCourierAdapter):
             'location': payload.get('location', ''),
             'description': payload.get('description', ''),
             'timestamp': timestamp,
+            'pod_url': payload.get('pod_url', ''),
+            'received_by': payload.get('received_by', ''),
         }]

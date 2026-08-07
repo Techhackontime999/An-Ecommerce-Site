@@ -84,13 +84,14 @@ def tracking_detail(request, tracking_number):
 def _verify_signature(courier_code, raw_body, header_signature):
     """Verify an HMAC-SHA256 signature over the raw request body.
 
-    Secret is looked up in ``LOGISTICS_WEBHOOK_SECRETS``. When no secret is
-    configured the endpoint still accepts the call (so a demo works without
-    configuration) but logs a warning.
+    Secret is looked up in ``LOGISTICS_WEBHOOK_SECRETS``. Fail-closed: if no
+    secret is configured for the courier, or no signature is supplied, the
+    webhook is rejected so unauthenticated pushes can never mutate state.
     """
     secret = (settings.LOGISTICS_WEBHOOK_SECRETS or {}).get(courier_code, '')
     if not secret:
-        return True  # demo mode — no secret configured
+        logger.error('Courier webhook "%s" received but no webhook secret is configured — rejecting.', courier_code)
+        return False
     if not header_signature:
         return False
     expected = hmac.new(secret.encode(), raw_body, hashlib.sha256).hexdigest()
@@ -128,12 +129,27 @@ def webhook(request, courier_code):
         return JsonResponse({'status': 'error', 'detail': 'invalid JSON'}, status=400)
 
     courier = CourierCompany.objects.filter(code__iexact=courier_code).first()
-    event = WebhookEvent.objects.create(
-        courier=courier,
-        event_type=payload.get('event_type') or payload.get('event') or '',
-        payload=payload,
-        signature=signature or '',
-    )
+    dedupe_key = hashlib.sha256(raw_body).hexdigest()
+    if courier is not None:
+        event, created = WebhookEvent.objects.get_or_create(
+            courier=courier,
+            dedupe_key=dedupe_key,
+            defaults={
+                'event_type': payload.get('event_type') or payload.get('event') or '',
+                'payload': payload,
+                'signature': signature or '',
+            },
+        )
+        if not created:
+            # Replay of an already-received raw body — idempotent success.
+            return JsonResponse({'status': 'ok', 'detail': 'duplicate'})
+    else:
+        event = WebhookEvent.objects.create(
+            courier=None,
+            event_type=payload.get('event_type') or payload.get('event') or '',
+            payload=payload,
+            signature=signature or '',
+        )
 
     shipment = _resolve_shipment(payload)
     if shipment is None or shipment.courier is None:
@@ -153,7 +169,7 @@ def webhook(request, courier_code):
         event.save(update_fields=['error'])
         return JsonResponse({'status': 'ok', 'detail': 'unhandled'})
 
-    added = FulfillmentService.apply_events(shipment, events)
+    added = FulfillmentService.apply_events(shipment, events, source='webhook')
     event.processed = True
     event.processed_at = timezone.now()
     event.save(update_fields=['processed', 'processed_at'])

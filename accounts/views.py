@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -11,17 +12,29 @@ from django.utils import timezone
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.conf import settings
+import hashlib
+import hmac
 import logging
-import random
+import secrets
+
+from core.security import client_ip, safe_next_url
 from .forms import SellerRegisterForm, CustomerRegisterForm, SellerProfileForm, CustomerProfileForm
 from .models import SellerProfile, CustomerProfile
+from .security import is_locked, record_failure, reset
 from notifications.services import notify
 from notifications.models import Notification
 
 
 logger = logging.getLogger(__name__)
 
-OTP_EXPIRY_SECONDS = 600  # 10 minutes
+OTP_EXPIRY_SECONDS = 300  # 5 minutes
+OTP_MAX_ATTEMPTS = 5
+OTP_RESEND_COOLDOWN = 60  # seconds between resend requests
+OTP_MAX_RESENDS = 3
+
+
+def _hash_otp(otp):
+    return hashlib.sha256(f'{settings.SECRET_KEY}:{otp}'.encode()).hexdigest()
 
 
 def get_profile_for_user(user):
@@ -65,9 +78,15 @@ def send_email_verification(request, user):
 
 
 def send_phone_otp(request, user):
-    otp = f"{random.randint(0, 999999):06d}"
-    request.session['phone_otp'] = otp
+    # Cryptographically random OTP, stored only as a salted hash in the session
+    # so a leaked session dump never exposes the code.
+    otp = f'{secrets.randbelow(1_000_000):06d}'
+    request.session['phone_otp_hash'] = _hash_otp(otp)
     request.session['phone_otp_expiry'] = timezone.now().timestamp() + OTP_EXPIRY_SECONDS
+    request.session['phone_otp_attempts'] = 0
+    request.session['phone_otp_last_sent'] = timezone.now().timestamp()
+    request.session['phone_otp_resend_count'] = request.session.get('phone_otp_resend_count', 0) + 1
+    request.session.modified = True
     try:
         send_mail(
             subject='Your phone verification code — Shop-Seed',
@@ -115,28 +134,55 @@ def signup(request):
 
 
 def login_view(request):
+    ip = client_ip(request)
+    username = (request.POST.get('username') or '').strip()
+
+    if username and is_locked('login-username', username):
+        messages.error(request, 'Too many failed attempts. Please try again in 15 minutes.')
+        return render(request, 'registration/login.html', {
+            'form': AuthenticationForm(request),
+            'next': request.GET.get('next', ''),
+            'news_ticker_items': [],
+        })
+    if is_locked('login-ip', ip):
+        messages.error(request, 'Too many failed attempts from this network. Please try again later.')
+        return render(request, 'registration/login.html', {
+            'form': AuthenticationForm(request),
+            'next': request.GET.get('next', ''),
+            'news_ticker_items': [],
+        })
+
     form = AuthenticationForm(request, data=request.POST or None)
 
-    if request.method == 'POST' and form.is_valid():
-        user = form.get_user()
-        profile, kind = get_profile_for_user(user)
+    if request.method == 'POST':
+        if form.is_valid():
+            user = form.get_user()
+            profile, kind = get_profile_for_user(user)
 
-        if not (user.is_superuser or user.is_staff) and profile and not is_fully_verified(profile):
-            request.session['pending_verify_user_id'] = user.id
-            return redirect('accounts:verify')
+            if not (user.is_superuser or user.is_staff) and profile and not is_fully_verified(profile):
+                request.session['pending_verify_user_id'] = user.id
+                return redirect('accounts:verify')
 
-        login(request, user)
+            reset('login-username', user.username)
+            reset('login-ip', ip)
+            login(request, user)
 
-        next_url = request.POST.get('next') or request.GET.get('next')
-        if next_url:
-            return redirect(next_url)
+            next_url = safe_next_url(request)
+            if next_url:
+                return redirect(next_url)
 
-        if hasattr(user, 'sellerprofile'):
-            return redirect('seller:seller_dashboard')
-        elif hasattr(user, 'customerprofile'):
+            if hasattr(user, 'sellerprofile'):
+                return redirect('seller:seller_dashboard')
+            elif hasattr(user, 'customerprofile'):
+                return redirect('shop:product_list')
+
             return redirect('shop:product_list')
-
-        return redirect('shop:product_list')
+        else:
+            # Wrong credentials — count the attempt for lockout purposes.
+            if username:
+                record_failure('login-username', username)
+            record_failure('login-ip', ip)
+            messages.error(request, 'Invalid username or password.')
 
     return render(request, 'registration/login.html', {
         'form': form,
@@ -329,15 +375,35 @@ def verify_phone(request):
 
     if request.method == 'POST':
         entered = request.POST.get('otp', '').strip()
-        expected = request.session.get('phone_otp')
+        expected_hash = request.session.get('phone_otp_hash')
         expiry = request.session.get('phone_otp_expiry')
+        attempts = request.session.get('phone_otp_attempts', 0)
         expired = expiry is None or timezone.now().timestamp() > expiry
-        if expected and not expired and entered == expected:
+
+        if (
+            expected_hash
+            and not expired
+            and attempts < OTP_MAX_ATTEMPTS
+            and hmac.compare_digest(_hash_otp(entered), expected_hash)
+        ):
             profile.is_phone_verified = True
             profile.save(update_fields=['is_phone_verified'])
-            request.session.pop('phone_otp', None)
-            request.session.pop('phone_otp_expiry', None)
+            for key in ('phone_otp_hash', 'phone_otp_expiry', 'phone_otp_attempts'):
+                request.session.pop(key, None)
+            request.session.modified = True
             return redirect('accounts:verify')
+
+        if expected_hash and not expired:
+            request.session['phone_otp_attempts'] = attempts + 1
+            request.session.modified = True
+            if attempts + 1 >= OTP_MAX_ATTEMPTS:
+                request.session.pop('phone_otp_hash', None)
+                return render(request, 'accounts/verify_phone.html', {
+                    'user': user,
+                    'profile': profile,
+                    'error': 'Too many incorrect codes. Request a new code and try again.',
+                })
+
         return render(request, 'accounts/verify_phone.html', {
             'user': user,
             'profile': profile,
@@ -355,6 +421,19 @@ def resend_otp(request):
     if not user:
         return redirect('accounts:login')
     profile, kind = get_profile_for_user(user)
-    if profile and not profile.is_phone_verified:
-        send_phone_otp(request, user)
+    if profile is None or profile.is_phone_verified:
+        return redirect('accounts:verify')
+
+    last_sent = request.session.get('phone_otp_last_sent')
+    if last_sent and timezone.now().timestamp() - last_sent < OTP_RESEND_COOLDOWN:
+        messages.error(request, 'Please wait a moment before requesting a new code.')
+        return redirect('accounts:verify_phone')
+
+    resends = request.session.get('phone_otp_resend_count', 0)
+    if resends >= OTP_MAX_RESENDS:
+        messages.error(request, 'Too many code requests. Please try again later.')
+        return redirect('accounts:verify_phone')
+
+    send_phone_otp(request, user)
+    messages.success(request, 'A new verification code has been sent.')
     return redirect('accounts:verify_phone')

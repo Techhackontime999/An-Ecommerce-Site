@@ -4,9 +4,10 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
+from accounts.models import CustomerProfile, SellerProfile
 from shop.models import Category, Product
 
-from .models import ProductReview, ReviewReport
+from .models import ProductReview, Review, ReviewReport, SellerReview
 
 
 class ReviewBaseTestCase(TestCase):
@@ -139,3 +140,111 @@ class ProductReviewViewTests(ReviewBaseTestCase):
         report = ReviewReport.objects.get(review=review)
         self.assertEqual(report.reason, 'fake')
         self.assertEqual(report.reporter, self.other)
+
+
+class SellerRatingSyncTests(ReviewBaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.seller_user = User.objects.create_user(username='seller', password='pass1234')
+        self.seller = SellerProfile.objects.create(
+            user=self.seller_user,
+            shop_name='Acme Audio',
+            bank_account='1234567890',
+            phone='9876543210',
+            address='1 Shop St',
+        )
+        self.seller_product = Product.objects.create(
+            category=self.product.category,
+            name='Seller Headphones',
+            slug='seller-headphones',
+            price=Decimal('99.99'),
+            seller=self.seller,
+        )
+        CustomerProfile.objects.create(
+            user=self.buyer, phone='9999999999', address='5 Test St',
+        )
+
+    def test_product_review_updates_seller_rating(self):
+        ProductReview.objects.create(
+            product=self.seller_product, reviewer=self.buyer,
+            overall_rating=3, recommendation_rating=50,
+        )
+        sr = SellerReview.objects.get(seller_profile=self.seller, customer__user=self.buyer)
+        self.assertEqual(sr.rating, 3)
+        self.seller.refresh_from_db()
+        self.assertEqual(float(self.seller.rating), 3.0)
+
+    def test_editing_product_review_updates_seller_rating(self):
+        review = ProductReview.objects.create(
+            product=self.seller_product, reviewer=self.buyer,
+            overall_rating=2, recommendation_rating=40,
+        )
+        review.overall_rating = 5
+        review.save()
+        sr = SellerReview.objects.get(seller_profile=self.seller, customer__user=self.buyer)
+        self.assertEqual(sr.rating, 5)
+        self.seller.refresh_from_db()
+        self.assertEqual(float(self.seller.rating), 5.0)
+
+    def test_two_customers_average_the_seller_rating(self):
+        other_buyer = User.objects.create_user(username='buyer2', password='pass1234')
+        CustomerProfile.objects.create(
+            user=other_buyer, phone='8888888888', address='6 Test St',
+        )
+        ProductReview.objects.create(
+            product=self.seller_product, reviewer=self.buyer,
+            overall_rating=4, recommendation_rating=80,
+        )
+        ProductReview.objects.create(
+            product=self.seller_product, reviewer=other_buyer,
+            overall_rating=2, recommendation_rating=30,
+        )
+        self.seller.refresh_from_db()
+        self.assertEqual(float(self.seller.rating), 3.0)
+        self.assertEqual(self.seller.reviews_count(), 2)
+
+    def test_product_review_on_sellerless_product_does_not_crash(self):
+        ProductReview.objects.create(
+            product=self.product, reviewer=self.buyer,
+            overall_rating=4, recommendation_rating=80,
+        )
+        self.assertEqual(SellerReview.objects.count(), 0)
+
+    def test_product_review_without_customer_profile_does_not_crash(self):
+        CustomerProfile.objects.filter(user=self.buyer).delete()
+        ProductReview.objects.create(
+            product=self.seller_product, reviewer=self.buyer,
+            overall_rating=4, recommendation_rating=80,
+        )
+        self.assertEqual(SellerReview.objects.count(), 0)
+        self.seller.refresh_from_db()
+        self.assertEqual(float(self.seller.rating), 0.0)
+
+    def test_legacy_review_updates_seller_rating(self):
+        Review.objects.create(product=self.seller_product, user=self.buyer, rating=5)
+        sr = SellerReview.objects.get(seller_profile=self.seller, customer__user=self.buyer)
+        self.assertEqual(sr.rating, 5)
+        self.seller.refresh_from_db()
+        self.assertEqual(float(self.seller.rating), 5.0)
+
+    def test_legacy_review_on_sellerless_product_does_not_crash(self):
+        Review.objects.create(product=self.product, user=self.buyer, rating=4)
+        self.assertEqual(SellerReview.objects.count(), 0)
+
+
+class ProductRatingPropertyTests(ReviewBaseTestCase):
+    def test_average_rating_counts_only_approved_reviews(self):
+        self._make_review(overall_rating=5)
+        self._make_review(user=self.other, overall_rating=1, status=ProductReview.Status.PENDING)
+        self.assertEqual(self.product.average_rating, 5.0)
+        self.assertEqual(self.product.rating_count, 1)
+
+    def test_no_reviews_means_zero(self):
+        self.assertEqual(self.product.average_rating, 0)
+        self.assertEqual(self.product.rating_count, 0)
+
+    def test_rejected_reviews_excluded(self):
+        self._make_review(overall_rating=5)
+        self._make_review(user=self.other, overall_rating=2, status=ProductReview.Status.REJECTED)
+        self.assertEqual(self.product.average_rating, 5.0)
+        self.assertEqual(self.product.rating_count, 1)

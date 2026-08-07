@@ -6,6 +6,7 @@ from decimal import Decimal
 from .models import ShippingAddress, ShippingMethod
 from .forms import ShippingAddressForm
 from cart.cart import Cart
+from core.security import safe_next_url
 from order.models import Order
 from notifications.models import Notification
 from notifications.services import notify
@@ -28,8 +29,8 @@ def address_create(request):
                 ShippingAddress.objects.filter(user=request.user, is_default=True).update(is_default=False)
             address.save()
             messages.success(request, 'Address added successfully.')
-            next_url = request.POST.get('next') or request.GET.get('next')
-            if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+            next_url = safe_next_url(request)
+            if next_url:
                 return redirect(next_url)
             return redirect('shipping:address_list')
     else:

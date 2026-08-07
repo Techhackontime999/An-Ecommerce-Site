@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>{% if mode == 'suspend' %}Suspend selected sellers{% else %}Reject selected sellers{% endif %}</h1>
+
+{% if mode == 'suspend' %}
+<p>You are about to suspend selling access for the following sellers. This is reversible via the approve action, but is meant for fraud or policy violations.</p>
+{% else %}
+<p>You are about to reject the verification of the following sellers. Each seller will be notified with the reason you provide and can resubmit.</p>
+{% endif %}
+
+<ul>
+    {% for profile in queryset %}
+        <li><strong>{{ profile.shop_name }}</strong> — {{ profile.user.username }} ({{ profile.user.email }})</li>
+    {% endfor %}
+</ul>
+
+<form method="post">
+    {% csrf_token %}
+    <p>
+        <label for="reason">Reason <span style="color: var(--error-fg, #ba2121);">*</span> (shown to the seller):</label>
+        <textarea name="reason" id="reason" rows="4" cols="80" required></textarea>
+    </p>
+    <p>
+        <input type="hidden" name="action" value="{{ action }}">
+        <input type="hidden" name="post" value="yes">
+        <input type="hidden" name="apply" value="yes">
+        {% for profile in queryset %}
+            <input type="hidden" name="_selected_action" value="{{ profile.pk }}">
+        {% endfor %}
+        <input type="submit" name="cancel" value="Cancel">
+        <input type="submit" value="{% if mode == 'suspend' %}Suspend sellers{% else %}Reject sellers{% endif %}" style="background: #ba2121;">
+    </p>
+</form>
+{% endblock %}

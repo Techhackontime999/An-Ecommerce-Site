@@ -5,8 +5,9 @@ from shop.models import Product, ProductImage, ProductVariant, VariantImage
 from order.models import OrderItem, Order
 from accounts.models import SellerProfile
 from django.contrib import messages
-from .forms import ProductForm, VariantsFormSet
+from .forms import ProductForm, VariantsFormSet, SellerDocumentForm
 from accounts.forms import SellerProfileForm
+from accounts.verification import submit_for_verification
 from django.db.models import Q
 from django.db.models import Count, F, FloatField, ExpressionWrapper
 from django.db.models.functions import Log
@@ -24,7 +25,7 @@ def seller_dashboard(request):
         return redirect('accounts:become_seller')
 
     if not profile.is_verified:
-        return render(request, 'seller/not_verified.html')
+        return render(request, 'seller/not_verified.html', {'profile': profile})
 
     products = Product.objects.filter(seller=profile)
     order_items = OrderItem.objects.filter(product__in=products)
@@ -37,6 +38,42 @@ def seller_dashboard(request):
         'products': products,
     }
     return render(request, 'seller/dashboard.html', context)
+
+
+@login_required
+def seller_verification(request):
+    """Seller-facing page: upload KYC / business documents and submit for
+    admin review. Never auto-verifies."""
+    try:
+        profile = request.user.sellerprofile
+    except SellerProfile.DoesNotExist:
+        return redirect('accounts:become_seller')
+
+    if profile.is_verified:
+        return render(request, 'seller/verification.html', {'profile': profile, 'approved': True})
+
+    form = SellerDocumentForm()
+    if request.method == 'POST':
+        if request.POST.get('action') == 'submit':
+            ok, detail = submit_for_verification(profile, actor=request.user)
+            if ok:
+                messages.success(request, 'Verification submitted for admin review.')
+            else:
+                messages.error(request, 'Please verify your email and phone before submitting for review.')
+            return redirect('seller:verification')
+        form = SellerDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            doc = form.save(commit=False)
+            doc.seller_profile = profile
+            doc.save()
+            messages.success(request, 'Document uploaded.')
+            return redirect('seller:verification')
+
+    return render(request, 'seller/verification.html', {
+        'profile': profile,
+        'form': form,
+        'approved': False,
+    })
 
 def _save_gallery(product, files):
     for f in files:
@@ -192,10 +229,16 @@ def update_order_status(request, order_id):
         Order.objects.filter(items__product__seller=request.user.sellerprofile).distinct(),
         id=order_id,
     )
+    from order.state import set_order_status
+    ok, reason = set_order_status(
+        order, Order.Status.PROCESSING, actor=request.user,
+        note=f'Confirmed by {request.user.sellerprofile.shop_name}',
+    )
+    if not ok:
+        messages.error(request, reason)
+        return redirect('seller:orders')
     order.paid = True
-    if order.status == Order.Status.PENDING:
-        order.status = Order.Status.PROCESSING
-    order.save(update_fields=['paid', 'status', 'updated'])
+    order.save(update_fields=['paid', 'updated'])
 
     created = 0
     try:

@@ -7,6 +7,7 @@ urlpatterns = [
     path('search/', views.sellers_profile_search, name='sellers_profile_search'),
 
     path('seller_dashboard/', views.seller_dashboard, name='seller_dashboard'),
+    path('verification/', views.seller_verification, name='verification'),
         path('product/add/', views.add_product, name='add_product'),
     path('product/edit/<int:pk>/', views.edit_product, name='edit_product'),
     path('product/delete/<int:pk>/', views.delete_product, name='delete_product'),

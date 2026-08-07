@@ -71,6 +71,14 @@ class Order(models.Model):
         db_index=True,
         help_text='Human-friendly public order reference.',
     )
+    checkout_token = models.CharField(
+        max_length=64,
+        null=True,
+        blank=True,
+        unique=True,
+        db_index=True,
+        help_text='Idempotency key that prevents duplicate order creation on resubmission.',
+    )
 
     class Meta:
         ordering = ('-created',)
@@ -99,6 +107,45 @@ class Order(models.Model):
     @property
     def cancelable(self):
         return self.status in (self.Status.PENDING, self.Status.PROCESSING)
+
+    def total_paid(self):
+        """Amount actually captured from the customer (0 if unpaid)."""
+        payment = getattr(self, 'payment', None)
+        if payment is not None and payment.status == 'captured':
+            return payment.amount
+        return Decimal('0.00')
+
+    def total_refunded(self):
+        """Sum of non-failed refunds issued against this order."""
+        return sum(
+            r.amount for r in self.refunds.all()
+            if r.status != Refund.Status.FAILED
+        )
+
+
+class OrderAuditLog(models.Model):
+    """Append-only history of every order status transition.
+
+    Written by the transition service (``order.state``) so any dispute can be
+    traced end-to-end: who moved the order, from what, to what, and why.
+    """
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='audit_logs')
+    from_status = models.CharField(max_length=20, blank=True)
+    to_status = models.CharField(max_length=20, blank=True)
+    action = models.CharField(max_length=50, blank=True)
+    note = models.TextField(blank=True)
+    actor = models.ForeignKey(
+        User, null=True, blank=True, related_name='order_audit_logs',
+        on_delete=models.SET_NULL,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('created_at',)
+
+    def __str__(self):
+        return f'Order {self.order_id}: {self.from_status} → {self.to_status}'
 
 class ReturnRequest(models.Model):
     class Reason(models.TextChoices):
@@ -182,6 +229,30 @@ class Refund(models.Model):
 
     def __str__(self):
         return f'Refund #{self.id} — Order {self.order.order_number} ({self.get_status_display()})'
+
+    def clean(self):
+        """Prevent over-refunding: the cumulative (non-failed) refunds can never
+        exceed the amount actually captured from the customer."""
+        from django.core.exceptions import ValidationError
+
+        if self.amount is not None and self.amount <= 0:
+            raise ValidationError({'amount': 'Refund amount must be positive.'})
+
+        total_paid = self.order.total_paid()
+        if total_paid <= 0:
+            raise ValidationError('This order was never paid — nothing to refund.')
+
+        already = self.order.total_refunded()
+        if self.pk is not None:
+            already = sum(
+                r.amount for r in self.order.refunds.all()
+                if r.pk != self.pk and r.status != self.Status.FAILED
+            )
+        if (already + (self.amount or 0)) > total_paid:
+            raise ValidationError(
+                f'Total refunds would exceed the paid amount of ₹{total_paid}. '
+                f'Already refunded: ₹{already}.'
+            )
 
 
 class OrderItem(models.Model):

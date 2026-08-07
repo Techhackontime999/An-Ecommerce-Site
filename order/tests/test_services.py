@@ -7,8 +7,8 @@ from django.urls import reverse
 from payments.models import Payment
 from shop.models import Category, Product
 
-from .models import Order, OrderItem
-from .services import cancel_order, invoice_number, invoice_totals
+from order.models import Order, OrderItem
+from order.services import cancel_order, invoice_number, invoice_totals
 
 
 class OrderViewTests(TestCase):

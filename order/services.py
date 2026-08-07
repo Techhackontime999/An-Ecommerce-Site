@@ -5,8 +5,12 @@ import logging
 from datetime import date
 
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Sum
 from django.urls import reverse
+
+from .models import Order
+from .state import set_order_status
 
 logger = logging.getLogger(__name__)
 
@@ -21,27 +25,42 @@ def cancel_order(order, actor=None, reason=''):
     Only orders that haven't shipped can be cancelled. If the order was paid,
     stock is restored and the captured payment is refunded through the gateway.
 
+    The order row is locked with ``select_for_update`` so this serialises with
+    ``finalize_payment``: either the capture wins (payment marked paid, then the
+    cancellation refunds it) or the cancellation wins (the late capture is
+    rejected and refunded by the payment service).
+
     Returns (ok, detail). ``detail`` is a human-readable status message.
     """
-    if not order.cancelable:
-        return False, f'Order {order.order_number} cannot be cancelled at its current status.'
-
     from order.stock import release_stock
     from payments.models import Payment
     from payments.services import refund_payment
 
-    order.status = order.Status.CANCELLED
-    order.save(update_fields=['status', 'updated'])
+    with transaction.atomic():
+        order = Order.objects.select_for_update().get(pk=order.pk)
+        if not order.cancelable:
+            return False, f'Order {order.order_number} cannot be cancelled at its current status.'
 
-    payment = getattr(order, 'payment', None)
-    refunded = False
-    if payment is not None and payment.status == 'captured':
-        release_stock(order)
-        try:
-            refund_payment(payment, note=f'Customer cancellation of {order.order_number}' + (f' ({reason})' if reason else ''))
-            refunded = True
-        except Exception as exc:
-            logger.error('Refund failed during cancellation of order %s: %s', order.id, exc, exc_info=True)
+        ok, _ = set_order_status(
+            order, order.Status.CANCELLED, actor=actor,
+            note='Customer cancellation' + (f': {reason}' if reason else ''),
+        )
+        if not ok:
+            return False, f'Order {order.order_number} cannot be cancelled at its current status.'
+
+        payment = Payment.objects.select_for_update().filter(order=order).first()
+        refunded = False
+        if payment is not None and payment.status == 'captured':
+            release_stock(order)
+            try:
+                refund_payment(
+                    payment,
+                    note=f'Customer cancellation of {order.order_number}' + (f' ({reason})' if reason else ''),
+                    actor=actor,
+                )
+                refunded = True
+            except Exception as exc:
+                logger.error('Refund failed during cancellation of order %s: %s', order.id, exc, exc_info=True)
 
     _notify_cancelled(order, actor, refunded)
     return True, 'cancelled' if not refunded else 'cancelled_and_refunded'

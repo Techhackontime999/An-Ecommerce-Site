@@ -176,6 +176,20 @@
             <span class="pay-btn-amount">{% price order.get_total_cost %}</span>
           </button>
 
+          {% if show_verify %}
+          <form class="pay-verify" method="post" action="{% url 'payments:verify' order.id %}">
+            {% csrf_token %}
+            <button type="submit" class="pay-btn pay-btn-ghost">
+              <i class="fas fa-rotate-right"></i>
+              <span>I've already paid — verify my payment</span>
+            </button>
+            <p class="pay-note">
+              <i class="fas fa-circle-info" aria-hidden="true"></i>
+              <span>If you were charged but didn't reach the confirmation page, click here before paying again.</span>
+            </p>
+          </form>
+          {% endif %}
+
           <p class="pay-note">
             <i class="fas fa-circle-info" aria-hidden="true"></i>
             <span>You'll be redirected to the Razorpay gateway to complete your payment.</span>

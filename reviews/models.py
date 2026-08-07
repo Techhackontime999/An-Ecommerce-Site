@@ -15,6 +15,32 @@ def has_paid_order(user, product):
         order__paid=True,
     ).exists()
 
+
+def sync_seller_review(user, product, rating):
+    """Keep the seller's SellerReview + overall rating in sync with a product
+    review.
+
+    Safe for every edge case: no-ops when the product has no seller or the
+    reviewer has no CustomerProfile, so platform-owned products can never
+    crash the review flow. ``SellerReview.save()`` recomputes the seller's
+    aggregate rating after each create/update.
+    """
+    if rating is None:
+        return
+    seller = getattr(product, 'seller', None)
+    if seller is None:
+        return
+    from accounts.models import CustomerProfile
+    try:
+        customer = CustomerProfile.objects.get(user=user)
+    except CustomerProfile.DoesNotExist:
+        return
+    SellerReview.objects.update_or_create(
+        seller_profile=seller,
+        customer=customer,
+        defaults={'rating': rating},
+    )
+
 class Review(models.Model):
 
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
@@ -30,26 +56,8 @@ class Review(models.Model):
         return f"{self.user.username} - {self.product.name} ({self.rating}★)"
 
     def save(self, *args, **kwargs):
-        from .models import SellerReview  # import here to avoid circular import
-
         super().save(*args, **kwargs)
-
-        # Update seller's rating after saving a product review
-        seller = self.product.seller
-
-        # Create or update the seller review
-        try:
-            customer = CustomerProfile.objects.get(user=self.user)
-            SellerReview.objects.update_or_create(
-                seller_profile=seller,
-                customer=customer,
-                defaults={'rating': self.rating}
-            )
-        except CustomerProfile.DoesNotExist:
-            pass  # Skip if CustomerProfile is not found 
-
-        # Now update seller's overall rating
-        seller.update_rating()
+        sync_seller_review(self.user, self.product, self.rating)
 
 class SellerReview(models.Model):
         seller_profile=models.ForeignKey(SellerProfile, related_name='seller_reviews', on_delete=models.CASCADE)
@@ -146,6 +154,7 @@ class ProductReview(models.Model):
         self.verified_purchase = self._has_paid_order()
         self.is_verified_reviewer = self._is_verified_reviewer()
         super().save(*args, **kwargs)
+        sync_seller_review(self.reviewer, self.product, self.overall_rating)
 
     def _has_paid_order(self):
         return has_paid_order(self.reviewer, self.product)

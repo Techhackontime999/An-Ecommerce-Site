@@ -1,8 +1,18 @@
 # seller/forms.py
 from django import forms
+from accounts.models import SellerDocument
 from shop.models import Product, ProductVariant
 from ckeditor.widgets import CKEditorWidget
 from django.forms.models import inlineformset_factory
+
+
+class SellerDocumentForm(forms.ModelForm):
+    class Meta:
+        model = SellerDocument
+        fields = ['document_type', 'file', 'description']
+        widgets = {
+            'description': forms.TextInput(attrs={'placeholder': 'Optional note about this document'}),
+        }
 
 
 class MultiFileInput(forms.ClearableFileInput):

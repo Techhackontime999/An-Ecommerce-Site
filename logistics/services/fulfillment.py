@@ -406,9 +406,14 @@ class FulfillmentService:
         return events
 
     @classmethod
-    def apply_events(cls, shipment, events):
+    def apply_events(cls, shipment, events, *, source='poll'):
         """Store events into the unified timeline (deduplicated) and advance
-        the shipment's canonical status."""
+        the shipment's canonical status.
+
+        ``source`` records where each event came from (webhook push vs. poll).
+        Delivery-proof fields (POD URL / recipient name) are captured from the
+        event dict when the courier provides them.
+        """
         if not events:
             return 0
         known = set(
@@ -426,6 +431,14 @@ class FulfillmentService:
             key = (event.get('courier_status', ''), status, timestamp)
             if key in known:
                 continue
+            pod_url = ''
+            received_by = ''
+            if status == ShipmentStatus.DELIVERED:
+                pod_url = event.get('pod_url') or event.get('proof_url') or event.get('image_url') or ''
+                received_by = (
+                    event.get('received_by') or event.get('recipient_name')
+                    or event.get('signed_by') or event.get('receiver_name') or ''
+                )
             TrackingEvent.objects.create(
                 shipment=shipment,
                 courier_status=event.get('courier_status', ''),
@@ -433,6 +446,9 @@ class FulfillmentService:
                 location=event.get('location', ''),
                 description=event.get('description', ''),
                 timestamp=timestamp,
+                source=source,
+                pod_url=pod_url,
+                received_by=received_by,
                 raw_payload=event.get('raw') or None,
             )
             known.add(key)
@@ -471,15 +487,46 @@ class FulfillmentService:
         latest = shipment.tracking_events.order_by('-timestamp', '-id').first()
         if latest is None:
             return
-        cls.set_status(shipment, latest.status, notify=False)
+        cls.set_status(
+            shipment, latest.status, notify=False,
+            source=latest.source, pod_url=latest.pod_url, received_by=latest.received_by,
+        )
 
     # ------------------------------------------------------------ transitions
+    @staticmethod
+    def _transition_allowed(current, new):
+        """Monotonicity guard for the canonical shipment status.
+
+        - A terminal status (delivered / returned / cancelled / lost / damaged)
+          is sticky and can never be overwritten by a late event.
+        - Timeline statuses may only move forward (no out_for_delivery → in
+          transit regressions), even if a *newer* event arrives out of order.
+        - Exception statuses (delivery_failed, rto_initiated, ...) sit outside
+          the timeline, so re-attempts back into the timeline always pass.
+        """
+        if current == new:
+            return True
+        if ShipmentStatus.is_terminal(current):
+            return False
+        current_idx = ShipmentStatus.timeline_index(current)
+        new_idx = ShipmentStatus.timeline_index(new)
+        if current_idx >= 0 and new_idx >= 0 and new_idx < current_idx:
+            return False
+        return True
+
     @classmethod
     def set_status(cls, shipment, status, *, description='', location='',
-                   timestamp=None, actor=None, notify=True, raw_payload=None):
+                   timestamp=None, actor=None, notify=True, raw_payload=None,
+                   source='system', pod_url='', received_by=''):
         """Advance a shipment to a canonical status, write the event, keep
         timestamps consistent and sync the order + notifications."""
         if status == shipment.status and shipment.tracking_events.filter(status=status).exists():
+            return shipment
+        if not cls._transition_allowed(shipment.status, status):
+            logger.warning(
+                'Refusing shipment %s status %s → %s (monotonicity guard).',
+                shipment.shipment_number, shipment.status, status,
+            )
             return shipment
 
         old = shipment.status
@@ -494,6 +541,9 @@ class FulfillmentService:
             location=location or '',
             description=description,
             timestamp=now,
+            source=source,
+            pod_url=pod_url,
+            received_by=received_by,
             is_current=True,
             raw_payload=raw_payload,
         )
@@ -531,22 +581,31 @@ class FulfillmentService:
 
     @classmethod
     def _sync_order(cls, shipment):
+        """Mirror a shipment milestone onto the order via the validated state
+        machine. Illegal transitions (e.g. a late delivery webhook on a
+        cancelled order) are rejected and logged instead of resurrecting the
+        order."""
+        from order.state import set_order_status
         order = shipment.order
         if order is None:
             return
-        changed = False
+        target = None
         if shipment.status == ShipmentStatus.PICKED_UP and order.status == order.Status.PROCESSING:
-            order.status = order.Status.SHIPPED
-            changed = True
+            target = order.Status.SHIPPED
         elif shipment.status == ShipmentStatus.DELIVERED:
-            if _all_items_delivered(order) and order.status != order.Status.DELIVERED:
-                order.status = order.Status.DELIVERED
-                changed = True
+            if _all_items_delivered(order):
+                target = order.Status.DELIVERED
         elif shipment.status == ShipmentStatus.CANCELLED:
-            order.status = order.Status.CANCELLED
-            changed = True
-        if changed:
-            order.save(update_fields=['status', 'updated'])
+            target = order.Status.CANCELLED
+        if target is not None:
+            ok, _reason = set_order_status(
+                order, target, actor=None,
+                note=f'Shipment {shipment.shipment_number} → {shipment.status}',
+            )
+            if not ok:
+                logger.warning(
+                    'Order %s sync skipped: %s', order.id, _reason,
+                )
         cls._sync_legacy_shipment(shipment)
 
     @classmethod

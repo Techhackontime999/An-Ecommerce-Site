@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from shop.models import Product, ProductVariant
+from core.security import safe_next_url
 from .cart import Cart
 from .forms import CartAddProductForm
 from coupons.forms import CouponApplyForm
@@ -42,12 +43,13 @@ def cart_add(request, product_id):
             variant_id=variant.id if variant else None,
             price=variant.effective_price if variant else None,
         )
-        next_url = request.POST.get('next', '')
-        if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+        next_url = safe_next_url(request)
+        if next_url:
             return redirect(next_url)
     return redirect('cart:cart_detail')
 
 
+@require_POST
 def cart_remove(request, product_id, variant_id=None):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)

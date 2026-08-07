@@ -3,11 +3,13 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 from order.models import Order
+from order.stock import InsufficientStock
 
 from .models import Payment
 from .services import (
@@ -70,15 +72,15 @@ def checkout(request, order_id):
         'amount': int(payment.amount * 100),
         'currency': payment.currency,
         'callback_url': request.build_absolute_uri(reverse('payments:callback')),
+        'show_verify': bool(payment.razorpay_payment_id and payment.status != 'captured'),
     }
     return render(request, 'payments/checkout.html', context)
 
 
 @csrf_exempt
+@require_POST
 def payment_callback(request):
-    if request.method != 'POST':
-        return HttpResponseBadRequest('Invalid request method')
-
+    """Razorpay browser redirect callback. Signature-verified, POST-only."""
     razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
     razorpay_order_id = request.POST.get('razorpay_order_id', '')
     razorpay_signature = request.POST.get('razorpay_signature', '')
@@ -89,19 +91,24 @@ def payment_callback(request):
         return HttpResponseBadRequest('Invalid payment')
 
     if not verify_callback_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
-        mark_payment_failed(payment)
+        mark_payment_failed(payment, source='callback')
         return redirect('payments:error', order_id=payment.order.id)
 
-    finalize_payment(payment, razorpay_payment_id, razorpay_signature)
+    try:
+        finalize_payment(
+            payment, razorpay_payment_id, razorpay_signature, source='callback',
+        )
+    except InsufficientStock as exc:
+        logger.error('Callback capture rolled back for order %s: %s', payment.order_id, exc, exc_info=True)
+        mark_payment_failed(payment, str(exc), source='system')
+        return redirect('payments:error', order_id=payment.order.id)
     return redirect('payments:success', order_id=payment.order.id)
 
 
 @csrf_exempt
+@require_POST
 def payment_webhook(request):
-    """Razorpay webhook. Idempotent — safe even if delivered more than once."""
-    if request.method != 'POST':
-        return HttpResponseBadRequest('Invalid request method')
-
+    """Razorpay webhook. Signature-verified, idempotent and POST-only."""
     signature = request.META.get('HTTP_X_RAZORPAY_SIGNATURE', '')
     raw_body = request.body.decode('utf-8')
     if not verify_webhook_signature(raw_body, signature):
@@ -125,35 +132,62 @@ def payment_webhook(request):
         logger.warning('Webhook for unknown order %s', razorpay_order_id)
         return HttpResponse('Unknown order', status=200)
 
-    if event_name in ('payment.captured', 'order.paid'):
-        finalize_payment(payment, razorpay_payment_id)
-    elif event_name == 'payment.failed':
-        mark_payment_failed(payment, 'Payment was declined by your bank / card issuer.')
+    try:
+        if event_name in ('payment.captured', 'order.paid'):
+            finalize_payment(payment, razorpay_payment_id, source='webhook')
+        elif event_name == 'payment.failed':
+            mark_payment_failed(payment, 'Payment was declined by your bank / card issuer.', source='webhook')
+    except InsufficientStock as exc:
+        logger.error('Webhook capture rolled back for order %s: %s', payment.order_id, exc, exc_info=True)
+        mark_payment_failed(payment, str(exc), source='system')
 
     return HttpResponse('OK', status=200)
 
 
 @login_required
-def payment_success(request, order_id):
+@require_POST
+def payment_verify(request, order_id):
+    """POST-only server-side re-check against the gateway.
+
+    Used when a capture succeeded at the gateway but the browser callback was
+    lost. Never reached via GET, so a plain page load can never change a
+    payment status.
+    """
     order = get_object_or_404(Order, id=order_id, user=request.user)
     payment = getattr(order, 'payment', None)
 
-    if not order.paid and payment:
-        # The user landed here without a verified capture (page refresh after the
-        # redirect, or the callback never returned). Confirm with the gateway
-        # before trusting the screen.
-        try:
-            razorpay_payment_id = payment.razorpay_payment_id
-            client = get_razorpay_client()
-            detail = client.payment.fetch(razorpay_payment_id) if razorpay_payment_id else None
-            if detail and detail.get('status') == 'captured':
-                finalize_payment(payment, detail['id'])
-            else:
-                return redirect('payments:checkout', order_id=order.id)
-        except Exception as exc:
-            logger.error('Success-page verification failed for order %s: %s', order.id, exc, exc_info=True)
-            return redirect('payments:checkout', order_id=order.id)
+    if order.paid:
+        return redirect('payments:success', order_id=order.id)
 
+    if payment and payment.razorpay_payment_id:
+        try:
+            client = get_razorpay_client()
+            detail = client.payment.fetch(payment.razorpay_payment_id)
+            if detail and detail.get('status') == 'captured':
+                try:
+                    finalize_payment(payment, detail['id'], source='verify')
+                except InsufficientStock as exc:
+                    logger.error('Verify capture rolled back for order %s: %s', order.id, exc, exc_info=True)
+                    mark_payment_failed(payment, str(exc), source='system')
+        except Exception as exc:
+            logger.error('Gateway verification failed for order %s: %s', order.id, exc, exc_info=True)
+
+    if order.paid:
+        return redirect('payments:success', order_id=order.id)
+    return redirect('payments:checkout', order_id=order.id)
+
+
+@login_required
+def payment_success(request, order_id):
+    """Render-only success page.
+
+    A GET can never change a payment status — if the order isn't already paid,
+    the user is sent back to checkout to verify/retry instead.
+    """
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if not order.paid:
+        return redirect('payments:checkout', order_id=order.id)
+    payment = getattr(order, 'payment', None)
     return render(request, 'payments/success.html', {'order': order, 'payment': payment})
 
 

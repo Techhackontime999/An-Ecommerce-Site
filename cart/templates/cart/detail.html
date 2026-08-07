@@ -116,15 +116,21 @@
             </div>
 
             {% if item.variant %}
-            <a class="crt-remove" href="{% url 'cart:cart_remove_variant' product.id item.variant.id %}"
-               title="Remove {{ product.name }} ({{ item.variant.name }})" aria-label="Remove {{ product.name }} ({{ item.variant.name }})">
-              <i class="fas fa-xmark"></i>
-            </a>
+            <form class="crt-remove" method="post" action="{% url 'cart:cart_remove_variant' product.id item.variant.id %}"
+                  title="Remove {{ product.name }} ({{ item.variant.name }})">
+              {% csrf_token %}
+              <button type="submit" class="crt-remove-btn" aria-label="Remove {{ product.name }} ({{ item.variant.name }})">
+                <i class="fas fa-xmark"></i>
+              </button>
+            </form>
             {% else %}
-            <a class="crt-remove" href="{% url 'cart:cart_remove' product.id %}"
-               title="Remove {{ product.name }}" aria-label="Remove {{ product.name }}">
-              <i class="fas fa-xmark"></i>
-            </a>
+            <form class="crt-remove" method="post" action="{% url 'cart:cart_remove' product.id %}"
+                  title="Remove {{ product.name }}">
+              {% csrf_token %}
+              <button type="submit" class="crt-remove-btn" aria-label="Remove {{ product.name }}">
+                <i class="fas fa-xmark"></i>
+              </button>
+            </form>
             {% endif %}
           </article>
           {% endwith %}

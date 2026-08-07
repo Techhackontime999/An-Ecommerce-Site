@@ -455,12 +455,28 @@ class ShipmentItem(models.Model):
 class TrackingEvent(models.Model):
     """One entry in the unified tracking timeline, independent of courier."""
 
+    class Source:
+        WEBHOOK = 'webhook'
+        POLL = 'poll'
+        MANUAL = 'manual'
+        SYSTEM = 'system'
+
+        CHOICES = [
+            (WEBHOOK, 'Courier webhook'),
+            (POLL, 'Courier poll'),
+            (MANUAL, 'Manual override'),
+            (SYSTEM, 'System'),
+        ]
+
     shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, related_name='tracking_events')
     courier_status = models.CharField(max_length=100, blank=True, help_text='Raw status string from the courier')
     status = models.CharField(max_length=30, choices=ShipmentStatus.CHOICES, db_index=True)
     location = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     timestamp = models.DateTimeField(db_index=True)
+    source = models.CharField(max_length=20, choices=Source.CHOICES, default=Source.SYSTEM, db_index=True)
+    pod_url = models.URLField(blank=True, help_text='Delivery proof image/URL (POD), when provided by the courier')
+    received_by = models.CharField(max_length=100, blank=True, help_text='Recipient name recorded on the delivery proof')
     is_current = models.BooleanField(default=False)
     raw_payload = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -674,6 +690,10 @@ class WebhookEvent(models.Model):
     event_type = models.CharField(max_length=100, blank=True)
     payload = models.JSONField(default=dict)
     signature = models.CharField(max_length=300, blank=True)
+    dedupe_key = models.CharField(
+        max_length=64, blank=True, null=True, db_index=True,
+        help_text='SHA-256 of the raw request body — used to reject courier replays',
+    )
     processed = models.BooleanField(default=False)
     error = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -681,6 +701,12 @@ class WebhookEvent(models.Model):
 
     class Meta:
         ordering = ('-created_at',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['courier', 'dedupe_key'],
+                name='uniq_webhookevent_courier_dedupe',
+            ),
+        ]
 
     def __str__(self):
         return f'Webhook {self.id} — {self.event_type or "?"} ({self.created_at:%Y-%m-%d %H:%M})'

@@ -106,3 +106,120 @@ class WebhookViewTests(LogisticsTestCase):
         kwargs['HTTP_X_LMS_SIGNATURE'] = f'sha256={self._sign(body)}'
         resp = self.client.post(reverse('logistics:webhook', args=['mock']), data=body, **kwargs)
         self.assertEqual(resp.status_code, 400)
+
+    def test_replay_of_same_payload_is_idempotent(self):
+        payload = {
+            'event_type': 'status',
+            'tracking_number': self.shipment.tracking_number,
+            'status': 'in_transit',
+            'timestamp': (timezone.now() + timedelta(hours=1)).isoformat(),
+        }
+        body = json.dumps(payload).encode()
+        first = self._post(payload, signature=self._sign(body))
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.json()['added'], 1)
+        event_count = WebhookEvent.objects.count()
+        tracking_count = self.shipment.tracking_events.count()
+
+        second = self._post(payload, signature=self._sign(body))
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual(second.json()['detail'], 'duplicate')
+        self.assertEqual(WebhookEvent.objects.count(), event_count)
+        self.assertEqual(self.shipment.tracking_events.count(), tracking_count)
+
+    def test_late_newer_event_cannot_regress_timeline(self):
+        self.shipment.status = 'order_confirmed'
+        self.shipment.save(update_fields=['status'])
+        base = timezone.now()
+
+        forward = {
+            'event_type': 'status',
+            'tracking_number': self.shipment.tracking_number,
+            'status': 'out_for_delivery',
+            'timestamp': (base + timedelta(hours=2)).isoformat(),
+        }
+        body = json.dumps(forward).encode()
+        resp = self._post(forward, signature=self._sign(body))
+        self.assertEqual(resp.json()['added'], 1)
+        self.shipment.refresh_from_db()
+        self.assertEqual(self.shipment.status, 'out_for_delivery')
+
+        # A stale-but-newer-timestamp 'in_transit' must not regress status.
+        stale = {
+            'event_type': 'status',
+            'tracking_number': self.shipment.tracking_number,
+            'status': 'in_transit',
+            'timestamp': (base + timedelta(hours=3)).isoformat(),
+        }
+        body = json.dumps(stale).encode()
+        resp = self._post(stale, signature=self._sign(body))
+        self.assertEqual(resp.json()['added'], 1)
+        self.shipment.refresh_from_db()
+        self.assertEqual(self.shipment.status, 'out_for_delivery')
+
+    def test_terminal_status_is_sticky(self):
+        base = timezone.now()
+        delivered = {
+            'event_type': 'status',
+            'tracking_number': self.shipment.tracking_number,
+            'status': 'delivered',
+            'location': self.PINCODE,
+            'description': 'Delivered',
+            'timestamp': (base + timedelta(hours=2)).isoformat(),
+            'pod_url': 'https://proof.example.com/pod/abc.jpg',
+            'received_by': 'Asha Kumar',
+        }
+        body = json.dumps(delivered).encode()
+        resp = self._post(delivered, signature=self._sign(body))
+        self.assertEqual(resp.json()['added'], 1)
+        self.shipment.refresh_from_db()
+        self.assertEqual(self.shipment.status, 'delivered')
+
+        # A later 'cancelled' push must not overwrite a delivered shipment.
+        cancelled = {
+            'event_type': 'status',
+            'tracking_number': self.shipment.tracking_number,
+            'status': 'cancelled',
+            'timestamp': (base + timedelta(hours=4)).isoformat(),
+        }
+        body = json.dumps(cancelled).encode()
+        resp = self._post(cancelled, signature=self._sign(body))
+        self.assertEqual(resp.status_code, 200)
+        self.shipment.refresh_from_db()
+        self.assertEqual(self.shipment.status, 'delivered')
+
+    def test_delivery_proof_and_source_recorded(self):
+        payload = {
+            'event_type': 'status',
+            'tracking_number': self.shipment.tracking_number,
+            'status': 'delivered',
+            'location': self.PINCODE,
+            'description': 'Package delivered',
+            'timestamp': (timezone.now() + timedelta(hours=2)).isoformat(),
+            'pod_url': 'https://proof.example.com/pod/abc.jpg',
+            'received_by': 'Asha Kumar',
+        }
+        body = json.dumps(payload).encode()
+        resp = self._post(payload, signature=self._sign(body))
+        self.assertEqual(resp.json()['added'], 1)
+
+        event = self.shipment.tracking_events.filter(status='delivered').first()
+        self.assertEqual(event.source, 'webhook')
+        self.assertEqual(event.pod_url, 'https://proof.example.com/pod/abc.jpg')
+        self.assertEqual(event.received_by, 'Asha Kumar')
+
+    def test_poll_events_tagged_as_poll(self):
+        from logistics.services.fulfillment import FulfillmentService
+        from logistics.constants import ShipmentStatus
+        events = [{
+            'courier_status': 'In Transit',
+            'status': 'in_transit',
+            'location': 'Hub',
+            'description': 'Moving',
+            'timestamp': (timezone.now() + timedelta(hours=1)).isoformat(),
+        }]
+        FulfillmentService.apply_events(self.shipment, events, source='poll')
+        event = self.shipment.tracking_events.filter(status='in_transit').first()
+        self.assertEqual(event.source, 'poll')
+        self.shipment.refresh_from_db()
+        self.assertEqual(self.shipment.status, ShipmentStatus.IN_TRANSIT)

@@ -1,7 +1,19 @@
 {% extends 'shop/base/base.html' %}
 {% block content %}
-<div class="container">
-    <h2>Your account is not yet verified</h2>
-    <p>Please wait for admin approval.</p>
+<div class="container py-4">
+    <h2>Your seller account is not approved yet</h2>
+
+    {% if profile.verification_status == 'pending' %}
+        <p>Your verification is <strong>under review</strong>. You will be able to sell once an admin approves your documents.</p>
+    {% elif profile.verification_status == 'rejected' %}
+        <p><strong>Your submission was not approved.</strong></p>
+        <p>{{ profile.rejection_reason }}</p>
+        <a href="{% url 'seller:verification' %}" class="btn btn-primary">Upload documents and resubmit</a>
+    {% elif profile.verification_status == 'suspended' %}
+        <p>Your selling account has been suspended. Contact support if you believe this is a mistake.</p>
+    {% else %}
+        <p>You must submit your KYC / business documents and receive admin approval before selling.</p>
+        <a href="{% url 'seller:verification' %}" class="btn btn-primary">Complete verification</a>
+    {% endif %}
 </div>
 {% endblock %}
