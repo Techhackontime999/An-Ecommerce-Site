@@ -2,6 +2,8 @@
 
 import os
 
+from .languages import available_languages
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 
@@ -9,6 +11,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-local-development-only")
 
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_test_xxxxxxxxxxxx")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "your_test_secret")
+RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
 
 DEBUG = True
 
@@ -34,6 +37,7 @@ INSTALLED_APPS = [
     'shop.apps.ShopConfig',
     'blogs.apps.BlogsConfig',
     'cart.apps.CartConfig',
+    'wishlist.apps.WishlistConfig',
     'order.apps.OrderConfig',
     'coupons.apps.CouponsConfig',
     'accounts',
@@ -82,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart',
+                'wishlist.context_processors.wishlist',
                 'shop.context_processors.search_action_context',
                 'platform_studio.context_processors.platform_settings_context',
                 'seller.context_processors.seller_context',
@@ -117,27 +122,7 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-LANGUAGES = [
-    ('en', 'English'),
-    ('hi', 'हिन्दी'),
-    ('es', 'Español'),
-    ('fr', 'Français'),
-    ('de', 'Deutsch'),
-    ('pt', 'Português'),
-    ('it', 'Italiano'),
-    ('ja', '日本語'),
-    ('ko', '한국어'),
-    ('zh-hans', '简体中文'),
-    ('ar', 'العربية'),
-    ('ru', 'Русский'),
-    ('tr', 'Türkçe'),
-    ('nl', 'Nederlands'),
-    ('pl', 'Polski'),
-    ('bn', 'বাংলা'),
-    ('ta', 'தமிழ்'),
-    ('te', 'తెలుగు'),
-    ('mr', 'मराठी'),
-]
+LANGUAGES = available_languages()
 
 LOCALE_PATHS = [
     os.path.join(PROJECT_DIR, 'locale'),
@@ -174,6 +159,9 @@ MEDIA_URL = '/media/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CART_SESSION_ID = 'cart'
+
+# Order tax rate (decimal fraction, e.g. 0.18 = 18% GST) applied to items + shipping.
+ORDER_TAX_RATE = os.getenv('ORDER_TAX_RATE', '0.18')
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -218,5 +206,6 @@ EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Shop-Seed <no-reply@shop-seed.com>')
+SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

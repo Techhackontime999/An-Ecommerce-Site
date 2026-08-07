@@ -39,6 +39,15 @@ class ReviewBaseTestCase(TestCase):
             **defaults,
         )
 
+    def _make_paid_purchase(self, user=None):
+        buyer = user or self.buyer
+        order = buyer.orders.create(
+            first_name='Mira', last_name='Sharma', email='m@example.com',
+            address='1 Test St', postal_code='10001', city='NYC', paid=True,
+        )
+        order.items.create(product=self.product, price=self.product.price)
+        return order
+
 
 class ProductReviewModelTests(ReviewBaseTestCase):
     def test_subscores_default_to_overall(self):
@@ -52,11 +61,7 @@ class ProductReviewModelTests(ReviewBaseTestCase):
         self.assertEqual(review.quality, 3)
 
     def test_verified_purchase_auto_detected(self):
-        order = self.buyer.orders.create(
-            first_name='Mira', last_name='Sharma', email='m@example.com',
-            address='1 Test St', postal_code='10001', city='NYC', paid=True,
-        )
-        order.items.create(product=self.product, price=self.product.price)
+        self._make_paid_purchase()
         review = self._make_review()
         self.assertTrue(review.verified_purchase)
 
@@ -87,6 +92,7 @@ class ProductReviewViewTests(ReviewBaseTestCase):
         self.assertIn('/accounts/login/', response.url)
 
     def test_create_review_as_authenticated(self):
+        self._make_paid_purchase()
         self.client.login(username='buyer1', password='pass1234')
         url = reverse('reviews:create_product_review', args=[self.product.pk])
         response = self.client.post(url, {
@@ -97,9 +103,11 @@ class ProductReviewViewTests(ReviewBaseTestCase):
             'review_text': 'Great sound, a bit heavy.',
         })
         review = ProductReview.objects.get(product=self.product, reviewer=self.buyer)
+        self.assertTrue(review.verified_purchase)
         self.assertRedirects(response, reverse('reviews:product_review_detail', args=[review.pk]))
 
     def test_create_review_existing_redirects_to_own(self):
+        self._make_paid_purchase()
         review = self._make_review()
         self.client.login(username='buyer1', password='pass1234')
         url = reverse('reviews:create_product_review', args=[self.product.pk])

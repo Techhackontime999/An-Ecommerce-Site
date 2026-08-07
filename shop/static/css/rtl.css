@@ -1,0 +1,169 @@
+/* Shop-Seed RTL mirror layer — loaded after design-system.css.
+   Only active when the active language is right-to-left (html[dir="rtl"]).
+   Browsers shape Arabic script natively in HTML; this sheet mirrors the
+   physical-property layout of the shared shell and key storefront pages. */
+
+[dir="rtl"] body,
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select,
+[dir="rtl"] button {
+  font-family: 'Noto Naskh Arabic', 'Noto Sans Arabic', 'Outfit', 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .pay-item-price,
+[dir="rtl"] .myo-item-price,
+[dir="rtl"] .cart-item-price,
+[dir="rtl"] .pd-price,
+[dir="rtl"] .aq-prod-price {
+  text-align: left;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .fa-arrow-right,
+[dir="rtl"] .fa-chevron-right,
+[dir="rtl"] .fa-angle-right,
+[dir="rtl"] .fa-arrow-left,
+[dir="rtl"] .fa-chevron-left,
+[dir="rtl"] .fa-angle-left {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .nav-aq-search .search-icon {
+  right: auto;
+  left: 1rem;
+}
+
+[dir="rtl"] .nav-aq-search input {
+  padding-right: 1rem;
+  padding-left: 3rem;
+}
+
+[dir="rtl"] .nav-aq-actions,
+[dir="rtl"] .nav-aq-mobile-actions,
+[dir="rtl"] .aq-hero-actions,
+[dir="rtl"] .pay-trust,
+[dir="rtl"] .nl-actions {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mobile-menu-aq {
+  left: auto;
+  right: -100%;
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[dir="rtl"] .mobile-menu-aq.open {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .ds-drawer-close,
+[dir="rtl"] .aq-nav-close {
+  right: auto;
+  left: 1rem;
+}
+
+[dir="rtl"] .ds-facc i,
+[dir="rtl"] .footer-aq-col .ds-facc i,
+[dir="rtl"] .faq-aq-toggle i {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .footer-aq-col.is-open .ds-facc i,
+[dir="rtl"] .footer-aq-col.is-open .ds-facc i {
+  transform: rotate(0deg);
+}
+
+[dir="rtl"] .pay-breadcrumb .sep,
+[dir="rtl"] .breadcrumb-aq .sep,
+[dir="rtl"] .aq-crumb .sep {
+  transform: scaleX(-1);
+  display: inline-block;
+}
+
+[dir="rtl"] .aq-to-top {
+  right: auto;
+  left: 1.5rem;
+}
+
+[dir="rtl"] .ds-bottombar {
+  direction: ltr;
+}
+
+[dir="rtl"] .ds-bottombar .ds-bottombar-inner {
+  direction: rtl;
+}
+
+[dir="rtl"] .cart-remove,
+[dir="rtl"] .aq-close,
+[dir="rtl"] .pd-gal-close {
+  right: auto;
+  left: 1rem;
+}
+
+[dir="rtl"] .pay-ship-row,
+[dir="rtl"] .myo-item,
+[dir="rtl"] .cart-line,
+[dir="rtl"] .pd-meta-row {
+  text-align: right;
+}
+
+[dir="rtl"] .pay-ship-label,
+[dir="rtl"] .myo-date,
+[dir="rtl"] .myo-item-meta,
+[dir="rtl"] .aq-prod-badge,
+[dir="rtl"] .pd-sku {
+  text-align: right;
+}
+
+[dir="rtl"] .ord-steps {
+  direction: rtl;
+}
+
+[dir="rtl"] .pay-hero-inner,
+[dir="rtl"] .pay-body .container-aq {
+  direction: rtl;
+}
+
+[dir="rtl"] .myo-timeline .myo-step-line {
+  left: auto;
+  right: -50%;
+}
+
+[dir="rtl"] .myo-step:first-child .myo-step-line {
+  display: none;
+}
+
+[dir="rtl"] .aq-prod-card .aq-prod-actions {
+  right: auto;
+  left: 0.75rem;
+}
+
+[dir="rtl"] .slick-prev,
+[dir="rtl"] .slick-next,
+[dir="rtl"] .owl-prev,
+[dir="rtl"] .owl-next {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] input,
+[dir="rtl"] textarea {
+  text-align: right;
+}
+
+[dir="rtl"] select {
+  background-position: left 0.75rem center;
+}
+
+@media (min-width: 1024px) {
+  [dir="rtl"] .nav-aq-row-desktop {
+    direction: rtl;
+  }
+}

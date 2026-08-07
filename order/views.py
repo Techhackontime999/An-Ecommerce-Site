@@ -1,15 +1,18 @@
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 import requests
 from cart.cart import Cart
 from .models import Order, OrderItem
 from .forms import OrderCreateForm
+from .services import cancel_order, invoice_number, invoice_totals
 from notifications.models import Notification
 from notifications.services import notify
+from notifications.emails import send_order_confirmation
 
 @login_required
 def order_create(request):
@@ -21,6 +24,10 @@ def order_create(request):
         if form.is_valid():
             order = form.save(commit=False)   # ✅ Create order instance without saving
             order.user = request.user         # ✅ Now assign the user
+            coupon = cart.coupon
+            if coupon is not None:
+                order.coupon = coupon
+                order.discount = cart.get_discount()
             order.save()                      # ✅ Then save the order
             for item in cart:
                 is_deal = item['product'].price != item['price']
@@ -34,10 +41,9 @@ def order_create(request):
                     quantity=item['quantity'],
                     deal_applied=is_deal
                 )
-                if variant:
-                    variant.stock = max(0, variant.stock - item['quantity'])
-                    variant.save(update_fields=['stock'])
             cart.clear()
+            request.session['coupon_id'] = None
+            send_order_confirmation(order)
             notify(
                 request.user,
                 Notification.Category.ORDER,
@@ -167,3 +173,46 @@ def autofill_address(request):
         'country': address.get('country', ''),
         'display_name': data.get('display_name', ''),
     })
+
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(
+        Order.objects.prefetch_related('items__product', 'items__variant', 'logistics_shipments__courier', 'refunds'),
+        id=order_id,
+        user=request.user,
+    )
+    shipment = order.logistics_shipments.select_related('courier').first() or getattr(order, 'shipment', None)
+    payment = getattr(order, 'payment', None)
+    return render(request, 'order/detail.html', {
+        'order': order,
+        'shipment': shipment,
+        'payment': payment,
+        'totals': invoice_totals(order),
+        'invoice_number': invoice_number(order),
+    })
+
+
+@login_required
+@require_POST
+def order_cancel(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    ok, detail = cancel_order(order, actor=request.user, reason=request.POST.get('reason', ''))
+    if ok:
+        if detail == 'cancelled_and_refunded':
+            messages.success(request, 'Order cancelled and your payment has been refunded.')
+        else:
+            messages.success(request, 'Order cancelled.')
+    else:
+        messages.error(request, detail)
+    return redirect('order:order_detail', order_id=order.id)
+
+
+@login_required
+def order_invoice_pdf(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    from .services import generate_invoice_pdf
+    pdf = generate_invoice_pdf(order)
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{invoice_number(order)}.pdf"'
+    return response

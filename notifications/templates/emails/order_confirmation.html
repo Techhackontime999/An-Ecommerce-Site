@@ -1,0 +1,51 @@
+{% extends "emails/base_email.html" %}
+{% load preference_extras %}
+{% block email_body %}
+<tr>
+  <td style="padding:20px 32px 0;" align="center">
+    <h1 style="margin:0;font-size:22px;color:#0F172A;font-weight:800;">Order Confirmed 🎉</h1>
+    <p style="margin:12px 0 0;font-size:15px;line-height:1.6;color:#475569;">
+      Thanks {{ order.first_name }}! Your order <strong>{{ order.order_number }}</strong> has been received.
+      We're preparing your items and you'll get a shipping update once they're on the way.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td style="padding:20px 32px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e9ebf0;border-radius:12px;overflow:hidden;">
+      <tr>
+        <td style="padding:14px 18px;background:#f8fafc;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#64748B;font-weight:700;">Item</td>
+        <td style="padding:14px 18px;background:#f8fafc;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#64748B;font-weight:700;" align="right">Price</td>
+      </tr>
+      {% for item in order.items.all %}
+      <tr>
+        <td style="padding:12px 18px;border-top:1px solid #e9ebf0;font-size:14px;color:#0F172A;">
+          {{ item.product.name }}{% if item.variant_name %} <span style="color:#94A3B8;">({{ item.variant_name }})</span>{% endif %}
+          <div style="font-size:12px;color:#64748B;">Qty {{ item.quantity }}</div>
+        </td>
+        <td style="padding:12px 18px;border-top:1px solid #e9ebf0;font-size:14px;color:#0F172A;" align="right">₹{{ item.get_cost }}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td style="padding:12px 18px;border-top:1px solid #e9ebf0;font-size:13px;color:#475569;">Shipping</td>
+        <td style="padding:12px 18px;border-top:1px solid #e9ebf0;font-size:13px;color:#475569;" align="right">₹{{ order.shipping_cost }}</td>
+      </tr>
+      {% if order.discount %}
+      <tr>
+        <td style="padding:12px 18px;border-top:1px solid #e9ebf0;font-size:13px;color:#16A34A;">Coupon discount{% if order.coupon %} ({{ order.coupon.code }}){% endif %}</td>
+        <td style="padding:12px 18px;border-top:1px solid #e9ebf0;font-size:13px;color:#16A34A;" align="right">−₹{{ order.discount }}</td>
+      </tr>
+      {% endif %}
+      <tr>
+        <td style="padding:14px 18px;border-top:2px solid #0F172A;font-size:15px;font-weight:800;color:#0F172A;">Total</td>
+        <td style="padding:14px 18px;border-top:2px solid #0F172A;font-size:15px;font-weight:800;color:#F97316;" align="right">₹{{ order.get_total_cost }}</td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td style="padding:0 32px 28px;" align="center">
+    <a href="{{ site_url }}/order/my-orders/" style="display:inline-block;background:linear-gradient(135deg,#F97316,#FB923C);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:12px 28px;border-radius:999px;">Track My Order</a>
+  </td>
+</tr>
+{% endblock %}

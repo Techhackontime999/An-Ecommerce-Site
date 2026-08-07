@@ -199,8 +199,13 @@ def product_search(request):
     if query:
         products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
 
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "shop/product/product_search.html", {
-        "results": products,
+        "results": page_obj.object_list,
+        "page_obj": page_obj,
         "query": query,
         "selected_category": category_slug,
         "product_categories": product_categories,

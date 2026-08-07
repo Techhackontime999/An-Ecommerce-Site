@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from shop.models import Product, ProductVariant
@@ -42,6 +43,26 @@ class Order(models.Model):
     )
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     shipping_method_name = models.CharField(max_length=100, blank=True)
+    tax_rate = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        default=Decimal(str(getattr(settings, 'ORDER_TAX_RATE', '0.18'))),
+        help_text='Tax rate applied to this order (e.g. 0.18 = 18% GST).',
+    )
+    coupon = models.ForeignKey(
+        'coupons.Coupon',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        help_text='Coupon applied at checkout.',
+    )
+    discount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text='Coupon discount applied to this order.',
+    )
     order_number = models.CharField(
         max_length=30,
         unique=True,
@@ -63,9 +84,21 @@ class Order(models.Model):
             self.order_number = _generate_order_number(self.pk)
             self.save(update_fields=['order_number'])
 
+    def get_subtotal(self):
+        return sum(item.get_cost() for item in self.items.all())
+
+    def get_taxable_amount(self):
+        return self.get_subtotal() + self.shipping_cost
+
+    def get_tax_amount(self):
+        return (self.get_taxable_amount() * self.tax_rate).quantize(Decimal('0.01'))
+
     def get_total_cost(self):
-        total = sum(item.get_cost() for item in self.items.all())
-        return total + self.shipping_cost
+        return self.get_taxable_amount() + self.get_tax_amount() - self.discount
+
+    @property
+    def cancelable(self):
+        return self.status in (self.Status.PENDING, self.Status.PROCESSING)
 
 class ReturnRequest(models.Model):
     class Reason(models.TextChoices):

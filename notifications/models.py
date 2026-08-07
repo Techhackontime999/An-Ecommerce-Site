@@ -46,6 +46,11 @@ class Notification(models.Model):
     link = models.CharField(max_length=255, blank=True)
     icon = models.CharField(max_length=30, blank=True, help_text='Font Awesome icon, e.g. "box"')
     is_read = models.BooleanField(default=False)
+    emailed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='When this notification was included in an email digest.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

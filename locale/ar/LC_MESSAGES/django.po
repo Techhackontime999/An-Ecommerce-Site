@@ -1,0 +1,829 @@
+# Shop-Seed Arabic translation.
+# Copyright (C) 2026 Shop-Seed
+# This file is distributed under the same license as the Shop-Seed package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Shop-Seed 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-07 01:54+0000\n"
+"PO-Revision-Date: 2026-08-07 02:10+0000\n"
+"Last-Translator: Shop-Seed <no-reply@shop-seed.com>\n"
+"Language-Team: Arabic <LL@li.org>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: core/templates/admin/color_theme_toggle.html:3
+msgid "Toggle theme (current theme: auto)"
+msgstr "بدّل السمة (السمة الحالية: تلقائي)"
+
+#: core/templates/admin/color_theme_toggle.html:4
+msgid "Toggle theme (current theme: dark)"
+msgstr "بدّل السمة (السمة الحالية: داكن)"
+
+#: core/templates/admin/color_theme_toggle.html:5
+msgid "Toggle theme (current theme: light)"
+msgstr "بدّل السمة (السمة الحالية: فاتح)"
+
+#: core/templates/admin/login.html:21
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] "يُرجى تصحيح الخطأ أدناه."
+msgstr[1] "يُرجى تصحيح الخطأين أدناه."
+msgstr[2] "يُرجى تصحيح الأخطاء أدناه."
+msgstr[3] "يُرجى تصحيح الأخطاء أدناه."
+msgstr[4] "يُرجى تصحيح الأخطاء أدناه."
+msgstr[5] "يُرجى تصحيح الأخطاء أدناه."
+
+#: core/templates/admin/login.html:33
+#, python-format
+msgid ""
+"You are authenticated as %(username)s, but are not authorized to access this "
+"page. Would you like to login to a different account?"
+msgstr ""
+"لقد سجّلت الدخول باسم %(username)s، لكنك غير مخوّل بالوصول إلى هذه الصفحة. "
+"هل ترغب في تسجيل الدخول بحساب مختلف؟"
+
+#: core/templates/admin/login.html:53
+msgid "Forgotten your login credentials?"
+msgstr "هل نسيت بيانات تسجيل الدخول؟"
+
+#: core/templates/admin/login.html:56
+msgid "Log in"
+msgstr "تسجيل الدخول"
+
+#: core/templates/admin/nav_sidebar.html:2
+msgid "Toggle navigation"
+msgstr "تبديل التنقل"
+
+#: core/templates/admin/nav_sidebar.html:3
+msgid "Sidebar"
+msgstr "الشريط الجانبي"
+
+#: core/templates/admin/nav_sidebar.html:10
+#: core/templates/admin/nav_sidebar.html:24
+#: core/templates/admin/nav_sidebar.html:48
+#: core/templates/admin/nav_sidebar.html:78
+#: shop/templates/shop/base/navbar.html:93
+#: shop/templates/shop/base/navbar.html:258
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#: core/templates/admin/nav_sidebar.html:29
+msgid "Sales"
+msgstr "المبيعات"
+
+#: core/templates/admin/nav_sidebar.html:35
+msgid "Returns & Refunds"
+msgstr "الإرجاع والاسترداد"
+
+#: core/templates/admin/nav_sidebar.html:42
+msgid "Fulfilment & Logistics"
+msgstr "التنفيذ والخدمات اللوجستية"
+
+#: core/templates/admin/nav_sidebar.html:47
+msgid "Fulfilment"
+msgstr "تنفيذ الطلبات"
+
+#: core/templates/admin/nav_sidebar.html:49
+msgid "Shipments"
+msgstr "الشحنات"
+
+#: core/templates/admin/nav_sidebar.html:50
+msgid "Couriers"
+msgstr "شركات الشحن"
+
+#: core/templates/admin/nav_sidebar.html:51
+msgid "Warehouses"
+msgstr "المستودعات"
+
+#: core/templates/admin/nav_sidebar.html:52
+msgid "Pincode Serviceability"
+msgstr "تغطية الرمز البريدي"
+
+#: core/templates/admin/nav_sidebar.html:53
+msgid "Pickups"
+msgstr "الاستلام"
+
+#: core/templates/admin/nav_sidebar.html:54
+msgid "NDRs"
+msgstr "طلبات عدم التسليم"
+
+#: core/templates/admin/nav_sidebar.html:55
+#: shop/templates/shop/base/footer.html:61
+msgid "Returns"
+msgstr "الإرجاع"
+
+#: core/templates/admin/nav_sidebar.html:56
+msgid "Audit Trail"
+msgstr "سجل التدقيق"
+
+#: core/templates/admin/nav_sidebar.html:62
+msgid "View Site"
+msgstr "عرض الموقع"
+
+#: core/templates/admin/nav_sidebar.html:67
+msgid "Research & Insights"
+msgstr "البحث والتحليلات"
+
+#: core/templates/admin/nav_sidebar.html:73
+msgid "Marketing"
+msgstr "التسويق"
+
+#: core/templates/admin/nav_sidebar.html:77
+msgid "Advertising"
+msgstr "الإعلانات"
+
+#: core/templates/admin/nav_sidebar.html:79
+msgid "Sponsored Products"
+msgstr "المنتجات المروّجة"
+
+#: core/templates/admin/nav_sidebar.html:80
+msgid "Banner Ads"
+msgstr "الإعلانات المصوّرة"
+
+#: core/templates/admin/nav_sidebar.html:81
+msgid "Search Ads"
+msgstr "إعلانات البحث"
+
+#: core/templates/admin/nav_sidebar.html:82
+msgid "Brand Campaigns"
+msgstr "حملات العلامة التجارية"
+
+#: core/templates/admin/nav_sidebar.html:83
+msgid "Ad Campaigns"
+msgstr "الحملات الإعلانية"
+
+#: core/templates/admin/nav_sidebar.html:84
+msgid "Placements"
+msgstr "المواضع"
+
+#: core/templates/admin/nav_sidebar.html:85
+msgid "Ad Requests"
+msgstr "طلبات الإعلانات"
+
+#: core/templates/admin/nav_sidebar.html:86
+msgid "Budget Management"
+msgstr "إدارة الميزانية"
+
+#: core/templates/admin/nav_sidebar.html:87
+msgid "CPC Management"
+msgstr "إدارة تكلفة النقرة"
+
+#: core/templates/admin/nav_sidebar.html:88
+msgid "CPM Management"
+msgstr "إدارة تكلفة الألف ظهور"
+
+#: core/templates/admin/nav_sidebar.html:89
+msgid "CTR Analytics"
+msgstr "تحليلات نسبة النقر"
+
+#: core/templates/admin/nav_sidebar.html:90
+msgid "Conversion Reports"
+msgstr "تقارير التحويل"
+
+#: core/templates/admin/nav_sidebar.html:91
+msgid "Billing & Invoices"
+msgstr "الفوترة والفواتير"
+
+#: core/templates/admin/nav_sidebar.html:92
+msgid "Seller Ad Wallet"
+msgstr "محفظة إعلانات البائع"
+
+#: core/templates/admin/nav_sidebar.html:93
+msgid "AI Ad Optimization"
+msgstr "تحسين الإعلانات بالذكاء الاصطناعي"
+
+#: core/templates/admin/nav_sidebar.html:99
+msgid "Analytics"
+msgstr "التحليلات"
+
+#: core/templates/admin/nav_sidebar.html:105
+msgid "Platform Studio"
+msgstr "منصة الاستوديو"
+
+#: core/templates/admin/nav_sidebar.html:109
+msgid "Customize Site"
+msgstr "تخصيص الموقع"
+
+#: core/templates/admin/nav_sidebar.html:110
+msgid "Brand & Identity"
+msgstr "العلامة التجارية والهوية"
+
+#: core/templates/admin/nav_sidebar.html:111
+#: preferences/templates/preferences/settings.html:70
+msgid "Appearance"
+msgstr "المظهر"
+
+#: core/templates/admin/nav_sidebar.html:112
+msgid "Homepage"
+msgstr "الصفحة الرئيسية"
+
+#: core/templates/admin/nav_sidebar.html:113
+msgid "Header & Navigation"
+msgstr "الترويسة والتنقل"
+
+#: core/templates/admin/nav_sidebar.html:114
+msgid "Footer"
+msgstr "التذييل"
+
+#: core/templates/admin/nav_sidebar.html:115
+msgid "SEO & Analytics"
+msgstr "تحسين محركات البحث والتحليلات"
+
+#: core/templates/admin/nav_sidebar.html:116
+msgid "Contact Details"
+msgstr "بيانات التواصل"
+
+#: core/templates/admin/nav_sidebar.html:117
+msgid "Store Settings"
+msgstr "إعدادات المتجر"
+
+#: core/templates/admin/nav_sidebar.html:118
+msgid "Custom Code"
+msgstr "الكود المخصص"
+
+#: core/templates/admin/nav_sidebar.html:126
+#: shop/templates/shop/base/bottomnav.html:45
+#: shop/templates/shop/base/bottomnav.html:47
+#: shop/templates/shop/base/navbar.html:68
+#: shop/templates/shop/base/navbar.html:110
+#: shop/templates/shop/base/navbar.html:254
+msgid "Account"
+msgstr "الحساب"
+
+#: core/templates/admin/nav_sidebar.html:129
+#: notifications/templates/notifications/list.html:34
+#: preferences/templates/preferences/settings.html:6
+#: shop/templates/shop/base/navbar.html:102
+#: shop/templates/shop/base/navbar.html:137
+#: shop/templates/shop/base/navbar.html:269
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: core/templates/admin/nav_sidebar.html:133
+msgid "Help & Support"
+msgstr "المساعدة والدعم"
+
+#: core/templates/admin/nav_sidebar.html:142
+msgid "All Models"
+msgstr "جميع النماذج"
+
+#: core/templates/admin/nav_sidebar.html:145
+msgid "Start typing to filter…"
+msgstr "ابدأ الكتابة للتصفية…"
+
+#: core/templates/admin/nav_sidebar.html:146
+msgid "Filter navigation items"
+msgstr "تصفية عناصر التنقل"
+
+#: core/templates/admin/nav_sidebar.html:155
+msgid "Hide"
+msgstr "إخفاء"
+
+#: news/templates/news/detail.html:12
+msgid "All announcements"
+msgstr "جميع الإعلانات"
+
+#: news/templates/news/detail.html:34
+msgid "More updates"
+msgstr "مزيد من التحديثات"
+
+#: news/templates/news/detail.html:46
+#: notifications/templates/notifications/dropdown.html:21
+msgid "View all"
+msgstr "عرض الكل"
+
+#: news/templates/news/list.html:5
+msgid "News & Announcements"
+msgstr "الأخبار والإعلانات"
+
+#: news/templates/news/list.html:11
+msgid "News & Events"
+msgstr "الأخبار والفعاليات"
+
+#: news/templates/news/list.html:12
+msgid "Announcements"
+msgstr "الإعلانات"
+
+#: news/templates/news/list.html:13
+msgid ""
+"Stay up to date with the latest updates, events, and announcements from Shop-"
+"Seed."
+msgstr ""
+"ابقَ على اطلاع بأحدث التحديثات والفعاليات والإعلانات من Shop-Seed."
+
+#: news/templates/news/list.html:31
+msgid "Read more"
+msgstr "اقرأ المزيد"
+
+#: news/templates/news/list.html:37
+msgid "No announcements yet"
+msgstr "لا توجد إعلانات بعد"
+
+#: news/templates/news/list.html:38
+msgid "Check back soon for updates."
+msgstr "عد لاحقًا للاطلاع على التحديثات."
+
+#: news/templates/news/ticker.html:33
+msgid "All News"
+msgstr "كل الأخبار"
+
+#: notifications/templates/notifications/_item.html:13
+msgid "ago"
+msgstr "منذ"
+
+#: notifications/templates/notifications/_item.html:15
+msgid "Delete"
+msgstr "حذف"
+
+#: notifications/templates/notifications/_item.html:21
+msgid "No notifications here yet."
+msgstr "لا توجد إشعارات هنا بعد."
+
+#: notifications/templates/notifications/dropdown.html:3
+#: notifications/templates/notifications/dropdown.html:12
+#: notifications/templates/notifications/list.html:5
+#: notifications/templates/notifications/list.html:21
+#: shop/templates/shop/base/navbar.html:100
+#: shop/templates/shop/base/navbar.html:267
+msgid "Notifications"
+msgstr "الإشعارات"
+
+#: notifications/templates/notifications/dropdown.html:14
+#: notifications/templates/notifications/list.html:28
+msgid "Mark all read"
+msgstr "تحديد الكل كمقروء"
+
+#: notifications/templates/notifications/dropdown.html:22
+#: notifications/templates/notifications/settings.html:5
+#: notifications/templates/notifications/settings.html:21
+#: shop/templates/shop/base/navbar.html:101
+#: shop/templates/shop/base/navbar.html:268
+msgid "Notification Settings"
+msgstr "إعدادات الإشعارات"
+
+#: notifications/templates/notifications/list.html:19
+msgid "Inbox"
+msgstr "صندوق الوارد"
+
+#: notifications/templates/notifications/list.html:23
+msgid "Stay up to date with your orders, payments, shipping and more."
+msgstr "ابقَ على اطلاع بطلباتك ومدفوعاتك وشحناتك والمزيد."
+
+#: notifications/templates/notifications/list.html:31
+msgid "Clear read"
+msgstr "مسح المقروء"
+
+#: notifications/templates/notifications/list.html:43
+#: notifications/templates/notifications/settings.html:40
+#: preferences/templates/preferences/settings.html:31
+msgid "Saved!"
+msgstr "تم الحفظ!"
+
+#: notifications/templates/notifications/list.html:48
+msgid "Filter notifications"
+msgstr "تصفية الإشعارات"
+
+#: notifications/templates/notifications/list.html:49
+msgid "All"
+msgstr "الكل"
+
+#: notifications/templates/notifications/list.html:63
+msgid "Previous"
+msgstr "السابق"
+
+#: notifications/templates/notifications/list.html:65
+#, python-format
+msgid "%(start)s notification(s) total"
+msgstr "إجمالي %(start)s إشعارات"
+
+#: notifications/templates/notifications/list.html:67
+msgid "Next"
+msgstr "التالي"
+
+#: notifications/templates/notifications/settings.html:19
+#: shop/templates/shop/base/navbar.html:217
+#: shop/templates/shop/base/navbar.html:275
+msgid "Preferences"
+msgstr "التفضيلات"
+
+#: notifications/templates/notifications/settings.html:23
+msgid ""
+"Choose which types of notifications you want to receive. Turn a type off and "
+"we will stop sending it to your inbox."
+msgstr ""
+"اختر أنواع الإشعارات التي ترغب في تلقيها. أوقف نوعًا ما وسنتوقف عن إرساله إلى "
+"صندوق الوارد الخاص بك."
+
+#: notifications/templates/notifications/settings.html:31
+msgid "You are signed in as"
+msgstr "سجّلت الدخول باسم"
+
+#: notifications/templates/notifications/settings.html:32
+msgid "Account type"
+msgstr "نوع الحساب"
+
+#: notifications/templates/notifications/settings.html:53
+msgid "Receive"
+msgstr "استلام"
+
+#: notifications/templates/notifications/settings.html:53
+msgid "updates"
+msgstr "التحديثات"
+
+#: notifications/templates/notifications/settings.html:64
+msgid "Email summary"
+msgstr "ملخص البريد الإلكتروني"
+
+#: notifications/templates/notifications/settings.html:65
+msgid "Receive a daily digest of your unread notifications by email."
+msgstr "استلم ملخصًا يوميًا لإشعاراتك غير المقروءة عبر البريد الإلكتروني."
+
+#: notifications/templates/notifications/settings.html:73
+msgid "Back to Notifications"
+msgstr "العودة إلى الإشعارات"
+
+#: notifications/templates/notifications/settings.html:75
+msgid "Save Settings"
+msgstr "حفظ الإعدادات"
+
+#: notifications/views.py:66
+msgid "Your notification settings have been saved."
+msgstr "تم حفظ إعدادات الإشعارات الخاصة بك."
+
+#: preferences/templates/preferences/settings.html:18
+msgid "Personalize"
+msgstr "تخصيص"
+
+#: preferences/templates/preferences/settings.html:20
+msgid "Site Settings"
+msgstr "إعدادات الموقع"
+
+#: preferences/templates/preferences/settings.html:22
+msgid ""
+"Set how Shop-Seed looks and feels for you — theme, language, currency, font, "
+"text size and accent color."
+msgstr ""
+"حدّد مظهر Shop-Seed وشعوره — السمة واللغة والعملة والخط وحجم النص ولون "
+"التمييز."
+
+#: preferences/templates/preferences/settings.html:40
+msgid "Live preview"
+msgstr "معاينة مباشرة"
+
+#: preferences/templates/preferences/settings.html:41
+msgid "This is how your site will look"
+msgstr "هكذا سيبدو موقعك"
+
+#: preferences/templates/preferences/settings.html:46
+#: preferences/templates/preferences/settings.html:82
+msgid "Dark"
+msgstr "داكن"
+
+#: preferences/templates/preferences/settings.html:46
+#: preferences/templates/preferences/settings.html:78
+msgid "Light"
+msgstr "فاتح"
+
+#: preferences/templates/preferences/settings.html:58
+msgid "Shop Now"
+msgstr "تسوق الآن"
+
+#: preferences/templates/preferences/settings.html:59
+msgid "Preview of your chosen theme, font and accent."
+msgstr "معاينة للسمة والخط ولون التمييز الذي اخترته."
+
+#: preferences/templates/preferences/settings.html:71
+msgid "Choose between light and dark mode."
+msgstr "اختر بين الوضع الفاتح والداكن."
+
+#: preferences/templates/preferences/settings.html:92
+#: shop/templates/shop/base/navbar.html:74
+#: shop/templates/shop/base/navbar.html:116
+#: shop/templates/shop/base/navbar.html:219
+msgid "Language"
+msgstr "اللغة"
+
+#: preferences/templates/preferences/settings.html:93
+msgid "Pick the language for the site."
+msgstr "اختر لغة الموقع."
+
+#: preferences/templates/preferences/settings.html:105
+#: shop/templates/shop/base/navbar.html:82
+#: shop/templates/shop/base/navbar.html:124
+#: shop/templates/shop/base/navbar.html:225
+msgid "Currency"
+msgstr "العملة"
+
+#: preferences/templates/preferences/settings.html:106
+msgid "Prices will be converted to your chosen currency."
+msgstr "سيتم تحويل الأسعار إلى عملتك المختارة."
+
+#: preferences/templates/preferences/settings.html:112
+msgid "Sample:"
+msgstr "مثال:"
+
+#: preferences/templates/preferences/settings.html:117
+#, python-format
+msgid "Live rates updated %(updated)s UTC."
+msgstr "تم تحديث الأسعار المباشرة %(updated)s بتوقيت UTC."
+
+#: preferences/templates/preferences/settings.html:122
+msgid "Live rates unavailable right now — showing cached rates."
+msgstr "الأسعار المباشرة غير متاحة حاليًا — يتم عرض الأسعار المخزنة."
+
+#: preferences/templates/preferences/settings.html:132
+msgid "Font Style"
+msgstr "نمط الخط"
+
+#: preferences/templates/preferences/settings.html:133
+msgid "Change the typography across the site."
+msgstr "غيّر الطباعة عبر الموقع."
+
+#: preferences/templates/preferences/settings.html:152
+msgid "Text Size"
+msgstr "حجم النص"
+
+#: preferences/templates/preferences/settings.html:153
+msgid "Make text smaller or larger for comfortable reading."
+msgstr "اجعل النص أصغر أو أكبر لقراءة مريحة."
+
+#: preferences/templates/preferences/settings.html:172
+msgid "Accent Color"
+msgstr "لون التمييز"
+
+#: preferences/templates/preferences/settings.html:173
+msgid "Tint buttons, links and highlights."
+msgstr "لوّن الأزرار والروابط والتمييزات."
+
+#: preferences/templates/preferences/settings.html:190
+msgid "Reset to Defaults"
+msgstr "إعادة التعيين إلى الافتراضي"
+
+#: preferences/templates/preferences/settings.html:194
+msgid "Save Preferences"
+msgstr "حفظ التفضيلات"
+
+#: preferences/views.py:126
+msgid "Your preferences have been reset to defaults."
+msgstr "تمت إعادة تعيين تفضيلاتك إلى الافتراضي."
+
+#: preferences/views.py:134
+msgid "Your preferences have been saved."
+msgstr "تم حفظ تفضيلاتك."
+
+#: shop/templates/shop/base/base.html:53
+msgid "Skip to content"
+msgstr "تخطَّ إلى المحتوى"
+
+#: shop/templates/shop/base/bottomnav.html:3
+msgid "Bottom navigation"
+msgstr "التنقل السفلي"
+
+#: shop/templates/shop/base/bottomnav.html:4
+#: shop/templates/shop/base/bottomnav.html:6
+#: shop/templates/shop/base/navbar.html:15
+#: shop/templates/shop/base/navbar.html:233
+msgid "Home"
+msgstr "الرئيسية"
+
+#: shop/templates/shop/base/bottomnav.html:9
+msgid "Shop &amp; Deals"
+msgstr "التسوق والعروض"
+
+#: shop/templates/shop/base/bottomnav.html:11
+#: shop/templates/shop/base/bottomnav.html:20
+#: shop/templates/shop/base/footer.html:37
+#: shop/templates/shop/base/navbar.html:16
+#: shop/templates/shop/base/navbar.html:234
+msgid "Shop"
+msgstr "تسوق"
+
+#: shop/templates/shop/base/bottomnav.html:15
+msgid "Shop and Deals"
+msgstr "التسوق والعروض"
+
+#: shop/templates/shop/base/bottomnav.html:16
+msgid "Browse"
+msgstr "تصفّح"
+
+#: shop/templates/shop/base/bottomnav.html:21
+msgid "All products and categories"
+msgstr "جميع المنتجات والفئات"
+
+#: shop/templates/shop/base/bottomnav.html:28
+#: shop/templates/shop/base/navbar.html:18
+msgid "Deals"
+msgstr "العروض"
+
+#: shop/templates/shop/base/bottomnav.html:29
+msgid "Today's best offers"
+msgstr "أفضل عروض اليوم"
+
+#: shop/templates/shop/base/bottomnav.html:34
+#: shop/templates/shop/base/bottomnav.html:36
+#: shop/templates/shop/base/navbar.html:30
+msgid "Blog"
+msgstr "المدونة"
+
+#: shop/templates/shop/base/bottomnav.html:38
+#: shop/templates/shop/base/bottomnav.html:40
+msgid "Cart"
+msgstr "سلة التسوق"
+
+#: shop/templates/shop/base/footer.html:19
+msgid "Enter your email"
+msgstr "أدخل بريدك الإلكتروني"
+
+#: shop/templates/shop/base/footer.html:20
+msgid "Subscribe"
+msgstr "اشترك"
+
+#: shop/templates/shop/base/footer.html:41
+msgid "All Products"
+msgstr "جميع المنتجات"
+
+#: shop/templates/shop/base/footer.html:42
+#: shop/templates/shop/base/navbar.html:236
+msgid "Today's Deals"
+msgstr "عروض اليوم"
+
+#: shop/templates/shop/base/footer.html:43
+#: shop/templates/shop/base/navbar.html:24
+#: shop/templates/shop/base/navbar.html:239
+msgid "Best Sellers"
+msgstr "الأكثر مبيعًا"
+
+#: shop/templates/shop/base/footer.html:44
+msgid "New Arrivals"
+msgstr "الوصلات الجديدة"
+
+#: shop/templates/shop/base/footer.html:45
+msgid "Categories"
+msgstr "الفئات"
+
+#: shop/templates/shop/base/footer.html:53
+msgid "Support"
+msgstr "الدعم"
+
+#: shop/templates/shop/base/footer.html:57
+#: shop/templates/shop/base/navbar.html:250
+msgid "Contact Us"
+msgstr "اتصل بنا"
+
+#: shop/templates/shop/base/footer.html:58
+#: shop/templates/shop/base/navbar.html:251
+msgid "FAQ"
+msgstr "الأسئلة الشائعة"
+
+#: shop/templates/shop/base/footer.html:59
+#: shop/templates/shop/base/navbar.html:27
+msgid "Services"
+msgstr "الخدمات"
+
+#: shop/templates/shop/base/footer.html:60
+msgid "Shipping Info"
+msgstr "معلومات الشحن"
+
+#: shop/templates/shop/base/footer.html:69
+msgid "Company"
+msgstr "الشركة"
+
+#: shop/templates/shop/base/footer.html:73
+msgid "About Us"
+msgstr "من نحن"
+
+#: shop/templates/shop/base/footer.html:74
+msgid "Sell With Us"
+msgstr "بيع معنا"
+
+#: shop/templates/shop/base/footer.html:75
+msgid "Join Shop-Seed"
+msgstr "انضم إلى Shop-Seed"
+
+#: shop/templates/shop/base/footer.html:76
+msgid "Documentation"
+msgstr "التوثيق"
+
+#: shop/templates/shop/base/footer.html:77
+msgid "Privacy Policy"
+msgstr "سياسة الخصوصية"
+
+#: shop/templates/shop/base/footer.html:78
+msgid "Terms of Service"
+msgstr "شروط الخدمة"
+
+#: shop/templates/shop/base/navbar.html:4
+msgid "Main navigation"
+msgstr "التنقل الرئيسي"
+
+#: shop/templates/shop/base/navbar.html:9
+#: shop/templates/shop/base/navbar.html:154
+msgid "Shop-Seed home"
+msgstr "الرئيسية Shop-Seed"
+
+#: shop/templates/shop/base/navbar.html:21
+#: shop/templates/shop/base/navbar.html:248
+msgid "About"
+msgstr "حول"
+
+#: shop/templates/shop/base/navbar.html:37
+#: shop/templates/shop/base/navbar.html:183
+msgid "Search products"
+msgstr "ابحث عن منتجات"
+
+#: shop/templates/shop/base/navbar.html:42
+#: shop/templates/shop/base/navbar.html:160
+msgid "Toggle theme"
+msgstr "بدّل السمة"
+
+#: shop/templates/shop/base/navbar.html:42
+#: shop/templates/shop/base/navbar.html:160
+msgid "Toggle dark mode"
+msgstr "بدّل الوضع الداكن"
+
+#: shop/templates/shop/base/navbar.html:52
+#: shop/templates/shop/base/navbar.html:165
+msgid "Wishlist"
+msgstr "قائمة الرغبات"
+
+#: shop/templates/shop/base/navbar.html:57
+#: shop/templates/shop/base/navbar.html:169
+msgid "Shopping cart"
+msgstr "سلة التسوق"
+
+#: shop/templates/shop/base/navbar.html:68
+#: shop/templates/shop/base/navbar.html:110
+msgid "Account menu"
+msgstr "قائمة الحساب"
+
+#: shop/templates/shop/base/navbar.html:96
+#: shop/templates/shop/base/navbar.html:263
+msgid "Admin"
+msgstr "الإدارة"
+
+#: shop/templates/shop/base/navbar.html:98
+#: shop/templates/shop/base/navbar.html:265
+msgid "Your Profile"
+msgstr "ملفك الشخصي"
+
+#: shop/templates/shop/base/navbar.html:99
+#: shop/templates/shop/base/navbar.html:266
+msgid "Returns & Orders"
+msgstr "الإرجاع والطلبات"
+
+#: shop/templates/shop/base/navbar.html:104
+#: shop/templates/shop/base/navbar.html:270
+msgid "Logout"
+msgstr "تسجيل الخروج"
+
+#: shop/templates/shop/base/navbar.html:134
+#: shop/templates/shop/base/navbar.html:272
+msgid "Sign In"
+msgstr "تسجيل الدخول"
+
+#: shop/templates/shop/base/navbar.html:135
+#: shop/templates/shop/base/navbar.html:273
+msgid "Create Account"
+msgstr "إنشاء حساب"
+
+#: shop/templates/shop/base/navbar.html:148
+msgid "Open menu"
+msgstr "فتح القائمة"
+
+#: shop/templates/shop/base/navbar.html:193
+msgid "Menu"
+msgstr "القائمة"
+
+#: shop/templates/shop/base/navbar.html:195
+msgid "Close menu"
+msgstr "إغلاق القائمة"
+
+#: shop/templates/shop/base/navbar.html:209
+msgid "Sign In / Sign Up"
+msgstr "تسجيل الدخول / الاشتراك"
+
+#: shop/templates/shop/base/navbar.html:210
+msgid "Access your account"
+msgstr "الوصول إلى حسابك"
+
+#: shop/templates/shop/base/navbar.html:242
+msgid "Market Blog"
+msgstr "مدونة المتجر"
+
+#: shop/templates/shop/base/navbar.html:245
+msgid "Customer Services"
+msgstr "خدمات العملاء"
+
+#: shop/templates/shop/base/navbar.html:260
+msgid "Become a Seller"
+msgstr "كن بائعًا"
+
+#: shop/templates/shop/base/navbar.html:274
+msgid "Sellers Registration"
+msgstr "تسجيل البائعين"

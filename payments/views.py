@@ -1,49 +1,24 @@
+import json
 import logging
-import razorpay
-import hmac
-import hashlib
 
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponseBadRequest
+
 from order.models import Order
+
 from .models import Payment
-from notifications.models import Notification
-from notifications.services import notify
+from .services import (
+    get_razorpay_client,
+    finalize_payment,
+    mark_payment_failed,
+    verify_callback_signature,
+    verify_webhook_signature,
+)
 
 logger = logging.getLogger(__name__)
-
-
-def trigger_fulfilment(order):
-    """Run the LMS fulfilment pipeline for a freshly paid order.
-
-    Best effort — a courier failure must never roll back a successful payment.
-    """
-    try:
-        from logistics.services.fulfillment import FulfillmentService
-        shipments = FulfillmentService.create_shipments_for_order(order)
-        if shipments:
-            names = ', '.join(s.shipment_number for s in shipments)
-            notify(
-                order.user,
-                Notification.Category.SHIPPING,
-                f'Shipment created for order #{order.id}',
-                f'Your order is being packed. AWB(s): {names}. Track it anytime.',
-                link=f'/logistics/track/?q={shipments[0].shipment_number}',
-                icon='truck-fast',
-            )
-        return shipments
-    except Exception as exc:
-        logger.error('Fulfilment failed for order %s: %s', order.id, exc, exc_info=True)
-        return []
-
-
-def get_razorpay_client():
-    return razorpay.Client(
-        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-    )
 
 
 @login_required
@@ -53,22 +28,38 @@ def checkout(request, order_id):
     if order.paid:
         return redirect('payments:success', order_id=order.id)
 
-    if hasattr(order, 'payment'):
-        payment = order.payment
-    else:
-        client = get_razorpay_client()
-        amount_paise = int(order.get_total_cost() * 100)
+    client = get_razorpay_client()
+    amount = order.get_total_cost()
+
+    payment = getattr(order, 'payment', None)
+
+    # A stale 'created' order (user left mid-checkout) or a failed attempt must
+    # get a *fresh* Razorpay order so retries never reuse a dead token.
+    needs_new = (
+        payment is None
+        or payment.status == 'failed'
+        or payment.status == 'created'
+    )
+    if needs_new:
         razorpay_order = client.order.create({
-            'amount': amount_paise,
+            'amount': int(amount * 100),
             'currency': 'INR',
             'payment_capture': '1',
         })
-        payment = Payment.objects.create(
-            order=order,
-            razorpay_order_id=razorpay_order['id'],
-            amount=order.get_total_cost(),
-            currency='INR',
-        )
+        if payment is None:
+            payment = Payment.objects.create(
+                order=order,
+                razorpay_order_id=razorpay_order['id'],
+                amount=amount,
+                currency='INR',
+            )
+        else:
+            payment.razorpay_order_id = razorpay_order['id']
+            payment.razorpay_payment_id = ''
+            payment.razorpay_signature = ''
+            payment.amount = amount
+            payment.status = 'created'
+            payment.save()
 
     context = {
         'order': order,
@@ -97,54 +88,73 @@ def payment_callback(request):
     except Payment.DoesNotExist:
         return HttpResponseBadRequest('Invalid payment')
 
-    expected_signature = hmac.new(
-        settings.RAZORPAY_KEY_SECRET.encode(),
-        f"{razorpay_order_id}|{razorpay_payment_id}".encode(),
-        hashlib.sha256
-    ).hexdigest()
-
-    if expected_signature != razorpay_signature:
-        payment.status = 'failed'
-        payment.save()
-        notify(
-            payment.order.user,
-            Notification.Category.PAYMENT,
-            f'Payment failed for order #{payment.order.id}',
-            'Your payment could not be processed. Please try again or use a different payment method.',
-            link=reverse('payments:checkout', args=[payment.order.id]),
-            icon='credit-card',
-        )
+    if not verify_callback_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
+        mark_payment_failed(payment)
         return redirect('payments:error', order_id=payment.order.id)
 
-    payment.razorpay_payment_id = razorpay_payment_id
-    payment.razorpay_signature = razorpay_signature
-    payment.status = 'captured'
-    payment.save()
+    finalize_payment(payment, razorpay_payment_id, razorpay_signature)
+    return redirect('payments:success', order_id=payment.order.id)
 
-    order = payment.order
-    order.paid = True
-    if order.status == Order.Status.PENDING:
-        order.status = Order.Status.PROCESSING
-    order.save()
 
-    trigger_fulfilment(order)
+@csrf_exempt
+def payment_webhook(request):
+    """Razorpay webhook. Idempotent — safe even if delivered more than once."""
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Invalid request method')
 
-    notify(
-        order.user,
-        Notification.Category.PAYMENT,
-        f'Payment received for order #{order.id}',
-        f'Your payment of {payment.amount} {payment.currency} was successful. Thank you for shopping with Shop-Seed!',
-        link=reverse('order:my_orders'),
-        icon='credit-card',
-    )
+    signature = request.META.get('HTTP_X_RAZORPAY_SIGNATURE', '')
+    raw_body = request.body.decode('utf-8')
+    if not verify_webhook_signature(raw_body, signature):
+        return HttpResponse('Invalid signature', status=400)
 
-    return redirect('payments:success', order_id=order.id)
+    try:
+        event = json.loads(raw_body)
+        entity = event.get('payload', {}).get('payment', {}).get('entity', {})
+        razorpay_order_id = entity.get('order_id')
+        razorpay_payment_id = entity.get('id')
+    except (ValueError, AttributeError):
+        return HttpResponseBadRequest('Invalid payload')
+
+    if not razorpay_order_id or not razorpay_payment_id:
+        return HttpResponse('No order/payment id', status=200)
+
+    event_name = event.get('event')
+    try:
+        payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+    except Payment.DoesNotExist:
+        logger.warning('Webhook for unknown order %s', razorpay_order_id)
+        return HttpResponse('Unknown order', status=200)
+
+    if event_name in ('payment.captured', 'order.paid'):
+        finalize_payment(payment, razorpay_payment_id)
+    elif event_name == 'payment.failed':
+        mark_payment_failed(payment, 'Payment was declined by your bank / card issuer.')
+
+    return HttpResponse('OK', status=200)
 
 
 @login_required
 def payment_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    return render(request, 'payments/success.html', {'order': order})
+    payment = getattr(order, 'payment', None)
+
+    if not order.paid and payment:
+        # The user landed here without a verified capture (page refresh after the
+        # redirect, or the callback never returned). Confirm with the gateway
+        # before trusting the screen.
+        try:
+            razorpay_payment_id = payment.razorpay_payment_id
+            client = get_razorpay_client()
+            detail = client.payment.fetch(razorpay_payment_id) if razorpay_payment_id else None
+            if detail and detail.get('status') == 'captured':
+                finalize_payment(payment, detail['id'])
+            else:
+                return redirect('payments:checkout', order_id=order.id)
+        except Exception as exc:
+            logger.error('Success-page verification failed for order %s: %s', order.id, exc, exc_info=True)
+            return redirect('payments:checkout', order_id=order.id)
+
+    return render(request, 'payments/success.html', {'order': order, 'payment': payment})
 
 
 @login_required

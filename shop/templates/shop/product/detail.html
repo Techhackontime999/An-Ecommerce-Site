@@ -207,7 +207,6 @@
           <span data-avail-label>{% if first_available_variant %}{% if first_available_variant.stock %}In Stock{% else %}Currently unavailable{% endif %}{% else %}In Stock{% endif %}</span>
         </div>
 
-        {% if user.is_authenticated %}
         <div class="pdp-qty-row">
           <span class="pdp-qty-label">Quantity:</span>
           <select name="quantity" id="pdp-qty" class="pdp-qty" aria-label="Quantity">
@@ -235,11 +234,14 @@
             <i class="fas fa-bolt"></i><span>Buy Now</span>
           </button>
         </form>
-        {% else %}
-        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="pdp-btn pdp-btn-add">
-          <i class="fas fa-sign-in-alt"></i><span>Login to Purchase</span>
-        </a>
-        {% endif %}
+
+        <form action="{% url 'wishlist:toggle' product.id %}" method="post" style="margin-top:0.75rem;">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <button type="submit" class="pdp-btn pdp-btn-outline" style="width:100%;justify-content:center;">
+            <i class="fas fa-heart"></i><span>Add to Wishlist</span>
+          </button>
+        </form>
 
         <div class="pdp-trust">
           <i class="fas fa-shield-alt"></i>

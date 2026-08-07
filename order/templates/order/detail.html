@@ -1,0 +1,262 @@
+{% extends "shop/base/base.html" %}
+{% load preference_extras %}
+{% block title %}Order {{ order.order_number }} — Shop-Seed{% endblock %}
+
+{% block extra_css %}
+<style>
+  .od-page { position: relative; padding: 3rem 0 5rem; overflow: hidden; }
+  .od-page::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(800px 420px at 12% 0%, var(--aq-accent-glow), transparent 60%),
+      radial-gradient(720px 420px at 88% 0%, rgba(30, 64, 175, 0.06), transparent 60%);
+  }
+  .od-wrap { position: relative; max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+  .od-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.75rem; }
+  .od-title { margin: 0; font-size: clamp(1.5rem, 3.5vw, 2rem); font-weight: 800; color: var(--aq-ink); letter-spacing: -.02em; }
+  .od-title .od-id { color: var(--aq-accent); }
+  .od-sub { margin: .35rem 0 0; color: var(--aq-tertiary); font-size: .95rem; display: flex; align-items: center; gap: .5rem; }
+  .od-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+
+  .od-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 880px) { .od-grid { grid-template-columns: 1fr; } }
+
+  .od-card {
+    background: var(--aq-surface); border: 1px solid var(--aq-border);
+    border-radius: var(--aq-radius-lg); overflow: hidden;
+  }
+  .od-card-head {
+    padding: 1.1rem 1.4rem; border-bottom: 1px solid var(--aq-border);
+    display: flex; align-items: center; gap: .6rem;
+    font-weight: 700; color: var(--aq-ink); font-size: 1rem;
+  }
+  .od-card-head i { color: var(--aq-accent); }
+  .od-card-body { padding: 1.4rem; }
+
+  .od-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .35rem .85rem; border-radius: 999px; font-size: .78rem; font-weight: 600;
+  }
+  .od-chip-paid { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+  .od-chip-pending { background: rgba(234, 179, 8, 0.14); color: #CA8A04; }
+  .od-chip-delivered { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+  .od-chip-shipped { background: rgba(30, 64, 175, 0.1); color: var(--aq-blue); }
+  .od-chip-transit { background: rgba(8, 145, 178, 0.12); color: #0E7490; }
+  .od-chip-failed { background: rgba(225, 29, 72, 0.12); color: #BE123C; }
+  .od-chip-refunded { background: rgba(124, 58, 237, 0.12); color: #7C3AED; }
+  .od-chip-processing { background: rgba(8, 145, 178, 0.12); color: #0E7490; }
+  .od-chip-other { background: rgba(100, 116, 139, 0.12); color: var(--aq-tertiary); }
+
+  .od-items { display: flex; flex-direction: column; gap: 1rem; }
+  .od-item { display: flex; align-items: center; gap: 1rem; }
+  .od-thumb {
+    width: 64px; height: 64px; border-radius: 12px; flex-shrink: 0;
+    background: var(--aq-canvas); border: 1px solid var(--aq-border);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .od-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .od-thumb i { color: var(--aq-tertiary); font-size: 1.3rem; }
+  .od-item-link { font-weight: 600; color: var(--aq-ink); text-decoration: none; }
+  .od-item-link:hover { color: var(--aq-accent); }
+  .od-item-meta { font-size: .8rem; color: var(--aq-tertiary); margin-top: .2rem; }
+  .od-item-price { margin-left: auto; text-align: right; font-weight: 700; color: var(--aq-ink); }
+  .od-item-qty { font-weight: 400; font-size: .8rem; color: var(--aq-tertiary); }
+
+  .od-row { display: flex; justify-content: space-between; align-items: center; padding: .45rem 0; font-size: .95rem; color: var(--aq-secondary); }
+  .od-row.disc { color: #16A34A; }
+  .od-row.tax { color: var(--aq-secondary); }
+  .od-total { display: flex; justify-content: space-between; align-items: center; margin-top: .5rem; padding-top: .9rem; border-top: 1px solid var(--aq-border); }
+  .od-total-label { font-weight: 700; color: var(--aq-ink); }
+  .od-total-value { font-size: 1.4rem; font-weight: 800; color: var(--aq-ink); }
+
+  .od-addr-line { display: flex; gap: .7rem; align-items: flex-start; margin-bottom: .75rem; color: var(--aq-secondary); font-size: .95rem; }
+  .od-addr-line i { color: var(--aq-accent); margin-top: .2rem; width: 16px; text-align: center; }
+  .od-addr-line b { color: var(--aq-ink); }
+
+  .od-btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .72rem 1.4rem; border-radius: 999px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--aq-accent), var(--aq-accent-light));
+    color: #fff; font-weight: 600; font-size: .875rem; text-decoration: none;
+    box-shadow: 0 10px 24px var(--aq-accent-glow); transition: var(--aq-transition);
+  }
+  .od-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px var(--aq-accent-glow); color: #fff; text-decoration: none; }
+  .od-btn-outline { background: transparent; color: var(--aq-accent); border: 1px solid var(--aq-accent-glow); box-shadow: none; }
+  .od-btn-outline:hover { background: var(--aq-accent-subtle); color: var(--aq-accent); box-shadow: none; }
+  .od-btn-danger {
+    background: transparent; color: #BE123C; border: 1px solid rgba(225, 29, 72, 0.35); box-shadow: none;
+  }
+  .od-btn-danger:hover { background: rgba(225, 29, 72, 0.08); color: #BE123C; }
+
+  .od-reason { margin-top: .9rem; }
+  .od-reason textarea {
+    width: 100%; padding: .6rem .8rem; border-radius: var(--aq-radius-md);
+    border: 1px solid var(--aq-border); background: var(--aq-canvas);
+    color: var(--aq-ink); font-family: inherit; font-size: .875rem; resize: vertical;
+  }
+  .od-cancel-box { border-top: 1px dashed var(--aq-border); margin-top: 1rem; padding-top: 1rem; }
+  .od-cancel-box p { margin: 0 0 .6rem; font-size: .85rem; color: var(--aq-tertiary); }
+
+  .od-status-note { margin-top: 1.1rem; padding: .8rem 1rem; border-radius: var(--aq-radius-md); font-size: .85rem; }
+  .od-status-note i { margin-right: .4rem; }
+  .od-status-note.cancelled { background: rgba(225, 29, 72, 0.08); color: #BE123C; }
+  .od-status-note.info { background: var(--aq-accent-subtle); color: var(--aq-accent); }
+
+  .od-back { display: inline-flex; align-items: center; gap: .5rem; color: var(--aq-accent); text-decoration: none; font-weight: 600; font-size: .9rem; margin-bottom: 1.25rem; }
+  .od-back:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="od-page">
+  <div class="od-wrap">
+    <a href="{% url 'order:my_orders' %}" class="od-back"><i class="fas fa-arrow-left"></i> Back to My Orders</a>
+
+    <header class="od-head">
+      <div>
+        <h1 class="od-title">Order <span class="od-id">{{ order.order_number }}</span></h1>
+        <div class="od-sub">
+          <i class="fas fa-calendar-day"></i> Placed {{ order.created|date:"F j, Y" }}
+        </div>
+      </div>
+      <div class="od-actions">
+        <a href="{% url 'order:order_invoice' order.id %}" class="od-btn od-btn-outline">
+          <i class="fas fa-file-invoice"></i> Download Invoice
+        </a>
+        {% if order.cancelable %}
+        <a href="#cancel" class="od-btn od-btn-danger"><i class="fas fa-ban"></i> Cancel Order</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="od-grid">
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <article class="od-card">
+          <div class="od-card-head"><i class="fas fa-box-open"></i> Items</div>
+          <div class="od-card-body">
+            <div class="od-items">
+              {% for item in order.items.all %}
+              <div class="od-item">
+                <div class="od-thumb">
+                  {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                  {% else %}
+                  <i class="fas fa-box"></i>
+                  {% endif %}
+                </div>
+                <div>
+                  <a href="{{ item.product.get_absolute_url }}" class="od-item-link">{{ item.product.name }}</a>
+                  <div class="od-item-meta">
+                    {% if item.variant_name %}{{ item.variant_name }} · {% endif %}{{ item.product.brand|default:"Shop-Seed" }}
+                  </div>
+                </div>
+                <div class="od-item-price">
+                  {% price item.get_cost %}
+                  <div class="od-item-qty">Qty: {{ item.quantity }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </article>
+
+        <article class="od-card">
+          <div class="od-card-head"><i class="fas fa-truck-fast"></i> Shipping</div>
+          <div class="od-card-body">
+            <div class="od-addr-line"><i class="fas fa-user"></i><span><b>{{ order.first_name }} {{ order.last_name }}</b></span></div>
+            <div class="od-addr-line"><i class="fas fa-location-dot"></i><span>{{ order.address }}<br>{{ order.city }}{% if order.state %}, {{ order.state }}{% endif %}{% if order.postal_code %} — {{ order.postal_code }}{% endif %}<br>{{ order.country }}</span></div>
+            {% if order.phone %}<div class="od-addr-line"><i class="fas fa-phone"></i><span>{{ order.phone }}</span></div>{% endif %}
+            {% if order.shipping_method_name %}<div class="od-addr-line"><i class="fas fa-truck"></i><span>{{ order.shipping_method_name }}</span></div>{% endif %}
+
+            <div class="od-status-note {% if order.status == 'cancelled' or order.status == 'refunded' %}cancelled{% else %}info{% endif %}">
+              {% if order.status == 'cancelled' %}
+              <i class="fas fa-ban"></i> This order was cancelled.
+              {% elif order.status == 'refunded' %}
+              <i class="fas fa-rotate-left"></i> This order was refunded.
+              {% else %}
+              <i class="fas fa-info-circle"></i> Status: <b>{{ order.get_status_display }}</b>
+              {% endif %}
+            </div>
+
+            <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.75rem;">
+              {% if order.tl_shipment %}
+              <a href="{% url 'logistics:tracking_detail' order.tl_shipment.tracking_number|default:order.tl_shipment.shipment_number %}" class="od-btn od-btn-outline">
+                <i class="fas fa-location-dot"></i> Track Order
+              </a>
+              {% else %}
+              <a href="{% url 'shipping:order_tracking' order.id %}" class="od-btn od-btn-outline">
+                <i class="fas fa-location-dot"></i> Track Order
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+
+        {% if order.cancelable %}
+        <article class="od-card" id="cancel">
+          <div class="od-card-head" style="color:#BE123C;"><i class="fas fa-ban"></i> Cancel Order</div>
+          <div class="od-card-body">
+            <div class="od-cancel-box">
+              <p>You can cancel this order before it ships. If you've already paid, the full amount will be refunded.</p>
+              <form method="post" action="{% url 'order:order_cancel' order.id %}" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                {% csrf_token %}
+                <div class="od-reason">
+                  <textarea name="reason" rows="2" maxlength="300" placeholder="Reason for cancellation (optional)"></textarea>
+                </div>
+                <button type="submit" class="od-btn od-btn-danger" style="margin-top:.9rem;">
+                  <i class="fas fa-ban"></i> Cancel Order
+                </button>
+              </form>
+            </div>
+          </div>
+        </article>
+        {% endif %}
+      </div>
+
+      <aside style="display:flex;flex-direction:column;gap:1.5rem;">
+        <article class="od-card">
+          <div class="od-card-head"><i class="fas fa-receipt"></i> Payment Summary</div>
+          <div class="od-card-body">
+            <div class="od-row">
+              <span>Subtotal</span>
+              <span>{% price totals.subtotal %}</span>
+            </div>
+            <div class="od-row">
+              <span>Shipping</span>
+              <span>{% price totals.shipping %}</span>
+            </div>
+            {% if totals.discount %}
+            <div class="od-row disc">
+              <span><i class="fas fa-tag"></i> Discount</span>
+              <span>- {% price totals.discount %}</span>
+            </div>
+            {% endif %}
+            <div class="od-row tax">
+              <span>Tax (GST {{ totals.tax_rate|floatformat:"0" }}%)</span>
+              <span>{% price totals.tax %}</span>
+            </div>
+            <div class="od-total">
+              <span class="od-total-label">Total</span>
+              <span class="od-total-value">{% price totals.total %}</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="od-card">
+          <div class="od-card-head"><i class="fas fa-credit-card"></i> Payment Status</div>
+          <div class="od-card-body">
+            <div class="od-addr-line"><i class="fas fa-circle-check"></i><span>{% if order.paid %}Paid{% else %}Payment pending{% endif %}</span></div>
+            {% if payment %}
+            <div class="od-addr-line"><i class="fas fa-hashtag"></i><span>{{ payment.get_status_display }}</span></div>
+            <div class="od-addr-line"><i class="fas fa-money-bill-wave"></i><span>{{ payment.currency }} {% price payment.amount %}</span></div>
+            {% endif %}
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem;">
+              <a href="{% url 'order:order_invoice' order.id %}" class="od-btn"><i class="fas fa-download"></i> Invoice PDF</a>
+            </div>
+          </div>
+        </article>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -5,11 +5,9 @@ from shop.models import Product, ProductVariant
 from .cart import Cart
 from .forms import CartAddProductForm
 from coupons.forms import CouponApplyForm
-from django.contrib.auth.decorators import login_required
 
 
 @require_POST
-@login_required
 def cart_add(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
@@ -50,7 +48,6 @@ def cart_add(request, product_id):
     return redirect('cart:cart_detail')
 
 
-@login_required
 def cart_remove(request, product_id, variant_id=None):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
@@ -58,7 +55,6 @@ def cart_remove(request, product_id, variant_id=None):
     return redirect('cart:cart_detail')
 
 
-@login_required
 def cart_detail(request):
     cart = Cart(request)
     for item in cart:

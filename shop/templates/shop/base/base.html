@@ -1,8 +1,9 @@
 {% load static %}
 {% load i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
 <!DOCTYPE html>
-<html lang="{{ CURRENT_LANGUAGE }}" data-theme="{{ user_prefs.theme|default:'light' }}" data-font="{{ user_prefs.font_style|default:'default' }}" data-accent="{{ user_prefs.accent|default:'orange' }}" data-size="{{ user_prefs.text_size|default:'regular' }}">
+<html lang="{{ CURRENT_LANGUAGE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" data-theme="{{ user_prefs.theme|default:'light' }}" data-font="{{ user_prefs.font_style|default:'default' }}" data-accent="{{ user_prefs.accent|default:'orange' }}" data-size="{{ user_prefs.text_size|default:'regular' }}">
 <head>
     <title>{% block title %}{{ platform_settings.site_name }} — {{ platform_settings.site_tagline }}{% endblock %}</title>
     <meta charset="utf-8">
@@ -24,7 +25,7 @@
     {{ platform_settings.custom_header_html|safe }}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Comic+Neue:wght@400;700&family=Caveat:wght@400;600;700&family=Baloo+2:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Comic+Neue:wght@400;700&family=Caveat:wght@400;600;700&family=Baloo+2:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
     <link rel="stylesheet" href="{% static "css/aquastic.css" %}">
@@ -35,6 +36,7 @@
     <link rel="stylesheet" href="{% static "css/aos.css" %}">
     <link rel="stylesheet" href="{% static "notifications/css/notifications.css" %}">
     <link rel="stylesheet" href="{% static "css/design-system.css" %}">
+    <link rel="stylesheet" href="{% static "css/rtl.css" %}">
     <link rel="stylesheet" href="{% static "css/product-loader.css" %}?v=2">
     {% block extra_css %}{% endblock %}
     <style>

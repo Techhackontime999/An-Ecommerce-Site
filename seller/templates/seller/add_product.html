@@ -71,6 +71,12 @@
               <p class="sp-help">The amount buyers pay for this item.</p>
               {% for error in form.price.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
             </div>
+            <div class="sl-col-4 sp-field">
+              <label class="sp-label" for="{{ form.stock.id_for_label }}">Stock</label>
+              {{ form.stock }}
+              <p class="sp-help">Units available for products sold without variants.</p>
+              {% for error in form.stock.errors %}<p class="sp-error">{{ error }}</p>{% endfor %}
+            </div>
             <div class="sl-col-8 sp-field">
               <label class="sp-label" for="{{ form.brand.id_for_label }}">Brand</label>
               {{ form.brand }}

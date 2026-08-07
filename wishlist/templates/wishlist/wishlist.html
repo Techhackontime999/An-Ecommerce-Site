@@ -1,0 +1,79 @@
+{% extends "shop/base/base.html" %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<section class="section-aq" style="padding-top:6rem;min-height:60vh;">
+  <div class="container-aq">
+    <div class="myo-head">
+      <div>
+        <h1 style="font-size:1.5rem;font-weight:600;margin-bottom:0.25rem;">
+          <i class="fas fa-heart" style="color:var(--aq-accent);"></i> My Wishlist
+        </h1>
+        <p class="myo-sub">Products you've saved for later. No payment needed until you check out.</p>
+      </div>
+    </div>
+
+    {% if items %}
+    <div class="products-aq-grid" id="wishlist-grid" data-layout="4col">
+      {% for item in items %}
+      {% with product=item.product %}
+      <div class="product-aq-card fade-up">
+        <a href="{{ product.get_absolute_url }}" style="text-decoration:none;color:inherit;">
+          <div class="product-aq-image">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.images.all %}
+            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+            {% else %}
+            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:2.5rem;">
+              <i class="fas fa-box-open"></i>
+            </div>
+            {% endif %}
+            {% if product.current_price and product.current_price < product.price %}
+            <span class="product-aq-tag sale">Sale</span>
+            {% endif %}
+          </div>
+          <div class="product-aq-body">
+            <h3>{{ product.name }}</h3>
+            <p class="desc">{{ product.description|safe|truncatewords:12 }}</p>
+            <div class="product-aq-price">
+              {% if product.current_price and product.current_price != product.price %}
+              <span>{% load preference_extras %}{% price product.current_price %}</span>
+              <span class="original">{% price product.price %}</span>
+              {% else %}
+              <span>{% load preference_extras %}{% price product.price %}</span>
+              {% endif %}
+            </div>
+            <div class="product-aq-actions" style="gap:0.5rem;">
+              <a href="{{ product.get_absolute_url }}" class="btn-aq btn-aq-primary" style="padding:0.5rem 1rem;font-size:0.8125rem;flex:1;justify-content:center;">
+                View Details
+              </a>
+              <form action="{% url 'wishlist:remove' product.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-aq btn-aq-outline" title="Remove from wishlist"
+                        style="padding:0.5rem 0.9rem;font-size:0.8125rem;">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-aq" style="padding:4rem 0;">
+      <div class="empty-aq-icon"><i class="fas fa-heart"></i></div>
+      <h3>Your wishlist is empty</h3>
+      <p>Tap the heart on any product to save it here for later.</p>
+      <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-primary">
+        <i class="fas fa-arrow-left"></i>
+        Start Shopping
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

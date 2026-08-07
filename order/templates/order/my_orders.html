@@ -295,6 +295,10 @@
             <div class="myo-total-label">Order total{% if order.shipping_method_name %} &middot; {{ order.shipping_method_name }}{% endif %}</div>
             <div class="myo-total-value">{% price order.get_total_cost %}</div>
           </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;">
+          <a href="{% url 'order:order_detail' order.id %}" class="myo-btn myo-btn-outline">
+            <i class="fas fa-receipt"></i> View Details
+          </a>
           {% if order.tl_shipment %}
           <a href="{% url 'logistics:tracking_detail' order.tl_shipment.tracking_number|default:order.tl_shipment.shipment_number %}" class="myo-btn myo-btn-outline">
             <i class="fas fa-location-dot"></i> Track Order
@@ -304,6 +308,7 @@
             <i class="fas fa-location-dot"></i> Track Order
           </a>
           {% endif %}
+          </div>
         </div>
       </article>
       {% endfor %}

@@ -3,11 +3,13 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core import signing
 from django.core.mail import send_mail
 from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
-from django.views.decorators.http import require_POST
+from django.urls import reverse
+from django.views.decorators.http import require_GET, require_POST
 
 from notifications.models import Notification
 from notifications.services import notify
@@ -15,10 +17,26 @@ from .models import Subscriber
 
 logger = logging.getLogger(__name__)
 
+UNSUBSCRIBE_SALT = 'newsletter.unsubscribe'
+UNSUBSCRIBE_MAX_AGE = 60 * 60 * 24 * 30
+
+
+def _unsubscribe_token(email):
+    return signing.dumps(email, salt=UNSUBSCRIBE_SALT)
+
+
+def unsubscribe_link(email):
+    """Absolute, signed unsubscribe URL for a subscriber email."""
+    url = reverse('newsletter:unsubscribe', args=[_unsubscribe_token(email)])
+    return f'{settings.SITE_URL}{url}'
+
 
 def _welcome_email(email):
     subject = 'Welcome to Shop-Seed — you are subscribed!'
-    html = render_to_string('newsletter/welcome_email.html', {'email': email})
+    html = render_to_string('newsletter/welcome_email.html', {
+        'email': email,
+        'unsubscribe_url': unsubscribe_link(email),
+    })
     try:
         send_mail(
             subject=subject,
@@ -72,3 +90,30 @@ def subscribe(request):
         return JsonResponse({'ok': True, 'message': message})
     messages.success(request, message)
     return redirect(request.META.get('HTTP_REFERER') or '/')
+
+
+@require_GET
+def unsubscribe(request, token):
+    """Confirm a subscriber opt-out via a signed token from an email link."""
+    try:
+        email = signing.loads(token, salt=UNSUBSCRIBE_SALT, max_age=UNSUBSCRIBE_MAX_AGE)
+    except signing.BadSignature:
+        return render(request, 'newsletter/unsubscribed.html', {
+            'error': True,
+            'title': 'Invalid link',
+            'message': 'This unsubscribe link is invalid or has expired. '
+                       'Please use the link from a recent email, or contact support.',
+        }, status=400)
+
+    updated = Subscriber.objects.filter(email=email, is_active=True).update(is_active=False)
+    return render(request, 'newsletter/unsubscribed.html', {
+        'email': email,
+        'unsubscribed': updated > 0,
+        'title': 'You are unsubscribed',
+        'message': (
+            f'{email} has been removed from our newsletter list. '
+            'You will no longer receive marketing emails from Shop-Seed.'
+            if updated else
+            f'{email} is not currently subscribed to the Shop-Seed newsletter.'
+        ),
+    })

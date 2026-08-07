@@ -31,6 +31,7 @@ class Product(models.Model):
     description = RichTextField(blank=True) 
     # remove below price if you mapped not with actual shop.product price make with seller assossiated price in  seller.models called seller_product model
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField(default=0, help_text='Inventory for products without variants.')
     available = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

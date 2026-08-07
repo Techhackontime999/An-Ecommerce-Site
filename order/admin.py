@@ -181,9 +181,20 @@ class OrderAdmin(admin.ModelAdmin):
     @staticmethod
     def _sync_payment(order, payment_status):
         payment = getattr(order, 'payment', None)
-        if payment is not None and payment.status != payment_status:
-            payment.status = payment_status
-            payment.save(update_fields=['status', 'updated_at'])
+        if payment is None or payment.status == payment_status:
+            return
+        if payment_status in ('cancelled', 'refunded') and payment.status == 'captured':
+            from order.stock import release_stock
+            release_stock(order)
+            from payments.services import refund_payment
+            try:
+                refund_payment(payment, note=f'Order {order.order_number} {payment_status}')
+            except Exception:
+                payment.status = payment_status
+                payment.save(update_fields=['status', 'updated_at'])
+                return
+        payment.status = payment_status
+        payment.save(update_fields=['status', 'updated_at'])
 
 
 @admin.register(ReturnRequest)

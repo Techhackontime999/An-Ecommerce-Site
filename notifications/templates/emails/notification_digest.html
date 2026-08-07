@@ -1,0 +1,40 @@
+{% extends "emails/base_email.html" %}
+{% block email_body %}
+<tr>
+  <td style="padding:20px 32px 0;" align="center">
+    <h1 style="margin:0;font-size:22px;color:#0F172A;font-weight:800;">You have {{ notifications|length }} new notification{{ notifications|length|pluralize }}</h1>
+    <p style="margin:12px 0 0;font-size:15px;line-height:1.6;color:#475569;">
+      Here's what's been happening on Shop-Seed.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td style="padding:20px 32px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e9ebf0;border-radius:12px;overflow:hidden;">
+      {% for n in notifications %}
+      <tr>
+        <td style="padding:14px 18px;{% if not forloop.first %}border-top:1px solid #e9ebf0;{% endif %}">
+          <div style="font-size:14px;font-weight:700;color:#0F172A;">{{ n.title }}</div>
+          {% if n.message %}<div style="font-size:13px;line-height:1.5;color:#64748B;margin-top:4px;">{{ n.message }}</div>{% endif %}
+          <div style="font-size:12px;color:#94A3B8;margin-top:6px;">{{ n.category }} · {{ n.created_at|date:"M d, H:i" }}</div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td style="padding:14px 18px;font-size:14px;color:#475569;">Nothing new right now.</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </td>
+</tr>
+<tr>
+  <td style="padding:0 32px 28px;" align="center">
+    <a href="{{ site_url }}/notifications/" style="display:inline-block;background:linear-gradient(135deg,#F97316,#FB923C);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:12px 28px;border-radius:999px;">View Notifications</a>
+  </td>
+</tr>
+<tr>
+  <td style="padding:0 32px 28px;" align="center">
+    <a href="{{ site_url }}/notifications/settings/" style="font-size:12px;color:#94A3B8;text-decoration:underline;">Adjust email notifications</a>
+  </td>
+</tr>
+{% endblock %}

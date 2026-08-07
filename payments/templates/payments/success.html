@@ -1,17 +1,214 @@
 {% extends "shop/base/base.html" %}
+{% load static %}
 {% load preference_extras %}
-{% block title %}Payment Successful{% endblock %}
+{% block title %}Payment Successful — Shop-Seed{% endblock %}
 
 {% block content %}
-<div class="container my-5 text-center">
-    <h1 class="mb-4" style="color: green;">Payment Successful!</h1>
-    <div class="card shadow-sm mx-auto" style="max-width: 500px;">
-        <div class="card-body">
-            <p>Your payment for Order {{ order.order_number }} has been completed.</p>
-            <p><strong>Amount Paid:</strong> {% price order.get_total_cost %}</p>
-            <p>You will receive a confirmation email shortly.</p>
-            <a href="{% url 'shop:product_list' %}" class="btn btn-success">Continue Shopping</a>
-        </div>
+<!-- Payment Hero -->
+<section class="pay-hero">
+  <div class="pay-hero-glow pay-hero-glow-a" aria-hidden="true"></div>
+  <div class="pay-hero-glow pay-hero-glow-b" aria-hidden="true"></div>
+  <div class="pay-hero-dots" aria-hidden="true"></div>
+
+  <div class="container-aq pay-hero-inner">
+    <div class="breadcrumb-aq pay-breadcrumb">
+      <a href="{% url 'shop:home' %}">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="{% url 'shop:product_list' %}">Shop</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="{% url 'cart:cart_detail' %}">Cart</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Payment</span>
     </div>
-</div>
+
+    <div class="pay-hero-copy fade-up">
+      <span class="hero-aq-badge"><i class="fas fa-circle-check"></i> Payment successful</span>
+      <h1 class="pay-hero-title">Thank you! Your <span class="pay-hero-accent">order is confirmed</span></h1>
+      <p class="pay-hero-sub">
+        We&rsquo;ve received your payment and are preparing your items for shipment.
+        A confirmation email has been sent to {{ order.email }}.
+      </p>
+    </div>
+
+    <ol class="ord-steps fade-up fade-up-delay-1">
+      <li class="ord-step is-done">
+        <span class="ord-step-dot"><i class="fas fa-check"></i></span>
+        <span class="ord-step-label">Cart</span>
+      </li>
+      <li class="ord-step is-done">
+        <span class="ord-step-dot"><i class="fas fa-check"></i></span>
+        <span class="ord-step-label">Details</span>
+      </li>
+      <li class="ord-step is-done">
+        <span class="ord-step-dot"><i class="fas fa-check"></i></span>
+        <span class="ord-step-label">Shipping</span>
+      </li>
+      <li class="ord-step is-done">
+        <span class="ord-step-dot"><i class="fas fa-check"></i></span>
+        <span class="ord-step-label">Payment</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- Payment Body -->
+<section class="pay-body">
+  <div class="container-aq">
+    <div class="pay-grid">
+      <!-- Order review -->
+      <div class="pay-main">
+        <section class="pay-card fade-up">
+          <header class="pay-card-head">
+            <span class="pay-card-icon"><i class="fas fa-receipt"></i></span>
+            <div>
+              <h2 class="pay-card-title">Order confirmed</h2>
+              <span class="pay-card-sub">Order {{ order.order_number }} · placed {{ order.created|date:"M d, Y" }}</span>
+            </div>
+          </header>
+
+          <div class="pay-ship">
+            <div class="pay-ship-row">
+              <i class="fas fa-hashtag" aria-hidden="true"></i>
+              <div>
+                <span class="pay-ship-label">Order number</span>
+                <span class="pay-ship-val">{{ order.order_number }}</span>
+              </div>
+            </div>
+            <div class="pay-ship-row">
+              <i class="fas fa-indian-rupee-sign" aria-hidden="true"></i>
+              <div>
+                <span class="pay-ship-label">Amount paid</span>
+                <span class="pay-ship-val">{% if payment %}{% price payment.amount %}{% else %}{% price order.get_total_cost %}{% endif %}</span>
+              </div>
+            </div>
+            {% if payment.razorpay_payment_id %}
+            <div class="pay-ship-row">
+              <i class="fas fa-credit-card" aria-hidden="true"></i>
+              <div>
+                <span class="pay-ship-label">Transaction ID</span>
+                <span class="pay-ship-val mono">{{ payment.razorpay_payment_id }}</span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="pay-card fade-up fade-up-delay-1">
+          <header class="pay-card-head">
+            <span class="pay-card-icon"><i class="fas fa-box-open"></i></span>
+            <div>
+              <h2 class="pay-card-title">Your items</h2>
+              <span class="pay-card-sub">{{ order.items.count }} item{{ order.items.count|pluralize }} · {{ order.shipping_method_name|default:"Standard delivery" }}</span>
+            </div>
+          </header>
+
+          <div class="pay-items">
+            {% for item in order.items.all %}
+            {% with product=item.product %}
+            <article class="pay-item">
+              <a class="pay-thumb" href="{{ product.get_absolute_url }}" aria-label="{{ product.name }}">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                <i class="fas fa-box-open"></i>
+                {% endif %}
+              </a>
+              <div class="pay-item-body">
+                <a class="pay-item-name" href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                <div class="pay-item-meta">
+                  <span class="pay-qty mono">{{ item.quantity }}×</span>
+                  {% if item.variant_name %}<span class="pay-item-variant">{{ item.variant_name }}</span>{% endif %}
+                  {% if product.brand %}<span class="pay-item-brand">{{ product.brand }}</span>{% endif %}
+                </div>
+              </div>
+              <div class="pay-item-price">
+                {% if item.price < product.price %}<del>{% price product.price %}</del>{% endif %}
+                {% price item.get_cost %}
+              </div>
+            </article>
+            {% endwith %}
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="pay-card fade-up fade-up-delay-2">
+          <header class="pay-card-head">
+            <span class="pay-card-icon"><i class="fas fa-location-dot"></i></span>
+            <div>
+              <h2 class="pay-card-title">Delivering to</h2>
+              <span class="pay-card-sub">Items will ship to this address</span>
+            </div>
+          </header>
+
+          <div class="pay-ship">
+            <div class="pay-ship-row">
+              <i class="fas fa-user" aria-hidden="true"></i>
+              <div>
+                <span class="pay-ship-label">Recipient</span>
+                <span class="pay-ship-val">{{ order.first_name }} {{ order.last_name }} · {{ order.email }}</span>
+              </div>
+            </div>
+            <div class="pay-ship-row">
+              <i class="fas fa-house" aria-hidden="true"></i>
+              <div>
+                <span class="pay-ship-label">Shipping address</span>
+                <span class="pay-ship-val">{{ order.address }}, {{ order.city }} {{ order.postal_code }}{% if order.state %}, {{ order.state }}{% endif %}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Summary panel -->
+      <aside class="pay-aside">
+        <div class="pay-panel fade-up fade-up-delay-2">
+          <div class="pay-success-check" aria-hidden="true"><i class="fas fa-check"></i></div>
+          <span class="pay-due-label">Payment received</span>
+          <strong class="pay-due">{% if payment %}{% price payment.amount %}{% else %}{% price order.get_total_cost %}{% endif %}</strong>
+          <span class="pay-ref"><i class="fas fa-hashtag"></i> Order {{ order.order_number }}</span>
+
+          <div class="pay-secure">
+            <span class="pay-secure-line"></span>
+            <span class="pay-shield"><i class="fas fa-shield-halved"></i></span>
+            <span class="pay-secure-text">Securely paid</span>
+            <span class="pay-secure-line"></span>
+          </div>
+
+          <a class="pay-btn" href="{% url 'order:my_orders' %}">
+            <i class="fas fa-box" aria-hidden="true"></i>
+            <span>Track your order</span>
+          </a>
+
+          <ul class="pay-trust">
+            <li><i class="fas fa-envelope"></i> Confirmation sent to your inbox</li>
+            <li><i class="fas fa-truck-fast"></i> Tracking updates as it ships</li>
+            <li><i class="fas fa-headset"></i> Support available 7 days a week</li>
+          </ul>
+
+          <a class="pay-back" href="{% url 'shop:product_list' %}">
+            <i class="fas fa-arrow-right"></i> Continue shopping
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .pay-success-check {
+    width: 72px; height: 72px; margin: 0 auto 1rem; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 1.9rem;
+    color: #fff;
+    background: linear-gradient(135deg, #16A34A, #22C55E);
+    box-shadow: 0 12px 28px rgba(22, 163, 74, 0.35);
+  }
+  .pay-panel .pay-btn {
+    text-decoration: none; text-align: center;
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  }
+  .pay-back .fa-arrow-right { margin-right: 0; }
+  [dir="rtl"] .pay-back .fa-arrow-right { transform: scaleX(-1); }
+</style>
 {% endblock %}

@@ -49,6 +49,11 @@
         {% include 'notifications/dropdown.html' %}
         {% endif %}
 
+        <a href="{% url 'wishlist:wishlist_detail' %}" class="nav-aq-cart" aria-label="{% trans 'Wishlist' %}" title="{% trans 'Wishlist' %}">
+          <i class="fas fa-heart"></i>
+          <span class="cart-count" data-wishlist-count>{% if wishlist_count %}{{ wishlist_count }}{% else %}0{% endif %}</span>
+        </a>
+
         <a href="{% url 'cart:cart_detail' %}" class="nav-aq-cart" aria-label="{% trans 'Shopping cart' %}">
           <i class="fas fa-bag-shopping"></i>
           <span class="cart-count" data-cart-count>
@@ -157,6 +162,10 @@
             <i class="fas fa-sun"></i>
             <i class="fas fa-moon"></i>
           </button>
+          <a href="{% url 'wishlist:wishlist_detail' %}" class="nav-aq-cart" aria-label="{% trans 'Wishlist' %}" title="{% trans 'Wishlist' %}">
+            <i class="fas fa-heart"></i>
+            <span class="cart-count" data-wishlist-count>{% if wishlist_count %}{{ wishlist_count }}{% else %}0{% endif %}</span>
+          </a>
           <a href="{% url 'cart:cart_detail' %}" class="nav-aq-cart" aria-label="{% trans 'Shopping cart' %}">
             <i class="fas fa-bag-shopping"></i>
             <span class="cart-count" data-cart-count>
