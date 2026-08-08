@@ -123,11 +123,11 @@ class LogisticsTestCase(TestCase):
         )
         return order
 
-    def mock_shipment(self):
+    def mock_shipment(self, **overrides):
         """A shipment row with a courier + tracking number, ready for labels,
         webhooks or tracking views (no full pipeline needed)."""
         from logistics.models import Shipment
-        return Shipment.objects.create(
+        defaults = dict(
             order=self.order,
             seller=self.seller,
             warehouse=self.warehouse,
@@ -141,3 +141,5 @@ class LogisticsTestCase(TestCase):
             source_pincode=self.warehouse.pincode,
             destination_pincode=self.PINCODE,
         )
+        defaults.update(overrides)
+        return Shipment.objects.create(**defaults)

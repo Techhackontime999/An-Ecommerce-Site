@@ -1,8 +1,20 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
+{% load i18n %}
 {% load preference_extras %}
 
 {% block title %}{{ product.name }} — Shop-Seed{% endblock %}
+
+{% block meta_description %}<meta name="description" content="{{ product.description|striptags|truncatewords:30 }}">{% endblock %}
+
+{% block extra_head %}
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}">
+<meta property="og:type" content="product">
+<meta property="og:title" content="{{ product.name }}">
+<meta property="og:description" content="{{ product.description|striptags|truncatewords:30 }}">
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}">
+{% if product.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ product.image.url }}">{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
@@ -49,7 +61,7 @@
             </button>
             {% endfor %}
             {% if product.image %}
-            <button type="button" class="pdp-thumb{% if forloop.parentloop.first %} is-active{% endif %}" data-src="{{ product.image.url }}" data-full="{{ product.image.url }}" aria-label="Main photo">
+            <button type="button" class="pdp-thumb{% if forloop.parentloop.first %} is-active{% endif %}" data-src="{{ product.image.url }}" data-full="{{ product.image.url }}" aria-label="{% trans 'Main photo' %}">
               <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
             </button>
             {% endif %}
@@ -59,12 +71,12 @@
         {% elif product.image or product.images.all %}
         <div class="pdp-thumbs">
           {% if product.image %}
-          <button type="button" class="pdp-thumb is-active" data-src="{{ product.image.url }}" data-full="{{ product.image.url }}" aria-label="Main photo">
+          <button type="button" class="pdp-thumb is-active" data-src="{{ product.image.url }}" data-full="{{ product.image.url }}" aria-label="{% trans 'Main photo' %}">
             <img src="{{ product.image.url }}" alt="{{ product.name }}">
           </button>
           {% endif %}
           {% for img in product.images.all %}
-          <button type="button" class="pdp-thumb" data-src="{{ img.image.url }}" data-full="{{ img.image.url }}" aria-label="Photo {{ forloop.counter }}">
+          <button type="button" class="pdp-thumb" data-src="{{ img.image.url }}" data-full="{{ img.image.url }}" aria-label="{% blocktranslate %}Photo {{ forloop.counter }}{% endblocktranslate %}">
             <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" loading="lazy">
           </button>
           {% endfor %}
@@ -73,7 +85,7 @@
 
         <div class="pdp-stage">
           {% if discount_percent %}
-          <span class="pdp-stage-badge"><i class="fas fa-bolt"></i>{{ discount_percent }}% OFF</span>
+          <span class="pdp-stage-badge"><i class="fas fa-bolt"></i>{% blocktranslate %}{{ discount_percent }}% OFF{% endblocktranslate %}</span>
           {% endif %}
           {% if fav and fav.images.first %}
           <img id="pdp-stage-img" src="{{ fav.images.first.image.url }}" alt="{{ product.name }}">
@@ -87,7 +99,7 @@
           <div id="pdp-stage-img" class="pdp-stage-placeholder"><i class="fas fa-box-open"></i></div>
           {% endif %}
           <span class="pdp-stage-count" id="pdp-stage-count" aria-live="polite"></span>
-          <button type="button" class="pdp-stage-zoom" id="pdp-stage-zoom" aria-label="View full size">
+          <button type="button" class="pdp-stage-zoom" id="pdp-stage-zoom" aria-label="{% trans 'View full size' %}">
             <i class="fas fa-expand"></i>
           </button>
         </div>
@@ -98,7 +110,7 @@
       <div class="pdp-info fade-up">
         <div class="pdp-kicker">
           <i class="fas fa-tag"></i>
-          {% if product.category %}{{ product.category.name }}{% else %}General{% endif %}
+          {% if product.category %}{{ product.category.name }}{% else %}{% trans 'General' %}{% endif %}
           {% if product.brand %}<span class="sep" style="opacity:.5;">·</span>{{ product.brand }}{% endif %}
         </div>
 
@@ -124,11 +136,11 @@
               {% endwith %}
             </span>
             {% if widget_total %}
-            <a class="count" href="#pdp-reviews">{{ widget_total }} review{{ widget_total|pluralize }}</a>
+            <a class="count" href="#pdp-reviews">{{ widget_total }} {% blocktranslate count counter=widget_total %}review{% plural %}reviews{% endblocktranslate %}</a>
             {% endif %}
           </div>
           {% if widget_recommend %}
-          <span class="pdp-recommend"><i class="fas fa-thumbs-up"></i>{{ widget_recommend }}% recommend</span>
+          <span class="pdp-recommend"><i class="fas fa-thumbs-up"></i>{% blocktranslate %}{{ widget_recommend }}% recommend{% endblocktranslate %}</span>
           {% endif %}
         </div>
 
@@ -137,13 +149,13 @@
         <div class="pdp-price-line">
           <span class="pdp-price-big">{% price display_price %}</span>
           <span class="pdp-original"{% if not discount_percent %} style="display:none;"{% endif %}>{% price mrp %}</span>
-          <span class="pdp-discount{% if discount_percent %} on{% endif %}">{{ discount_percent }}% OFF</span>
+          <span class="pdp-discount{% if discount_percent %} on{% endif %}">{% blocktranslate %}{{ discount_percent }}% OFF{% endblocktranslate %}</span>
         </div>
 
         {% if has_variant_options %}
         <div class="pdp-variants">
           <div class="pdp-variants-label">
-            Select option <small id="pdp-selected-name">{% if first_available_variant %}{{ first_available_variant.name }}{% else %}{{ product.first_active_variant.name }}{% endif %}</small>
+            {% trans 'Select option' %} <small id="pdp-selected-name">{% if first_available_variant %}{{ first_available_variant.name }}{% else %}{{ product.first_active_variant.name }}{% endif %}</small>
           </div>
           <div class="pdp-variant-list">
             {% for variant in product.active_variants %}
@@ -159,7 +171,7 @@
                     data-sku="{{ variant.sku }}">
               <span class="pdp-variant-name">{{ variant.name }}</span>
               <span class="pdp-variant-price">{% price variant.effective_price %}</span>
-              {% if not variant.stock %}<span class="pdp-variant-oos">Out of stock</span>{% endif %}
+              {% if not variant.stock %}<span class="pdp-variant-oos">{% trans 'Out of stock' %}</span>{% endif %}
             </button>
             {% endfor %}
           </div>
@@ -177,19 +189,19 @@
         <details class="pdp-details">
           <summary>
             <i class="fas fa-info-circle" style="color:var(--aq-accent);"></i>
-            Product details
+            {% trans 'Product details' %}
             <i class="fas fa-chevron-right chev"></i>
           </summary>
           <table class="pdp-details-table">
             {% with pv=first_available_variant %}
             {% if pv %}
-            {% if has_variant_options %}<tr><td>Option</td><td id="pdp-detail-name">{{ pv.name }}</td></tr>{% endif %}
-            <tr><td>SKU</td><td id="pdp-detail-sku">{{ pv.sku|default:'—' }}</td></tr>
+            {% if has_variant_options %}<tr><td>{% trans 'Option' %}</td><td id="pdp-detail-name">{{ pv.name }}</td></tr>{% endif %}
+            <tr><td>{% trans 'SKU' %}</td><td id="pdp-detail-sku">{{ pv.sku|default:'—' }}</td></tr>
             {% endif %}
             {% endwith %}
-            <tr><td>Brand</td><td>{{ product.brand|default:'—' }}</td></tr>
-            <tr><td>Category</td><td>{% if product.category %}{{ product.category.name }}{% else %}General{% endif %}</td></tr>
-            <tr><td>Availability</td><td id="pdp-detail-avail">{% if first_available_variant %}{% if first_available_variant.stock %}In Stock{% else %}Currently unavailable{% endif %}{% else %}In Stock{% endif %}</td></tr>
+            <tr><td>{% trans 'Brand' %}</td><td>{{ product.brand|default:'—' }}</td></tr>
+            <tr><td>{% trans 'Category' %}</td><td>{% if product.category %}{{ product.category.name }}{% else %}{% trans 'General' %}{% endif %}</td></tr>
+            <tr><td>{% trans 'Availability' %}</td><td id="pdp-detail-avail">{% if first_available_variant %}{% if first_available_variant.stock %}{% trans 'In Stock' %}{% else %}{% trans 'Currently unavailable' %}{% endif %}{% else %}{% trans 'In Stock' %}{% endif %}</td></tr>
           </table>
         </details>
       </div>
@@ -199,17 +211,17 @@
         <div class="pdp-buybox-price">
           <span class="pdp-price-big">{% price display_price %}</span>
           <span class="pdp-original"{% if not discount_percent %} style="display:none;"{% endif %}>{% price mrp %}</span>
-          <span class="pdp-discount{% if discount_percent %} on{% endif %}">{{ discount_percent }}% OFF</span>
+          <span class="pdp-discount{% if discount_percent %} on{% endif %}">{% blocktranslate %}{{ discount_percent }}% OFF{% endblocktranslate %}</span>
         </div>
 
         <div class="pdp-availability {% if first_available_variant %}{% if first_available_variant.stock %}in-stock{% else %}out-of-stock{% endif %}{% else %}in-stock{% endif %}">
           <span class="dot"></span>
-          <span data-avail-label>{% if first_available_variant %}{% if first_available_variant.stock %}In Stock{% else %}Currently unavailable{% endif %}{% else %}In Stock{% endif %}</span>
+          <span data-avail-label>{% if first_available_variant %}{% if first_available_variant.stock %}{% trans 'In Stock' %}{% else %}{% trans 'Currently unavailable' %}{% endif %}{% else %}{% trans 'In Stock' %}{% endif %}</span>
         </div>
 
         <div class="pdp-qty-row">
-          <span class="pdp-qty-label">Quantity:</span>
-          <select name="quantity" id="pdp-qty" class="pdp-qty" aria-label="Quantity">
+          <span class="pdp-qty-label">{% trans 'Quantity:' %}</span>
+          <select name="quantity" id="pdp-qty" class="pdp-qty" aria-label="{% trans 'Quantity' %}">
             {% for value, label in cart_product_form.fields.quantity.choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
           </select>
         </div>
@@ -220,7 +232,7 @@
           <input type="hidden" name="update" value="false">
           <input type="hidden" name="quantity" id="pdp-qty-add">
           <button type="submit" class="pdp-btn pdp-btn-add"{% if first_available_variant and not first_available_variant.stock %}disabled{% endif %}>
-            <i class="fas fa-cart-plus"></i><span>Add to Cart</span>
+            <i class="fas fa-cart-plus"></i><span>{% trans 'Add to Cart' %}</span>
           </button>
         </form>
 
@@ -231,7 +243,7 @@
           <input type="hidden" name="next" value="{% url 'order:order_create' %}">
           <input type="hidden" name="quantity" id="pdp-qty-buy">
           <button type="submit" class="pdp-btn pdp-btn-buy"{% if first_available_variant and not first_available_variant.stock %}disabled{% endif %}>
-            <i class="fas fa-bolt"></i><span>Buy Now</span>
+            <i class="fas fa-bolt"></i><span>{% trans 'Buy Now' %}</span>
           </button>
         </form>
 
@@ -239,27 +251,27 @@
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.path }}">
           <button type="submit" class="pdp-btn pdp-btn-outline" style="width:100%;justify-content:center;">
-            <i class="fas fa-heart"></i><span>Add to Wishlist</span>
+            <i class="fas fa-heart"></i><span>{% trans 'Add to Wishlist' %}</span>
           </button>
         </form>
 
         <div class="pdp-trust">
           <i class="fas fa-shield-alt"></i>
-          <div><b>Secure transaction</b><br>Your information is encrypted and never shared.</div>
+          <div><b>{% trans 'Secure transaction' %}</b><br>{% trans 'Your information is encrypted and never shared.' %}</div>
         </div>
 
         <ul class="pdp-ship-list">
-          <li><i class="fas fa-truck"></i> Free delivery &amp; 2–5 business day dispatch</li>
-          <li><i class="fas fa-undo"></i> Easy 7-day returns &amp; instant refunds</li>
-          <li><i class="fas fa-shield-halved"></i> 100% genuine, quality-checked items</li>
+          <li><i class="fas fa-truck"></i> {% trans 'Free delivery & 2–5 business day dispatch' %}</li>
+          <li><i class="fas fa-undo"></i> {% trans 'Easy 7-day returns & instant refunds' %}</li>
+          <li><i class="fas fa-shield-halved"></i> {% trans '100% genuine, quality-checked items' %}</li>
         </ul>
 
         {% if product.seller %}
         <div class="pdp-seller">
-          Sold by <b>{{ product.seller.shop_name }}</b>
-          {% if product.seller.is_verified %}<i class="fas fa-badge-check" style="color:var(--aq-blue);" title="Verified seller"></i>{% endif %}
+          {% trans 'Sold by' %} <b>{{ product.seller.shop_name }}</b>
+          {% if product.seller.is_verified %}<i class="fas fa-badge-check" style="color:var(--aq-blue);" title="{% trans 'Verified seller' %}"></i>{% endif %}
           {% if product.seller.slug %}
-          · <a href="{% url 'seller:profile_details' product.seller.slug %}" style="color:var(--aq-blue);">Visit store</a>
+          · <a href="{% url 'seller:profile_details' product.seller.slug %}" style="color:var(--aq-blue);">{% trans 'Visit store' %}</a>
           {% endif %}
         </div>
         {% endif %}
@@ -270,7 +282,7 @@
     <div class="pdp-below">
       <div class="pdp-description fade-up">
         <h2>
-          <i class="fas fa-align-left"></i> Product Description
+          <i class="fas fa-align-left"></i> {% trans 'Product Description' %}
         </h2>
         <div class="pdp-description-body" id="pdp-desc-product">
           {{ merged_description|safe }}
@@ -279,20 +291,20 @@
 
       <div>
         <div class="pdp-detail-card fade-up">
-          <h3><i class="fas fa-truck-fast"></i> Delivery &amp; Returns</h3>
+          <h3><i class="fas fa-truck-fast"></i> {% trans 'Delivery & Returns' %}</h3>
           <ul class="pdp-ship-list">
-            <li><i class="fas fa-box"></i> Carefully packed &amp; quality checked before dispatch</li>
-            <li><i class="fas fa-truck"></i> Free shipping, 2–5 business days</li>
-            <li><i class="fas fa-undo"></i> 7-day no-questions-asked returns</li>
-            <li><i class="fas fa-headset"></i> Friendly support on every order</li>
+            <li><i class="fas fa-box"></i> {% trans 'Carefully packed & quality checked before dispatch' %}</li>
+            <li><i class="fas fa-truck"></i> {% trans 'Free shipping, 2–5 business days' %}</li>
+            <li><i class="fas fa-undo"></i> {% trans '7-day no-questions-asked returns' %}</li>
+            <li><i class="fas fa-headset"></i> {% trans 'Friendly support on every order' %}</li>
           </ul>
         </div>
         <div class="pdp-detail-card fade-up">
-          <h3><i class="fas fa-lock"></i> Why Shop-Seed</h3>
+          <h3><i class="fas fa-lock"></i> {% trans 'Why Shop-Seed' %}</h3>
           <ul class="pdp-ship-list">
-            <li><i class="fas fa-shield-halved"></i> Buyer protection on every purchase</li>
-            <li><i class="fas fa-credit-card"></i> Secure checkout &amp; payment options</li>
-            <li><i class="fas fa-bolt"></i> Flash deals updated daily</li>
+            <li><i class="fas fa-shield-halved"></i> {% trans 'Buyer protection on every purchase' %}</li>
+            <li><i class="fas fa-credit-card"></i> {% trans 'Secure checkout & payment options' %}</li>
+            <li><i class="fas fa-bolt"></i> {% trans 'Flash deals updated daily' %}</li>
           </ul>
         </div>
       </div>
@@ -302,10 +314,10 @@
 
 <!-- Lightbox -->
 <div class="pdp-lightbox" id="pdp-lightbox" hidden>
-  <button type="button" class="pdp-lightbox-close" aria-label="Close"><i class="fas fa-xmark"></i></button>
-  <button type="button" class="pdp-lightbox-nav pdp-lightbox-prev" aria-label="Previous photo"><i class="fas fa-chevron-left"></i></button>
-  <div class="pdp-lightbox-img"><img id="pdp-lightbox-img" alt="Full size product photo"></div>
-  <button type="button" class="pdp-lightbox-nav pdp-lightbox-next" aria-label="Next photo"><i class="fas fa-chevron-right"></i></button>
+  <button type="button" class="pdp-lightbox-close" aria-label="{% trans 'Close' %}"><i class="fas fa-xmark"></i></button>
+  <button type="button" class="pdp-lightbox-nav pdp-lightbox-prev" aria-label="{% trans 'Previous photo' %}"><i class="fas fa-chevron-left"></i></button>
+  <div class="pdp-lightbox-img"><img id="pdp-lightbox-img" alt="{% trans 'Full size product photo' %}"></div>
+  <button type="button" class="pdp-lightbox-nav pdp-lightbox-next" aria-label="{% trans 'Next photo' %}"><i class="fas fa-chevron-right"></i></button>
   <span class="pdp-lightbox-count" id="pdp-lightbox-count"></span>
 </div>
 
@@ -316,14 +328,14 @@
     <div class="td-slider-section">
       <div class="td-slider-header">
         <div class="td-slider-heading">
-          <h2 class="td-slider-title"><i class="fas fa-fire"></i> You Might Also Like</h2>
+          <h2 class="td-slider-title"><i class="fas fa-fire"></i> {% trans 'You Might Also Like' %}</h2>
           <p class="td-slider-sub">
-            {% if product.category %}More from {{ product.category.name }}{% else %}Popular picks from our shop{% endif %}
+            {% if product.category %}{% blocktranslate %}More from {{ product.category.name }}{% endblocktranslate %}{% else %}{% trans 'Popular picks from our shop' %}{% endif %}
           </p>
         </div>
         <div class="td-slider-nav">
-          <button type="button" class="td-slider-btn" data-slider="prev" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
-          <button type="button" class="td-slider-btn" data-slider="next" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+          <button type="button" class="td-slider-btn" data-slider="prev" aria-label="{% trans 'Scroll left' %}"><i class="fas fa-chevron-left"></i></button>
+          <button type="button" class="td-slider-btn" data-slider="next" aria-label="{% trans 'Scroll right' %}"><i class="fas fa-chevron-right"></i></button>
         </div>
       </div>
       <div class="td-slider-track" data-slider-track>
@@ -353,11 +365,11 @@
           <form action="{% url 'cart:cart_add' item.id %}" method="post" class="td-slide-cart-form">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="1">
-            <button type="submit" class="td-slide-cart-btn"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+            <button type="submit" class="td-slide-cart-btn"><i class="fas fa-cart-plus"></i> {% trans 'Add to Cart' %}</button>
           </form>
           {% else %}
           <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="td-slide-cart-btn">
-            <i class="fas fa-sign-in-alt"></i> Login to Buy
+            <i class="fas fa-sign-in-alt"></i> {% trans 'Login to Buy' %}
           </a>
           {% endif %}
         </div>
@@ -388,7 +400,7 @@
     <input type="hidden" name="update" value="false">
     <input type="hidden" name="quantity" id="pdp-qty-mobile" value="1">
     <button type="submit" class="pdp-btn pdp-btn-add"{% if first_available_variant and not first_available_variant.stock %}disabled{% endif %}>
-      <i class="fas fa-cart-plus"></i><span>Add to Cart</span>
+      <i class="fas fa-cart-plus"></i><span>{% trans 'Add to Cart' %}</span>
     </button>
   </form>
 </div>

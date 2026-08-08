@@ -144,3 +144,34 @@ class NdrAndReturnTests(LogisticsTestCase):
         FulfillmentService.cancel_shipment(self.shipment, reason='ops decision')
         self.shipment.refresh_from_db()
         self.assertEqual(self.shipment.status, ShipmentStatus.CANCELLED)
+
+
+class CodDeliveryTests(LogisticsTestCase):
+    """A delivered COD shipment is when the platform collects the cash."""
+
+    def setUp(self):
+        super().setUp()
+        self.product.stock = 10
+        self.product.save()
+
+    def test_delivered_cod_shipment_records_cash_collection(self):
+        order = self.make_cod_order(Decimal('2000.00'))
+        shipment = FulfillmentService.create_shipments_for_order(order)[0]
+        self.assertTrue(shipment.is_cod)
+        FulfillmentService.set_status(shipment, ShipmentStatus.DELIVERED)
+        shipment.refresh_from_db()
+        order.refresh_from_db()
+        self.assertEqual(shipment.status, ShipmentStatus.DELIVERED)
+        self.assertTrue(order.paid)
+        from payments.models import Payment
+        payment = Payment.objects.get(order=order)
+        self.assertEqual(payment.status, 'captured')
+        self.assertEqual(payment.amount, Decimal('2000.00'))
+        self.assertEqual(payment.razorpay_order_id, f'cod-{shipment.shipment_number}')
+
+    def test_delivered_prepaid_shipment_does_not_collect_cash(self):
+        shipment = FulfillmentService.create_shipments_for_order(self.order)[0]
+        self.assertFalse(shipment.is_cod)
+        FulfillmentService.set_status(shipment, ShipmentStatus.DELIVERED)
+        from payments.models import Payment
+        self.assertFalse(Payment.objects.filter(order=self.order).exists())

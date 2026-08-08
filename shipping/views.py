@@ -136,7 +136,7 @@ def order_tracking(request, order_id):
         shipment = logistics
         is_logistics = True
     else:
-        shipment = getattr(order, 'shipment', None)
+        shipment = None
         is_logistics = False
     return render(request, 'shipping/tracking.html', {
         'order': order,

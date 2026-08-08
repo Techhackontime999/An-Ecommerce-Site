@@ -1,7 +1,8 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Login — Shop-Seed{% endblock %}
+{% block title %}{% trans 'Login' %} — Shop-Seed{% endblock %}
 
 {% block news_ticker %}{% endblock %}
 
@@ -19,15 +20,15 @@
       <span class="auth-brand-name">Shop-Seed</span>
     </div>
 
-    <h1 class="auth-title">Welcome back</h1>
-    <p class="auth-sub">Sign in to your account to continue shopping.</p>
+    <h1 class="auth-title">{% trans 'Welcome back' %}</h1>
+    <p class="auth-sub">{% trans 'Sign in to your account to continue shopping.' %}</p>
 
     {% if form.errors %}
     <div class="auth-alert">
       <i class="fas fa-exclamation-circle"></i>
       <div class="auth-alert-body">
-        <strong>Couldn't sign you in</strong>
-        <span>Your username and password didn't match. Please try again.</span>
+        <strong>{% trans "Couldn't sign you in" %}</strong>
+        <span>{% trans "Your username and password didn't match. Please try again." %}</span>
       </div>
     </div>
     {% endif %}
@@ -36,7 +37,7 @@
       {% csrf_token %}
 
       <div class="auth-field">
-        <label for="{{ form.username.id_for_label }}">Username</label>
+        <label for="{{ form.username.id_for_label }}">{% trans 'Username' %}</label>
         <div class="auth-input-wrap">
           <i class="fas fa-user"></i>
           {{ form.username }}
@@ -45,11 +46,11 @@
       </div>
 
       <div class="auth-field">
-        <label for="{{ form.password.id_for_label }}">Password</label>
+        <label for="{{ form.password.id_for_label }}">{% trans 'Password' %}</label>
         <div class="auth-input-wrap">
           <i class="fas fa-lock"></i>
           {{ form.password }}
-          <button type="button" class="auth-eye" data-toggle-password aria-label="Show password">
+          <button type="button" class="auth-eye" data-toggle-password aria-label="{% trans 'Show password' %}">
             <i class="fas fa-eye"></i>
           </button>
         </div>
@@ -61,26 +62,26 @@
       {% endif %}
 
       <div class="auth-options">
-        <a href="{% url 'accounts:password_reset' %}" class="auth-link"><i class="fas fa-key"></i> Forgot password?</a>
+        <a href="{% url 'accounts:password_reset' %}" class="auth-link"><i class="fas fa-key"></i> {% trans 'Forgot password?' %}</a>
       </div>
 
       <button type="submit" class="auth-btn">
-        Sign In <i class="fas fa-arrow-right"></i>
+        {% trans 'Sign In' %} <i class="fas fa-arrow-right"></i>
       </button>
     </form>
 
-    <div class="auth-divider"><span>New to Shop-Seed?</span></div>
+    <div class="auth-divider"><span>{% trans 'New to Shop-Seed?' %}</span></div>
 
     <a href="{% url 'accounts:signup' %}" class="auth-btn-ghost">
-      <i class="fas fa-user-plus"></i> Create an account
+      <i class="fas fa-user-plus"></i> {% trans 'Create an account' %}
     </a>
 
     <div class="auth-extra">
-      <a href="{% url 'accounts:seller_register' %}" class="auth-link"><i class="fas fa-store-alt"></i> Want to sell on Shop-Seed?</a>
+      <a href="{% url 'accounts:seller_register' %}" class="auth-link"><i class="fas fa-store-alt"></i> {% trans 'Want to sell on Shop-Seed?' %}</a>
     </div>
 
     <p class="auth-footer">
-      <a href="{% url 'shop:product_list' %}"><i class="fas fa-arrow-left"></i> Back to store</a>
+      <a href="{% url 'shop:product_list' %}"><i class="fas fa-arrow-left"></i> {% trans 'Back to store' %}</a>
     </p>
   </div>
 </div>

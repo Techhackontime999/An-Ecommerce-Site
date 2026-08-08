@@ -41,24 +41,6 @@ def sync_seller_review(user, product, rating):
         defaults={'rating': rating},
     )
 
-class Review(models.Model):
-
-    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])  # 1 to 5 stars
-    comment = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('product', 'user')  # Prevent multiple reviews per product by the same user
-
-    def __str__(self):
-        return f"{self.user.username} - {self.product.name} ({self.rating}★)"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        sync_seller_review(self.user, self.product, self.rating)
-
 class SellerReview(models.Model):
         seller_profile=models.ForeignKey(SellerProfile, related_name='seller_reviews', on_delete=models.CASCADE)
         customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE)

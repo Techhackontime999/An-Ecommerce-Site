@@ -1,24 +1,11 @@
 from django.contrib import admin
 from core.admin_actions import export_as_csv_action
-from .models import Review, SellerReview, ProductReview, ProductReviewImage, ReviewReport
+from .models import SellerReview, ProductReview, ProductReviewImage, ReviewReport
 
 
 class ProductReviewImageInline(admin.TabularInline):
     model = ProductReviewImage
     extra = 0
-
-
-@admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['user', 'product', 'rating', 'stars', 'created_at']
-    list_filter = ['rating', 'created_at']
-    search_fields = ['user__username', 'product__name', 'comment']
-    list_select_related = ['user', 'product']
-    date_hierarchy = 'created_at'
-
-    def stars(self, obj):
-        return '★' * obj.rating
-    stars.short_description = ''
 
 
 @admin.register(SellerReview)

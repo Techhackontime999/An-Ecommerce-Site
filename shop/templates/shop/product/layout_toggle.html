@@ -1,13 +1,14 @@
 {% load static %}
-<div class="products-aq-toggle" role="group" aria-label="Change product layout" data-aq-toggle="{{ target|default:'' }}">
-  <span class="products-aq-toggle-label">View</span>
-  <button type="button" class="products-aq-toggle-btn" data-layout="list" aria-label="List view" title="List view">
+{% load i18n %}
+<div class="products-aq-toggle" role="group" aria-label="{% trans 'Change product layout' %}" data-aq-toggle="{{ target|default:'' }}">
+  <span class="products-aq-toggle-label">{% trans 'View' %}</span>
+  <button type="button" class="products-aq-toggle-btn" data-layout="list" aria-label="{% trans 'List view' %}" title="{% trans 'List view' %}">
     <i class="fas fa-bars"></i>
   </button>
-  <button type="button" class="products-aq-toggle-btn" data-layout="2col" aria-label="2 column view" title="2 column view">
+  <button type="button" class="products-aq-toggle-btn" data-layout="2col" aria-label="{% trans '2 column view' %}" title="{% trans '2 column view' %}">
     <i class="fas fa-th-large"></i>
   </button>
-  <button type="button" class="products-aq-toggle-btn is-active" data-layout="4col" aria-label="4 column view" title="4 column view">
+  <button type="button" class="products-aq-toggle-btn is-active" data-layout="4col" aria-label="{% trans '4 column view' %}" title="{% trans '4 column view' %}">
     <i class="fas fa-th"></i>
   </button>
 </div>

@@ -1,7 +1,8 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
+{% load i18n %}
 {% load preference_extras %}
-{% block title %}Payment — Shop-Seed{% endblock %}
+{% block title %}{% trans 'Payment' %} — Shop-Seed{% endblock %}
 
 {% block content %}
 <!-- Payment Hero -->
@@ -12,40 +13,39 @@
 
   <div class="container-aq pay-hero-inner">
     <div class="breadcrumb-aq pay-breadcrumb">
-      <a href="{% url 'shop:home' %}">Home</a>
+      <a href="{% url 'shop:home' %}">{% trans 'Home' %}</a>
       <span class="sep"><i class="fas fa-chevron-right"></i></span>
-      <a href="{% url 'shop:product_list' %}">Shop</a>
+      <a href="{% url 'shop:product_list' %}">{% trans 'Shop' %}</a>
       <span class="sep"><i class="fas fa-chevron-right"></i></span>
-      <a href="{% url 'cart:cart_detail' %}">Cart</a>
+      <a href="{% url 'cart:cart_detail' %}">{% trans 'Cart' %}</a>
       <span class="sep"><i class="fas fa-chevron-right"></i></span>
-      <span class="current">Payment</span>
+      <span class="current">{% trans 'Payment' %}</span>
     </div>
 
     <div class="pay-hero-copy fade-up">
-      <span class="hero-aq-badge"><i class="fas fa-shield-halved"></i> Secure payment</span>
-      <h1 class="pay-hero-title">Finish your <span class="pay-hero-accent">payment</span></h1>
+      <span class="hero-aq-badge"><i class="fas fa-shield-halved"></i> {% trans 'Secure payment' %}</span>
+      <h1 class="pay-hero-title">{% trans 'Finish your' %} <span class="pay-hero-accent">{% trans 'payment' %}</span></h1>
       <p class="pay-hero-sub">
-        Your order is ready. Review the details below, then complete the
-        transaction on our encrypted payment gateway.
+        {% trans 'Your order is ready. Review the details below, then complete the transaction on our encrypted payment gateway.' %}
       </p>
     </div>
 
     <ol class="ord-steps fade-up fade-up-delay-1">
       <li class="ord-step is-done">
         <span class="ord-step-dot"><i class="fas fa-check"></i></span>
-        <span class="ord-step-label">Cart</span>
+        <span class="ord-step-label">{% trans 'Cart' %}</span>
       </li>
       <li class="ord-step is-done">
         <span class="ord-step-dot"><i class="fas fa-check"></i></span>
-        <span class="ord-step-label">Details</span>
+        <span class="ord-step-label">{% trans 'Details' %}</span>
       </li>
       <li class="ord-step is-done">
         <span class="ord-step-dot"><i class="fas fa-check"></i></span>
-        <span class="ord-step-label">Shipping</span>
+        <span class="ord-step-label">{% trans 'Shipping' %}</span>
       </li>
       <li class="ord-step is-active">
         <span class="ord-step-dot">4</span>
-        <span class="ord-step-label">Payment</span>
+        <span class="ord-step-label">{% trans 'Payment' %}</span>
       </li>
     </ol>
   </div>
@@ -61,8 +61,8 @@
           <header class="pay-card-head">
             <span class="pay-card-icon"><i class="fas fa-receipt"></i></span>
             <div>
-              <h2 class="pay-card-title">Review your order</h2>
-              <span class="pay-card-sub">{{ order.items.count }} item{{ order.items.count|pluralize }} · ready for checkout</span>
+              <h2 class="pay-card-title">{% trans 'Review your order' %}</h2>
+              <span class="pay-card-sub">{% blocktranslate count counter=order.items.count %}{{ counter }} item · ready for checkout{% plural %}{{ counter }} items · ready for checkout{% endblocktranslate %}</span>
             </div>
           </header>
 
@@ -99,8 +99,8 @@
           <header class="pay-card-head">
             <span class="pay-card-icon"><i class="fas fa-location-dot"></i></span>
             <div>
-              <h2 class="pay-card-title">Deliver to</h2>
-              <span class="pay-card-sub">Items will ship to this address</span>
+              <h2 class="pay-card-title">{% trans 'Deliver to' %}</h2>
+              <span class="pay-card-sub">{% trans 'Items will ship to this address' %}</span>
             </div>
           </header>
 
@@ -108,22 +108,22 @@
             <div class="pay-ship-row">
               <i class="fas fa-user" aria-hidden="true"></i>
               <div>
-                <span class="pay-ship-label">Recipient</span>
+                <span class="pay-ship-label">{% trans 'Recipient' %}</span>
                 <span class="pay-ship-val">{{ order.first_name }} {{ order.last_name }} · {{ order.email }}</span>
               </div>
             </div>
             <div class="pay-ship-row">
               <i class="fas fa-house" aria-hidden="true"></i>
               <div>
-                <span class="pay-ship-label">Shipping address</span>
+                <span class="pay-ship-label">{% trans 'Shipping address' %}</span>
                 <span class="pay-ship-val">{{ order.address }}, {{ order.city }} {{ order.postal_code }}</span>
               </div>
             </div>
             <div class="pay-ship-row">
               <i class="fas fa-truck-fast" aria-hidden="true"></i>
               <div>
-                <span class="pay-ship-label">Shipping method</span>
-                <span class="pay-ship-val">{% if order.shipping_method_name %}{{ order.shipping_method_name }}{% else %}Standard delivery{% endif %}</span>
+                <span class="pay-ship-label">{% trans 'Shipping method' %}</span>
+                <span class="pay-ship-val">{% if order.shipping_method_name %}{{ order.shipping_method_name }}{% else %}{% trans 'Standard delivery' %}{% endif %}</span>
               </div>
             </div>
           </div>
@@ -133,22 +133,22 @@
           <header class="pay-card-head">
             <span class="pay-card-icon"><i class="fas fa-calculator"></i></span>
             <div>
-              <h2 class="pay-card-title">Payment summary</h2>
-              <span class="pay-card-sub">One final look before you pay</span>
+              <h2 class="pay-card-title">{% trans 'Payment summary' %}</h2>
+              <span class="pay-card-sub">{% trans 'One final look before you pay' %}</span>
             </div>
           </header>
 
           <div class="pay-totals">
             <div class="pay-row">
-              <span>Subtotal ({{ order.items.count }} item{{ order.items.count|pluralize }})</span>
+              <span>{% blocktranslate count counter=order.items.count %}Subtotal ({{ counter }} item){% plural %}Subtotal ({{ counter }} items){% endblocktranslate %}</span>
               <span class="mono">{% price subtotal %}</span>
             </div>
             <div class="pay-row">
-              <span>Shipping</span>
-              <span class="mono">{% if order.shipping_cost %}{% price order.shipping_cost %}{% else %}Free{% endif %}</span>
+              <span>{% trans 'Shipping' %}</span>
+              <span class="mono">{% if order.shipping_cost %}{% price order.shipping_cost %}{% else %}{% trans 'Free' %}{% endif %}</span>
             </div>
             <div class="pay-row pay-row-total">
-              <span>Total due</span>
+              <span>{% trans 'Total due' %}</span>
               <strong class="mono">{% price order.get_total_cost %}</strong>
             </div>
           </div>
@@ -158,21 +158,21 @@
       <!-- Payment panel -->
       <aside class="pay-aside">
         <div class="pay-panel fade-up fade-up-delay-2">
-          <span class="pay-due-label">Amount due</span>
+          <span class="pay-due-label">{% trans 'Amount due' %}</span>
           <strong class="pay-due">{% price order.get_total_cost %}</strong>
-          <span class="pay-ref"><i class="fas fa-hashtag"></i> Order {{ order.order_number }}</span>
+          <span class="pay-ref"><i class="fas fa-hashtag"></i> {% blocktranslate %}Order {{ order.order_number }}{% endblocktranslate %}</span>
 
           <div class="pay-secure">
             <span class="pay-secure-line"></span>
             <span class="pay-shield"><i class="fas fa-shield-halved"></i></span>
-            <span class="pay-secure-text">Encrypted &amp; secure</span>
+            <span class="pay-secure-text">{% trans 'Encrypted & secure' %}</span>
             <span class="pay-secure-line"></span>
           </div>
 
           <button id="rzp-button" class="pay-btn" type="button">
             <i class="fas fa-lock pay-btn-lock" aria-hidden="true"></i>
             <i class="fas fa-spinner fa-spin pay-btn-spin" aria-hidden="true"></i>
-            <span data-pay-label>Pay securely</span>
+            <span data-pay-label>{% trans 'Pay securely' %}</span>
             <span class="pay-btn-amount">{% price order.get_total_cost %}</span>
           </button>
 
@@ -181,28 +181,28 @@
             {% csrf_token %}
             <button type="submit" class="pay-btn pay-btn-ghost">
               <i class="fas fa-rotate-right"></i>
-              <span>I've already paid — verify my payment</span>
+              <span>{% trans "I've already paid — verify my payment" %}</span>
             </button>
             <p class="pay-note">
               <i class="fas fa-circle-info" aria-hidden="true"></i>
-              <span>If you were charged but didn't reach the confirmation page, click here before paying again.</span>
+              <span>{% trans "If you were charged but didn't reach the confirmation page, click here before paying again." %}</span>
             </p>
           </form>
           {% endif %}
 
           <p class="pay-note">
             <i class="fas fa-circle-info" aria-hidden="true"></i>
-            <span>You'll be redirected to the Razorpay gateway to complete your payment.</span>
+            <span>{% trans "You'll be redirected to the Razorpay gateway to complete your payment." %}</span>
           </p>
 
           <ul class="pay-trust">
-            <li><i class="fas fa-credit-card"></i> UPI, cards, net-banking &amp; wallets</li>
-            <li><i class="fas fa-shield-halved"></i> PCI-DSS compliant gateway</li>
-            <li><i class="fas fa-headset"></i> Support available 7 days a week</li>
+            <li><i class="fas fa-credit-card"></i> {% trans 'UPI, cards, net-banking & wallets' %}</li>
+            <li><i class="fas fa-shield-halved"></i> {% trans 'PCI-DSS compliant gateway' %}</li>
+            <li><i class="fas fa-headset"></i> {% trans 'Support available 7 days a week' %}</li>
           </ul>
 
           <a class="pay-back" href="{% url 'order:my_orders' %}">
-            <i class="fas fa-arrow-left"></i> Back to my orders
+            <i class="fas fa-arrow-left"></i> {% trans 'Back to my orders' %}
           </a>
         </div>
       </aside>

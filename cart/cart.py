@@ -130,7 +130,7 @@ class Cart():
             else:
                 product_ids.add(int(key))
 
-        products = Product.objects.filter(id__in=product_ids)
+        products = Product.objects.with_deal_price().filter(id__in=product_ids)
         variants = {v.id: v for v in ProductVariant.objects.filter(id__in=variant_ids)}
         # Deep-copy entries so enriching them (Decimal prices, product objects)
         # never writes unserializable values back into the session cart.

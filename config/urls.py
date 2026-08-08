@@ -5,11 +5,17 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 
 from blogs.urls import sitemaps as blog_sitemaps
+from shop.sitemaps import CategorySitemap, ProductSitemap
+
+sitemaps = {
+    **blog_sitemaps,
+    'products': ProductSitemap,
+    'categories': CategorySitemap,
+}
 
 urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'), name='robots'),
-    path('sitemap.xml', sitemap, {'sitemaps': blog_sitemaps}, name='sitemap'),
-    path('search/', include('search.urls', namespace='search')),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('', include('reviews.urls', namespace='reviews')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('admin/', include('core.admin_urls')),

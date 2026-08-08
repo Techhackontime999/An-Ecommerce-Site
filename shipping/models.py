@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from order.models import Order
 
 
 class ShippingAddress(models.Model):
@@ -37,44 +36,3 @@ class ShippingMethod(models.Model):
 
     def __str__(self):
         return f"{self.name} - \u20b9{self.price:.2f}"
-
-
-class Shipment(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('shipped', 'Shipped'),
-        ('in_transit', 'In Transit'),
-        ('delivered', 'Delivered'),
-        ('failed', 'Failed'),
-    ]
-
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='shipment')
-    shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True, related_name='shipments')
-    shipping_method = models.ForeignKey(ShippingMethod, on_delete=models.SET_NULL, null=True, related_name='shipments')
-    tracking_number = models.CharField(max_length=100, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    shipped_at = models.DateTimeField(null=True, blank=True)
-    delivered_at = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ('-created_at',)
-
-    def __str__(self):
-        return f"Shipment for Order #{self.order.id} - {self.status}"
-
-    @property
-    def progress(self):
-        """0-3 step index for the delivery timeline (failed = 0)."""
-        return {
-            'pending': 0,
-            'shipped': 1,
-            'in_transit': 2,
-            'delivered': 3,
-            'failed': 0,
-        }.get(self.status, 0)
-
-    @property
-    def timeline(self):
-        return ['Pending', 'Shipped', 'In Transit', 'Delivered']

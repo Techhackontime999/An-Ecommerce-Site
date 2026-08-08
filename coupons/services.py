@@ -58,4 +58,5 @@ def discount_for(coupon, cart_total):
     amount = Decimal(cart_total) * (Decimal(coupon.discount) / Decimal(100))
     if coupon.max_discount_amount is not None:
         amount = min(amount, coupon.max_discount_amount)
+    amount = min(amount, Decimal(cart_total))
     return _cents(amount)

@@ -53,7 +53,7 @@ from django.db.models import Avg
 
 
 def todays_deals(request, category_slug=None):
-    categories = Category.objects.all()
+    categories = Category.objects.exclude(slug='')
     now = timezone.now()
 
     if category_slug:
@@ -74,7 +74,7 @@ def todays_deals(request, category_slug=None):
     page_number = request.GET.get('page')
     deals = paginator.get_page(page_number)
 
-    suggested_products = Product.objects.filter(available=True)[:10]
+    suggested_products = Product.objects.with_rating().with_deal_price().filter(available=True)[:10]
 
     return render(request, 'deals/todays_deals.html', {
         'deals': deals,

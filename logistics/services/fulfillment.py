@@ -565,6 +565,9 @@ class FulfillmentService:
             notify_shipment_update(shipment, description)
 
         cls._sync_order(shipment)
+        if status == ShipmentStatus.DELIVERED and shipment.is_cod:
+            from payments.services import collect_cod_cash
+            collect_cod_cash(shipment, source='system')
         return shipment
 
     @classmethod
@@ -606,47 +609,6 @@ class FulfillmentService:
                 logger.warning(
                     'Order %s sync skipped: %s', order.id, _reason,
                 )
-        cls._sync_legacy_shipment(shipment)
-
-    @classmethod
-    def _sync_legacy_shipment(cls, shipment):
-        """Mirror the LMS status onto the legacy shipping.Shipment (if one
-        exists for historical orders) so the older tracking UI and admin
-        dashboard stay consistent."""
-        order = shipment.order
-        if order is None:
-            return
-        legacy = getattr(order, 'shipment', None)
-        if legacy is None:
-            return
-        mapping = {
-            ShipmentStatus.ORDER_CONFIRMED: 'pending',
-            ShipmentStatus.PACKED: 'pending',
-            ShipmentStatus.READY_FOR_PICKUP: 'pending',
-            ShipmentStatus.PICKED_UP: 'shipped',
-            ShipmentStatus.AT_ORIGIN_HUB: 'in_transit',
-            ShipmentStatus.IN_TRANSIT: 'in_transit',
-            ShipmentStatus.AT_DESTINATION_HUB: 'in_transit',
-            ShipmentStatus.OUT_FOR_DELIVERY: 'in_transit',
-            ShipmentStatus.DELIVERED: 'delivered',
-            ShipmentStatus.DELIVERY_FAILED: 'failed',
-            ShipmentStatus.CUSTOMER_UNAVAILABLE: 'failed',
-            ShipmentStatus.CANCELLED: 'failed',
-            ShipmentStatus.RETURNED: 'failed',
-            ShipmentStatus.RTO_INITIATED: 'failed',
-            ShipmentStatus.LOST: 'failed',
-            ShipmentStatus.DAMAGED: 'failed',
-        }
-        fields = []
-        legacy_status = mapping.get(shipment.status)
-        if legacy_status and legacy.status != legacy_status:
-            legacy.status = legacy_status
-            fields.append('status')
-        if shipment.tracking_number and legacy.tracking_number != shipment.tracking_number:
-            legacy.tracking_number = shipment.tracking_number
-            fields.append('tracking_number')
-        if fields:
-            legacy.save(update_fields=fields + ['updated_at'])
 
     # --------------------------------------------------------------- pickups
     @classmethod

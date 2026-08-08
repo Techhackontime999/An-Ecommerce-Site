@@ -9,7 +9,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.urls import reverse
 
-from .models import Order
+from .models import Order, Refund
 from .state import set_order_status
 
 logger = logging.getLogger(__name__)
@@ -95,6 +95,44 @@ def _notify_cancelled(order, actor, refunded):
             link=reverse('seller:orders'),
             icon='ban',
         )
+
+
+# ---------------------------------------------------------------------------
+# Refunds
+# ---------------------------------------------------------------------------
+
+def create_refund(order, *, amount, method=Refund.Method.ORIGINAL_PAYMENT,
+                  reason='', actor=None, return_request=None):
+    """Create a refund with over-refund protection, atomically.
+
+    Serialises on the captured payment row (``select_for_update``) so two
+    concurrent admin actions can never together refund more than was actually
+    captured, then runs the same validation as ``Refund.clean()``. Unlike a raw
+    bulk ``queryset.update()`` in the admin, this path cannot be bypassed.
+
+    Returns the created ``Refund``. Raises ``django.core.exceptions.ValidationError``
+    for a non-positive amount or an over-refund.
+    """
+    from django.core.exceptions import ValidationError
+    from payments.models import Payment
+
+    with transaction.atomic():
+        order = Order.objects.select_for_update().get(pk=order.pk)
+        payment = Payment.objects.select_for_update().filter(order=order).first()
+        # Pin the locked payment on the order instance so ``total_paid()`` (used
+        # by ``Refund.clean``) reflects the state we serialised on.
+        order.payment = payment
+
+        refund = Refund(
+            order=order, amount=amount, method=method, reason=reason,
+            initiated_by=actor, return_request=return_request,
+        )
+        try:
+            refund.full_clean()
+        except ValidationError:
+            raise
+        refund.save()
+        return refund
 
 
 # ---------------------------------------------------------------------------

@@ -10,7 +10,7 @@ from django.contrib import messages
 
 ADMIN_MODELS_CLEAR_ORDER = [
     'reviews.ReviewReport', 'reviews.ProductReviewImage', 'reviews.ProductReview',
-    'shipping.Shipment', 'shipping.ShippingAddress', 'shipping.ShippingMethod',
+    'shipping.ShippingAddress', 'shipping.ShippingMethod',
     'blogs.PostReport', 'blogs.PostView', 'blogs.ActivityFeedItem', 'blogs.UserReaction',
     'blogs.Notification', 'blogs.Follow', 'blogs.Like', 'blogs.Bookmark',
     'blogs.Comment', 'blogs.PostImage', 'blogs.PostProduct', 'blogs.Post',
@@ -23,7 +23,7 @@ ADMIN_MODELS_CLEAR_ORDER = [
     'contact.ContactMessage', 'about.TeamMember', 'about.AboutSection',
     'faq.Story', 'faq.FAQ', 'services.Service',
     'payments.Payment', 'order.Refund', 'order.ReturnRequest', 'order.OrderItem', 'order.Order',
-    'reviews.SellerReview', 'reviews.Review', 'deals.Deal',
+    'reviews.SellerReview', 'deals.Deal',
     'coupons.Coupon', 'shop.Product', 'accounts.SellerProfile',
     'accounts.CustomerProfile', 'shop.Category',
 ]

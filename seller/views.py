@@ -5,6 +5,7 @@ from shop.models import Product, ProductImage, ProductVariant, VariantImage
 from order.models import OrderItem, Order
 from accounts.models import SellerProfile
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from .forms import ProductForm, VariantsFormSet, SellerDocumentForm
 from accounts.forms import SellerProfileForm
 from accounts.verification import submit_for_verification
@@ -224,6 +225,7 @@ def seller_orders(request):
     return render(request, 'seller/orders.html', context)
 
 @login_required
+@require_POST
 def update_order_status(request, order_id):
     order = get_object_or_404(
         Order.objects.filter(items__product__seller=request.user.sellerprofile).distinct(),
@@ -237,28 +239,36 @@ def update_order_status(request, order_id):
     if not ok:
         messages.error(request, reason)
         return redirect('seller:orders')
-    order.paid = True
-    order.save(update_fields=['paid', 'updated'])
 
     created = 0
-    try:
-        from logistics.services.fulfillment import FulfillmentService
-        created = len(FulfillmentService.create_shipments_for_order(order, actor=request.user))
-    except Exception as exc:
-        messages.error(request, f'Fulfilment could not be started: {exc}')
+    # A seller dashboard click must never mark an order paid: only a verified
+    # gateway capture (or the admin refund flow) may set paid=True. Fulfilment
+    # is therefore gated on actual payment, never on a manual confirmation.
+    if order.paid:
+        try:
+            from logistics.services.fulfillment import FulfillmentService
+            created = len(FulfillmentService.create_shipments_for_order(order, actor=request.user))
+        except Exception as exc:
+            messages.error(request, f'Fulfilment could not be started: {exc}')
 
     notify(
         order.user,
         Notification.Category.ORDER,
         f'Order #{order.id} confirmed',
-        f'{request.user.sellerprofile.shop_name} confirmed your order. Your item(s) are being prepared for dispatch.',
+        (
+            f'{request.user.sellerprofile.shop_name} confirmed your order. '
+            f'Your item(s) are being prepared for dispatch.'
+            if order.paid else
+            f'{request.user.sellerprofile.shop_name} confirmed your order. '
+            f'We will start preparing it once payment is received.'
+        ),
         link=reverse('order:my_orders'),
         icon='box',
     )
-    if created:
-        messages.success(request, 'Order confirmed and fulfilment started.')
+    if order.paid:
+        messages.success(request, 'Order confirmed and fulfilment started.' if created else 'Order confirmed.')
     else:
-        messages.success(request, 'Order marked as paid/confirmed.')
+        messages.success(request, 'Order confirmed — awaiting payment.')
     return redirect('seller:orders')
 
 
@@ -385,7 +395,7 @@ def best_sellers(request):
 def sellers_profile_search(request):
     query = request.GET.get('q', '').strip()
 
-    profile = SellerProfile.objects.all()
+    profile = SellerProfile.objects.filter(is_verified=True)
    
 
     if query:

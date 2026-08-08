@@ -1,6 +1,7 @@
 {% extends "shop/base/base.html" %}
+{% load i18n %}
 {% load preference_extras %}
-{% block title %}Your Cart — Shop-Seed{% endblock %}
+{% block title %}{% trans 'Your Cart' %} — Shop-Seed{% endblock %}
 
 {% block content %}
 <!-- Cart Hero -->
@@ -11,30 +12,29 @@
 
   <div class="container-aq crt-hero-inner">
     <div class="breadcrumb-aq crt-breadcrumb">
-      <a href="{% url 'shop:home' %}">Home</a>
+      <a href="{% url 'shop:home' %}">{% trans 'Home' %}</a>
       <span class="sep"><i class="fas fa-chevron-right"></i></span>
-      <a href="{% url 'shop:product_list' %}">Shop</a>
+      <a href="{% url 'shop:product_list' %}">{% trans 'Shop' %}</a>
       <span class="sep"><i class="fas fa-chevron-right"></i></span>
-      <span class="current">Cart</span>
+      <span class="current">{% trans 'Cart' %}</span>
     </div>
 
     <div class="crt-hero-left fade-up">
-      <span class="hero-aq-badge"><i class="fas fa-bag-shopping"></i> Your Cart</span>
+      <span class="hero-aq-badge"><i class="fas fa-bag-shopping"></i> {% trans 'Your Cart' %}</span>
       <h1 class="crt-hero-title">
         {% if cart|length %}
-        Everything, <span class="crt-hero-accent">ready to go</span>
+        {% trans 'Everything,' %} <span class="crt-hero-accent">{% trans 'ready to go' %}</span>
         {% else %}
-        Your cart is <span class="crt-hero-accent">waiting</span>
+        {% trans 'Your cart is' %} <span class="crt-hero-accent">{% trans 'waiting' %}</span>
         {% endif %}
       </h1>
       {% if cart|length %}
       <p class="crt-hero-sub">
-        You have {{ cart|length }} item{{ cart|length|pluralize }} in your cart.
-        Double-check your picks, then head to checkout.
+        {% blocktranslate count counter=cart|length %}You have {{ counter }} item in your cart. Double-check your picks, then head to checkout.{% plural %}You have {{ counter }} items in your cart. Double-check your picks, then head to checkout.{% endblocktranslate %}
       </p>
       {% else %}
       <p class="crt-hero-sub">
-        Nothing in here yet. Browse the shop and add something you love.
+        {% trans 'Nothing in here yet. Browse the shop and add something you love.' %}
       </p>
       {% endif %}
     </div>
@@ -42,7 +42,7 @@
     <div class="crt-hero-right fade-up fade-up-delay-1" aria-hidden="true">
       <div class="crt-hero-count">
         <span class="crt-hero-count-num mono">{{ cart|length }}</span>
-        <span class="crt-hero-count-label">item{{ cart|length|pluralize }}</span>
+        <span class="crt-hero-count-label">{% blocktranslate count counter=cart|length %}item{% plural %}items{% endblocktranslate %}</span>
       </div>
     </div>
   </div>
@@ -56,9 +56,9 @@
       <!-- Items -->
       <div class="crt-main">
         <div class="crt-list-head fade-up">
-          <h2 class="crt-list-title">Items in your cart</h2>
+          <h2 class="crt-list-title">{% trans 'Items in your cart' %}</h2>
           <a class="crt-continue" href="{% url 'shop:product_list' %}">
-            <i class="fas fa-arrow-left"></i> Continue shopping
+            <i class="fas fa-arrow-left"></i> {% trans 'Continue shopping' %}
           </a>
         </div>
 
@@ -84,7 +84,7 @@
               {% endif %}
               <div class="crt-price">
                 {% if item.price < product.price %}
-                <span class="crt-deal-tag"><i class="fas fa-bolt"></i> Deal</span>
+                <span class="crt-deal-tag"><i class="fas fa-bolt"></i> {% trans 'Deal' %}</span>
                 <span class="crt-price-now">{% price item.price %}</span>
                 <del class="crt-price-old">{% price product.price %}</del>
                 {% else %}
@@ -100,34 +100,34 @@
               {% endif %}
               {{ item.update_quantity_form.quantity }}
               {{ item.update_quantity_form.update }}
-              <button type="button" class="crt-step" data-step="-1" aria-label="Decrease quantity">
+              <button type="button" class="crt-step" data-step="-1" aria-label="{% trans 'Decrease quantity' %}">
                 <i class="fas fa-minus"></i>
               </button>
               <span class="crt-qty-val" data-qty-val aria-live="polite">{{ item.quantity }}</span>
-              <button type="button" class="crt-step" data-step="1" aria-label="Increase quantity">
+              <button type="button" class="crt-step" data-step="1" aria-label="{% trans 'Increase quantity' %}">
                 <i class="fas fa-plus"></i>
               </button>
-              <input type="submit" value="Update" class="crt-qty-submit" hidden>
+              <input type="submit" value="{% trans 'Update' %}" class="crt-qty-submit" hidden>
             </form>
 
             <div class="crt-line-total">
-              <span class="crt-line-label">Line total</span>
+              <span class="crt-line-label">{% trans 'Line total' %}</span>
               <strong class="mono">{% price item.total_price %}</strong>
             </div>
 
             {% if item.variant %}
             <form class="crt-remove" method="post" action="{% url 'cart:cart_remove_variant' product.id item.variant.id %}"
-                  title="Remove {{ product.name }} ({{ item.variant.name }})">
+                  title="{% blocktranslate %}Remove {{ product.name }} ({{ item.variant.name }}){% endblocktranslate %}">
               {% csrf_token %}
-              <button type="submit" class="crt-remove-btn" aria-label="Remove {{ product.name }} ({{ item.variant.name }})">
+              <button type="submit" class="crt-remove-btn" aria-label="{% blocktranslate %}Remove {{ product.name }} ({{ item.variant.name }}){% endblocktranslate %}">
                 <i class="fas fa-xmark"></i>
               </button>
             </form>
             {% else %}
             <form class="crt-remove" method="post" action="{% url 'cart:cart_remove' product.id %}"
-                  title="Remove {{ product.name }}">
+                  title="{% blocktranslate %}Remove {{ product.name }}{% endblocktranslate %}">
               {% csrf_token %}
-              <button type="submit" class="crt-remove-btn" aria-label="Remove {{ product.name }}">
+              <button type="submit" class="crt-remove-btn" aria-label="{% blocktranslate %}Remove {{ product.name }}{% endblocktranslate %}">
                 <i class="fas fa-xmark"></i>
               </button>
             </form>
@@ -141,58 +141,58 @@
       <!-- Summary -->
       <aside class="crt-aside">
         <div class="crt-card fade-up fade-up-delay-1">
-          <h3 class="crt-card-title">Order summary</h3>
+          <h3 class="crt-card-title">{% trans 'Order summary' %}</h3>
 
           <div class="crt-summary-rows">
             <div class="crt-summary-row">
-              <span>Items ({{ cart|length }})</span>
+              <span>{% blocktranslate count counter=cart|length %}Item ({{ counter }}){% plural %}Items ({{ counter }}){% endblocktranslate %}</span>
               <span class="mono">{% price cart.get_total_price %}</span>
             </div>
             {% if cart.get_discount %}
             <div class="crt-summary-row crt-discount">
-              <span><i class="fas fa-tag"></i> Coupon discount</span>
+              <span><i class="fas fa-tag"></i> {% trans 'Coupon discount' %}</span>
               <span class="mono">−{% price cart.get_discount %}</span>
             </div>
             {% endif %}
             <div class="crt-summary-row">
-              <span>Shipping</span>
-              <span class="crt-shipping-val">Calculated at checkout</span>
+              <span>{% trans 'Shipping' %}</span>
+              <span class="crt-shipping-val">{% trans 'Calculated at checkout' %}</span>
             </div>
             <div class="crt-summary-total">
-              <span>Total</span>
+              <span>{% trans 'Total' %}</span>
               <strong class="mono">{% price cart.get_total_price_after_discount %}</strong>
             </div>
           </div>
 
           <form class="crt-coupon" action="{% url 'coupons:apply' %}" method="post" data-coupon-form>
             {% csrf_token %}
-            <label class="crt-field-label" for="id_coupon">Coupon code</label>
+            <label class="crt-field-label" for="id_coupon">{% trans 'Coupon code' %}</label>
             <div class="crt-coupon-row">
               <input type="text" name="code" id="id_coupon" class="crt-coupon-input"
-                     placeholder="e.g. WELCOME10" value="{{ coupon.code|default:'' }}"
+                     placeholder="{% trans 'e.g. WELCOME10' %}" value="{{ coupon.code|default:'' }}"
                      autocomplete="off" spellcheck="false">
-              <button type="submit" class="crt-btn-ghost">Apply</button>
+              <button type="submit" class="crt-btn-ghost">{% trans 'Apply' %}</button>
             </div>
             {% if cart.coupon %}
-            <p class="crt-coupon-applied"><i class="fas fa-circle-check"></i> {{ coupon.code }} applied — {{ coupon.discount }}% off</p>
+            <p class="crt-coupon-applied"><i class="fas fa-circle-check"></i> {% blocktranslate %}{{ coupon.code }} applied — {{ coupon.discount }}% off{% endblocktranslate %}</p>
             {% endif %}
           </form>
 
           <form action="{% url 'order:order_create' %}" method="get">
             <button type="submit" class="crt-btn-primary">
-              <span>Proceed to checkout</span>
+              <span>{% trans 'Proceed to checkout' %}</span>
               <i class="fas fa-arrow-right"></i>
             </button>
           </form>
 
           <a class="crt-continue-mobile" href="{% url 'shop:product_list' %}">
-            <i class="fas fa-arrow-left"></i> Continue shopping
+            <i class="fas fa-arrow-left"></i> {% trans 'Continue shopping' %}
           </a>
 
           <ul class="crt-trust">
-            <li><i class="fas fa-lock"></i> Secure checkout</li>
-            <li><i class="fas fa-truck-fast"></i> Free shipping over $50</li>
-            <li><i class="fas fa-rotate-left"></i> Easy 30-day returns</li>
+            <li><i class="fas fa-lock"></i> {% trans 'Secure checkout' %}</li>
+            <li><i class="fas fa-truck-fast"></i> {% trans 'Free shipping over $50' %}</li>
+            <li><i class="fas fa-rotate-left"></i> {% trans 'Easy 30-day returns' %}</li>
           </ul>
         </div>
       </aside>
@@ -200,12 +200,12 @@
       <!-- Mobile sticky checkout bar (below 1024px) -->
       <div class="crt-sticky-checkout">
         <div class="crt-sticky-total">
-          <span class="crt-line-label">Total</span>
+          <span class="crt-line-label">{% trans 'Total' %}</span>
           <strong class="mono">{% price cart.get_total_price_after_discount %}</strong>
         </div>
         <form action="{% url 'order:order_create' %}" method="get">
           <button type="submit" class="crt-btn-primary">
-            <span>Checkout</span>
+            <span>{% trans 'Checkout' %}</span>
             <i class="fas fa-arrow-right"></i>
           </button>
         </form>
@@ -216,20 +216,19 @@
     <div class="crt-empty">
       <div class="crt-empty-card fade-up">
         <div class="crt-empty-icon"><i class="fas fa-bag-shopping"></i></div>
-        <span class="hero-aq-badge">Your Cart</span>
-        <h2 class="crt-empty-title">Your cart is empty</h2>
+        <span class="hero-aq-badge">{% trans 'Your Cart' %}</span>
+        <h2 class="crt-empty-title">{% trans 'Your cart is empty' %}</h2>
         <p class="crt-empty-sub">
-          Looks like you haven't added anything yet. Explore the shop and find
-          something that feels right.
+          {% trans "Looks like you haven't added anything yet. Explore the shop and find something that feels right." %}
         </p>
         <a href="{% url 'shop:product_list' %}" class="crt-btn-primary">
-          <span>Browse products</span>
+          <span>{% trans 'Browse products' %}</span>
           <i class="fas fa-arrow-right"></i>
         </a>
         <div class="crt-empty-perks">
-          <span><i class="fas fa-truck-fast"></i> Free shipping over $50</span>
-          <span><i class="fas fa-rotate-left"></i> Easy returns</span>
-          <span><i class="fas fa-lock"></i> Secure checkout</span>
+          <span><i class="fas fa-truck-fast"></i> {% trans 'Free shipping over $50' %}</span>
+          <span><i class="fas fa-rotate-left"></i> {% trans 'Easy returns' %}</span>
+          <span><i class="fas fa-lock"></i> {% trans 'Secure checkout' %}</span>
         </div>
       </div>
     </div>

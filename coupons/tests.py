@@ -108,6 +108,13 @@ class CouponValidationTests(TestCase):
         uncapped = make_coupon(code='UNCAPPED', discount=10)
         self.assertEqual(discount_for(uncapped, Decimal('500')), Decimal('50.00'))
 
+    def test_discount_never_exceeds_cart_total(self):
+        coupon = make_coupon(code='FULL', discount=100)
+        self.assertEqual(discount_for(coupon, Decimal('250.00')), Decimal('250.00'))
+        self.assertEqual(discount_for(coupon, Decimal('0')), Decimal('0'))
+        capped = make_coupon(code='CAPHIGH', discount=90, max_discount_amount=Decimal('999'))
+        self.assertEqual(discount_for(capped, Decimal('50.00')), Decimal('45.00'))
+
 
 class CouponCheckoutIntegrationTests(TestCase):
     def setUp(self):

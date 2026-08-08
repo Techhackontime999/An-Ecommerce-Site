@@ -293,3 +293,31 @@ class SellerVerificationTests(TestCase):
         profile.refresh_from_db()
         self.assertEqual(profile.verification_status, SellerProfile.VerificationStatus.REJECTED)
         self.assertFalse(profile.is_verified)
+
+
+class TemplateI18nTests(TestCase):
+    def test_login_page_renders_translated_strings(self):
+        response = self.client.get(reverse('accounts:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Welcome back')
+        self.assertContains(response, 'Sign In')
+        self.assertContains(response, 'Create an account')
+        self.assertContains(response, 'Forgot password?')
+        self.assertContains(response, 'Username')
+        self.assertContains(response, 'Password')
+
+    def test_signup_page_renders_translated_strings(self):
+        response = self.client.get(reverse('accounts:signup'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Create your account')
+        self.assertContains(response, 'Create Account')
+        self.assertContains(response, 'Confirm Password')
+        self.assertContains(response, 'Sign in')
+
+    def test_seller_register_page_renders_translated_strings(self):
+        response = self.client.get(reverse('accounts:seller_register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Become a seller')
+        self.assertContains(response, 'Create Seller Account')
+        self.assertContains(response, 'Shop Name')
+        self.assertContains(response, 'Sign in to your shop')

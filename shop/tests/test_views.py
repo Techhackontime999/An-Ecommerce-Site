@@ -24,7 +24,19 @@ class TestViews(TestCase):
         response = self.client.get(reverse('shop:product_detail', kwargs={'id': 20, 'slug': 'testproduct'}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'shop/product/detail.html')
+        self.assertContains(response, 'rel="canonical"')
+
+    def test_category_list_has_canonical(self):
+        response = self.client.get(reverse('shop:product_list_by_category', kwargs={"category_slug": "fastfood1"}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'rel="canonical"')
 
     def test_product_detail_view_error(self):
         response = self.client.get(reverse('shop:product_detail', kwargs={'id': 21, 'slug': 'nottestproduct'}))
         self.assertEqual(response.status_code, 404)
+
+    def test_sitemap_includes_products_and_categories(self):
+        response = self.client.get('/sitemap.xml')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '/shop/20/testproduct/')
+        self.assertContains(response, '/shop/fastfood1/')

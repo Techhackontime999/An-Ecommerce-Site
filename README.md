@@ -41,3 +41,41 @@ python manage.py runserver
 ## Where to find Me
 Like Me on [Facebook]()
 Or visit My [Website]
+
+## Production operations
+
+### Required environment variables
+- `DJANGO_SETTINGS_MODULE=config.settings.production`
+- `SECRET_KEY` — Django secret, unique per deployment.
+- `FIELD_ENCRYPTION_KEY` — base64 key used to encrypt courier API credentials
+  (`logistics` `api_key`/`api_secret`) via Fernet. **The site will not start in
+  production without it.** Generate one with:
+
+  ```sh
+  python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+  ```
+
+  Set it once and keep it stable — rotating it invalidates stored credentials.
+  The dev default is only for `config.settings.local`.
+- `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` / `RAZORPAY_WEBHOOK_SECRET`
+- `REDIS_URL` (optional) — when set, the cache uses Redis; otherwise a
+  `DatabaseCache` table is used.
+
+### Scheduled jobs (Render cron / Celery beat)
+- **Tracking sync** — poll courier APIs for in-flight shipments and advance the
+  timeline:
+
+  ```sh
+  python manage.py sync_tracking_status --limit 100 --min-age-hours 1
+  ```
+
+  Safe to run every 15–30 minutes; it only touches shipments with a courier AWB
+  that aren't terminal and were last tracked at least `--min-age-hours` ago.
+- **Exchange rates** — refresh the cached live currency rates:
+
+  ```sh
+  python manage.py update_currency_rates
+  ```
+
+  Runs on the same schedule as the rate cache TTL (default 12 h).
+

@@ -1,6 +1,7 @@
 {% extends "shop/base/base.html" %}
+{% load i18n %}
 {% load preference_extras %}
-{% block title %}Order {{ order.order_number }} — Shop-Seed{% endblock %}
+{% block title %}{% blocktranslate with num=order.order_number %}Order {{ num }} — Shop-Seed{% endblocktranslate %}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -110,21 +111,21 @@
 {% block content %}
 <section class="od-page">
   <div class="od-wrap">
-    <a href="{% url 'order:my_orders' %}" class="od-back"><i class="fas fa-arrow-left"></i> Back to My Orders</a>
+    <a href="{% url 'order:my_orders' %}" class="od-back"><i class="fas fa-arrow-left"></i> {% trans 'Back to My Orders' %}</a>
 
     <header class="od-head">
       <div>
-        <h1 class="od-title">Order <span class="od-id">{{ order.order_number }}</span></h1>
+        <h1 class="od-title">{% trans 'Order' %} <span class="od-id">{{ order.order_number }}</span></h1>
         <div class="od-sub">
-          <i class="fas fa-calendar-day"></i> Placed {{ order.created|date:"F j, Y" }}
+          <i class="fas fa-calendar-day"></i> {% blocktranslate with date=order.created|date:"F j, Y" %}Placed {{ date }}{% endblocktranslate %}
         </div>
       </div>
       <div class="od-actions">
         <a href="{% url 'order:order_invoice' order.id %}" class="od-btn od-btn-outline">
-          <i class="fas fa-file-invoice"></i> Download Invoice
+          <i class="fas fa-file-invoice"></i> {% trans 'Download Invoice' %}
         </a>
         {% if order.cancelable %}
-        <a href="#cancel" class="od-btn od-btn-danger"><i class="fas fa-ban"></i> Cancel Order</a>
+        <a href="#cancel" class="od-btn od-btn-danger"><i class="fas fa-ban"></i> {% trans 'Cancel Order' %}</a>
         {% endif %}
       </div>
     </header>
@@ -132,7 +133,7 @@
     <div class="od-grid">
       <div style="display:flex;flex-direction:column;gap:1.5rem;">
         <article class="od-card">
-          <div class="od-card-head"><i class="fas fa-box-open"></i> Items</div>
+          <div class="od-card-head"><i class="fas fa-box-open"></i> {% trans 'Items' %}</div>
           <div class="od-card-body">
             <div class="od-items">
               {% for item in order.items.all %}
@@ -152,7 +153,7 @@
                 </div>
                 <div class="od-item-price">
                   {% price item.get_cost %}
-                  <div class="od-item-qty">Qty: {{ item.quantity }}</div>
+                  <div class="od-item-qty">{% trans 'Qty' %}: {{ item.quantity }}</div>
                 </div>
               </div>
               {% endfor %}
@@ -161,7 +162,7 @@
         </article>
 
         <article class="od-card">
-          <div class="od-card-head"><i class="fas fa-truck-fast"></i> Shipping</div>
+          <div class="od-card-head"><i class="fas fa-truck-fast"></i> {% trans 'Shipping' %}</div>
           <div class="od-card-body">
             <div class="od-addr-line"><i class="fas fa-user"></i><span><b>{{ order.first_name }} {{ order.last_name }}</b></span></div>
             <div class="od-addr-line"><i class="fas fa-location-dot"></i><span>{{ order.address }}<br>{{ order.city }}{% if order.state %}, {{ order.state }}{% endif %}{% if order.postal_code %} — {{ order.postal_code }}{% endif %}<br>{{ order.country }}</span></div>
@@ -170,22 +171,22 @@
 
             <div class="od-status-note {% if order.status == 'cancelled' or order.status == 'refunded' %}cancelled{% else %}info{% endif %}">
               {% if order.status == 'cancelled' %}
-              <i class="fas fa-ban"></i> This order was cancelled.
+              <i class="fas fa-ban"></i> {% trans 'This order was cancelled.' %}
               {% elif order.status == 'refunded' %}
-              <i class="fas fa-rotate-left"></i> This order was refunded.
+              <i class="fas fa-rotate-left"></i> {% trans 'This order was refunded.' %}
               {% else %}
-              <i class="fas fa-info-circle"></i> Status: <b>{{ order.get_status_display }}</b>
+              <i class="fas fa-info-circle"></i> {% trans 'Status' %}: <b>{{ order.get_status_display }}</b>
               {% endif %}
             </div>
 
             <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.75rem;">
               {% if order.tl_shipment %}
               <a href="{% url 'logistics:tracking_detail' order.tl_shipment.tracking_number|default:order.tl_shipment.shipment_number %}" class="od-btn od-btn-outline">
-                <i class="fas fa-location-dot"></i> Track Order
+                <i class="fas fa-location-dot"></i> {% trans 'Track Order' %}
               </a>
               {% else %}
               <a href="{% url 'shipping:order_tracking' order.id %}" class="od-btn od-btn-outline">
-                <i class="fas fa-location-dot"></i> Track Order
+                <i class="fas fa-location-dot"></i> {% trans 'Track Order' %}
               </a>
               {% endif %}
             </div>
@@ -194,17 +195,17 @@
 
         {% if order.cancelable %}
         <article class="od-card" id="cancel">
-          <div class="od-card-head" style="color:#BE123C;"><i class="fas fa-ban"></i> Cancel Order</div>
+          <div class="od-card-head" style="color:#BE123C;"><i class="fas fa-ban"></i> {% trans 'Cancel Order' %}</div>
           <div class="od-card-body">
             <div class="od-cancel-box">
-              <p>You can cancel this order before it ships. If you've already paid, the full amount will be refunded.</p>
-              <form method="post" action="{% url 'order:order_cancel' order.id %}" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+              <p>{% trans "You can cancel this order before it ships. If you've already paid, the full amount will be refunded." %}</p>
+              <form method="post" action="{% url 'order:order_cancel' order.id %}" onsubmit="return confirm('{% trans 'Are you sure you want to cancel this order?' %}');">
                 {% csrf_token %}
                 <div class="od-reason">
-                  <textarea name="reason" rows="2" maxlength="300" placeholder="Reason for cancellation (optional)"></textarea>
+                  <textarea name="reason" rows="2" maxlength="300" placeholder="{% trans 'Reason for cancellation (optional)' %}"></textarea>
                 </div>
                 <button type="submit" class="od-btn od-btn-danger" style="margin-top:.9rem;">
-                  <i class="fas fa-ban"></i> Cancel Order
+                  <i class="fas fa-ban"></i> {% trans 'Cancel Order' %}
                 </button>
               </form>
             </div>
@@ -213,7 +214,7 @@
         {% endif %}
 
         <article class="od-card">
-          <div class="od-card-head"><i class="fas fa-rotate-left"></i> Returns</div>
+          <div class="od-card-head"><i class="fas fa-rotate-left"></i> {% trans 'Returns' %}</div>
           <div class="od-card-body">
             {% for ret in order.return_requests.all %}
             <div class="od-addr-line">
@@ -225,7 +226,7 @@
               </span>
             </div>
             {% empty %}
-            <p style="margin:0 0 .75rem;font-size:.9rem;color:var(--aq-tertiary);">No return requests.</p>
+            <p style="margin:0 0 .75rem;font-size:.9rem;color:var(--aq-tertiary);">{% trans 'No return requests.' %}</p>
             {% endfor %}
 
             {% if order.status == 'delivered' and not has_open_return %}
@@ -233,17 +234,17 @@
                 {% csrf_token %}
                 <div class="od-reason">
                   <select name="reason" required style="width:100%;padding:.6rem .8rem;border-radius:var(--aq-radius-md);border:1px solid var(--aq-border);background:var(--aq-canvas);color:var(--aq-ink);">
-                    <option value="">Select a reason…</option>
+                    <option value="">{% trans 'Select a reason…' %}</option>
                     {% for value, label in return_reasons %}
                     <option value="{{ value }}">{{ label }}</option>
                     {% endfor %}
                   </select>
                 </div>
                 <div class="od-reason">
-                  <textarea name="details" rows="2" maxlength="500" placeholder="Details (optional)"></textarea>
+                  <textarea name="details" rows="2" maxlength="500" placeholder="{% trans 'Details (optional)' %}"></textarea>
                 </div>
                 <button type="submit" class="od-btn od-btn-outline" style="margin-top:.9rem;">
-                  <i class="fas fa-rotate-left"></i> Request a Return
+                  <i class="fas fa-rotate-left"></i> {% trans 'Request a Return' %}
                 </button>
               </form>
             {% endif %}
@@ -253,43 +254,43 @@
 
       <aside style="display:flex;flex-direction:column;gap:1.5rem;">
         <article class="od-card">
-          <div class="od-card-head"><i class="fas fa-receipt"></i> Payment Summary</div>
+          <div class="od-card-head"><i class="fas fa-receipt"></i> {% trans 'Payment Summary' %}</div>
           <div class="od-card-body">
             <div class="od-row">
-              <span>Subtotal</span>
+              <span>{% trans 'Subtotal' %}</span>
               <span>{% price totals.subtotal %}</span>
             </div>
             <div class="od-row">
-              <span>Shipping</span>
+              <span>{% trans 'Shipping' %}</span>
               <span>{% price totals.shipping %}</span>
             </div>
             {% if totals.discount %}
             <div class="od-row disc">
-              <span><i class="fas fa-tag"></i> Discount</span>
+              <span><i class="fas fa-tag"></i> {% trans 'Discount' %}</span>
               <span>- {% price totals.discount %}</span>
             </div>
             {% endif %}
             <div class="od-row tax">
-              <span>Tax (GST {{ totals.tax_rate|floatformat:"0" }}%)</span>
+              <span>{% blocktranslate with rate=totals.tax_rate|floatformat:"0" %}Tax (GST {{ rate }}%){% endblocktranslate %}</span>
               <span>{% price totals.tax %}</span>
             </div>
             <div class="od-total">
-              <span class="od-total-label">Total</span>
+              <span class="od-total-label">{% trans 'Total' %}</span>
               <span class="od-total-value">{% price totals.total %}</span>
             </div>
           </div>
         </article>
 
         <article class="od-card">
-          <div class="od-card-head"><i class="fas fa-credit-card"></i> Payment Status</div>
+          <div class="od-card-head"><i class="fas fa-credit-card"></i> {% trans 'Payment Status' %}</div>
           <div class="od-card-body">
-            <div class="od-addr-line"><i class="fas fa-circle-check"></i><span>{% if order.paid %}Paid{% else %}Payment pending{% endif %}</span></div>
+            <div class="od-addr-line"><i class="fas fa-circle-check"></i><span>{% if order.paid %}{% trans 'Paid' %}{% else %}{% trans 'Payment pending' %}{% endif %}</span></div>
             {% if payment %}
             <div class="od-addr-line"><i class="fas fa-hashtag"></i><span>{{ payment.get_status_display }}</span></div>
             <div class="od-addr-line"><i class="fas fa-money-bill-wave"></i><span>{{ payment.currency }} {% price payment.amount %}</span></div>
             {% endif %}
             <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem;">
-              <a href="{% url 'order:order_invoice' order.id %}" class="od-btn"><i class="fas fa-download"></i> Invoice PDF</a>
+              <a href="{% url 'order:order_invoice' order.id %}" class="od-btn"><i class="fas fa-download"></i> {% trans 'Invoice PDF' %}</a>
             </div>
           </div>
         </article>

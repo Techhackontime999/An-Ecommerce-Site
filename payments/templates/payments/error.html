@@ -1,15 +1,16 @@
 {% extends "shop/base/base.html" %}
-{% block title %}Payment Failed{% endblock %}
+{% load i18n %}
+{% block title %}{% trans 'Payment Failed' %}{% endblock %}
 
 {% block content %}
 <div class="container my-5 text-center">
-    <h1 class="mb-4" style="color: red;">Payment Failed!</h1>
+    <h1 class="mb-4" style="color: red;">{% trans 'Payment Failed!' %}</h1>
     <div class="card shadow-sm mx-auto" style="max-width: 500px;">
         <div class="card-body">
-            <p>Your payment for Order {{ order.order_number }} could not be processed.</p>
-            <p>Please try again or contact support.</p>
-            <a href="{% url 'payments:checkout' order.id %}" class="btn btn-primary">Try Again</a>
-            <a href="{% url 'shop:product_list' %}" class="btn btn-secondary">Continue Shopping</a>
+            <p>{% blocktranslate %}Your payment for Order {{ order.order_number }} could not be processed.{% endblocktranslate %}</p>
+            <p>{% trans 'Please try again or contact support.' %}</p>
+            <a href="{% url 'payments:checkout' order.id %}" class="btn btn-primary">{% trans 'Try Again' %}</a>
+            <a href="{% url 'shop:product_list' %}" class="btn btn-secondary">{% trans 'Continue Shopping' %}</a>
         </div>
     </div>
 </div>

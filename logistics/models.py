@@ -9,6 +9,7 @@ from order.models import Order, OrderItem
 from accounts.models import SellerProfile
 from shop.models import Product, Category
 from shipping.models import ShippingAddress
+from core.encrypted_fields import EncryptedCharField
 
 from .constants import (
     ShipmentStatus,
@@ -93,8 +94,8 @@ class CourierCompany(models.Model):
     supports_route_optimization = models.BooleanField(default=False)
 
     api_base_url = models.CharField(max_length=300, blank=True)
-    api_key = models.CharField(max_length=300, blank=True)
-    api_secret = models.CharField(max_length=300, blank=True)
+    api_key = EncryptedCharField(max_length=512, blank=True, help_text='Encrypted at rest.')
+    api_secret = EncryptedCharField(max_length=512, blank=True, help_text='Encrypted at rest.')
     extra_config = models.JSONField(default=dict, blank=True)
     sandbox_mode = models.BooleanField(default=True)
 

@@ -49,7 +49,7 @@ def _apply_language(data, request, response):
     if not lang:
         return response
     translation.activate(lang)
-    request.session['django_language'] = lang
+    request.session[settings.LANGUAGE_COOKIE_NAME] = lang
     response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
     return response
 

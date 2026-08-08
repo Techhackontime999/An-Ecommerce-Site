@@ -129,9 +129,12 @@
               </td>
               <td>
                 {% if not item.order.paid %}
-                  <a href="{% url 'seller:update_order_status' item.order.id %}" class="seller-dash-btn-primary seller-dash-btn-sm">
-                    <i class="fas fa-box"></i> Confirm &amp; Fulfil
-                  </a>
+                  <form method="post" action="{% url 'seller:update_order_status' item.order.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="seller-dash-btn-primary seller-dash-btn-sm">
+                      <i class="fas fa-box"></i> Confirm Order
+                    </button>
+                  </form>
                 {% else %}
                   <span class="seller-dash-product-sku"><i class="fas fa-check-circle" style="color: #16A34A;"></i> Completed</span>
                 {% endif %}

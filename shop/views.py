@@ -8,19 +8,19 @@ from platform_studio.utils import get_setting
 
 
 def home(request):
-    trending = Product.objects.filter(available=True)[:8]
+    trending = Product.objects.with_rating().with_deal_price().filter(available=True)[:8]
     hero_products = list(
-        Product.objects.filter(available=True, image__isnull=False)
+        Product.objects.with_deal_price().filter(available=True, image__isnull=False)
         .exclude(image='')[:16]
     )
     now = timezone.now()
-    deals = Product.objects.filter(
+    deals = Product.objects.with_rating().with_deal_price().filter(
         available=True,
         deals__start_time__lte=now,
         deals__end_time__gte=now
     ).distinct()[:4]
     if not deals:
-        deals = Product.objects.filter(available=True)[:4]
+        deals = Product.objects.with_rating().with_deal_price().filter(available=True)[:4]
     return render(request, 'shop/home.html', {
         'trending_products': trending,
         'hero_products': hero_products,
@@ -35,9 +35,9 @@ def product_list(request, category_slug=None):
 
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
-        products = Product.objects.filter(category=category, available=True)
+        products = Product.objects.with_rating().with_deal_price().filter(category=category, available=True)
     else:
-        products = Product.objects.filter(available=True)
+        products = Product.objects.with_rating().with_deal_price().filter(available=True)
 
     per_page = 12
     try:
@@ -56,10 +56,9 @@ def product_list(request, category_slug=None):
     page_products = list(page_obj.object_list)
 
     popular_qs = (
-        Product.objects.filter(available=True)
-        .annotate(review_count=Count('reviews'))
+        Product.objects.with_rating().with_deal_price().filter(available=True)
+        .annotate(review_count=Count('product_reviews'))
         .order_by('-review_count')
-        .prefetch_related('deals')
         .exclude(id__in=current_ids)
     )
     if category:
@@ -84,7 +83,7 @@ def product_list(request, category_slug=None):
             row.extend(fill_pool[:need])
             fill_pool = fill_pool[need:]
 
-    suggested_qs = Product.objects.filter(available=True).prefetch_related('deals')
+    suggested_qs = Product.objects.with_rating().with_deal_price().filter(available=True)
     if category:
         suggested_qs = suggested_qs.filter(category=category)
     if current_ids:
@@ -101,7 +100,10 @@ def product_list(request, category_slug=None):
 
 
 def product_detail(request, id, slug):
-    product = get_object_or_404(Product, id=id, slug=slug, available=True)
+    product = get_object_or_404(
+        Product.objects.with_rating().with_deal_price(),
+        id=id, slug=slug, available=True,
+    )
     cart_product_form = CartAddProductForm()
 
     from reviews.models import ProductReview
@@ -125,14 +127,13 @@ def product_detail(request, id, slug):
     from reviews.models import has_paid_order
     user_purchased = has_paid_order(request.user, product) if request.user.is_authenticated else False
 
-    related_qs = Product.objects.filter(available=True).prefetch_related('deals')
+    related_qs = Product.objects.with_rating().with_deal_price().filter(available=True)
     same_category = related_qs.filter(category=product.category).exclude(id=product.id)[:6]
     if len(same_category) < 6:
         popular_qs = (
-            Product.objects.filter(available=True)
+            Product.objects.with_rating().with_deal_price().filter(available=True)
             .annotate(review_count=Count('product_reviews', filter=Q(product_reviews__status='approved')))
             .order_by('-review_count')
-            .prefetch_related('deals')
             .exclude(id=product.id)
             .exclude(id__in=[p.id for p in same_category])
         )
@@ -190,7 +191,7 @@ def product_search(request):
     query = request.GET.get('q', '').strip()
     category_slug = request.GET.get('category', '').strip()
 
-    products = Product.objects.filter(available=True)
+    products = Product.objects.with_rating().with_deal_price().filter(available=True)
     product_categories = Category.objects.all()
 
     if category_slug:

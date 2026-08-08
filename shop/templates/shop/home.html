@@ -1,5 +1,6 @@
 {% extends "shop/base/base.html" %}
 {% load static %}
+{% load i18n %}
 {% load preference_extras %}
 
 {% block title %}{{ platform_settings.site_name }} — {{ platform_settings.site_tagline }}{% endblock %}
@@ -67,13 +68,13 @@
     <div class="parallax-aq-layer parallax-aq-layer-mid" data-parallax-speed="9">
       <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&q=80" alt="Premium headphones" loading="lazy">
     </div>
-    <h2 class="parallax-aq-title" data-parallax-speed="5">Shop the<br><span>Future</span></h2>
+    <h2 class="parallax-aq-title" data-parallax-speed="5">{% trans 'Shop the' %}<br><span>{% trans 'Future' %}</span></h2>
     <div class="parallax-aq-layer parallax-aq-layer-front" data-parallax-speed="3">
       <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=80" alt="Iconic sneaker" loading="lazy">
     </div>
   </div>
   <div class="parallax-aq-content">
-    <p>Scroll slowly — watch the layers drift apart.</p>
+    <p>{% trans 'Scroll slowly — watch the layers drift apart.' %}</p>
   </div>
   <div class="parallax-aq-fade"></div>
 </section>
@@ -197,9 +198,9 @@
             </div>
             {% endif %}
             {% if product.current_price and product.current_price < product.price %}
-            <span class="product-aq-tag sale">Sale</span>
+            <span class="product-aq-tag sale">{% trans 'Sale' %}</span>
             {% else %}
-            <span class="product-aq-tag new">New</span>
+            <span class="product-aq-tag new">{% trans 'New' %}</span>
             {% endif %}
           </div>
           <div class="product-aq-body">
@@ -241,7 +242,7 @@
             </div>
             <div class="product-aq-actions">
               <a href="{{ product.get_absolute_url }}" class="btn-aq btn-aq-primary" style="padding:0.5rem 1.25rem;font-size:0.8125rem;width:100%;justify-content:center;">
-                View Details
+                {% trans 'View Details' %}
               </a>
             </div>
           </div>
@@ -250,9 +251,9 @@
       {% empty %}
       <div class="empty-aq" style="grid-column:1/-1">
         <div class="empty-aq-icon"><i class="fas fa-box-open"></i></div>
-        <h3>No products yet</h3>
-        <p>Our collection is being curated. Check back soon.</p>
-        <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-primary">Browse All</a>
+        <h3>{% trans 'No products yet' %}</h3>
+        <p>{% trans 'Our collection is being curated. Check back soon.' %}</p>
+        <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-primary">{% trans 'Browse All' %}</a>
       </div>
       {% endfor %}
     </div>
@@ -287,7 +288,7 @@
               <i class="fas fa-box-open"></i>
             </div>
             {% endif %}
-            <span class="product-aq-tag sale">Sale</span>
+            <span class="product-aq-tag sale">{% trans 'Sale' %}</span>
           </div>
           <div class="product-aq-body">
             <h3>{{ product.name }}</h3>
@@ -328,7 +329,7 @@
             </div>
             <div class="product-aq-actions">
               <a href="{{ product.get_absolute_url }}" class="btn-aq btn-aq-primary" style="padding:0.5rem 1.125rem;font-size:0.75rem;width:100%;justify-content:center;">
-                Grab Deal
+                {% trans 'Grab Deal' %}
               </a>
             </div>
           </div>
@@ -337,9 +338,9 @@
       {% empty %}
       <div class="empty-aq" style="grid-column:1/-1">
         <div class="empty-aq-icon"><i class="fas fa-bolt"></i></div>
-        <h3>No deals right now</h3>
-        <p>Check back soon for exciting offers and discounts.</p>
-        <a href="{% url 'deals:todays_deals' %}" class="btn-aq btn-aq-primary">View All Deals</a>
+        <h3>{% trans 'No deals right now' %}</h3>
+        <p>{% trans 'Check back soon for exciting offers and discounts.' %}</p>
+        <a href="{% url 'deals:todays_deals' %}" class="btn-aq btn-aq-primary">{% trans 'View All Deals' %}</a>
       </div>
       {% endfor %}
     </div>

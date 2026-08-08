@@ -88,6 +88,27 @@ class FinalizePaymentTests(TestCase):
         self.assertEqual(self.order.status, Order.Status.CANCELLED)
         self.assertEqual(self.product.stock, 5)
 
+    @mock.patch('payments.services.refund_payment', return_value=(True, 'rfnd_stock'))
+    @mock.patch('payments.services.notify', autospec=True)
+    def test_finalize_refunds_and_fails_when_stock_is_insufficient(self, notify, refund):
+        self.product.stock = 1
+        self.product.save()
+        ok = finalize_payment(self.payment, 'pay_short', 'sig', source='webhook')
+        self.assertFalse(ok)
+        self.payment.refresh_from_db()
+        self.order.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertEqual(self.payment.status, 'failed')
+        self.assertEqual(self.payment.razorpay_payment_id, 'pay_short')
+        self.assertFalse(self.order.paid)
+        self.assertEqual(self.order.status, Order.Status.PENDING)
+        self.assertEqual(self.product.stock, 1)
+        refund.assert_called_once()
+        notify.assert_called()
+        self.assertEqual(
+            PaymentAuditLog.objects.filter(payment=self.payment, new_status='failed').count(), 1,
+        )
+
     def test_invalid_source_rejected(self):
         with self.assertRaises(ValueError):
             finalize_payment(self.payment, 'pay_1', source='attacker')
@@ -212,3 +233,75 @@ class PaymentEndpointTests(TestCase):
         self.assertRedirects(response, reverse('payments:checkout', args=[self.order.id]), fetch_redirect_response=False)
         self.payment.refresh_from_db()
         self.assertEqual(self.payment.status, 'created')
+
+
+class CollectCodCashTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='cod', password='pass1234')
+        category = Category.objects.create(name='Audio', slug='audio')
+        self.product = Product.objects.create(
+            category=category, name='Pod', slug='pod', price=Decimal('50.00'), stock=10,
+        )
+        self.order = Order.objects.create(
+            user=self.user, first_name='Ada', last_name='Lovelace', email='ada@example.com',
+            address='5 Analytical Way', postal_code='560001', city='Bangalore',
+        )
+        OrderItem.objects.create(order=self.order, product=self.product, price=Decimal('50.00'), quantity=2)
+        from logistics.models import Shipment
+        self.shipment = Shipment.objects.create(
+            order=self.order, shipment_number='SSD-COD-1', destination_pincode='560001',
+            payment_mode='cod', cod_amount=Decimal('100.00'), currency='INR',
+        )
+
+    def test_records_cash_collection(self):
+        from payments.services import collect_cod_cash
+        ok = collect_cod_cash(self.shipment)
+        self.assertTrue(ok)
+        self.order.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertTrue(self.order.paid)
+        payment = Payment.objects.get(order=self.order)
+        self.assertEqual(payment.status, 'captured')
+        self.assertEqual(payment.amount, Decimal('100.00'))
+        self.assertEqual(payment.razorpay_order_id, 'cod-SSD-COD-1')
+        self.assertEqual(self.product.stock, 8)
+        self.assertEqual(
+            PaymentAuditLog.objects.filter(payment=payment, new_status='captured').count(), 1,
+        )
+
+    def test_is_idempotent(self):
+        from payments.services import collect_cod_cash
+        self.assertTrue(collect_cod_cash(self.shipment))
+        self.assertFalse(collect_cod_cash(self.shipment))
+        self.assertEqual(Payment.objects.filter(order=self.order).count(), 1)
+        self.order.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertTrue(self.order.paid)
+        self.assertEqual(self.product.stock, 8)
+
+    def test_prepaid_shipment_is_noop(self):
+        from logistics.models import Shipment
+        from payments.services import collect_cod_cash
+        prepaid = Shipment.objects.create(
+            order=self.order, shipment_number='SSD-PRE-1', destination_pincode='560001',
+        )
+        self.assertFalse(collect_cod_cash(prepaid))
+        self.order.refresh_from_db()
+        self.assertFalse(self.order.paid)
+        self.assertFalse(Payment.objects.filter(order=self.order).exists())
+
+    def test_insufficient_stock_rolls_back_collection(self):
+        from logistics.models import Shipment
+        from payments.services import collect_cod_cash
+        Shipment.objects.create(
+            order=self.order, shipment_number='SSD-COD-2', destination_pincode='560001',
+            payment_mode='cod', cod_amount=Decimal('100.00'),
+        )
+        self.product.stock = 1
+        self.product.save()
+        self.assertFalse(collect_cod_cash(self.shipment))
+        self.order.refresh_from_db()
+        self.assertFalse(self.order.paid)
+        self.assertFalse(Payment.objects.filter(order=self.order).exists())
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 1)

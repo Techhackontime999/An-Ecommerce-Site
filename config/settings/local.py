@@ -9,6 +9,13 @@ PROJECT_DIR = os.path.dirname(BASE_DIR)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-local-development-only")
 
+# Fernet key for encrypting sensitive fields (courier API credentials).
+# Dev-only default; production must set FIELD_ENCRYPTION_KEY.
+FIELD_ENCRYPTION_KEY = os.getenv(
+    "FIELD_ENCRYPTION_KEY",
+    "uT9L_EUKJz9r2H8J6_eXuP9Lb83uUO6MXVFC2b8EYcM=",
+)
+
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_test_xxxxxxxxxxxx")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "your_test_secret")
 RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
@@ -48,7 +55,6 @@ INSTALLED_APPS = [
     'documentation',
     'faq',
     'seller',
-    'search',
     'reviews',
     'payments.apps.PaymentsConfig',
     'shipping.apps.ShippingConfig',
@@ -127,6 +133,13 @@ LANGUAGES = available_languages()
 LOCALE_PATHS = [
     os.path.join(PROJECT_DIR, 'locale'),
 ]
+
+# Language selection is persisted by LocaleMiddleware in a cookie (and in the
+# session key of the same name for signed-in users whose preference is saved
+# to UserPreference).
+LANGUAGE_COOKIE_NAME = 'shopseed_language'
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 year
+LANGUAGE_COOKIE_PATH = '/'
 
 # Live currency conversion — fetched from a free exchange-rate API and cached.
 EXCHANGE_RATE_API_URL = os.getenv(

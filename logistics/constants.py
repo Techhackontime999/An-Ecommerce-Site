@@ -58,9 +58,11 @@ class ShipmentStatus:
 
     LABELS = dict(CHOICES)
 
+    TERMINAL = frozenset({DELIVERED, RETURNED, CANCELLED, LOST, DAMAGED})
+
     @classmethod
     def is_terminal(cls, status):
-        return status in {cls.DELIVERED, cls.RETURNED, cls.CANCELLED, cls.LOST, cls.DAMAGED}
+        return status in cls.TERMINAL
 
     @classmethod
     def is_failed(cls, status):

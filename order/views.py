@@ -153,11 +153,11 @@ MYO_STATUS_IDX = {
 @login_required
 def my_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related(
-        'items__product', 'shipment', 'logistics_shipments',
+        'items__product', 'logistics_shipments',
     )
     statuses = []
     for o in orders:
-        shipment = o.logistics_shipments.first() or getattr(o, 'shipment', None)
+        shipment = o.logistics_shipments.first()
         statuses.append(shipment.status if shipment else None)
         logistics = o.logistics_shipments.first()
         if logistics:
@@ -242,7 +242,7 @@ def order_detail(request, order_id):
         id=order_id,
         user=request.user,
     )
-    shipment = order.logistics_shipments.select_related('courier').first() or getattr(order, 'shipment', None)
+    shipment = order.logistics_shipments.select_related('courier').first()
     payment = getattr(order, 'payment', None)
     has_open_return = order.return_requests.exclude(
         status__in=[ReturnRequest.Status.REJECTED, ReturnRequest.Status.CLOSED],

@@ -13,6 +13,7 @@ to authenticate to the admin site.
 import hashlib
 import hmac
 import json
+import logging
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -23,6 +24,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+
+logger = logging.getLogger(__name__)
 
 from logistics.models import (
     CourierCompany,

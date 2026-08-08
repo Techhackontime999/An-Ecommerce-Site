@@ -7,7 +7,7 @@ from django.db.models import Avg, F, Sum
 
 from payments.models import Payment
 from shop.models import Category, Product
-from reviews.models import Review
+from reviews.models import ProductReview
 from order.models import Order
 from django.contrib.auth.models import User
 
@@ -78,11 +78,11 @@ def _build_dashboard_extras():
                 'title': f'Order #{order.id} placed',
                 'desc': f'{order.first_name} {order.last_name} · {order.city}',
             }))
-        for review in Review.objects.select_related('product', 'user').order_by('-created_at')[:3]:
-            raw.append((review.created_at, {
-                'kind': 'review', 'url': 'admin:reviews_review_changelist',
+        for review in ProductReview.objects.select_related('product', 'reviewer').order_by('-created')[:3]:
+            raw.append((review.created, {
+                'kind': 'review', 'url': 'admin:reviews_productreview_changelist',
                 'title': f'Review on {review.product.name[:40]}',
-                'desc': f'{"★" * review.rating} by {review.user.username}',
+                'desc': f'{"★" * review.overall_rating} by {review.reviewer.username}',
             }))
         for msg in ContactMessage.objects.order_by('-created_at')[:3]:
             raw.append((msg.created_at, {
@@ -119,13 +119,12 @@ def _build_dashboard_extras():
         order_count = Order.objects.count()
         deal_total = Deal.objects.count()
         coupon_total = Coupon.objects.count()
-        review_total = Review.objects.count()
         product_review_total = ProductReview.objects.count()
         pending_orders = Order.objects.filter(paid=False).count()
         active_deals = Deal.objects.filter(start_time__lte=now, end_time__gte=now).count()
         active_coupons = Coupon.objects.filter(
             active=True, valid_from__lte=now, valid_to__gte=now).count()
-        avg_rating = Review.objects.aggregate(a=Avg('rating'))['a'] or 0
+        avg_rating = ProductReview.objects.filter(status='approved').aggregate(a=Avg('overall_rating'))['a'] or 0
         pending_reviews = ProductReview.objects.filter(status='pending').count()
         low_stock = ProductVariant.objects.filter(stock__lte=5).count()
 
@@ -158,7 +157,7 @@ def patched_index(request, extra_context=None):
     extra_context['product_count'] = Product.objects.count()
     extra_context['category_count'] = Category.objects.count()
     extra_context['order_count'] = Order.objects.count()
-    extra_context['review_count'] = Review.objects.count()
+    extra_context['review_count'] = ProductReview.objects.count()
     extra_context['user_count'] = User.objects.count()
     extra_context['django_version'] = '.'.join(str(v) for v in django.VERSION[:3])
     extra_context['debug'] = settings.DEBUG

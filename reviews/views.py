@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from shop.models import Product
 
 from .forms import ProductReviewForm, ReviewReportForm
-from .models import ProductReview, ProductReviewImage, Review, ReviewReport, has_paid_order
+from .models import ProductReview, ProductReviewImage, ReviewReport, has_paid_order
 from notifications.models import Notification
 from notifications.services import notify
 

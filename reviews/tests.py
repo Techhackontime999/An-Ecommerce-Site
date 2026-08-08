@@ -7,7 +7,7 @@ from django.urls import reverse
 from accounts.models import CustomerProfile, SellerProfile
 from shop.models import Category, Product
 
-from .models import ProductReview, Review, ReviewReport, SellerReview
+from .models import ProductReview, ReviewReport, SellerReview
 
 
 class ReviewBaseTestCase(TestCase):
@@ -220,15 +220,21 @@ class SellerRatingSyncTests(ReviewBaseTestCase):
         self.seller.refresh_from_db()
         self.assertEqual(float(self.seller.rating), 0.0)
 
-    def test_legacy_review_updates_seller_rating(self):
-        Review.objects.create(product=self.seller_product, user=self.buyer, rating=5)
+    def test_product_review_updates_seller_rating(self):
+        ProductReview.objects.create(
+            product=self.seller_product, reviewer=self.buyer,
+            overall_rating=5, recommendation_rating=90,
+        )
         sr = SellerReview.objects.get(seller_profile=self.seller, customer__user=self.buyer)
         self.assertEqual(sr.rating, 5)
         self.seller.refresh_from_db()
         self.assertEqual(float(self.seller.rating), 5.0)
 
-    def test_legacy_review_on_sellerless_product_does_not_crash(self):
-        Review.objects.create(product=self.product, user=self.buyer, rating=4)
+    def test_product_review_on_sellerless_product_does_not_crash(self):
+        ProductReview.objects.create(
+            product=self.product, reviewer=self.buyer,
+            overall_rating=4, recommendation_rating=70,
+        )
         self.assertEqual(SellerReview.objects.count(), 0)
 
 

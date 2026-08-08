@@ -19,7 +19,6 @@ urlpatterns = [
     path('bookmarks/', views.my_bookmarks, name='my_bookmarks'),
     path('trending/', views.trending, name='trending'),
     path('picks/', views.editors_picks, name='editors_picks'),
-    path('search/', views.post_search, name='post_search'),
     path('leaderboard/', views.leaderboard, name='leaderboard'),
     path('feed/', views.activity_feed, name='activity_feed'),
     path('notifications/', views.notifications_list, name='notifications'),

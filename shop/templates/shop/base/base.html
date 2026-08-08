@@ -10,7 +10,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
     <link rel="alternate icon" href="{% static 'images/favicon.svg' %}">
+    {% block meta_description %}
     <meta name="description" content="{{ platform_settings.meta_description|default:'Shop-Seed — Premium e-commerce platform' }}">
+    {% endblock %}
     {% if platform_settings.meta_keywords %}<meta name="keywords" content="{{ platform_settings.meta_keywords }}">{% endif %}
     {% if platform_settings.meta_robots %}<meta name="robots" content="{{ platform_settings.meta_robots }}">{% endif %}
     {% if platform_settings.google_analytics_id %}
@@ -47,6 +49,7 @@
       {{ platform_settings.custom_css|safe }}
     </style>
     {% endif %}
+    {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% if news_ticker_items %}has-news-ticker{% endif %}{% endblock %}">
     {{ platform_settings.custom_body_top|safe }}

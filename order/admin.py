@@ -63,7 +63,7 @@ class OrderAdmin(admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user', 'shipment').prefetch_related('logistics_shipments')
+        return super().get_queryset(request).select_related('user').prefetch_related('logistics_shipments')
 
     def total(self, obj):
         return obj.get_total_cost()
@@ -81,23 +81,55 @@ class OrderAdmin(admin.ModelAdmin):
     @admin.display(empty_value='—', description='Shipment')
     def shipment_link(self, obj):
         shipment = obj.logistics_shipments.first()
-        if shipment is not None:
-            url = reverse('admin:logistics_shipment_change', args=[shipment.pk])
-            return format_html(
-                '<a href="{}">LMS #{} · {}</a>',
-                url, shipment.pk, shipment.get_status_display(),
-            )
-        shipment = getattr(obj, 'shipment', None)
         if shipment is None:
             return None
-        url = reverse('admin:shipping_shipment_change', args=[shipment.pk])
+        url = reverse('admin:logistics_shipment_change', args=[shipment.pk])
         return format_html(
-            '<a href="{}">#{} · {}</a>',
+            '<a href="{}">LMS #{} · {}</a>',
             url, shipment.pk, shipment.get_status_display(),
         )
 
     def mark_as_paid(self, request, queryset):
-        updated = queryset.filter(paid=False).update(paid=True)
+        """Record a manual (offline) payment for unpaid orders.
+
+        A bulk ``queryset.update(paid=True)`` is not allowed: the paid flag must
+        always be backed by a captured ``Payment`` row so ``total_paid()`` (and
+        therefore refund validation) has a real source of truth.
+        """
+        from django.db import transaction
+        from payments.models import Payment
+        from payments.services import record_audit
+
+        updated = 0
+        for order in queryset.select_related('user'):
+            with transaction.atomic():
+                order = Order.objects.select_for_update().get(pk=order.pk)
+                if order.paid:
+                    continue
+                amount = order.get_total_cost()
+                ref = f'manual-{order.order_number or order.id}'
+                payment = Payment.objects.select_for_update().filter(order=order).first()
+                if payment is None:
+                    old_status = ''
+                    payment = Payment(
+                        order=order, razorpay_order_id=ref, amount=amount,
+                        currency='INR', status='captured',
+                    )
+                    payment.save()
+                else:
+                    old_status = payment.status
+                    payment.status = 'captured'
+                    payment.amount = amount
+                    if not payment.razorpay_payment_id:
+                        payment.razorpay_payment_id = ref
+                    payment.save(update_fields=['status', 'amount', 'razorpay_payment_id', 'updated_at'])
+                record_audit(
+                    payment, old_status, 'captured', source='admin', actor=request.user,
+                    message='Marked paid manually by admin.',
+                )
+                order.paid = True
+                order.save(update_fields=['paid', 'updated'])
+                updated += 1
         self.message_user(request, f'{updated} order(s) marked as paid.')
     mark_as_paid.short_description = 'Mark selected orders as paid'
 
@@ -231,11 +263,15 @@ class ReturnRequestAdmin(admin.ModelAdmin):
         )
 
     def _set_status(self, request, queryset, status):
-        updated = queryset.exclude(status=status).update(
-            status=status,
-            processed_by=request.user,
-            processed_at=timezone.now(),
-        )
+        # Walk rows individually so model validation/auditing is honoured
+        # (raw queryset.update() bypasses it).
+        updated = 0
+        for rr in queryset.exclude(status=status):
+            rr.status = status
+            rr.processed_by = request.user
+            rr.processed_at = timezone.now()
+            rr.save(update_fields=['status', 'processed_by', 'processed_at', 'updated'])
+            updated += 1
         self.message_user(request, f'{updated} return request(s) updated.')
 
     @admin.action(description='Approve selected return requests')
@@ -282,10 +318,25 @@ class RefundAdmin(admin.ModelAdmin):
         )
 
     def _set_status(self, request, queryset, status):
-        updated = queryset.exclude(status=status).update(
-            status=status,
-            processed_at=timezone.now(),
-        )
+        # Run full_clean() per row so Refund.clean()'s over-refund guard is
+        # honoured — a raw queryset.update() would bypass it entirely.
+        from django.core.exceptions import ValidationError
+
+        updated = 0
+        for refund in queryset.exclude(status=status):
+            refund.status = status
+            refund.processed_at = timezone.now()
+            try:
+                refund.full_clean()
+            except ValidationError as exc:
+                self.message_user(
+                    request,
+                    f'Refund #{refund.id} not updated: {"; ".join(exc.messages)}',
+                    level='error',
+                )
+                continue
+            refund.save(update_fields=['status', 'processed_at', 'updated_at'])
+            updated += 1
         self.message_user(request, f'{updated} refund(s) updated.')
 
     @admin.action(description='Mark selected refunds as processing')

@@ -18,7 +18,7 @@ from accounts.models import CustomerProfile, SellerProfile
 from seller.models import SellerProduct
 from deals.models import Deal
 from coupons.models import Coupon
-from reviews.models import Review, ProductReview, ProductReviewImage, ReviewReport
+from reviews.models import ProductReview, ProductReviewImage, ReviewReport
 from order.models import Order, OrderItem
 from payments.models import Payment
 from services.models import Service
@@ -374,14 +374,6 @@ DEAL_PRODUCTS = [
     'dumbbell-set', 'remote-control-car', 'bluetooth-speaker', 'tyre-inflator',
 ]
 
-REVIEW_COMMENTS = [
-    'Amazing product! Highly recommend.', 'Good quality for the price.',
-    'Fast delivery. Product as described.', 'Decent but could be better.',
-    'Exceeded my expectations!', 'Not what I expected, but okay.',
-    'Perfect! Will buy again.', 'Great value for money.',
-    'Loved it! 5 stars.', 'Average quality overall.',
-]
-
 CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Pune', 'Hyderabad', 'Kolkata', 'Jaipur']
 ADDRESSES = [
     '12 MG Road, Andheri West', '45 Park Street', '88 Indiranagar 1st Stage',
@@ -520,7 +512,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f'Database seeded successfully! '
             f'({Product.objects.count()} products, {Order.objects.count()} orders, '
-            f'{Review.objects.count()} reviews, {Post.objects.count()} posts)'
+            f'{ProductReview.objects.count()} reviews, {Post.objects.count()} posts)'
         ))
 
     # ------------------------------------------------------------------ images
@@ -894,16 +886,7 @@ class Command(BaseCommand):
     def _create_reviews(self):
         users = [c.user for c in self.customers]
         products = list(self.products_by_slug.values())
-        created_reviews = 0
         rpp = self.cfg['reviews']
-        for product in products[: min(len(products), rpp * 4)]:
-            for user in random.sample(users, min(3, len(users))):
-                _, was_created = Review.objects.get_or_create(
-                    product=product, user=user,
-                    defaults={'rating': random.randint(3, 5),
-                              'comment': random.choice(REVIEW_COMMENTS)},
-                )
-                created_reviews += int(was_created)
 
         created_product_reviews = 0
         verified_user_ids = {uid for uid, _ in self.paid_combos}
@@ -950,7 +933,7 @@ class Command(BaseCommand):
                 status=ReviewReport.Status.PENDING,
             )
         self.stdout.write(
-            f'  {created_reviews} reviews, {created_product_reviews} product reviews created'
+            f'  {created_product_reviews} product reviews created'
         )
 
     # -------------------------------------------------------------------- blog

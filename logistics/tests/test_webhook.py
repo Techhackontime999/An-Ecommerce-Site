@@ -5,7 +5,7 @@ import hmac
 import json
 
 from django.contrib.auth.models import User
-from django.test import Client
+from django.test import Client, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from datetime import timedelta
@@ -73,6 +73,14 @@ class WebhookViewTests(LogisticsTestCase):
     def test_rejects_bad_signature(self):
         resp = self._post({'event_type': 'status'}, signature='deadbeef')
         self.assertEqual(resp.status_code, 401)
+
+    @override_settings(LOGISTICS_WEBHOOK_SECRETS={})
+    def test_rejects_when_no_secret_configured(self):
+        # Fail-closed: never a 500, and no state is mutated without a secret.
+        resp = self._post({'event_type': 'status', 'tracking_number': self.shipment.tracking_number})
+        self.assertEqual(resp.status_code, 401)
+        self.shipment.refresh_from_db()
+        self.assertEqual(self.shipment.status, 'order_confirmed')
 
     def test_accepts_valid_signature_and_applies_event(self):
         payload = {

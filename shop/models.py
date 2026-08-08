@@ -22,6 +22,67 @@ class Category(models.Model):
         return reverse('shop:product_list_by_category', args=[self.slug])
 
 
+class ProductQuerySet(models.QuerySet):
+    """QuerySet with bulk-loading helpers for the price/rating properties.
+
+    ``current_price``, ``average_rating`` and ``rating_count`` each issue a
+    query per product when accessed on a plain queryset. These helpers load the
+    same data with a single correlated query / prefetch, eliminating the N+1
+    pattern on listing pages.
+    """
+
+    def with_rating(self):
+        from django.db.models import (
+            Avg,
+            Count,
+            FloatField,
+            IntegerField,
+            OuterRef,
+            Subquery,
+            Value,
+        )
+        from django.db.models.functions import Coalesce
+        from reviews.models import ProductReview
+
+        approved = ProductReview.objects.filter(
+            product=OuterRef('pk'), status=ProductReview.Status.APPROVED
+        )
+        return self.annotate(
+            _avg_rating=Coalesce(
+                Subquery(
+                    approved.values('product').annotate(
+                        a=Avg('overall_rating')
+                    ).values('a'),
+                    output_field=FloatField(),
+                ),
+                Value(0.0, output_field=FloatField()),
+            ),
+            _rating_count=Coalesce(
+                Subquery(
+                    approved.values('product').annotate(
+                        c=Count('pk')
+                    ).values('c'),
+                    output_field=IntegerField(),
+                ),
+                Value(0, output_field=IntegerField()),
+            ),
+        )
+
+    def with_deal_price(self):
+        from deals.models import Deal
+
+        now = timezone.now()
+        return self.prefetch_related(
+            models.Prefetch(
+                'deals',
+                queryset=Deal.objects.filter(
+                    start_time__lte=now, end_time__gte=now
+                ).order_by('id'),
+                to_attr='_active_deals',
+            )
+        )
+
+
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products',
                                  on_delete=models.CASCADE)
@@ -50,6 +111,7 @@ class Product(models.Model):
         Index(fields=['id', 'slug']),
         ]
 
+    objects = ProductQuerySet.as_manager()
 
     def __str__(self):
         return self.name
@@ -58,6 +120,9 @@ class Product(models.Model):
         return reverse('shop:product_detail', args=[self.id, self.slug])
     @property
     def current_price(self):
+        active_deals = getattr(self, '_active_deals', None)
+        if active_deals is not None:
+            return active_deals[0].deal_price if active_deals else self.price
         now = timezone.now()
         active_deal = self.deals.filter(start_time__lte=now, end_time__gte=now).first()
         if active_deal:
@@ -65,6 +130,9 @@ class Product(models.Model):
         return self.price
     @property
     def average_rating(self):
+        if hasattr(self, '_avg_rating'):
+            value = self._avg_rating
+            return 0 if value == 0 else round(value, 1)
         reviews = self.product_reviews.filter(status='approved')
         if reviews.exists():
             return round(reviews.aggregate(a=Avg('overall_rating'))['a'], 1)
@@ -72,6 +140,8 @@ class Product(models.Model):
 
     @property
     def rating_count(self):
+        if hasattr(self, '_rating_count'):
+            return self._rating_count
         return self.product_reviews.filter(status='approved').count()
 
     def gallery_images(self):

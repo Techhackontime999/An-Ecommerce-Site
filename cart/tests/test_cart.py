@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
-from django.test import RequestFactory, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.utils import timezone
 
 from coupons.models import Coupon
@@ -115,3 +115,30 @@ class CartTestCase(TestCase):
         cart.remove(self.product, variant_id=variant.id)
         self.assertEqual(len(cart), 0)
         self.assertFalse(CartItem.objects.filter(user=self.user, key=f'{self.product.id}:{variant.id}').exists())
+
+
+class CartTemplateI18nTests(TestCase):
+    def setUp(self):
+        self.client = Client(SERVER_NAME='localhost')
+        self.category = Category.objects.create(name='Gadgets', slug='gadgets')
+        self.product = Product.objects.create(
+            category=self.category,
+            name='Widget',
+            slug='widget',
+            price=Decimal('99.00'),
+            stock=10,
+        )
+
+    def test_cart_detail_renders_translated_strings_empty(self):
+        response = self.client.get('/cart/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Your cart is empty')
+        self.assertContains(response, 'Browse products')
+
+    def test_cart_detail_renders_translated_strings_with_items(self):
+        self.client.post(f'/cart/add/{self.product.id}/', {'quantity': 1})
+        response = self.client.get('/cart/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Items in your cart')
+        self.assertContains(response, 'Order summary')
+        self.assertContains(response, 'Proceed to checkout')

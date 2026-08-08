@@ -1,6 +1,7 @@
 {% extends "shop/base/base.html" %}
+{% load i18n %}
 {% load preference_extras %}
-{% block title %}My Orders — Shop-Seed{% endblock %}
+{% block title %}{% trans 'My Orders' %} — Shop-Seed{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -166,9 +167,9 @@
 <section class="myo-page">
   <div class="myo-wrap">
     <header class="myo-page-head">
-      <span class="myo-badge"><i class="fas fa-box-open"></i> Order history</span>
-      <h1 class="myo-title">My Orders</h1>
-      <p class="myo-sub">Track, review and manage everything you've ordered on Shop-Seed.</p>
+      <span class="myo-badge"><i class="fas fa-box-open"></i> {% trans 'Order history' %}</span>
+      <h1 class="myo-title">{% trans 'My Orders' %}</h1>
+      <p class="myo-sub">{% trans "Track, review and manage everything you've ordered on Shop-Seed." %}</p>
     </header>
 
     {% if orders %}
@@ -179,7 +180,7 @@
         </div>
         <div class="myo-stat-body">
           <span class="myo-stat-value">{{ stats.total }}</span>
-          <span class="myo-stat-label">Total Orders</span>
+          <span class="myo-stat-label">{% trans 'Total Orders' %}</span>
         </div>
       </div>
       <div class="myo-stat">
@@ -188,7 +189,7 @@
         </div>
         <div class="myo-stat-body">
           <span class="myo-stat-value">{% price stats.spent %}</span>
-          <span class="myo-stat-label">Total Spent</span>
+          <span class="myo-stat-label">{% trans 'Total Spent' %}</span>
         </div>
       </div>
       <div class="myo-stat">
@@ -197,7 +198,7 @@
         </div>
         <div class="myo-stat-body">
           <span class="myo-stat-value">{{ stats.active }}</span>
-          <span class="myo-stat-label">In Progress</span>
+          <span class="myo-stat-label">{% trans 'In Progress' %}</span>
         </div>
       </div>
       <div class="myo-stat">
@@ -206,7 +207,7 @@
         </div>
         <div class="myo-stat-body">
           <span class="myo-stat-value">{{ stats.delivered }}</span>
-          <span class="myo-stat-label">Delivered</span>
+          <span class="myo-stat-label">{% trans 'Delivered' %}</span>
         </div>
       </div>
     </div>
@@ -216,26 +217,26 @@
       <article class="myo-card">
         <div class="myo-card-head">
           <div>
-            <div class="myo-order-num">Order <span class="myo-order-id">{{ order.order_number }}</span></div>
-            <div class="myo-date"><i class="fas fa-calendar-day"></i> {{ order.created|date:"M d, Y" }} &middot; {{ order.items.count }} item{{ order.items.count|pluralize }}</div>
+            <div class="myo-order-num">{% trans 'Order' %} <span class="myo-order-id">{{ order.order_number }}</span></div>
+            <div class="myo-date"><i class="fas fa-calendar-day"></i> {{ order.created|date:"M d, Y" }} &middot; {{ order.items.count }} {% trans 'item' %}{{ order.items.count|pluralize }}</div>
           </div>
           <div class="myo-badges">
             {% if order.paid %}
-            <span class="myo-chip myo-chip-paid"><i class="fas fa-check-circle"></i> Paid</span>
+            <span class="myo-chip myo-chip-paid"><i class="fas fa-check-circle"></i> {% trans 'Paid' %}</span>
             {% else %}
-            <span class="myo-chip myo-chip-pending"><i class="fas fa-clock"></i> Payment pending</span>
+            <span class="myo-chip myo-chip-pending"><i class="fas fa-clock"></i> {% trans 'Payment pending' %}</span>
             {% endif %}
 
             {% if order.status == 'delivered' %}
-            <span class="myo-chip myo-chip-delivered"><i class="fas fa-box-open"></i> Delivered</span>
+            <span class="myo-chip myo-chip-delivered"><i class="fas fa-box-open"></i> {% trans 'Delivered' %}</span>
             {% elif order.status == 'shipped' %}
-            <span class="myo-chip myo-chip-shipped"><i class="fas fa-paper-plane"></i> Shipped</span>
+            <span class="myo-chip myo-chip-shipped"><i class="fas fa-paper-plane"></i> {% trans 'Shipped' %}</span>
             {% elif order.status == 'processing' %}
-            <span class="myo-chip myo-chip-processing"><i class="fas fa-gears"></i> Processing</span>
+            <span class="myo-chip myo-chip-processing"><i class="fas fa-gears"></i> {% trans 'Processing' %}</span>
             {% elif order.status == 'cancelled' %}
-            <span class="myo-chip myo-chip-failed"><i class="fas fa-ban"></i> Cancelled</span>
+            <span class="myo-chip myo-chip-failed"><i class="fas fa-ban"></i> {% trans 'Cancelled' %}</span>
             {% elif order.status == 'refunded' %}
-            <span class="myo-chip myo-chip-refunded"><i class="fas fa-rotate-left"></i> Refunded</span>
+            <span class="myo-chip myo-chip-refunded"><i class="fas fa-rotate-left"></i> {% trans 'Refunded' %}</span>
             {% else %}
             <span class="myo-chip myo-chip-other"><i class="fas fa-hourglass-half"></i> {{ order.get_status_display }}</span>
             {% endif %}
@@ -261,15 +262,15 @@
               </div>
               <div class="myo-item-price">
                 {% price item.get_cost %}
-                <div class="myo-item-qty">Qty: {{ item.quantity }}</div>
+                <div class="myo-item-qty">{% trans 'Qty' %}: {{ item.quantity }}</div>
               </div>
               {% if item.product.available %}
               <form method="post" action="{% url 'cart:cart_add' item.product.id %}" class="myo-buy-form">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
                 {% if item.variant %}<input type="hidden" name="variant_id" value="{{ item.variant.id }}">{% endif %}
-                <button type="submit" class="myo-buy-btn" title="Buy this product again">
-                  <i class="fas fa-cart-plus"></i> Buy Again
+                <button type="submit" class="myo-buy-btn" title="{% trans 'Buy this product again' %}">
+                  <i class="fas fa-cart-plus"></i> {% trans 'Buy Again' %}
                 </button>
               </form>
               {% endif %}
@@ -292,20 +293,20 @@
 
         <div class="myo-card-foot">
           <div>
-            <div class="myo-total-label">Order total{% if order.shipping_method_name %} &middot; {{ order.shipping_method_name }}{% endif %}</div>
+            <div class="myo-total-label">{% trans 'Order total' %}{% if order.shipping_method_name %} &middot; {{ order.shipping_method_name }}{% endif %}</div>
             <div class="myo-total-value">{% price order.get_total_cost %}</div>
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;">
           <a href="{% url 'order:order_detail' order.id %}" class="myo-btn myo-btn-outline">
-            <i class="fas fa-receipt"></i> View Details
+            <i class="fas fa-receipt"></i> {% trans 'View Details' %}
           </a>
           {% if order.tl_shipment %}
           <a href="{% url 'logistics:tracking_detail' order.tl_shipment.tracking_number|default:order.tl_shipment.shipment_number %}" class="myo-btn myo-btn-outline">
-            <i class="fas fa-location-dot"></i> Track Order
+            <i class="fas fa-location-dot"></i> {% trans 'Track Order' %}
           </a>
           {% else %}
           <a href="{% url 'shipping:order_tracking' order.id %}" class="myo-btn myo-btn-outline">
-            <i class="fas fa-location-dot"></i> Track Order
+            <i class="fas fa-location-dot"></i> {% trans 'Track Order' %}
           </a>
           {% endif %}
           </div>
@@ -316,9 +317,9 @@
     {% else %}
     <div class="myo-empty">
       <div class="myo-empty-icon"><i class="fas fa-bag-shopping"></i></div>
-      <h3>No orders yet</h3>
-      <p>You haven't placed any orders yet. Start exploring and find something you love.</p>
-      <a href="{% url 'shop:product_list' %}" class="myo-btn"><i class="fas fa-store"></i> Browse Products</a>
+      <h3>{% trans 'No orders yet' %}</h3>
+      <p>{% trans "You haven't placed any orders yet. Start exploring and find something you love." %}</p>
+      <a href="{% url 'shop:product_list' %}" class="myo-btn"><i class="fas fa-store"></i> {% trans 'Browse Products' %}</a>
     </div>
     {% endif %}
   </div>

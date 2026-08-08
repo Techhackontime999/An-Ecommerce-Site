@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from order.models import Order
-from order.stock import InsufficientStock
 
 from .models import Payment
 from .services import (
@@ -98,11 +97,15 @@ def payment_callback(request):
         finalize_payment(
             payment, razorpay_payment_id, razorpay_signature, source='callback',
         )
-    except InsufficientStock as exc:
-        logger.error('Callback capture rolled back for order %s: %s', payment.order_id, exc, exc_info=True)
-        mark_payment_failed(payment, str(exc), source='system')
-        return redirect('payments:error', order_id=payment.order.id)
-    return redirect('payments:success', order_id=payment.order.id)
+    except Exception as exc:
+        # finalize_payment already records failed/refunded state + audit; this is
+        # a defensive net so a rendering/notify bug can never 500 the callback.
+        logger.error('Callback capture failed for order %s: %s', payment.order_id, exc, exc_info=True)
+
+    order = Order.objects.get(pk=payment.order_id)
+    if order.paid:
+        return redirect('payments:success', order_id=order.id)
+    return redirect('payments:error', order_id=order.id)
 
 
 @csrf_exempt
@@ -137,9 +140,8 @@ def payment_webhook(request):
             finalize_payment(payment, razorpay_payment_id, source='webhook')
         elif event_name == 'payment.failed':
             mark_payment_failed(payment, 'Payment was declined by your bank / card issuer.', source='webhook')
-    except InsufficientStock as exc:
-        logger.error('Webhook capture rolled back for order %s: %s', payment.order_id, exc, exc_info=True)
-        mark_payment_failed(payment, str(exc), source='system')
+    except Exception as exc:
+        logger.error('Webhook processing failed for order %s: %s', payment.order_id, exc, exc_info=True)
 
     return HttpResponse('OK', status=200)
 
@@ -164,11 +166,7 @@ def payment_verify(request, order_id):
             client = get_razorpay_client()
             detail = client.payment.fetch(payment.razorpay_payment_id)
             if detail and detail.get('status') == 'captured':
-                try:
-                    finalize_payment(payment, detail['id'], source='verify')
-                except InsufficientStock as exc:
-                    logger.error('Verify capture rolled back for order %s: %s', order.id, exc, exc_info=True)
-                    mark_payment_failed(payment, str(exc), source='system')
+                finalize_payment(payment, detail['id'], source='verify')
         except Exception as exc:
             logger.error('Gateway verification failed for order %s: %s', order.id, exc, exc_info=True)
 

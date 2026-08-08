@@ -1,10 +1,11 @@
 from django.test import TestCase, Client
 from django.urls import reverse, resolve
 from django.contrib.auth.models import User
-from .models import ShippingAddress, ShippingMethod, Shipment
+from .models import ShippingAddress, ShippingMethod
 from .views import address_list, address_create, shipping_select, order_tracking
 from order.models import Order, OrderItem
 from shop.models import Product, Category
+from logistics.models import Shipment as LogisticsShipment
 
 
 class ShippingURLTests(TestCase):
@@ -95,7 +96,6 @@ class OrderAddressSelectionTests(TestCase):
         self.order.refresh_from_db()
         self.assertEqual(self.order.shipping_cost, 10)
         self.assertEqual(self.order.shipping_method_name, 'Standard')
-        self.assertFalse(Shipment.objects.filter(order=self.order).exists())
 
     def test_address_create_rejects_external_next(self):
         response = self.client.post(reverse('shipping:address_create'), {
@@ -125,20 +125,14 @@ class OrderAddressSelectionTests(TestCase):
         self.assertEqual(response.url, '/accounts/profile/')
 
     def test_order_tracking_view_loads(self):
-        ShippingAddress.objects.create(
-            user=self.user, full_name='John Doe',
-            address_line1='123 Order St', city='OrderCity',
-            postal_code='12345', state='', phone=''
-        )
-        Shipment.objects.create(
+        LogisticsShipment.objects.create(
             order=self.order,
-            shipping_method=self.method,
-            status='shipped', tracking_number='TRACK123'
+            status='picked_up', tracking_number='TRACK123'
         )
         response = self.client.get(reverse('shipping:order_tracking', args=[self.order.id]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'TRACK123')
-        self.assertContains(response, 'Shipped')
+        self.assertContains(response, 'Picked Up')
 
     def test_order_tracking_no_shipment(self):
         response = self.client.get(reverse('shipping:order_tracking', args=[self.order.id]))

@@ -15,6 +15,10 @@ if os.path.isfile(dotenv_file):
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+# Fernet key for encrypting sensitive fields (courier API credentials).
+# Required in production, exactly like SECRET_KEY.
+FIELD_ENCRYPTION_KEY = os.getenv("FIELD_ENCRYPTION_KEY", "")
+
 DEBUG = False
 
 RENDER_EXTERNAL_URL = os.getenv("RENDER_EXTERNAL_URL", "").strip()
@@ -61,7 +65,6 @@ INSTALLED_APPS = [
     'documentation',
     'faq',
     'seller',
-    'search',
     'reviews',
     'blogs.apps.BlogsConfig',
     'payments.apps.PaymentsConfig',
@@ -156,6 +159,14 @@ LOCALE_PATHS = [
     os.path.join(PROJECT_DIR, 'locale'),
 ]
 
+# Language selection is persisted by LocaleMiddleware in a cookie (and in the
+# session key of the same name for signed-in users whose preference is saved
+# to UserPreference).
+LANGUAGE_COOKIE_NAME = 'shopseed_language'
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 year
+LANGUAGE_COOKIE_PATH = '/'
+LANGUAGE_COOKIE_SECURE = True  # site is served over HTTPS
+
 # Live currency conversion — fetched from a free exchange-rate API and cached.
 EXCHANGE_RATE_API_URL = os.getenv(
     'EXCHANGE_RATE_API_URL', 'https://open.er-api.com/v6/latest/{base}'
@@ -163,12 +174,29 @@ EXCHANGE_RATE_API_URL = os.getenv(
 EXCHANGE_RATE_API_KEY = os.getenv('EXCHANGE_RATE_API_KEY', '')
 EXCHANGE_RATE_CACHE_HOURS = int(os.getenv('EXCHANGE_RATE_CACHE_HOURS', '12'))
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'shopseed',
-    },
-}
+REDIS_URL = os.getenv("REDIS_URL", "").strip()
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'db': int(os.getenv("REDIS_DB", "0")),
+            },
+        },
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'shopseed_cache',
+            'OPTIONS': {
+                'MAX_ENTRIES': int(os.getenv("CACHE_MAX_ENTRIES", "1000")),
+                'CULL_FREQUENCY': int(os.getenv("CACHE_CULL_FREQUENCY", "3")),
+            },
+        },
+    }
 USE_L10N = True
 USE_TZ = True
 

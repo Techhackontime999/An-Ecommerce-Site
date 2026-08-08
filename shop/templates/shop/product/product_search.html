@@ -1,20 +1,21 @@
 {% extends "shop/base/base.html" %}
+{% load i18n %}
 {% load preference_extras %}
 
-{% block title %}Search Results{% endblock %}
+{% block title %}{% trans 'Search Results' %}{% endblock %}
 
 {% block content %}
 <section class="section-aq" style="padding-top:6rem;">
   <div class="container-aq">
     <h2 style="font-size:1.5rem;font-weight:600;margin-bottom:1.5rem;">
-      Search Results for "{{ query }}"
+      {% blocktranslate %}Search Results for "{{ query }}"{% endblocktranslate %}
     </h2>
 
     {% if results %}
     <form class="mb-4" action="{% url 'shop:product_search' %}" method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
       <div style="display:flex;gap:0.5rem;align-items:center;">
         <select name="category" style="padding:0.5rem 1rem;border-radius:var(--aq-radius-xl);border:1px solid var(--aq-border);background:var(--aq-surface);font-family:var(--aq-font);font-size:0.875rem;color:var(--aq-body);outline:none;">
-          <option value="">All Categories</option>
+          <option value="">{% trans 'All Categories' %}</option>
           {% for cat in product_categories %}
           <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>
             {{ cat.name }}
@@ -23,7 +24,7 @@
         </select>
         <button type="submit" class="btn-aq btn-aq-primary" style="padding:0.5rem 1.25rem;">
           <i class="fas fa-search"></i>
-          Search
+          {% trans 'Search' %}
         </button>
       </div>
     </form>
@@ -45,7 +46,7 @@
             </div>
             {% endif %}
             {% if product.current_price and product.current_price < product.price %}
-            <span class="product-aq-tag sale">Sale</span>
+            <span class="product-aq-tag sale">{% trans 'Sale' %}</span>
             {% endif %}
           </div>
           <div class="product-aq-body">
@@ -87,7 +88,7 @@
             </div>
             <div class="product-aq-actions">
               <a href="{{ product.get_absolute_url }}" class="btn-aq btn-aq-primary" style="padding:0.5rem 1.25rem;font-size:0.8125rem;width:100%;justify-content:center;">
-                View Details
+                {% trans 'View Details' %}
               </a>
             </div>
           </div>
@@ -96,9 +97,9 @@
       {% empty %}
       <div class="empty-aq" style="grid-column:1/-1">
         <div class="empty-aq-icon"><i class="fas fa-search"></i></div>
-        <h3>No products found</h3>
-        <p>Try adjusting your search or filter criteria.</p>
-        <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-primary">Browse All</a>
+        <h3>{% trans 'No products found' %}</h3>
+        <p>{% trans 'Try adjusting your search or filter criteria.' %}</p>
+        <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-primary">{% trans 'Browse All' %}</a>
       </div>
       {% endfor %}
     </div>
@@ -123,11 +124,11 @@
     {% else %}
     <div class="empty-aq" style="padding:4rem 0;">
       <div class="empty-aq-icon"><i class="fas fa-search"></i></div>
-      <h3>No results for "{{ query }}"</h3>
-      <p>Try different keywords or browse our collections.</p>
+      <h3>{% blocktranslate %}No results for "{{ query }}"{% endblocktranslate %}</h3>
+      <p>{% trans 'Try different keywords or browse our collections.' %}</p>
       <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-primary">
         <i class="fas fa-arrow-left"></i>
-        Browse All Products
+        {% trans 'Browse All Products' %}
       </a>
     </div>
     {% endif %}
