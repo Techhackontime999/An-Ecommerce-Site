@@ -2,7 +2,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
@@ -14,7 +13,7 @@ from coupons.models import Coupon, CouponRedemption
 from coupons.services import discount_for, validate_coupon
 from .models import Order, OrderItem, ReturnRequest
 from .forms import OrderCreateForm
-from .access import grant_guest_access, get_order_for_request
+from .access import get_guest_order_ids, grant_guest_access, get_order_for_request
 from .services import cancel_order, invoice_number, invoice_totals
 from notifications.models import Notification
 from notifications.services import notify
@@ -164,11 +163,22 @@ MYO_STATUS_IDX = {
 }
 
 
-@login_required
 def my_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related(
-        'items__product__seller', 'logistics_shipments',
-    )
+    """Order list. Signed-in users see their account orders; guests see the
+    orders placed on this browser (session-tracked), so the "Returns & Orders"
+    link never dumps a guest onto a login screen."""
+    if request.user.is_authenticated:
+        orders = Order.objects.filter(user=request.user).prefetch_related(
+            'items__product__seller', 'logistics_shipments',
+        )
+    else:
+        guest_ids = get_guest_order_ids(request)
+        if guest_ids:
+            orders = Order.objects.filter(id__in=guest_ids).prefetch_related(
+                'items__product__seller', 'logistics_shipments',
+            )
+        else:
+            orders = Order.objects.none()
     statuses = []
     for o in orders:
         logistics = o.logistics_shipments.first()
@@ -192,7 +202,11 @@ def my_orders(request):
         'active': sum(1 for s in statuses if s not in ('delivered', 'failed', 'delivery_failed', None)),
         'delivered': sum(1 for s in statuses if s == 'delivered'),
     }
-    return render(request, 'order/my_orders.html', {'orders': orders, 'stats': stats})
+    return render(request, 'order/my_orders.html', {
+        'orders': orders,
+        'stats': stats,
+        'is_guest_view': not request.user.is_authenticated,
+    })
 
 
 NOMINATIM_URL = 'https://nominatim.openstreetmap.org/reverse'

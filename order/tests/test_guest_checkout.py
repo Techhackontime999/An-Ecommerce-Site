@@ -101,6 +101,29 @@ class GuestCheckoutTests(TestCase):
         response = other.get(reverse('order:order_detail', args=[order.id]))
         self.assertEqual(response.status_code, 404)
 
+    def test_guest_my_orders_lists_session_orders_without_login(self):
+        self._seed_session_cart()
+        self._order_post()
+        order = Order.objects.get(checkout_token='token-guest')
+        response = self.client.get(reverse('order:my_orders'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, order.order_number)
+
+    def test_anonymous_my_orders_without_session_is_200_not_login(self):
+        fresh = Client(SERVER_NAME='localhost')
+        response = fresh.get(reverse('order:my_orders'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'You are viewing guest orders')
+
+    def test_guest_my_orders_does_not_show_other_sessions_orders(self):
+        self._seed_session_cart()
+        self._order_post()
+        order = Order.objects.get(checkout_token='token-guest')
+        fresh = Client(SERVER_NAME='localhost')
+        response = fresh.get(reverse('order:my_orders'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, order.order_number)
+
 
 class GuestEmailLinkTests(TestCase):
     """The signed link in the guest order-confirmation email.

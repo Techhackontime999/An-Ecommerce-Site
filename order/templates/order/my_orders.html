@@ -172,6 +172,19 @@
       <p class="myo-sub">{% trans "Track, review and manage everything you've ordered on Shop-Seed." %}</p>
     </header>
 
+    {% if is_guest_view %}
+    <div class="ord-alert ord-alert-info" style="margin-bottom:2rem;">
+      <i class="fas fa-user-shield"></i>
+      <div>
+        <strong>{% trans 'You are viewing guest orders' %}</strong>
+        <span>
+          {% trans "These are the orders placed on this browser. To see every order across devices and get returns support, or" %}
+          <a href="{% url 'accounts:signup' %}">{% trans 'create an account' %}</a>.
+        </span>
+      </div>
+    </div>
+    {% endif %}
+
     {% if orders %}
     <div class="myo-stats">
       <div class="myo-stat">

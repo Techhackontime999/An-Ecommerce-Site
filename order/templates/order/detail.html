@@ -111,7 +111,11 @@
 {% block content %}
 <section class="od-page">
   <div class="od-wrap">
+    {% if user.is_authenticated %}
     <a href="{% url 'order:my_orders' %}" class="od-back"><i class="fas fa-arrow-left"></i> {% trans 'Back to My Orders' %}</a>
+    {% else %}
+    <a href="{% url 'shipping:order_tracking' order.id %}" class="od-back"><i class="fas fa-arrow-left"></i> {% trans 'Back to Tracking' %}</a>
+    {% endif %}
 
     <header class="od-head">
       <div>

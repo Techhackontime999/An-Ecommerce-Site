@@ -461,11 +461,13 @@
       <div class="trk-empty-icon"><i class="fas fa-box-open"></i></div>
       <h3>No shipment information yet</h3>
       <p>Your order has been placed but hasn't been shipped yet. Check back later for tracking updates.</p>
+      {% if user.is_authenticated %}
       <a href="{% url 'order:my_orders' %}" class="trk-btn trk-btn-outline"><i class="fas fa-arrow-left"></i> Back to Orders</a>
+      {% endif %}
     </div>
     {% endif %}
 
-    {% if shipment %}
+    {% if shipment and user.is_authenticated %}
     <div class="trk-back">
       <a href="{% url 'order:my_orders' %}" class="trk-btn trk-btn-outline">
         <i class="fas fa-arrow-left"></i> Back to My Orders
