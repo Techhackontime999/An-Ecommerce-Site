@@ -132,7 +132,9 @@ def shipping_select(request, order_id):
 
 
 def order_tracking(request, order_id):
-    order = get_order_for_request(request, order_id)
+    order = get_order_for_request(
+        request, order_id, token=request.GET.get('token'),
+    )
     logistics = (
         order.logistics_shipments.select_related('courier', 'service', 'warehouse')
         .prefetch_related('tracking_events', 'items__product')

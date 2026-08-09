@@ -7,6 +7,25 @@ from django.template.loader import render_to_string
 logger = logging.getLogger(__name__)
 
 
+def _order_track_url(order):
+    """Absolute URL for the customer to follow their order.
+
+    Signed-in customers go to their order list. Guests (no account) get a
+    signed, expiring link to the tracking page so the button in the email works
+    even from a different browser than the one used to check out.
+    """
+    from django.urls import reverse
+    if order.user_id:
+        return '{}{}'.format(settings.SITE_URL, reverse('order:my_orders'))
+    from order.access import make_guest_access_token
+    token = make_guest_access_token(order)
+    return '{}{}?token={}'.format(
+        settings.SITE_URL,
+        reverse('shipping:order_tracking', args=[order.id]),
+        token,
+    )
+
+
 def send_html_email(subject, template_name, context, to_emails, from_email=None):
     """Render an HTML template and send it as a multi-part email.
 
@@ -50,7 +69,7 @@ def send_order_confirmation(order):
     return send_html_email(
         subject=f'Order Confirmed — {order.order_number}',
         template_name='emails/order_confirmation.html',
-        context={'order': order},
+        context={'order': order, 'track_url': _order_track_url(order)},
         to_emails=order.email,
     )
 
@@ -60,7 +79,7 @@ def send_payment_confirmation(order, payment):
     return send_html_email(
         subject=f'Payment Received — {order.order_number}',
         template_name='emails/payment_confirmation.html',
-        context={'order': order, 'payment': payment},
+        context={'order': order, 'payment': payment, 'track_url': _order_track_url(order)},
         to_emails=order.email,
     )
 
@@ -70,7 +89,7 @@ def send_shipping_confirmation(order, shipment):
     return send_html_email(
         subject=f'Your Order is on its Way — {order.order_number}',
         template_name='emails/shipping_confirmation.html',
-        context={'order': order, 'shipment': shipment},
+        context={'order': order, 'shipment': shipment, 'track_url': _order_track_url(order)},
         to_emails=order.email,
     )
 

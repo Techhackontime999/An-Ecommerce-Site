@@ -254,7 +254,7 @@ def order_detail(request, order_id):
             'items__product', 'items__variant', 'logistics_shipments__courier',
             'refunds', 'return_requests', 'audit_logs',
         )
-    ))
+    ), token=request.GET.get('token'))
     shipment = order.logistics_shipments.select_related('courier').first()
     payment = getattr(order, 'payment', None)
     has_open_return = order.return_requests.exclude(
@@ -347,7 +347,7 @@ def order_cancel(request, order_id):
 
 
 def order_invoice_pdf(request, order_id):
-    order = get_order_for_request(request, order_id)
+    order = get_order_for_request(request, order_id, token=request.GET.get('token'))
     from .services import generate_invoice_pdf
     pdf = generate_invoice_pdf(order)
     response = HttpResponse(pdf, content_type='application/pdf')
