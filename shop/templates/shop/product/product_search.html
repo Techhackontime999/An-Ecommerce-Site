@@ -14,6 +14,7 @@
     {% if results %}
     <form class="mb-4" action="{% url 'shop:product_search' %}" method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
       <div style="display:flex;gap:0.5rem;align-items:center;">
+        <input type="hidden" name="q" value="{{ query }}">
         <select name="category" style="padding:0.5rem 1rem;border-radius:var(--aq-radius-xl);border:1px solid var(--aq-border);background:var(--aq-surface);font-family:var(--aq-font);font-size:0.875rem;color:var(--aq-body);outline:none;">
           <option value="">{% trans 'All Categories' %}</option>
           {% for cat in product_categories %}
@@ -21,6 +22,14 @@
             {{ cat.name }}
           </option>
           {% endfor %}
+        </select>
+        <select name="sort" style="padding:0.5rem 1rem;border-radius:var(--aq-radius-xl);border:1px solid var(--aq-border);background:var(--aq-surface);font-family:var(--aq-font);font-size:0.875rem;color:var(--aq-body);outline:none;">
+          <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>{% trans 'Sort: Relevance' %}</option>
+          <option value="newest" {% if sort == 'newest' %}selected{% endif %}>{% trans 'Sort: Newest' %}</option>
+          <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>{% trans 'Price: Low to High' %}</option>
+          <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>{% trans 'Price: High to Low' %}</option>
+          <option value="rating" {% if sort == 'rating' %}selected{% endif %}>{% trans 'Sort: Top Rated' %}</option>
+          <option value="name" {% if sort == 'name' %}selected{% endif %}>{% trans 'Sort: Name' %}</option>
         </select>
         <button type="submit" class="btn-aq btn-aq-primary" style="padding:0.5rem 1.25rem;">
           <i class="fas fa-search"></i>
@@ -51,7 +60,7 @@
           </div>
           <div class="product-aq-body">
             <h3>{{ product.name }}</h3>
-            <p class="desc">{{ product.description|safe|truncatewords:12 }}</p>
+            <p class="desc">{{ product.description|truncatewords:12|richtext }}</p>
             {% with total=product.average_rating %}
             <div class="product-aq-rating">
               <span class="stars">
@@ -107,17 +116,17 @@
     {% if page_obj.has_other_pages %}
     <div class="pagination-aq fade-up" style="margin-top:2.5rem;">
       {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}&q={{ query|urlencode }}&category={{ selected_category }}"><i class="fas fa-chevron-left"></i></a>
+      <a href="?page={{ page_obj.previous_page_number }}&q={{ query|urlencode }}&category={{ selected_category }}&sort={{ sort }}"><i class="fas fa-chevron-left"></i></a>
       {% endif %}
       {% for num in page_obj.paginator.page_range %}
         {% if page_obj.number == num %}
         <span class="current">{{ num }}</span>
         {% else %}
-        <a href="?page={{ num }}&q={{ query|urlencode }}&category={{ selected_category }}">{{ num }}</a>
+        <a href="?page={{ num }}&q={{ query|urlencode }}&category={{ selected_category }}&sort={{ sort }}">{{ num }}</a>
         {% endif %}
       {% endfor %}
       {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}&q={{ query|urlencode }}&category={{ selected_category }}"><i class="fas fa-chevron-right"></i></a>
+      <a href="?page={{ page_obj.next_page_number }}&q={{ query|urlencode }}&category={{ selected_category }}&sort={{ sort }}"><i class="fas fa-chevron-right"></i></a>
       {% endif %}
     </div>
     {% endif %}

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from shop.models import Product
 
 from accounts.models import SellerProfile,CustomerProfile
+from core.validators import validate_image_file
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -105,7 +106,7 @@ class ProductReview(models.Model):
         default=Status.APPROVED,
         db_index=True,
     )
-    image = models.ImageField(upload_to='reviews/%Y/%m/%d', blank=True)
+    image = models.ImageField(upload_to='reviews/%Y/%m/%d', blank=True, validators=[validate_image_file])
     video_url = models.URLField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -153,7 +154,7 @@ class ProductReviewImage(models.Model):
         related_name='images',
         on_delete=models.CASCADE,
     )
-    image = models.ImageField(upload_to='reviews/%Y/%m/%d')
+    image = models.ImageField(upload_to='reviews/%Y/%m/%d', validators=[validate_image_file])
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

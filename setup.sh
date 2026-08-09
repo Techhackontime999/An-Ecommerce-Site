@@ -11,6 +11,12 @@ python manage.py collectstatic --noinput
 echo "=== Running database migrations ==="
 python manage.py migrate --noinput
 
+echo "=== Compiling translation catalogs ==="
+python manage.py compilemessages --ignore=env 2>/dev/null || echo "No catalogs to compile."
+
+echo "=== Creating cache table (DatabaseCache backend) ==="
+python manage.py createcachetable 2>/dev/null || echo "No database cache backend configured; skipping."
+
 if [[ -n "$DJANGO_SUPERUSER_USERNAME" && -n "$DJANGO_SUPERUSER_EMAIL" && -n "$DJANGO_SUPERUSER_PASSWORD" ]]; then
     echo "=== Creating/updating superuser ==="
     python manage.py createsuperuser --noinput 2>/dev/null || {

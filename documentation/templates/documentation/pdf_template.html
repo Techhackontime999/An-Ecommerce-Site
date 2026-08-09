@@ -334,7 +334,7 @@ body { font-family: 'Outfit'; font-size: 10pt; line-height: 1.65; color: #475569
       <span class="sec-title">{{ section.title }}</span>
     </span>
   </div>
-  <div class="sec-body">{{ section.content|safe }}</div>
+  <div class="sec-body">{{ section.content|richtext }}</div>
   {% if section.image %}
   <figure class="sec-figure"><img src="{{ section.image.path }}" alt="{{ section.title }}"></figure>
   {% endif %}

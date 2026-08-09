@@ -68,6 +68,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'core.middleware.SecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,6 +86,7 @@ TEMPLATES = [
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
+            'builtins': ['core.templatetags.core_security'],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -125,7 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 LANGUAGES = available_languages()
@@ -180,6 +181,10 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+# Mount Django admin under an unusual path in production to reduce exposure to
+# scanner-visible /admin/. Dev keeps a memorable default.
+ADMIN_URL = os.getenv('ADMIN_URL', 'admin/')
+
 # ---------------------------------------------------------------------------
 # Logistics Management System (LMS)
 # ---------------------------------------------------------------------------
@@ -227,3 +232,32 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+X_FRAME_OPTIONS = 'DENY'
+
+# ---------------------------------------------------------------------------
+# Content-Security-Policy / Permissions-Policy (enforced by core.middleware)
+# ---------------------------------------------------------------------------
+# Inline styles/scripts are allowed because the templates use them heavily;
+# the policy still blocks injected *external* scripts, plugins, frames and
+# data-exfiltration endpoints. The |richtext| sanitizer remains the primary
+# stored-XSS defence.
+SECURITY_CSP = '; '.join([
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://www.googletagmanager.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+    "img-src 'self' data: https:",
+    "connect-src 'self' https://api.razorpay.com https://*.razorpay.com https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com https://stats.g.doubleclick.net",
+    "media-src 'self' https: data:",
+    "frame-src https://checkout.razorpay.com https://www.youtube-nocookie.com https://player.vimeo.com",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+])
+SECURITY_PERMISSIONS_POLICY = 'camera=(), microphone=(), geolocation=(), battery=(), usb=(), interest-cohort=()'
+
+# Upload safety: reject oversized POST bodies early (before they hit memory).
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024

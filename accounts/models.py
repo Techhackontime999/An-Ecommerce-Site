@@ -7,6 +7,8 @@ from django.utils.text import slugify
 from django.db.models import Avg
 from django.db.models import Count
 
+from core.validators import validate_image_file, validate_document_file
+
 # from shop.models import Product
 
 class SellerProfile(models.Model):
@@ -53,7 +55,7 @@ class SellerProfile(models.Model):
     is_email_verified = models.BooleanField(default=False)
     is_phone_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    profile_picture = models.ImageField(upload_to='seller_profiles/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='seller_profiles/', null=True, blank=True, validators=[validate_image_file])
     slug = models.SlugField(unique=True, blank=True, null=True)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
 
@@ -92,7 +94,7 @@ class CustomerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15)
     address = models.TextField()
-    profile_picture = models.ImageField(upload_to='customer_profiles/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='customer_profiles/', null=True, blank=True, validators=[validate_image_file])
     is_email_verified = models.BooleanField(default=False)
     is_phone_verified = models.BooleanField(default=False)
 
@@ -117,7 +119,7 @@ class SellerDocument(models.Model):
     document_type = models.CharField(
         max_length=20, choices=DocumentType.choices, default=DocumentType.OTHER,
     )
-    file = models.FileField(upload_to='seller_documents/')
+    file = models.FileField(upload_to='seller_documents/', validators=[validate_document_file])
     description = models.CharField(max_length=200, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

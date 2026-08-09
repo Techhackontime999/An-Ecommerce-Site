@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.text import slugify
 from ckeditor.fields import RichTextField
+from core.validators import validate_image_file
 
 from shop.models import Product
 
@@ -69,7 +70,7 @@ class Post(models.Model):
         db_index=True,
     )
     publish_at = models.DateTimeField(default=timezone.now, db_index=True)
-    featured_image = models.ImageField(upload_to='blog/%Y/%m/%d', blank=True)
+    featured_image = models.ImageField(upload_to='blog/%Y/%m/%d', blank=True, validators=[validate_image_file])
     video_url = models.CharField(
         max_length=500,
         blank=True,
@@ -164,7 +165,7 @@ class PostImage(models.Model):
         related_name='gallery_images',
         on_delete=models.CASCADE,
     )
-    image = models.ImageField(upload_to='blog/%Y/%m/%d')
+    image = models.ImageField(upload_to='blog/%Y/%m/%d', validators=[validate_image_file])
     caption = models.CharField(max_length=200, blank=True)
     order = models.PositiveIntegerField(default=0)
 
@@ -251,7 +252,7 @@ class UserProfile(models.Model):
         on_delete=models.CASCADE,
     )
     bio = models.CharField(max_length=300, blank=True)
-    avatar = models.ImageField(upload_to='blog/authors/%Y/%m/%d', blank=True)
+    avatar = models.ImageField(upload_to='blog/authors/%Y/%m/%d', blank=True, validators=[validate_image_file])
     xp = models.PositiveIntegerField(default=0)
     badges = models.ManyToManyField(Badge, related_name='profiles', blank=True)
     created = models.DateTimeField(auto_now_add=True)

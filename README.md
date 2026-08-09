@@ -2,8 +2,8 @@
 
 This project is licensed under a custom license - see the [LICENSE](./LICENSE) file for details.
 
-[![Python 3.6](https://img.shields.io/badge/python-3.6-yellow.svg)](https://www.python.org/downloads/release/python-360/)
-![Django 3.0](https://img.shields.io/badge/Django-3.0-green.svg)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
+![Django 5.2](https://img.shields.io/badge/Django-5.2-green.svg)
 [![Build](https://github.com/Techhackontime999/An-Ecommerce-Site/actions/workflows/django.yml/badge.svg)](https://github.com/Techhackontime999/An-Ecommerce-Site/actions/workflows/django.yml)
 
 
@@ -15,7 +15,7 @@ Django-ecommerce is an open-source ecommerce platform built on the Django Web Fr
 - Shopping Cart
 - Order Management
 - Coupon system
-- Payments Using Stripe
+- Payments Using Razorpay (cards/UPI/netbanking + COD)
 - Responsive, mobile-friendly design
 - Much more...
 
@@ -59,7 +59,12 @@ Or visit My [Website]
   The dev default is only for `config.settings.local`.
 - `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` / `RAZORPAY_WEBHOOK_SECRET`
 - `REDIS_URL` (optional) — when set, the cache uses Redis; otherwise a
-  `DatabaseCache` table is used.
+  `DatabaseCache` table is used. `setup.sh` runs `createcachetable`, so the
+  database-cache table is always present on deploy.
+- `AWS_STORAGE_BUCKET_NAME` (+ `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` /
+  `AWS_S3_REGION_NAME`) — **recommended for production**. Media (product/blog/
+  review images, courier labels) is stored on the server's ephemeral disk
+  otherwise and would be lost on every redeploy.
 
 ### Scheduled jobs (Render cron / Celery beat)
 - **Tracking sync** — poll courier APIs for in-flight shipments and advance the

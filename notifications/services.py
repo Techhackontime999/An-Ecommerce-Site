@@ -1,6 +1,9 @@
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from .models import Notification, NotificationPreference
+
+UNREAD_CACHE_TTL = 60  # seconds
 
 CATEGORY_FIELD = {
     Notification.Category.ORDER: 'order_enabled',
@@ -54,7 +57,7 @@ def notify(recipient, category, title, message='', link='', icon=''):
         return None
     if not icon:
         icon = ROLE_ICONS.get(get_user_role(recipient), 'bell')
-    return Notification.objects.create(
+    created = Notification.objects.create(
         recipient=recipient,
         role=get_user_role(recipient),
         category=category,
@@ -63,6 +66,8 @@ def notify(recipient, category, title, message='', link='', icon=''):
         link=link,
         icon=icon,
     )
+    invalidate_unread_cache(recipient.pk)
+    return created
 
 
 def notify_role(role, category, title, message='', link='', icon=''):
@@ -91,3 +96,13 @@ def unread_count(user):
     if user is None or not user.is_authenticated:
         return 0
     return Notification.objects.filter(recipient=user, is_read=False).count()
+
+
+def unread_cache_key(user_id):
+    return f'notif:unread:{user_id}'
+
+
+def invalidate_unread_cache(user_id):
+    """Drop the per-user header cache so the badge refreshes immediately."""
+    if user_id:
+        cache.delete(unread_cache_key(user_id))

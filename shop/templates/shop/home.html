@@ -205,7 +205,7 @@
           </div>
           <div class="product-aq-body">
             <h3>{{ product.name }}</h3>
-            <p class="desc">{{ product.description|safe|truncatewords:12 }}</p>
+            <p class="desc">{{ product.description|truncatewords:12|richtext }}</p>
             {% with total=product.average_rating %}
             <div class="product-aq-rating">
               <span class="stars">
@@ -292,7 +292,7 @@
           </div>
           <div class="product-aq-body">
             <h3>{{ product.name }}</h3>
-            <p class="desc">{{ product.description|safe|truncatewords:10 }}</p>
+            <p class="desc">{{ product.description|truncatewords:10|richtext }}</p>
             {% with total=product.average_rating %}
             <div class="product-aq-rating">
               <span class="stars">

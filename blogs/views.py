@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Count, F, Q
@@ -597,6 +598,8 @@ def notifications_list(request):
 @require_POST
 def mark_notifications_read(request):
     request.user.blog_notifications.filter(is_read=False).update(is_read=True)
+    from .context_processors import blog_unread_key
+    cache.delete(blog_unread_key(request.user.pk))
     return redirect('blogs:notifications')
 
 

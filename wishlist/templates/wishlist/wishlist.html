@@ -36,7 +36,7 @@
           </div>
           <div class="product-aq-body">
             <h3>{{ product.name }}</h3>
-            <p class="desc">{{ product.description|safe|truncatewords:12 }}</p>
+            <p class="desc">{{ product.description|truncatewords:12|richtext }}</p>
             <div class="product-aq-price">
               {% if product.current_price and product.current_price != product.price %}
               <span>{% load preference_extras %}{% price product.current_price %}</span>

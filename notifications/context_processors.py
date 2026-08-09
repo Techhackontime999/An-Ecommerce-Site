@@ -1,5 +1,7 @@
+from django.core.cache import cache
+
 from .models import Notification
-from .services import get_user_role
+from .services import UNREAD_CACHE_TTL, get_user_role, unread_cache_key
 
 
 def notifications_context(request):
@@ -9,8 +11,17 @@ def notifications_context(request):
         'user_role': None,
     }
     if request.user.is_authenticated:
-        qs = Notification.objects.filter(recipient=request.user)
-        context['notification_unread_count'] = qs.filter(is_read=False).count()
-        context['recent_notifications'] = qs[:5]
-        context['user_role'] = get_user_role(request.user)
+        key = unread_cache_key(request.user.pk)
+        payload = cache.get(key)
+        if payload is None:
+            qs = Notification.objects.filter(recipient=request.user)
+            payload = {
+                'unread': qs.filter(is_read=False).count(),
+                'recent': list(qs[:5]),
+                'role': get_user_role(request.user),
+            }
+            cache.set(key, payload, UNREAD_CACHE_TTL)
+        context['notification_unread_count'] = payload['unread']
+        context['recent_notifications'] = payload['recent']
+        context['user_role'] = payload['role']
     return context

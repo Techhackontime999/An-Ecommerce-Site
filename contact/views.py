@@ -9,8 +9,10 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from .forms import ContactForm
+from core.throttle import throttle
 
 
+@throttle('contact', max_requests=10, window_seconds=3600)
 def contact_view(request):
     if request.method == 'POST':
         if not request.user.is_authenticated:

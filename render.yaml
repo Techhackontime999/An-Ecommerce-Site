@@ -13,6 +13,16 @@ databases:
     databaseName: ecommerce
     user: ecommerce_user
 
+# Optional: add a managed Redis to avoid the DatabaseCache backend entirely.
+# Uncomment this block (and the REDIS_URL envVar below) for better performance.
+# Redis is also required for the tracking-sync / exchange-rate cron jobs to
+# share cache state efficiently.
+# redis:
+#   - name: ecommerce-redis
+#     plan: free
+#     region: singapore
+#     maxmemoryPolicy: noeviction
+
 services:
   - type: web
     name: ecommerce-site
@@ -20,12 +30,17 @@ services:
     region: singapore
     runtime: python
     buildCommand: bash build.sh
-    startCommand: bash setup.sh && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers=3 --access-logfile=-
+    # Migrations + cache table + collectstatic run ONCE in preDeployCommand;
+    # the start command must stay a pure gunicorn so they never run twice.
+    startCommand: gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers=2 --access-logfile=-
     preDeployCommand: bash setup.sh
+    healthCheckPath: /
     envVars:
       - key: DJANGO_ENV
         value: production
       - key: SECRET_KEY
+        sync: false
+      - key: FIELD_ENCRYPTION_KEY
         sync: false
       - key: DATABASE_URL
         fromDatabase:
@@ -35,9 +50,56 @@ services:
         sync: false
       - key: RAZORPAY_KEY_SECRET
         sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      # - key: REDIS_URL
+      #   fromService:
+      #     name: ecommerce-redis
+      #     type: redis
+      #     property: connectionString
       - key: DJANGO_SUPERUSER_USERNAME
         sync: false
       - key: DJANGO_SUPERUSER_EMAIL
         sync: false
       - key: DJANGO_SUPERUSER_PASSWORD
         sync: false
+
+# Scheduled jobs — keep tracking timelines and live FX rates fresh.
+# Free-plan cron services spin up on schedule; upgrade to a worker + Celery
+# beat (with Redis) if the store grows.
+cron:
+  - type: cron
+    name: tracking-sync
+    schedule: "*/30 * * * *"
+    runtime: python
+    buildCommand: bash build.sh
+    startCommand: python manage.py sync_tracking_status --limit 100 --min-age-hours 1
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: SECRET_KEY
+        sync: false
+      - key: FIELD_ENCRYPTION_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecommerce-db
+          property: connectionString
+
+  - type: cron
+    name: exchange-rate-refresh
+    schedule: "0 */12 * * *"
+    runtime: python
+    buildCommand: bash build.sh
+    startCommand: python manage.py update_currency_rates
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: SECRET_KEY
+        sync: false
+      - key: FIELD_ENCRYPTION_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecommerce-db
+          property: connectionString

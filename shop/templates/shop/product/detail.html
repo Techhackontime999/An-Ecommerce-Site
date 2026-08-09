@@ -14,6 +14,7 @@
 <meta property="og:description" content="{{ product.description|striptags|truncatewords:30 }}">
 <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}">
 {% if product.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ product.image.url }}">{% endif %}
+{% if product_json_ld %}<script type="application/ld+json">{{ product_json_ld|safe }}</script>{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -285,7 +286,7 @@
           <i class="fas fa-align-left"></i> {% trans 'Product Description' %}
         </h2>
         <div class="pdp-description-body" id="pdp-desc-product">
-          {{ merged_description|safe }}
+          {{ merged_description|richtext }}
         </div>
       </div>
 

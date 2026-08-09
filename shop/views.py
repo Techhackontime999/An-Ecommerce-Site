@@ -1,9 +1,12 @@
+import json
 from django.shortcuts import render, get_object_or_404, redirect
 from cart.forms import CartAddProductForm
 from .models import Category, Product
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.utils import timezone
+from django.utils.html import strip_tags
+from django.utils.text import Truncator
 from platform_studio.utils import get_setting
 
 
@@ -166,6 +169,31 @@ def product_detail(request, id, slug):
     if discount_percent < 0:
         discount_percent = 0
 
+    page_url = f'{request.scheme}://{request.get_host()}{product.get_absolute_url()}'
+    product_json_ld = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        'name': product.name,
+        'description': str(Truncator(strip_tags(product.description or '')).words(40)),
+        'sku': str(product.id),
+        'brand': product.brand or None,
+        'image': (f'{request.scheme}://{request.get_host()}{product.image.url}'
+                  if product.image else None),
+        'offers': {
+            '@type': 'Offer',
+            'url': page_url,
+            'priceCurrency': 'USD',
+            'price': f'{display_price:.2f}',
+            'availability': ('https://schema.org/InStock' if product.available
+                             else 'https://schema.org/OutOfStock'),
+        },
+        'aggregateRating': {
+            '@type': 'AggregateRating',
+            'ratingValue': f'{widget_average:.1f}',
+            'reviewCount': str(widget_total),
+        },
+    }
+
     context = {
         'product': product,
         'cart_product_form': cart_product_form,
@@ -183,6 +211,7 @@ def product_detail(request, id, slug):
         'display_price': display_price,
         'mrp': mrp,
         'discount_percent': discount_percent,
+        'product_json_ld': json.dumps(product_json_ld),
     }
     return render(request, 'shop/product/detail.html', context)
 
@@ -190,6 +219,7 @@ def product_detail(request, id, slug):
 def product_search(request):
     query = request.GET.get('q', '').strip()
     category_slug = request.GET.get('category', '').strip()
+    sort = request.GET.get('sort', 'relevance').strip()
 
     products = Product.objects.with_rating().with_deal_price().filter(available=True)
     product_categories = Category.objects.all()
@@ -199,6 +229,17 @@ def product_search(request):
 
     if query:
         products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
+
+    sort_map = {
+        'price_asc': ('price', 'price'),
+        'price_desc': ('-price', 'price_desc'),
+        'newest': ('-created', 'newest'),
+        'rating': ('-_avg_rating', 'rating'),
+        'name': ('name', 'name'),
+    }
+    order, active_sort = sort_map.get(sort, (None, 'relevance'))
+    if order:
+        products = products.order_by(order)
 
     paginator = Paginator(products, 12)
     page_number = request.GET.get('page')
@@ -210,5 +251,6 @@ def product_search(request):
         "query": query,
         "selected_category": category_slug,
         "product_categories": product_categories,
+        "sort": active_sort,
         "search_action": "shop:product_search",
     })

@@ -79,6 +79,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'core.middleware.SecurityHeadersMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -94,9 +95,10 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
+            'builtins': ['core.templatetags.core_security'],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -197,7 +199,6 @@ else:
             },
         },
     }
-USE_L10N = True
 USE_TZ = True
 
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'staticfiles')
@@ -212,8 +213,33 @@ STORAGES = {
     },
 }
 
+# ---------------------------------------------------------------------------
+# Media files (product/blog/review images, courier labels, CKEditor uploads)
+# ---------------------------------------------------------------------------
+# Render's disk is ephemeral: uploaded files disappear on every redeploy and
+# are never served in production. Point AWS_STORAGE_BUCKET_NAME at an S3 bucket
+# (boto3 + django-storages are already in requirements.txt) so media is
+# persistent and served from S3. Without a bucket, media stays local-only.
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "").strip()
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", os.getenv("AWS_SES_REGION", "us-east-1"))
+AWS_QUERYSTRING_AUTH = False
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+
+if AWS_STORAGE_BUCKET_NAME:
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    }
+    MEDIA_URL = (
+        f"https://s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
+        f"{AWS_STORAGE_BUCKET_NAME}/"
+    )
+else:
+    MEDIA_URL = '/media/'
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CART_SESSION_ID = 'cart'
@@ -236,6 +262,10 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Shop-Seed <no-reply@shop-s
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# Mount Django admin under an unusual path in production to reduce exposure to
+# scanner-visible /admin/. Set ADMIN_URL (e.g. a random segment) in .env.
+ADMIN_URL = os.getenv("ADMIN_URL", "admin/")
 
 LOGGING = {
     'version': 1,
@@ -281,8 +311,36 @@ SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv("SECURE_HSTS_INCLUDE_SUBDOMAINS", "True") == "True"
 SECURE_HSTS_PRELOAD = os.getenv("SECURE_HSTS_PRELOAD", "True") == "True"
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
 SECURE_REFERRER_POLICY = 'same-origin'
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+
+X_FRAME_OPTIONS = 'DENY'
+
+# ---------------------------------------------------------------------------
+# Content-Security-Policy / Permissions-Policy (enforced by core.middleware)
+# ---------------------------------------------------------------------------
+# Inline styles/scripts are allowed because the templates use them heavily;
+# the policy still blocks injected *external* scripts, plugins, frames and
+# data-exfiltration endpoints. The |richtext| sanitizer remains the primary
+# stored-XSS defence.
+SECURITY_CSP = '; '.join([
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://www.googletagmanager.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+    "img-src 'self' data: https:",
+    "connect-src 'self' https://api.razorpay.com https://*.razorpay.com https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com https://stats.g.doubleclick.net",
+    "media-src 'self' https: data:",
+    "frame-src https://checkout.razorpay.com https://www.youtube-nocookie.com https://player.vimeo.com",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+])
+SECURITY_PERMISSIONS_POLICY = 'camera=(), microphone=(), geolocation=(), battery=(), usb=(), interest-cohort=()'
+
+# Upload safety: reject oversized POST bodies early (before they hit memory).
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -18,6 +18,7 @@ import logging
 import secrets
 
 from core.security import client_ip, safe_next_url
+from core.throttle import throttle
 from .forms import SellerRegisterForm, CustomerRegisterForm, SellerProfileForm, CustomerProfileForm
 from .models import SellerProfile, CustomerProfile
 from .security import is_locked, record_failure, reset
@@ -102,6 +103,7 @@ def send_phone_otp(request, user):
         logger.exception('Failed to send phone OTP to %s', user.email)
 
 
+@throttle('signup', max_requests=5, window_seconds=3600)
 def signup(request):
     if request.method == 'POST':
         form = CustomerRegisterForm(request.POST, request.FILES)
@@ -196,6 +198,7 @@ def logout_view(request):
     return redirect('shop:product_list')
 
 
+@throttle('seller-signup', max_requests=5, window_seconds=3600)
 def seller_register(request):
     if request.method == 'POST':
         form = SellerRegisterForm(request.POST, request.FILES)

@@ -109,7 +109,7 @@ def order_create(request):
                 icon='box',
             )
             seller_users = set()
-            for item in order.items.all():
+            for item in order.items.select_related('product__seller'):
                 seller = item.product.seller
                 if seller and seller.user_id:
                     seller_users.add(seller.user)
@@ -153,13 +153,13 @@ MYO_STATUS_IDX = {
 @login_required
 def my_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related(
-        'items__product', 'logistics_shipments',
+        'items__product__seller', 'logistics_shipments',
     )
     statuses = []
     for o in orders:
-        shipment = o.logistics_shipments.first()
-        statuses.append(shipment.status if shipment else None)
         logistics = o.logistics_shipments.first()
+        shipment = logistics
+        statuses.append(shipment.status if shipment else None)
         if logistics:
             o.tl = MYO_STEPS
             o.tl_idx = MYO_STATUS_IDX.get(logistics.status, 1)

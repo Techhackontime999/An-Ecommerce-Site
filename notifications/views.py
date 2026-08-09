@@ -6,7 +6,12 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from .models import Notification, NotificationPreference
-from .services import CATEGORY_FIELD, get_user_role, unread_count
+from .services import (
+    CATEGORY_FIELD,
+    get_user_role,
+    invalidate_unread_cache,
+    unread_count,
+)
 
 PER_PAGE = 25
 
@@ -89,6 +94,7 @@ def mark_read(request, notification_id):
     notif = get_object_or_404(Notification, id=notification_id, recipient=request.user)
     notif.is_read = True
     notif.save(update_fields=['is_read'])
+    invalidate_unread_cache(request.user.pk)
     return JsonResponse({'ok': True, 'unread': unread_count(request.user)})
 
 
@@ -96,6 +102,7 @@ def mark_read(request, notification_id):
 @login_required
 def mark_all_read(request):
     Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+    invalidate_unread_cache(request.user.pk)
     return JsonResponse({'ok': True, 'unread': 0})
 
 
@@ -104,6 +111,7 @@ def mark_all_read(request):
 def delete_notification(request, notification_id):
     notif = get_object_or_404(Notification, id=notification_id, recipient=request.user)
     notif.delete()
+    invalidate_unread_cache(request.user.pk)
     return JsonResponse({'ok': True, 'unread': unread_count(request.user)})
 
 
@@ -111,4 +119,5 @@ def delete_notification(request, notification_id):
 @login_required
 def clear_notifications(request):
     Notification.objects.filter(recipient=request.user, is_read=True).delete()
+    invalidate_unread_cache(request.user.pk)
     return JsonResponse({'ok': True, 'unread': unread_count(request.user)})

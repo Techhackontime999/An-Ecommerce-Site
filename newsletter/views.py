@@ -13,6 +13,8 @@ from django.views.decorators.http import require_GET, require_POST
 
 from notifications.models import Notification
 from notifications.services import notify
+from core.security import safe_next_url
+from core.throttle import throttle
 from .models import Subscriber
 
 logger = logging.getLogger(__name__)
@@ -55,6 +57,7 @@ def _is_ajax(request):
 
 
 @require_POST
+@throttle('newsletter', max_requests=10, window_seconds=3600)
 def subscribe(request):
     email = (request.POST.get('email') or '').strip().lower()
 
@@ -62,7 +65,7 @@ def subscribe(request):
         if _is_ajax(request):
             return JsonResponse({'ok': False, 'error': 'Please enter a valid email address.'}, status=400)
         messages.error(request, 'Please enter a valid email address.')
-        return redirect(request.META.get('HTTP_REFERER') or '/')
+        return redirect(safe_next_url(request) or '/')
 
     subscriber, created = Subscriber.objects.get_or_create(
         email=email,
@@ -89,7 +92,7 @@ def subscribe(request):
     if _is_ajax(request):
         return JsonResponse({'ok': True, 'message': message})
     messages.success(request, message)
-    return redirect(request.META.get('HTTP_REFERER') or '/')
+    return redirect(safe_next_url(request) or '/')
 
 
 @require_GET

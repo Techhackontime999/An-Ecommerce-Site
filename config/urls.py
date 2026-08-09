@@ -18,7 +18,7 @@ urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('', include('reviews.urls', namespace='reviews')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
-    path('admin/', include('core.admin_urls')),
+    path(settings.ADMIN_URL, include('core.admin_urls')),
     path('todays-deals/', include('deals.urls', namespace='deals')),
     path('cart/', include('cart.urls', namespace='cart')),
     path('wishlist/', include('wishlist.urls', namespace='wishlist')),
@@ -46,3 +46,9 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Production media fallback: when no S3 bucket is configured MEDIA_URL stays on
+# the local origin, so serve the (ephemeral) filesystem media directly.
+# When AWS_STORAGE_BUCKET_NAME is set, MEDIA_URL points at S3 and this is a no-op.
+if not settings.DEBUG and settings.MEDIA_URL.startswith('/'):
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

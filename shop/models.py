@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from ckeditor.fields import RichTextField
 from accounts.models import SellerProfile
+from core.validators import validate_image_file
 from django.utils import timezone
 from django.db.models import Index
 from django.db.models import Avg
@@ -88,7 +89,7 @@ class Product(models.Model):
                                  on_delete=models.CASCADE)
     name = models.CharField(max_length=200, db_index=True)
     slug = models.SlugField(max_length=200, db_index=True)
-    image = models.ImageField(upload_to='products/%Y/%m/%d', blank=True)
+    image = models.ImageField(upload_to='products/%Y/%m/%d', blank=True, validators=[validate_image_file])
     description = RichTextField(blank=True) 
     # remove below price if you mapped not with actual shop.product price make with seller assossiated price in  seller.models called seller_product model
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -159,7 +160,7 @@ class Product(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images',
                                 on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/%Y/%m/%d')
+    image = models.ImageField(upload_to='products/%Y/%m/%d', validators=[validate_image_file])
     is_main = models.BooleanField(default=False)
     alt_text = models.CharField(max_length=200, blank=True)
     sort_order = models.PositiveIntegerField(default=0)
@@ -183,7 +184,7 @@ class ProductVariant(models.Model):
     stock = models.PositiveIntegerField(default=0)
     description = RichTextField(blank=True,
                                 help_text='Optional. Own description for this variant.')
-    image = models.ImageField(upload_to='products/%Y/%m/%d/variants', blank=True)
+    image = models.ImageField(upload_to='products/%Y/%m/%d/variants', blank=True, validators=[validate_image_file])
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -204,7 +205,7 @@ class ProductVariant(models.Model):
 class VariantImage(models.Model):
     variant = models.ForeignKey(ProductVariant, related_name='images',
                                 on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/%Y/%m/%d/variants')
+    image = models.ImageField(upload_to='products/%Y/%m/%d/variants', validators=[validate_image_file])
     sort_order = models.PositiveIntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
 

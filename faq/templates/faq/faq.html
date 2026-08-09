@@ -92,7 +92,7 @@
             <div class="fq-a" id="fq-answer-{{ forloop.counter }}" role="region" aria-labelledby="fq-question-{{ forloop.counter }}">
               <div class="fq-a-inner">
                 <div class="fq-a-body">
-                  {{ faq.answer|safe }}
+                  {{ faq.answer|richtext }}
                 </div>
               </div>
             </div>
@@ -198,7 +198,7 @@
         <div class="fq-story-body">
           <span class="fq-story-tag">Seller spotlight</span>
           <h3 class="fq-story-title">{{ story.title }}</h3>
-          <p class="fq-story-desc">{{ story.description|safe }}</p>
+          <p class="fq-story-desc">{{ story.description|richtext }}</p>
           {% if story.url %}
           <a href="{{ story.url }}" class="fq-story-link">Read the story <i class="fas fa-arrow-right"></i></a>
           {% else %}

@@ -130,7 +130,7 @@
           {% endif %}
 
           <div class="blog-article-body">
-            {{ post.body_html|safe }}
+            {{ post.body_html|richtext }}
           </div>
 
           {% if post.post_products.exists %}
