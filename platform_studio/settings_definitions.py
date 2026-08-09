@@ -258,10 +258,10 @@ ALL_SETTINGS = [
     _S('support_hours', 'Support hours', 'contact', 'text', '24/7'),
 
     # ---- Store Settings ----
-    _S('default_currency', 'Default currency', 'commerce', 'select', 'USD',
+    _S('default_currency', 'Default currency', 'commerce', 'select', 'INR',
        'Currency shown to visitors who have not chosen one.',
        _currency_choices()),
-    _S('free_shipping_threshold', 'Free shipping threshold', 'commerce', 'number', '49',
+    _S('free_shipping_threshold', 'Free shipping threshold', 'commerce', 'number', '999',
        'Order amount (in default currency) that unlocks free shipping.'),
     _S('products_per_page', 'Products per page', 'commerce', 'number', '12',
        'How many products are shown per page in the shop.'),

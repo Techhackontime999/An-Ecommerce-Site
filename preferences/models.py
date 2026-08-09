@@ -65,7 +65,7 @@ class UserPreference(models.Model):
     )
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, default='light')
     language = models.CharField(max_length=10, choices=LANG_CHOICES, default='en')
-    currency = models.CharField(max_length=3, default='USD')
+    currency = models.CharField(max_length=3, default='INR')
     font_style = models.CharField(max_length=10, choices=FONT_CHOICES, default='default')
     accent = models.CharField(max_length=10, choices=ACCENT_CHOICES, default='orange')
     text_size = models.CharField(max_length=10, choices=TEXT_SIZE_CHOICES, default='regular')

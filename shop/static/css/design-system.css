@@ -1770,6 +1770,123 @@ html[data-theme="dark"] .crt-sticky-checkout {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* ─── 29b. Cookie consent banner ─────────────────────────────────── */
+.ds-cookie {
+  position: fixed;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: calc(var(--ds-bottombar-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--ds-space-5);
+  background: var(--aq-surface);
+  border: 1px solid var(--aq-border);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-lg);
+  animation: ds-cookie-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes ds-cookie-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+html.has-consent .ds-cookie,
+.ds-cookie.is-hidden {
+  display: none;
+}
+@media (min-width: 640px) {
+  .ds-cookie {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+@media (min-width: 1024px) {
+  .ds-cookie {
+    bottom: 1.25rem;
+  }
+}
+
+.ds-cookie-copy {
+  display: flex;
+  gap: var(--ds-space-3);
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ds-cookie-icon {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--ds-radius-md);
+  background: var(--aq-accent-subtle);
+  color: var(--aq-accent-dark);
+  font-size: 1.15rem;
+}
+.ds-cookie-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--ds-text-base);
+  color: var(--aq-ink);
+}
+.ds-cookie-text {
+  margin: 0.125rem 0 0;
+  font-size: var(--ds-text-sm);
+  color: var(--aq-body);
+  line-height: 1.5;
+}
+.ds-cookie-text a {
+  color: var(--aq-accent-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ds-cookie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-3);
+  flex: 0 0 auto;
+}
+.ds-cookie-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-family: var(--aq-font);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  border: none;
+  border-radius: var(--ds-radius-full);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.ds-cookie-btn:active {
+  transform: scale(0.97);
+}
+.ds-cookie-accept {
+  background: var(--aq-gradient-1);
+  color: #fff;
+  box-shadow: 0 2px 8px var(--aq-accent-glow);
+}
+.ds-cookie-accept:hover {
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.28);
+}
+.ds-cookie-essential {
+  background: transparent;
+  color: var(--aq-ink);
+  border: 1px solid var(--aq-border);
+}
+.ds-cookie-essential:hover {
+  background: var(--aq-accent-subtle);
+  border-color: var(--aq-accent);
+  color: var(--aq-accent-dark);
+}
+
 /* ─── 30. Global overflow sweep (last resort guards) ───────────────── */
 pre {
   max-width: 100%;

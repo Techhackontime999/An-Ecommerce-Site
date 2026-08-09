@@ -11864,6 +11864,7 @@ html[data-theme="dark"] .aq-to-top {
   letter-spacing: -0.01em;
   cursor: pointer;
   box-shadow: 0 6px 20px -6px rgba(249, 115, 22, 0.5);
+  text-decoration: none;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               opacity 0.3s ease;
@@ -11947,6 +11948,24 @@ html[data-theme="dark"] .aq-to-top {
   margin-top: 0.125rem;
   color: var(--aq-accent);
   flex-shrink: 0;
+}
+
+.pay-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--aq-tertiary);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.pay-fallback:hover {
+  color: var(--aq-accent-dark);
+  text-decoration: underline;
 }
 
 .pay-trust {

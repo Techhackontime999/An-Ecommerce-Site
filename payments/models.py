@@ -12,7 +12,9 @@ class Payment(models.Model):
     ]
 
     order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='payment')
-    razorpay_order_id = models.CharField(max_length=255, unique=True)
+    razorpay_order_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    razorpay_payment_link_id = models.CharField(max_length=255, blank=True, null=True)
+    razorpay_payment_link_url = models.URLField(max_length=500, blank=True)
     razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
     razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)

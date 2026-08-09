@@ -169,12 +169,31 @@
             <span class="pay-secure-line"></span>
           </div>
 
+          {% if razorpay_order_id %}
           <button id="rzp-button" class="pay-btn" type="button">
             <i class="fas fa-lock pay-btn-lock" aria-hidden="true"></i>
             <i class="fas fa-spinner fa-spin pay-btn-spin" aria-hidden="true"></i>
             <span data-pay-label>{% trans 'Pay securely' %}</span>
             <span class="pay-btn-amount">{% price order.get_total_cost %}</span>
           </button>
+          {% elif payment_link_url %}
+          <a class="pay-btn" href="{{ payment_link_url }}" rel="noopener">
+            <i class="fas fa-lock pay-btn-lock" aria-hidden="true"></i>
+            <span data-pay-label>{% trans 'Proceed to secure payment' %}</span>
+          </a>
+          {% else %}
+          <button id="rzp-button" class="pay-btn" type="button" disabled>
+            <i class="fas fa-lock pay-btn-lock" aria-hidden="true"></i>
+            <span data-pay-label>{% trans 'Payment unavailable' %}</span>
+          </button>
+          {% endif %}
+
+          {% if payment_link_url %}
+          <a class="pay-fallback" href="{{ payment_link_url }}" rel="noopener">
+            <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            <span>{% trans "Checkout not opening? Use the hosted payment page instead" %}</span>
+          </a>
+          {% endif %}
 
           {% if show_verify %}
           <form class="pay-verify" method="post" action="{% url 'payments:verify' order.id %}">
@@ -192,7 +211,7 @@
 
           <p class="pay-note">
             <i class="fas fa-circle-info" aria-hidden="true"></i>
-            <span>{% trans "You'll be redirected to the Razorpay gateway to complete your payment." %}</span>
+            <span>{% trans "A secure Razorpay window will open to complete your payment, then you'll be brought back here." %}</span>
           </p>
 
           <ul class="pay-trust">
@@ -209,7 +228,10 @@
     </div>
   </div>
 </section>
+{% endblock %}
 
+{% block extra_js %}
+{% if razorpay_order_id %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 var options = {
@@ -231,9 +253,7 @@ var options = {
 };
 var rzp = new Razorpay(options);
 </script>
-{% endblock %}
-
-{% block extra_js %}
+{% endif %}
 <script>
 (function () {
     var btn = document.getElementById('rzp-button');

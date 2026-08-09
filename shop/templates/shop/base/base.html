@@ -21,9 +21,32 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', '{{ platform_settings.google_analytics_id }}');
+        gtag('consent', 'default', { 'ad_storage': 'denied', 'analytics_storage': 'denied' });
+        window.AQ_GA_ID = '{{ platform_settings.google_analytics_id }}';
+        window.AQ_ENABLE_ANALYTICS = function () {
+            if (window.AQ_GA_ENABLED) return;
+            window.AQ_GA_ENABLED = true;
+            gtag('consent', 'update', { 'ad_storage': 'granted', 'analytics_storage': 'granted' });
+            gtag('config', window.AQ_GA_ID);
+        };
+        (function () {
+            try {
+                if (document.cookie.indexOf('cookie_consent=accepted') !== -1) {
+                    window.AQ_ENABLE_ANALYTICS();
+                }
+            } catch (e) {}
+        })();
     </script>
     {% endif %}
+    <script>
+        (function () {
+            try {
+                if (document.cookie.indexOf('cookie_consent=') !== -1) {
+                    document.documentElement.classList.add('has-consent');
+                }
+            } catch (e) {}
+        })();
+    </script>
     {{ platform_settings.custom_header_html|safe }}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,6 +85,7 @@
     </main>
     {% include 'shop/base/footer.html' %}
     {% include 'shop/base/bottomnav.html' %}
+    {% include 'shop/base/cookie_consent.html' %}
 
     <button type="button" class="aq-to-top" id="aq-to-top" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
 

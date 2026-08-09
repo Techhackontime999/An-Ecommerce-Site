@@ -7,6 +7,7 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
+from preferences.currencies import DEFAULT_CURRENCY
 from platform_studio.utils import get_setting
 
 
@@ -182,7 +183,7 @@ def product_detail(request, id, slug):
         'offers': {
             '@type': 'Offer',
             'url': page_url,
-            'priceCurrency': 'USD',
+            'priceCurrency': DEFAULT_CURRENCY,
             'price': f'{display_price:.2f}',
             'availability': ('https://schema.org/InStock' if product.available
                              else 'https://schema.org/OutOfStock'),

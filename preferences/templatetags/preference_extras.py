@@ -24,14 +24,14 @@ def _format(value, code):
 
 
 @register.filter
-def currency(value, code='USD'):
-    """Convert a USD-stored value into the given currency and format it."""
+def currency(value, code=DEFAULT_CURRENCY):
+    """Convert a INR-stored value into the given currency and format it."""
     return _format(value, code or DEFAULT_CURRENCY)
 
 
 @register.simple_tag(takes_context=True)
 def price(context, value):
-    """Convert a USD-stored value into the visitor's active currency.
+    """Convert a INR-stored value into the visitor's active currency.
 
     A tag (filters cannot take context) so templates write ``{% price x %}``.
     """

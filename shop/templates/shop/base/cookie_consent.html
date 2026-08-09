@@ -1,0 +1,58 @@
+{% load i18n %}
+<div class="ds-cookie" id="ds-cookie" role="region" aria-label="{% trans 'Cookie consent' %}">
+  <div class="ds-cookie-copy">
+    <span class="ds-cookie-icon" aria-hidden="true"><i class="fas fa-cookie-bite"></i></span>
+    <div>
+      <p class="ds-cookie-title">{% trans 'We value your privacy' %}</p>
+      <p class="ds-cookie-text">
+        {% trans "We use cookies to keep you signed in, remember your preferences and keep the site running smoothly. Accept them so payments and personalisation work without hiccups." %}
+        <a href="{% url 'legal:privacy' %}">{% trans 'Learn more' %}</a>
+      </p>
+    </div>
+  </div>
+  <div class="ds-cookie-actions">
+    <button type="button" class="ds-cookie-btn ds-cookie-essential" data-cookie-essential>
+      {% trans 'Essential only' %}
+    </button>
+    <button type="button" class="ds-cookie-btn ds-cookie-accept" data-cookie-accept>
+      {% trans 'Accept all' %}
+    </button>
+  </div>
+</div>
+
+<script>
+(function () {
+    var bar = document.getElementById('ds-cookie');
+    if (!bar) return;
+
+    var COOKIE = 'cookie_consent';
+    var YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+
+    function setConsent(value) {
+        var d = new Date(Date.now() + YEAR_MS);
+        document.cookie = COOKIE + '=' + encodeURIComponent(value) +
+            '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax';
+        document.documentElement.classList.add('has-consent');
+        bar.classList.add('is-hidden');
+        if (value === 'accepted' && typeof window.AQ_ENABLE_ANALYTICS === 'function') {
+            window.AQ_ENABLE_ANALYTICS();
+        }
+    }
+
+    function hasConsent() {
+        return document.cookie.split(';').some(function (c) {
+            return c.trim().indexOf(COOKIE + '=') === 0;
+        });
+    }
+
+    if (hasConsent()) {
+        document.documentElement.classList.add('has-consent');
+        return;
+    }
+
+    var accept = bar.querySelector('[data-cookie-accept]');
+    var essential = bar.querySelector('[data-cookie-essential]');
+    if (accept) accept.addEventListener('click', function () { setConsent('accepted'); });
+    if (essential) essential.addEventListener('click', function () { setConsent('essential'); });
+})();
+</script>

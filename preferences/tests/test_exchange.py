@@ -31,14 +31,14 @@ class ExchangeRateTests(TestCase):
         cache.clear()
 
     def test_cached_rates_returned_without_fetch(self):
-        cache.set(RATES_CACHE_KEY, {'USD': 1.0}, 3600)
+        cache.set(RATES_CACHE_KEY, {DEFAULT_CURRENCY: 1.0}, 3600)
         with mock.patch('preferences.exchange._fetch_and_store') as fetch:
             rates = get_rates()
-        self.assertEqual(rates, {'USD': 1.0})
+        self.assertEqual(rates, {DEFAULT_CURRENCY: 1.0})
         fetch.assert_not_called()
 
     def test_cold_cache_returns_fallback_and_refreshes_async(self):
-        live_rates = {'USD': 1.0, 'EUR': 0.85, 'INR': 83.0}
+        live_rates = {'INR': 1.0, 'USD': 0.0114, 'EUR': 0.0097}
         with mock.patch(
             'preferences.exchange._fetch_live',
             return_value=(live_rates, 1234567890),
@@ -57,13 +57,13 @@ class ExchangeRateTests(TestCase):
         })
 
     def test_refresh_is_synchronous_and_returns_live_rates(self):
-        live_rates = {'USD': 1.0, 'EUR': 0.9}
+        live_rates = {'INR': 1.0, 'USD': 0.0114, 'EUR': 0.0097}
         with mock.patch(
             'preferences.exchange._fetch_live',
             return_value=(live_rates, 999),
         ):
             rates = get_rates(refresh=True)
-        self.assertEqual(rates['EUR'], 0.9)
+        self.assertEqual(rates['EUR'], 0.0097)
         self.assertEqual(rates_updated_at(), 999)
 
     def test_failed_refresh_falls_back_to_static(self):

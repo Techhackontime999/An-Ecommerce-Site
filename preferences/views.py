@@ -26,7 +26,7 @@ VALID = {
 RESET_VALUES = {
     'theme': 'light',
     'language': 'en',
-    'currency': 'USD',
+    'currency': 'INR',
     'font_style': 'default',
     'accent': 'orange',
     'text_size': 'regular',

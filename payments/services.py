@@ -13,6 +13,7 @@ import hashlib
 import hmac
 import json
 import logging
+from decimal import Decimal
 
 from django.conf import settings
 from django.db import transaction
@@ -24,12 +25,37 @@ from order.stock import InsufficientStock
 from notifications.emails import send_payment_confirmation
 from notifications.models import Notification
 from notifications.services import notify
+from preferences.currencies import DEFAULT_CURRENCY
+from preferences.exchange import get_rates
 
 from .models import Payment, PaymentAuditLog
 
 logger = logging.getLogger(__name__)
 
 VALID_SOURCES = {'callback', 'webhook', 'verify', 'admin', 'system'}
+
+
+def gateway_currency():
+    """Currency Razorpay orders are charged in (defaults to INR)."""
+    return getattr(settings, 'PAYMENTS_CURRENCY', '') or 'INR'
+
+
+def gateway_charge(amount):
+    """Convert a store-base (INR) amount to the gateway charge currency.
+
+    Prices are stored in the base currency and displayed in any currency, but
+    the gateway must be charged in one unit — sending INR figures as USD would
+    charge the wrong value entirely. Returns ``(amount, currency, minor_units)``
+    where ``amount`` is the decimal to persist on the Payment row and
+    ``minor_units`` is the integer the gateway expects (paise / cents).
+    """
+    code = gateway_currency()
+    amount = Decimal(amount)
+    if code != DEFAULT_CURRENCY:
+        rate = Decimal(str(get_rates().get(code, 1.0)))
+        amount = (amount * rate).quantize(Decimal('0.01'))
+    minor_units = int(round(amount * 100))
+    return amount, code, minor_units
 
 
 def get_razorpay_client():
@@ -46,6 +72,64 @@ def verify_callback_signature(razorpay_order_id, razorpay_payment_id, signature)
         hashlib.sha256,
     ).hexdigest()
     return hmac.compare_digest(expected, signature)
+
+
+def verify_payment_link_signature(payment_link_id, reference_id, status, payment_id, signature):
+    """Verify the callback signature of a Payment Link redirect.
+
+    Signed over ``payment_link_id|reference_id|status|payment_id`` with the API
+    key secret (see Razorpay Payment Links "Verify Signature" docs).
+    """
+    payload = f'{payment_link_id}|{reference_id}|{status}|{payment_id}'
+    expected = hmac.new(
+        settings.RAZORPAY_KEY_SECRET.encode(),
+        payload.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature or '')
+
+
+def create_payment_link(order, amount, currency, callback_url, name, email, contact=''):
+    """Create a hosted Payment Link and return the ``(plink_id, short_url)``.
+
+    The hosted page runs on Razorpay's own domain as a top-level page, so it
+    works even when browsers block third-party cookies (which breaks the old
+    iframe-based checkout).
+    """
+    client = get_razorpay_client()
+    link = client.payment_link.create({
+        'amount': amount,
+        'currency': currency,
+        'accept_partial': False,
+        'description': f'Order {order.order_number}',
+        'theme': {'color': '#EA580C'},
+        'customer': {
+            'name': name,
+            'email': email,
+            'contact': contact,
+        },
+        'notify': {'sms': False, 'email': False},
+        'reminder_enable': False,
+        'callback_url': callback_url,
+        'callback_method': 'get',
+        'notes': {'order_id': str(order.id), 'order_number': order.order_number},
+    })
+    return link.get('id'), link.get('short_url')
+
+
+def create_razorpay_order(order, amount, currency):
+    """Create a Razorpay Order for the in-page (checkout.js) flow.
+
+    Returns the ``razorpay_order_id`` used by the embedded checkout. If order
+    creation fails the checkout falls back to the hosted Payment Link.
+    """
+    client = get_razorpay_client()
+    rzp_order = client.order.create({
+        'amount': amount,
+        'currency': currency,
+        'receipt': f'order_{order.order_number}',
+    })
+    return rzp_order.get('id')
 
 
 def verify_webhook_signature(raw_body, signature):
@@ -199,6 +283,14 @@ def finalize_payment(payment, razorpay_payment_id, razorpay_signature='', source
             order = Order.objects.select_for_update().get(pk=payment.order_id)
             payment = Payment.objects.select_for_update().get(pk=payment.pk)
             if payment.status == 'captured':
+                # Idempotent re-entry (double callback/webhook delivery). If
+                # this delivery carries a gateway payment id the earlier
+                # capture never recorded — needed for gateway refunds — persist
+                # it now instead of dropping it.
+                if razorpay_payment_id and not payment.razorpay_payment_id:
+                    payment.razorpay_payment_id = razorpay_payment_id
+                    payment.razorpay_signature = razorpay_signature or payment.razorpay_signature
+                    payment.save(update_fields=['razorpay_payment_id', 'razorpay_signature', 'updated_at'])
                 return False
 
             # Race guard: a customer may have cancelled between the gateway capture

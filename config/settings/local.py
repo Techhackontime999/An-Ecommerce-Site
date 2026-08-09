@@ -19,6 +19,7 @@ FIELD_ENCRYPTION_KEY = os.getenv(
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_test_xxxxxxxxxxxx")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "your_test_secret")
 RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
+PAYMENTS_CURRENCY = os.getenv("PAYMENTS_CURRENCY", "INR")
 
 DEBUG = True
 
@@ -250,7 +251,7 @@ SECURITY_CSP = '; '.join([
     "img-src 'self' data: https:",
     "connect-src 'self' https://api.razorpay.com https://*.razorpay.com https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com https://stats.g.doubleclick.net",
     "media-src 'self' https: data:",
-    "frame-src https://checkout.razorpay.com https://www.youtube-nocookie.com https://player.vimeo.com",
+    "frame-src https://checkout.razorpay.com https://api.razorpay.com https://www.youtube-nocookie.com https://player.vimeo.com",
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",
