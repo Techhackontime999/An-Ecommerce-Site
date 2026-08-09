@@ -1,5 +1,5 @@
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -14,6 +14,7 @@ from coupons.models import Coupon, CouponRedemption
 from coupons.services import discount_for, validate_coupon
 from .models import Order, OrderItem, ReturnRequest
 from .forms import OrderCreateForm
+from .access import grant_guest_access, get_order_for_request
 from .services import cancel_order, invoice_number, invoice_totals
 from notifications.models import Notification
 from notifications.services import notify
@@ -21,11 +22,18 @@ from notifications.emails import send_order_confirmation
 
 logger = logging.getLogger(__name__)
 
-@login_required
+
+def _user(request):
+    """The owning user for an order, or None for guest checkout."""
+    return request.user if request.user.is_authenticated else None
+
+
 def order_create(request):
     cart = Cart(request)
     if not cart:
         return redirect('cart:cart_detail')
+
+    user = _user(request)
 
     if request.method == 'POST':
         # Idempotency: the same form carries the same token, so a double submit
@@ -33,12 +41,13 @@ def order_create(request):
         token = request.POST.get('checkout_token', '').strip() or secrets.token_urlsafe(32)
         existing = (
             Order.objects
-            .filter(user=request.user, checkout_token=token)
+            .filter(user=user, checkout_token=token)
             .exclude(status=Order.Status.CANCELLED)
             .exclude(status=Order.Status.REFUNDED)
             .first()
         )
         if existing is not None:
+            grant_guest_access(request, existing)
             return redirect('shipping:shipping_select', order_id=existing.id)
 
         form = OrderCreateForm(request.POST)
@@ -46,7 +55,7 @@ def order_create(request):
             try:
                 with transaction.atomic():
                     order = form.save(commit=False)   # Create order instance without saving
-                    order.user = request.user
+                    order.user = user
                     order.checkout_token = token
                     # Re-validate the coupon at the *final* moment of order
                     # creation — it may have expired, been exhausted, or be out
@@ -57,7 +66,7 @@ def order_create(request):
                         coupon = Coupon.objects.select_for_update().get(pk=coupon.pk)
                         ok, _reason = validate_coupon(
                             coupon,
-                            user=request.user,
+                            user=user,
                             cart_total=cart.get_total_price(),
                             seller_ids=cart._seller_ids(),
                         )
@@ -81,33 +90,36 @@ def order_create(request):
                             quantity=item['quantity'],
                             deal_applied=is_deal
                         )
-                    if order.coupon_id:
+                    if order.coupon_id and user is not None:
                         CouponRedemption.objects.create(
                             coupon=order.coupon,
-                            user=request.user,
+                            user=user,
                             order=order,
                         )
             except IntegrityError:
                 # Two concurrent POSTs raced: the other one already created the
                 # order with this token. Reuse it instead of failing.
-                existing = Order.objects.filter(user=request.user, checkout_token=token).first()
+                existing = Order.objects.filter(user=user, checkout_token=token).first()
                 if existing is not None:
+                    grant_guest_access(request, existing)
                     return redirect('shipping:shipping_select', order_id=existing.id)
                 raise
 
             # Order + items are durable; now clean up the cart (session + DB)
             # so purchased products never reappear, then notify.
+            grant_guest_access(request, order)
             cart.clear()
             request.session['coupon_id'] = None
             send_order_confirmation(order)
-            notify(
-                request.user,
-                Notification.Category.ORDER,
-                f'Order #{order.order_number} placed',
-                'We received your order and are preparing it. Choose a shipping method to continue.',
-                link=reverse('shipping:shipping_select', args=[order.id]),
-                icon='box',
-            )
+            if user is not None:
+                notify(
+                    user,
+                    Notification.Category.ORDER,
+                    f'Order #{order.order_number} placed',
+                    'We received your order and are preparing it. Choose a shipping method to continue.',
+                    link=reverse('shipping:shipping_select', args=[order.id]),
+                    icon='box',
+                )
             seller_users = set()
             for item in order.items.select_related('product__seller'):
                 seller = item.product.seller
@@ -125,11 +137,13 @@ def order_create(request):
             return redirect('shipping:shipping_select', order_id=order.id)
     else:
         token = secrets.token_urlsafe(32)
-        initial = {
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name,
-            'email': request.user.email,
-        }
+        initial = {}
+        if user is not None:
+            initial = {
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+            }
         form = OrderCreateForm(initial=initial)
     return render(request, 'order/create.html', {'cart': cart, 'form': form, 'checkout_token': token})
 
@@ -191,9 +205,11 @@ def _join_parts(parts):
 
 
 @require_POST
-@login_required
 def autofill_address(request):
-    """Reverse-geocode the browser's coordinates into a postal address."""
+    """Reverse-geocode the browser's coordinates into a postal address.
+
+    Works for guests too — it is a public geocoding service, not account data.
+    """
     try:
         lat = float(request.POST.get('lat'))
         lon = float(request.POST.get('lon'))
@@ -232,16 +248,13 @@ def autofill_address(request):
     })
 
 
-@login_required
 def order_detail(request, order_id):
-    order = get_object_or_404(
+    order = get_order_for_request(request, order_id, queryset=(
         Order.objects.prefetch_related(
             'items__product', 'items__variant', 'logistics_shipments__courier',
             'refunds', 'return_requests', 'audit_logs',
-        ),
-        id=order_id,
-        user=request.user,
-    )
+        )
+    ))
     shipment = order.logistics_shipments.select_related('courier').first()
     payment = getattr(order, 'payment', None)
     has_open_return = order.return_requests.exclude(
@@ -258,7 +271,6 @@ def order_detail(request, order_id):
     })
 
 
-@login_required
 @require_POST
 def request_return(request, order_id):
     """Customer asks for a return on a delivered order.
@@ -267,7 +279,11 @@ def request_return(request, order_id):
     when a shipment exists. Never auto-refunds — an admin approves and issues
     the refund (with over-refund protection on the Refund model).
     """
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_order_for_request(request, order_id)
+
+    if order.user is None:
+        messages.error(request, 'Create an account to request a return for a guest order.')
+        return redirect('order:order_detail', order_id=order.id)
 
     if order.status != Order.Status.DELIVERED:
         messages.error(request, 'Returns are only available for delivered orders.')
@@ -286,7 +302,7 @@ def request_return(request, order_id):
         return redirect('order:order_detail', order_id=order.id)
 
     ret = ReturnRequest.objects.create(
-        order=order, user=request.user, reason=reason, details=details,
+        order=order, user=order.user, reason=reason, details=details,
     )
 
     try:
@@ -298,13 +314,13 @@ def request_return(request, order_id):
                 return_request=ret,
                 reason=reason,
                 notes=details,
-                actor=request.user,
+                actor=order.user,
             )
     except Exception as exc:
         logger.warning('Reverse logistics not started for return %s: %s', ret.id, exc)
 
     notify(
-        request.user,
+        order.user,
         Notification.Category.ORDER,
         f'Return requested for order {order.order_number}',
         'Your return request was received. An admin will review it and arrange a pickup.',
@@ -315,11 +331,11 @@ def request_return(request, order_id):
     return redirect('order:order_detail', order_id=order.id)
 
 
-@login_required
 @require_POST
 def order_cancel(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    ok, detail = cancel_order(order, actor=request.user, reason=request.POST.get('reason', ''))
+    order = get_order_for_request(request, order_id)
+    actor = _user(request)
+    ok, detail = cancel_order(order, actor=actor, reason=request.POST.get('reason', ''))
     if ok:
         if detail == 'cancelled_and_refunded':
             messages.success(request, 'Order cancelled and your payment has been refunded.')
@@ -330,9 +346,8 @@ def order_cancel(request, order_id):
     return redirect('order:order_detail', order_id=order.id)
 
 
-@login_required
 def order_invoice_pdf(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_order_for_request(request, order_id)
     from .services import generate_invoice_pdf
     pdf = generate_invoice_pdf(order)
     response = HttpResponse(pdf, content_type='application/pdf')

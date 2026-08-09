@@ -2,10 +2,14 @@
 
 import os
 
+from core.sentry import init_sentry
 from .languages import available_languages
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
+
+# Error tracking (no-op unless SENTRY_DSN is set).
+init_sentry(environment='development')
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-local-development-only")
 
@@ -150,12 +154,29 @@ EXCHANGE_RATE_API_URL = os.getenv(
 EXCHANGE_RATE_API_KEY = os.getenv('EXCHANGE_RATE_API_KEY', '')
 EXCHANGE_RATE_CACHE_HOURS = int(os.getenv('EXCHANGE_RATE_CACHE_HOURS', '12'))
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'shopseed',
-    },
-}
+REDIS_URL = os.getenv("REDIS_URL", "").strip()
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'db': int(os.getenv("REDIS_DB", "0")),
+            },
+        },
+    }
+    # cached_db reads sessions from Redis and falls back to the DB, so a Redis
+    # restart never logs anyone out.
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'shopseed',
+        },
+    }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'staticfiles')
 STATIC_URL = '/static/'

@@ -463,6 +463,80 @@ class CheckoutViewTests(TestCase):
         self.assertRedirects(response, reverse('payments:success', args=[self.order.id]), fetch_redirect_response=False)
 
 
+class CodCheckoutTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='codshopper', password='pass1234')
+        category = Category.objects.create(name='Audio', slug='audio')
+        self.product = Product.objects.create(
+            category=category, name='Pod', slug='pod', price=Decimal('50.00'), stock=5,
+        )
+        self.order = Order.objects.create(
+            user=self.user, first_name='Ada', last_name='Lovelace', email='ada@example.com',
+            address='5 Analytical Way', postal_code='560001', city='Bangalore',
+        )
+        OrderItem.objects.create(order=self.order, product=self.product, price=Decimal('50.00'), quantity=2)
+        self.client = Client(SERVER_NAME='localhost')
+        self.client.force_login(self.user)
+
+    def test_cod_order_renders_confirmation_without_gateway(self):
+        self.order.payment_method = Order.PaymentMethod.COD
+        self.order.save()
+        response = self.client.get(reverse('payments:checkout', args=[self.order.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['cod_mode'])
+        self.assertContains(response, 'Confirm Cash on Delivery order')
+        # No gateway objects are created for COD orders.
+        self.assertNotContains(response, 'checkout.razorpay.com/v1/checkout.js')
+        self.assertIsNone(response.context.get('razorpay_order_id'))
+
+    def test_confirming_cod_places_order_and_starts_fulfilment(self):
+        self.order.payment_method = Order.PaymentMethod.COD
+        self.order.save()
+        with mock.patch('payments.services.trigger_fulfilment') as tf:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(reverse('payments:checkout', args=[self.order.id]), {
+                    'payment_method': 'cod',
+                    'confirm': '1',
+                })
+        self.assertRedirects(response, reverse('payments:success', args=[self.order.id]), fetch_redirect_response=False)
+        self.order.refresh_from_db()
+        self.assertFalse(self.order.paid)
+        self.assertEqual(self.order.payment_method, Order.PaymentMethod.COD)
+        self.assertEqual(self.order.status, Order.Status.PROCESSING)
+        tf.assert_called_once()
+
+    def test_cod_confirm_is_idempotent(self):
+        self.order.payment_method = Order.PaymentMethod.COD
+        self.order.save()
+        with mock.patch('payments.services.trigger_fulfilment') as tf:
+            with self.captureOnCommitCallbacks(execute=True):
+                self.client.post(reverse('payments:checkout', args=[self.order.id]), {
+                    'payment_method': 'cod', 'confirm': '1',
+                })
+                # Already processing → no-op, no second fulfilment kick.
+                self.order.status = Order.Status.PROCESSING
+                self.order.save()
+                self.client.post(reverse('payments:checkout', args=[self.order.id]), {
+                    'payment_method': 'cod', 'confirm': '1',
+                })
+        self.assertEqual(tf.call_count, 1)
+
+    def test_switching_from_cod_back_to_online(self):
+        self.order.payment_method = Order.PaymentMethod.COD
+        self.order.save()
+        with mock.patch('payments.views.create_razorpay_order', return_value='ord_online1'):
+            with mock.patch('payments.views.create_payment_link', return_value=('plink_1', 'https://rzp.test/plink_1')):
+                response = self.client.post(reverse('payments:checkout', args=[self.order.id]), {
+                    'payment_method': 'online',
+                })
+                self.assertRedirects(response, reverse('payments:checkout', args=[self.order.id]), fetch_redirect_response=False)
+                self.order.refresh_from_db()
+                self.assertEqual(self.order.payment_method, Order.PaymentMethod.ONLINE)
+                follow = self.client.get(response.url)
+                self.assertEqual(follow.status_code, 200)
+                self.assertIsNone(follow.context.get('cod_mode'))
+
+
 class PaymentLinkCallbackTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='linkuser', password='pass1234')

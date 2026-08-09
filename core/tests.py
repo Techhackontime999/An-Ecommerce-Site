@@ -10,6 +10,7 @@ from core.validators import (
     validate_document_file,
     validate_image_file,
 )
+from core.views import healthz
 
 
 class SanitizerTests(SimpleTestCase):
@@ -65,6 +66,19 @@ class SanitizerTests(SimpleTestCase):
     def test_none_and_empty(self):
         self.assertIsNone(sanitize_html(None))
         self.assertEqual(sanitize_html(''), '')
+
+
+class HealthzTests(TestCase):
+    def test_healthz_reports_ok(self):
+        response = Client().get('/healthz')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ok')
+        self.assertEqual(response.json()['checks']['database'], 'ok')
+
+    def test_healthz_resolves_to_core_view(self):
+        from django.urls import resolve
+        match = resolve('/healthz')
+        self.assertEqual(match.func, healthz)
 
 
 class SecurityHeadersTests(TestCase):

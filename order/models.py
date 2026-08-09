@@ -20,7 +20,18 @@ class Order(models.Model):
         CANCELLED = 'cancelled', 'Cancelled'
         REFUNDED = 'refunded', 'Refunded'
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')  # 👈 Add this line
+    class PaymentMethod(models.TextChoices):
+        ONLINE = 'online', 'Online (Card / UPI / NetBanking)'
+        COD = 'cod', 'Cash on Delivery'
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='orders',
+        null=True,
+        blank=True,
+        help_text='Customer account that owns this order (None for guest checkout).',
+    )
 
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -34,6 +45,13 @@ class Order(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
+    payment_method = models.CharField(
+        max_length=10,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.ONLINE,
+        db_index=True,
+        help_text='How the customer will pay for this order.',
+    )
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
@@ -107,6 +125,10 @@ class Order(models.Model):
     @property
     def cancelable(self):
         return self.status in (self.Status.PENDING, self.Status.PROCESSING)
+
+    @property
+    def is_cod(self):
+        return self.payment_method == self.PaymentMethod.COD
 
     def total_paid(self):
         """Amount actually captured from the customer (0 if unpaid)."""

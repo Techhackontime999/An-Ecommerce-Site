@@ -8,6 +8,7 @@ from .forms import ShippingAddressForm
 from cart.cart import Cart
 from core.security import safe_next_url
 from order.models import Order
+from order.access import get_order_for_request
 from notifications.models import Notification
 from notifications.services import notify
 
@@ -64,11 +65,10 @@ def address_delete(request, address_id):
     return redirect('shipping:address_list')
 
 
-@login_required
 def shipping_select(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_order_for_request(request, order_id)
     cart = Cart(request)
-    addresses = ShippingAddress.objects.filter(user=request.user)
+    addresses = ShippingAddress.objects.filter(user=order.user)
     methods = ShippingMethod.objects.filter(is_active=True)
 
     subtotal_usd = order.get_total_cost()
@@ -88,32 +88,40 @@ def shipping_select(request, order_id):
         shipping_method = get_object_or_404(ShippingMethod, id=method_id, is_active=True)
 
         if address_id == 'order_address':
-            shipping_address, _ = ShippingAddress.objects.get_or_create(
-                user=request.user,
-                full_name=f"{order.first_name} {order.last_name}",
-                address_line1=order.address,
-                city=order.city,
-                postal_code=order.postal_code,
-                defaults={'state': order.state, 'phone': order.phone, 'country': order.country or 'India'}
-            )
+            if order.user is not None:
+                shipping_address, _ = ShippingAddress.objects.get_or_create(
+                    user=order.user,
+                    full_name=f"{order.first_name} {order.last_name}",
+                    address_line1=order.address,
+                    city=order.city,
+                    postal_code=order.postal_code,
+                    defaults={'state': order.state, 'phone': order.phone, 'country': order.country or 'India'}
+                )
+            else:
+                # Guests have no saved addresses; the order already carries the
+                # delivery address entered at checkout.
+                shipping_address = None
         else:
-            shipping_address = get_object_or_404(ShippingAddress, id=address_id, user=request.user)
+            shipping_address = get_object_or_404(ShippingAddress, id=address_id, user=order.user)
 
         order.shipping_cost = shipping_method.price
         order.shipping_method_name = shipping_method.name
-        order.phone = shipping_address.phone or order.phone
-        order.state = shipping_address.state or order.state
-        order.country = shipping_address.country or order.country or 'India'
+        order.payment_method = request.POST.get('payment_method', Order.PaymentMethod.ONLINE)
+        if shipping_address is not None:
+            order.phone = shipping_address.phone or order.phone
+            order.state = shipping_address.state or order.state
+            order.country = shipping_address.country or order.country or 'India'
         order.save()
 
-        notify(
-            order.user,
-            Notification.Category.SHIPPING,
-            f'Shipping arranged for order #{order.id}',
-            f'{shipping_method.name} selected ({shipping_method.estimated_delivery_days}). Complete payment to dispatch your items.',
-            link=reverse('payments:checkout', args=[order.id]),
-            icon='truck-fast',
-        )
+        if order.user is not None:
+            notify(
+                order.user,
+                Notification.Category.SHIPPING,
+                f'Shipping arranged for order #{order.id}',
+                f'{shipping_method.name} selected ({shipping_method.estimated_delivery_days}). Complete payment to dispatch your items.',
+                link=reverse('payments:checkout', args=[order.id]),
+                icon='truck-fast',
+            )
         return redirect('payments:checkout', order_id=order.id)
 
     return render(request, 'shipping/select.html', {
@@ -123,9 +131,8 @@ def shipping_select(request, order_id):
     })
 
 
-@login_required
 def order_tracking(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_order_for_request(request, order_id)
     logistics = (
         order.logistics_shipments.select_related('courier', 'service', 'warehouse')
         .prefetch_related('tracking_events', 'items__product')

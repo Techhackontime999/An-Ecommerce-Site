@@ -23,12 +23,21 @@
     </div>
 
     <div class="pay-hero-copy fade-up">
+      {% if order.is_cod %}
+      <span class="hero-aq-badge"><i class="fas fa-money-bill-wave"></i> {% trans 'Order confirmed' %}</span>
+      <h1 class="pay-hero-title">{% trans 'Thank you! Your' %} <span class="pay-hero-accent">{% trans 'order is confirmed' %}</span></h1>
+      <p class="pay-hero-sub">
+        {% trans "We're preparing your items for shipment. Keep the total ready — you'll pay the courier in cash on delivery." %}
+        {% blocktranslate %}A confirmation email has been sent to {{ order.email }}.{% endblocktranslate %}
+      </p>
+      {% else %}
       <span class="hero-aq-badge"><i class="fas fa-circle-check"></i> {% trans 'Payment successful' %}</span>
       <h1 class="pay-hero-title">{% trans 'Thank you! Your' %} <span class="pay-hero-accent">{% trans 'order is confirmed' %}</span></h1>
       <p class="pay-hero-sub">
         {% trans "We've received your payment and are preparing your items for shipment." %}
         {% blocktranslate %}A confirmation email has been sent to {{ order.email }}.{% endblocktranslate %}
       </p>
+      {% endif %}
     </div>
 
     <ol class="ord-steps fade-up fade-up-delay-1">
@@ -78,7 +87,7 @@
             <div class="pay-ship-row">
               <i class="fas fa-indian-rupee-sign" aria-hidden="true"></i>
               <div>
-                <span class="pay-ship-label">{% trans 'Amount paid' %}</span>
+                <span class="pay-ship-label">{% if order.is_cod %}{% trans 'To pay on delivery' %}{% else %}{% trans 'Amount paid' %}{% endif %}</span>
                 <span class="pay-ship-val">{% if payment %}{% price payment.amount %}{% else %}{% price order.get_total_cost %}{% endif %}</span>
               </div>
             </div>
@@ -164,21 +173,28 @@
       <aside class="pay-aside">
         <div class="pay-panel fade-up fade-up-delay-2">
           <div class="pay-success-check" aria-hidden="true"><i class="fas fa-check"></i></div>
-          <span class="pay-due-label">{% trans 'Payment received' %}</span>
+          <span class="pay-due-label">{% if order.is_cod %}{% trans 'Cash on delivery' %}{% else %}{% trans 'Payment received' %}{% endif %}</span>
           <strong class="pay-due">{% if payment %}{% price payment.amount %}{% else %}{% price order.get_total_cost %}{% endif %}</strong>
           <span class="pay-ref"><i class="fas fa-hashtag"></i> {% blocktranslate %}Order {{ order.order_number }}{% endblocktranslate %}</span>
 
           <div class="pay-secure">
             <span class="pay-secure-line"></span>
             <span class="pay-shield"><i class="fas fa-shield-halved"></i></span>
-            <span class="pay-secure-text">{% trans 'Securely paid' %}</span>
+            <span class="pay-secure-text">{% if order.is_cod %}{% trans 'Order confirmed' %}{% else %}{% trans 'Securely paid' %}{% endif %}</span>
             <span class="pay-secure-line"></span>
           </div>
 
+          {% if user.is_authenticated %}
           <a class="pay-btn" href="{% url 'order:my_orders' %}">
             <i class="fas fa-box" aria-hidden="true"></i>
             <span>{% trans 'Track your order' %}</span>
           </a>
+          {% else %}
+          <a class="pay-btn" href="{% url 'shipping:order_tracking' order.id %}">
+            <i class="fas fa-box" aria-hidden="true"></i>
+            <span>{% trans 'Track your order' %}</span>
+          </a>
+          {% endif %}
 
           <ul class="pay-trust">
             <li><i class="fas fa-envelope"></i> {% trans 'Confirmation sent to your inbox' %}</li>

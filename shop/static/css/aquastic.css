@@ -10023,6 +10023,29 @@ a.contact-info-value:hover {
   font-weight: 500;
 }
 
+.ord-alert-info {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #1e40af;
+  align-items: flex-start;
+}
+
+.ord-alert-info strong {
+  display: block;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.ord-alert-info span {
+  font-weight: 400;
+}
+
+.ord-alert-info a {
+  color: #1e40af;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 /* ─── Summary aside ─── */
 .ord-aside {
   position: sticky;

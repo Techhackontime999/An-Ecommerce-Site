@@ -2,16 +2,17 @@ import json
 import logging
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from order.access import get_order_for_request
 from order.models import Order
 
 from .models import Payment
 from .services import (
+    confirm_cod_order,
     get_razorpay_client,
     finalize_payment,
     gateway_charge,
@@ -26,12 +27,44 @@ from .services import (
 logger = logging.getLogger(__name__)
 
 
-@login_required
-def checkout(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+def _actor(request):
+    return request.user if request.user.is_authenticated else None
 
-    if order.paid:
+
+def _order_done(order):
+    """True when the checkout is finished (paid, or a confirmed COD order)."""
+    return order.paid or (order.is_cod and order.status != Order.Status.PENDING)
+
+
+def checkout(request, order_id):
+    order = get_order_for_request(request, order_id)
+
+    if _order_done(order):
         return redirect('payments:success', order_id=order.id)
+
+    if request.method == 'POST':
+        method = request.POST.get('payment_method', '')
+        if method == Order.PaymentMethod.COD:
+            if request.POST.get('confirm') == '1':
+                confirm_cod_order(order, actor=_actor(request))
+                return redirect('payments:success', order_id=order.id)
+            order.payment_method = Order.PaymentMethod.COD
+            order.save(update_fields=['payment_method', 'updated'])
+            return redirect('payments:checkout', order_id=order.id)
+        if method == Order.PaymentMethod.ONLINE:
+            order.payment_method = Order.PaymentMethod.ONLINE
+            order.save(update_fields=['payment_method', 'updated'])
+            return redirect('payments:checkout', order_id=order.id)
+
+    subtotal = sum(item.get_cost() for item in order.items.all())
+
+    # COD: no gateway involved — show a summary and let the customer confirm.
+    if order.is_cod:
+        return render(request, 'payments/checkout.html', {
+            'order': order,
+            'subtotal': subtotal,
+            'cod_mode': True,
+        })
 
     charge_amount, charge_currency, minor_units = gateway_charge(order.get_total_cost())
 
@@ -97,7 +130,7 @@ def checkout(request, order_id):
 
     context = {
         'order': order,
-        'subtotal': sum(item.get_cost() for item in order.items.all()),
+        'subtotal': subtotal,
         'payment': payment,
         'razorpay_key_id': settings.RAZORPAY_KEY_ID,
         'razorpay_order_id': payment.razorpay_order_id or '',
@@ -257,7 +290,6 @@ def payment_webhook(request):
     return HttpResponse('OK', status=200)
 
 
-@login_required
 @require_POST
 def payment_verify(request, order_id):
     """POST-only server-side re-check against the gateway.
@@ -266,7 +298,7 @@ def payment_verify(request, order_id):
     lost. Never reached via GET, so a plain page load can never change a
     payment status.
     """
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_order_for_request(request, order_id)
     payment = getattr(order, 'payment', None)
 
     if order.paid:
@@ -286,21 +318,19 @@ def payment_verify(request, order_id):
     return redirect('payments:checkout', order_id=order.id)
 
 
-@login_required
 def payment_success(request, order_id):
     """Render-only success page.
 
-    A GET can never change a payment status — if the order isn't already paid,
-    the user is sent back to checkout to verify/retry instead.
+    A GET can never change a payment status — if the order isn't already paid
+    (or a confirmed COD order), the user is sent back to checkout instead.
     """
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    if not order.paid:
+    order = get_order_for_request(request, order_id)
+    if not _order_done(order):
         return redirect('payments:checkout', order_id=order.id)
     payment = getattr(order, 'payment', None)
     return render(request, 'payments/success.html', {'order': order, 'payment': payment})
 
 
-@login_required
 def payment_error(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_order_for_request(request, order_id)
     return render(request, 'payments/error.html', {'order': order})

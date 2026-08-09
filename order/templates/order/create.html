@@ -61,6 +61,20 @@
           {% csrf_token %}
           <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
 
+          {% if not user.is_authenticated %}
+          <div class="ord-alert ord-alert-info">
+            <i class="fas fa-user-shield"></i>
+            <div>
+              <strong>{% trans 'Checking out as a guest' %}</strong>
+              <span>
+                {% trans "No account needed. Keep the confirmation email to track your order later, or" %}
+                <a href="{% url 'accounts:signup' %}">{% trans 'create an account' %}</a>
+                {% trans 'to save your details and orders.' %}
+              </span>
+            </div>
+          </div>
+          {% endif %}
+
           {% if form.non_field_errors %}
           <div class="ord-alert">
             <i class="fas fa-triangle-exclamation"></i>

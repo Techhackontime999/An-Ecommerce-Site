@@ -41,10 +41,12 @@ class OrderViewTests(TestCase):
     def _cancel_url(self):
         return reverse('order:order_cancel', args=[self.order.pk])
 
-    def test_detail_requires_login(self):
+    def test_detail_hidden_from_anonymous_without_session(self):
+        # Guest checkout: an anonymous visitor with no recorded session access
+        # must not even learn the order exists (404, never a login redirect or
+        # a 200).
         response = self.client.get(reverse('order:order_detail', args=[self.order.pk]))
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/accounts/login/', response.url)
+        self.assertEqual(response.status_code, 404)
 
     def test_detail_only_for_owner(self):
         self.client.force_login(self.other)

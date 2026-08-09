@@ -141,12 +141,53 @@
               <p class="ord-empty-sub">No saved addresses yet.</p>
               {% endfor %}
             </div>
+            {% if user.is_authenticated %}
             <a class="shp-add-address" href="{% url 'shipping:address_create' %}?next={% url 'shipping:shipping_select' order.id %}">
               <i class="fas fa-plus"></i> Add a new address
             </a>
             <a class="shp-add-address" href="{% url 'shipping:address_list' %}" style="margin-left:0.75rem;">
               <i class="fas fa-pen"></i> Manage saved addresses
             </a>
+            {% else %}
+            <p class="ord-empty-sub">
+              Checking out as a guest — you can save this address by
+              <a href="{% url 'accounts:signup' %}">creating an account</a>.
+            </p>
+            {% endif %}
+          </fieldset>
+
+          <fieldset class="ord-card">
+            <legend class="ord-card-head">
+              <span class="ord-card-icon"><i class="fas fa-money-bill-wave"></i></span>
+              <span class="ord-card-titles">
+                <span class="ord-card-title">Payment method</span>
+                <span class="ord-card-sub">Pay online now, or cash when it arrives</span>
+              </span>
+            </legend>
+            <div class="shp-options">
+              <label class="shp-option">
+                <input type="radio" name="payment_method" value="online" checked required>
+                <span class="shp-option-card">
+                  <span class="shp-radio" aria-hidden="true"></span>
+                  <span class="shp-option-body">
+                    <span class="shp-option-title">Pay online</span>
+                    <span class="shp-option-desc">UPI, cards, net-banking &amp; wallets</span>
+                  </span>
+                  <span class="shp-price"><i class="fas fa-credit-card" aria-hidden="true"></i></span>
+                </span>
+              </label>
+              <label class="shp-option">
+                <input type="radio" name="payment_method" value="cod">
+                <span class="shp-option-card">
+                  <span class="shp-radio" aria-hidden="true"></span>
+                  <span class="shp-option-body">
+                    <span class="shp-option-title">Cash on Delivery</span>
+                    <span class="shp-option-desc">Pay in cash when your order arrives</span>
+                  </span>
+                  <span class="shp-price"><i class="fas fa-money-bill-wave" aria-hidden="true"></i></span>
+                </span>
+              </label>
+            </div>
           </fieldset>
         </div>
 

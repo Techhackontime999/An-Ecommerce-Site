@@ -4,6 +4,7 @@ import os
 import dotenv
 import dj_database_url
 
+from core.sentry import init_sentry
 from .languages import available_languages
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -12,6 +13,9 @@ PROJECT_DIR = os.path.dirname(BASE_DIR)
 dotenv_file = os.path.join(PROJECT_DIR, ".env")
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
+
+# Error tracking (no-op unless SENTRY_DSN is set).
+init_sentry(environment='production')
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
@@ -189,6 +193,9 @@ if REDIS_URL:
             },
         },
     }
+    # cached_db reads sessions from Redis and falls back to the DB, so a Redis
+    # restart never logs anyone out.
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 else:
     CACHES = {
         'default': {
@@ -200,6 +207,7 @@ else:
             },
         },
     }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 USE_TZ = True
 
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'staticfiles')

@@ -431,6 +431,31 @@ def collect_cod_cash(shipment, *, source='system', actor=None):
         return False
 
 
+def confirm_cod_order(order, *, actor=None):
+    """Confirm a Cash on Delivery order and start fulfilment.
+
+    COD orders skip the gateway entirely: nothing is charged at checkout and the
+    customer pays cash to the courier on delivery (recorded later by
+    ``collect_cod_cash``). Fulfilment runs now so the shipment is created with
+    ``payment_mode=cod``. Idempotent — a second confirm on an already-processing
+    order is a no-op.
+    """
+    with transaction.atomic():
+        order = Order.objects.select_for_update().get(pk=order.pk)
+        if order.paid or order.status != Order.Status.PENDING:
+            return False
+        order.payment_method = Order.PaymentMethod.COD
+        order.paid = False
+        set_order_status(
+            order, Order.Status.PROCESSING, actor=actor,
+            note='Order placed with Cash on Delivery.',
+        )
+        order.save(update_fields=['payment_method', 'paid', 'updated'])
+
+    transaction.on_commit(lambda: trigger_fulfilment(order))
+    return True
+
+
 def mark_payment_failed(payment, message='', source='gateway', actor=None):
     """Mark a payment failed, with audit + customer notification."""
     if payment.status == 'failed':
