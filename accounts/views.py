@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.http import FileResponse, Http404, HttpResponseForbidden
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
@@ -15,12 +16,13 @@ from django.conf import settings
 import hashlib
 import hmac
 import logging
+import mimetypes
 import secrets
 
 from core.security import client_ip, safe_next_url
 from core.throttle import throttle
 from .forms import SellerRegisterForm, CustomerRegisterForm, SellerProfileForm, CustomerProfileForm
-from .models import SellerProfile, CustomerProfile
+from .models import SellerProfile, CustomerProfile, SellerDocument
 from .security import is_locked, record_failure, reset
 from notifications.services import notify
 from notifications.models import Notification
@@ -440,3 +442,31 @@ def resend_otp(request):
     send_phone_otp(request, user)
     messages.success(request, 'A new verification code has been sent.')
     return redirect('accounts:verify_phone')
+
+
+def serve_seller_document(request, doc_id):
+    """Stream a seller KYC document through an authenticated view.
+
+    KYC documents are sensitive: they are never served from the public
+    ``MEDIA_URL`` (``config.urls`` blocks direct access to the raw file) and
+    can only be fetched here by the owning seller or platform staff.
+    """
+    doc = get_object_or_404(SellerDocument.objects.select_related('seller_profile__user'), pk=doc_id)
+
+    is_owner = (
+        request.user.is_authenticated
+        and doc.seller_profile.user_id == request.user.pk
+    )
+    if not (request.user.is_staff or is_owner):
+        return HttpResponseForbidden('You do not have access to this document.')
+
+    try:
+        stream = doc.file.open('rb')
+    except (FileNotFoundError, ValueError, OSError):
+        raise Http404('This document is no longer available.')
+
+    content_type = mimetypes.guess_type(doc.file.name)[0] or 'application/octet-stream'
+    response = FileResponse(stream, content_type=content_type)
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Cache-Control'] = 'private, no-store'
+    return response

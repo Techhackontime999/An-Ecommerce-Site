@@ -48,6 +48,19 @@
   </div>
 </section>
 
+{% if messages %}
+<div class="container-aq">
+  <div class="crt-messages">
+    {% for message in messages %}
+    <div class="crt-alert crt-alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}" role="alert">
+      <i class="fas fa-{% if message.tags == 'error' %}triangle-exclamation{% else %}circle-check{% endif %}"></i>
+      <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 <!-- Cart Body -->
 <section class="crt-body">
   <div class="container-aq">

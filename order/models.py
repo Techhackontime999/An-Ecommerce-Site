@@ -127,6 +127,16 @@ class Order(models.Model):
         return self.status in (self.Status.PENDING, self.Status.PROCESSING)
 
     @property
+    def customer_cancel_allowed(self):
+        """Whether the customer can cancel this order themselves online.
+
+        Guest orders that were already paid are excluded: without an account
+        there is nothing to trace if the goods go missing, so their refunds go
+        through support/admin instead of an automatic gateway refund.
+        """
+        return self.cancelable and not (self.user_id is None and self.total_paid() > 0)
+
+    @property
     def is_cod(self):
         return self.payment_method == self.PaymentMethod.COD
 

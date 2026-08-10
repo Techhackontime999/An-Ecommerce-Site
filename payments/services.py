@@ -22,6 +22,7 @@ from django.urls import reverse
 from order.models import Order
 from order.state import set_order_status
 from order.stock import InsufficientStock
+from jobs.services import enqueue
 from notifications.emails import send_payment_confirmation
 from notifications.models import Notification
 from notifications.services import notify
@@ -170,14 +171,21 @@ def trigger_fulfilment(order):
     """Run the LMS fulfilment pipeline for a freshly paid order.
 
     Best effort — a courier failure must never roll back a successful payment.
+    Runs inside the async worker: the request path enqueues a ``fulfil_order``
+    job instead of blocking the checkout/webhook on courier HTTP calls. The
+    shipment-created email is itself queued as a job so a slow SMTP relay can
+    never stall fulfilment.
     """
     try:
         from logistics.services.fulfillment import FulfillmentService
         shipments = FulfillmentService.create_shipments_for_order(order)
         if shipments:
-            from notifications.emails import send_shipping_confirmation
             for shipment in shipments[:1]:
-                send_shipping_confirmation(order, shipment)
+                enqueue('send_email', {
+                    'kind': 'shipping_confirmation',
+                    'order_id': order.pk,
+                    'shipment_id': shipment.pk,
+                }, dedupe_key=f'email-shipping:{shipment.pk}')
             names = ', '.join(s.shipment_number for s in shipments)
             notify(
                 order.user,
@@ -194,8 +202,13 @@ def trigger_fulfilment(order):
 
 
 def _post_capture_side_effects(order, payment):
-    """Notifications/emails for a captured payment (after the DB transaction)."""
-    trigger_fulfilment(order)
+    """Notifications/emails for a captured payment (after the DB transaction).
+
+    Only the fast, in-DB work runs here. Fulfilment and transactional emails
+    are queued as durable jobs so a slow courier or SMTP server can never hold
+    up the payment webhook/callback response.
+    """
+    enqueue('fulfil_order', {'order_id': order.pk}, dedupe_key=f'fulfil:{order.pk}')
     notify(
         order.user,
         Notification.Category.PAYMENT,
@@ -204,7 +217,11 @@ def _post_capture_side_effects(order, payment):
         link=reverse('order:my_orders'),
         icon='credit-card',
     )
-    send_payment_confirmation(order, payment)
+    enqueue('send_email', {
+        'kind': 'payment_confirmation',
+        'order_id': order.pk,
+        'payment_id': payment.pk,
+    }, dedupe_key=f'email-payment:{payment.pk}')
 
 
 def _fail_and_refund_captured(payment, razorpay_payment_id, reason, source='system', actor=None):
@@ -255,8 +272,12 @@ def _fail_and_refund_captured(payment, razorpay_payment_id, reason, source='syst
             icon='credit-card',
         )
     else:
+        enqueue('refund_payment', {
+            'payment_id': payment.pk,
+            'note': f'Auto-refund — order could not be fulfilled: {reason}',
+        }, dedupe_key=f'refund-payment:{payment.pk}')
         logger.error(
-            'AUTO-REFUND FAILED for payment %s (order %s): %s — manual reconciliation required.',
+            'AUTO-REFUND FAILED for payment %s (order %s): %s — retry job queued.',
             payment.pk, payment.order_id, detail,
         )
 
@@ -306,13 +327,10 @@ def finalize_payment(payment, razorpay_payment_id, razorpay_signature='', source
                 )
                 if razorpay_payment_id:
                     payment.razorpay_payment_id = razorpay_payment_id
-                    try:
-                        refund_payment(
-                            payment,
-                            note=f'Refunded — payment captured after order {order.order_number} was cancelled.',
-                        )
-                    except Exception as exc:
-                        logger.error('Refund after cancellation failed for payment %s: %s', payment.id, exc, exc_info=True)
+                    refund_captured_payment(
+                        payment,
+                        note=f'Refunded — payment captured after order {order.order_number} was cancelled.',
+                    )
                 if payment.status != 'refunded':
                     payment.status = 'failed'
                     payment.save(update_fields=['status', 'updated_at'])
@@ -452,8 +470,38 @@ def confirm_cod_order(order, *, actor=None):
         )
         order.save(update_fields=['payment_method', 'paid', 'updated'])
 
-    transaction.on_commit(lambda: trigger_fulfilment(order))
+    transaction.on_commit(lambda: enqueue(
+        'fulfil_order', {'order_id': order.pk}, dedupe_key=f'fulfil:{order.pk}',
+    ))
     return True
+
+
+def refund_captured_payment(payment, *, note='', actor=None, source='system'):
+    """Refund a captured payment, durably.
+
+    Tries the gateway refund immediately; when the gateway is unreachable the
+    refund is enqueued as a ``refund_payment`` job that retries with backoff.
+    ``payments.management.commands.reconcile_refunds`` additionally sweeps every
+    payment still owed a refund, so a transient outage can never strand customer
+    funds. Idempotent — ``refund_payment`` returns ``already_refunded`` once the
+    payment is refunded.
+
+    Returns (ok, detail) exactly like ``refund_payment``.
+    """
+    try:
+        ok, detail = refund_payment(payment, note=note, actor=actor, source=source)
+    except Exception as exc:
+        logger.error(
+            'refund_captured_payment raised for payment %s: %s',
+            payment.pk, exc, exc_info=True,
+        )
+        ok, detail = False, str(exc)
+    if not ok:
+        enqueue('refund_payment', {
+            'payment_id': payment.pk,
+            'note': note or 'Auto-refund',
+        }, dedupe_key=f'refund-payment:{payment.pk}')
+    return ok, detail
 
 
 def mark_payment_failed(payment, message='', source='gateway', actor=None):

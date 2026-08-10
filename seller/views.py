@@ -15,6 +15,7 @@ from django.db.models.functions import Log
 from notifications.models import Notification
 from notifications.services import notify
 from django.core.files import File
+from .services import available_balance, create_payout, payout_min_amount, total_earned
 import os
 import math
 
@@ -37,6 +38,7 @@ def seller_dashboard(request):
         'total_orders': order_items.count(),
         'pending_orders': order_items.filter(order__paid=False).count(),
         'products': products,
+        'payout_balance': available_balance(profile),
     }
     return render(request, 'seller/dashboard.html', context)
 
@@ -406,6 +408,57 @@ def sellers_profile_search(request):
         "query": query,
         "search_action": "seller:sellers_profile_search",  # optional, for your navbar
     })
+
+
+@login_required
+def seller_payouts(request):
+    try:
+        profile = request.user.sellerprofile
+    except SellerProfile.DoesNotExist:
+        return redirect('accounts:become_seller')
+
+    if not profile.is_verified:
+        return render(request, 'seller/not_verified.html', {'profile': profile})
+
+    ledger = (
+        profile.ledger_entries
+        .select_related('order_item__product', 'payout')
+        .order_by('-created_at')[:50]
+    )
+    payouts = profile.payouts.order_by('-created_at')
+
+    context = {
+        'profile': profile,
+        'available': available_balance(profile),
+        'total_earned': total_earned(profile),
+        'ledger': ledger,
+        'payouts': payouts,
+        'payout_min': payout_min_amount(),
+    }
+    return render(request, 'seller/payouts.html', context)
+
+
+@login_required
+@require_POST
+def request_payout(request):
+    try:
+        profile = request.user.sellerprofile
+    except SellerProfile.DoesNotExist:
+        return redirect('accounts:become_seller')
+
+    if not profile.is_verified:
+        return render(request, 'seller/not_verified.html', {'profile': profile})
+
+    payout, error = create_payout(profile, actor=request.user)
+    if error:
+        messages.error(request, error)
+    else:
+        messages.success(
+            request,
+            f'Payout of {payout.amount} is now processing. '
+            'It will be transferred to your bank account once confirmed.',
+        )
+    return redirect('seller:payouts')
 
 
 # seller/views.py

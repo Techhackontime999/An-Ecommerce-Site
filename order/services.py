@@ -30,16 +30,25 @@ def cancel_order(order, actor=None, reason=''):
     cancellation refunds it) or the cancellation wins (the late capture is
     rejected and refunded by the payment service).
 
+    Paid guest orders are never auto-refunded here: with no account to trace,
+    cancellation/refund must go through support so the goods are recovered
+    first. The ``Order.customer_cancel_allowed`` property mirrors this rule for
+    the UI.
+
     Returns (ok, detail). ``detail`` is a human-readable status message.
     """
     from order.stock import release_stock
     from payments.models import Payment
-    from payments.services import refund_payment
+    from payments.services import refund_captured_payment
 
     with transaction.atomic():
         order = Order.objects.select_for_update().get(pk=order.pk)
         if not order.cancelable:
             return False, f'Order {order.order_number} cannot be cancelled at its current status.'
+
+        payment = Payment.objects.select_for_update().filter(order=order).first()
+        if order.user_id is None and payment is not None and payment.status == 'captured':
+            return False, 'Paid guest orders cannot be cancelled online. Contact support to request a refund.'
 
         ok, _ = set_order_status(
             order, order.Status.CANCELLED, actor=actor,
@@ -48,19 +57,17 @@ def cancel_order(order, actor=None, reason=''):
         if not ok:
             return False, f'Order {order.order_number} cannot be cancelled at its current status.'
 
-        payment = Payment.objects.select_for_update().filter(order=order).first()
         refunded = False
         if payment is not None and payment.status == 'captured':
             release_stock(order)
-            try:
-                refund_payment(
-                    payment,
-                    note=f'Customer cancellation of {order.order_number}' + (f' ({reason})' if reason else ''),
-                    actor=actor,
-                )
-                refunded = True
-            except Exception as exc:
-                logger.error('Refund failed during cancellation of order %s: %s', order.id, exc, exc_info=True)
+            # Immediate gateway refund; if the gateway is down the refund is
+            # queued as a durable job and retried (plus reconcile_refunds).
+            refunded, _detail = refund_captured_payment(
+                payment,
+                note=f'Customer cancellation of {order.order_number}' + (f' ({reason})' if reason else ''),
+                actor=actor,
+                source='system',
+            )
 
     _notify_cancelled(order, actor, refunded)
     return True, 'cancelled' if not refunded else 'cancelled_and_refunded'

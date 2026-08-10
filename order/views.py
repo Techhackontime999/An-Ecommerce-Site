@@ -11,13 +11,14 @@ import logging
 from cart.cart import Cart
 from coupons.models import Coupon, CouponRedemption
 from coupons.services import discount_for, validate_coupon
+from core.throttle import throttle_allows
 from .models import Order, OrderItem, ReturnRequest
 from .forms import OrderCreateForm
 from .access import get_guest_order_ids, grant_guest_access, get_order_for_request
 from .services import cancel_order, invoice_number, invoice_totals
+from jobs.services import enqueue
 from notifications.models import Notification
 from notifications.services import notify
-from notifications.emails import send_order_confirmation
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,19 @@ def order_create(request):
         return redirect('cart:cart_detail')
 
     user = _user(request)
+
+    # Guests are unauthenticated and per-IP throttled so a single device/network
+    # cannot mass-place guest orders. Account holders have a real identity, so
+    # they are not throttled here.
+    if user is None and request.method == 'POST':
+        if not throttle_allows(
+            'guest-order-create', request, max_requests=5, window_seconds=3600
+        ):
+            messages.error(
+                request,
+                'Too many guest orders placed from this device. Please try again later or create an account.',
+            )
+            return redirect('cart:cart_detail')
 
     if request.method == 'POST':
         # Idempotency: the same form carries the same token, so a double submit
@@ -109,7 +123,12 @@ def order_create(request):
             grant_guest_access(request, order)
             cart.clear()
             request.session['coupon_id'] = None
-            send_order_confirmation(order)
+            # The confirmation email is queued for the async worker so a slow
+            # SMTP relay can never hold up checkout.
+            enqueue('send_email', {
+                'kind': 'order_confirmation',
+                'order_id': order.pk,
+            }, dedupe_key=f'email-order-confirmation:{order.pk}')
             if user is not None:
                 notify(
                     user,

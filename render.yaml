@@ -64,10 +64,80 @@ services:
       - key: DJANGO_SUPERUSER_PASSWORD
         sync: false
 
+  # Async worker — drains the DB-backed job queue: transactional emails,
+  # fulfilment runs and gateway refund retries (see the jobs app). Moves slow
+  # SMTP/courier/gateway work off the checkout & payment-webhook request path.
+  - type: worker
+    name: async-worker
+    plan: free
+    region: singapore
+    runtime: python
+    buildCommand: bash build.sh
+    startCommand: python manage.py run_worker --poll 5 --limit 25
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: SECRET_KEY
+        sync: false
+      - key: FIELD_ENCRYPTION_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecommerce-db
+          property: connectionString
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
 # Scheduled jobs — keep tracking timelines and live FX rates fresh.
 # Free-plan cron services spin up on schedule; upgrade to a worker + Celery
 # beat (with Redis) if the store grows.
 cron:
+  - type: cron
+    name: refund-reconcile
+    schedule: "*/10 * * * *"
+    runtime: python
+    buildCommand: bash build.sh
+    startCommand: python manage.py reconcile_refunds
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: SECRET_KEY
+        sync: false
+      - key: FIELD_ENCRYPTION_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecommerce-db
+          property: connectionString
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
+  - type: cron
+    name: job-reconcile
+    schedule: "*/5 * * * *"
+    runtime: python
+    buildCommand: bash build.sh
+    startCommand: python manage.py reconcile_jobs
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: SECRET_KEY
+        sync: false
+      - key: FIELD_ENCRYPTION_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecommerce-db
+          property: connectionString
+
   - type: cron
     name: tracking-sync
     schedule: "*/30 * * * *"

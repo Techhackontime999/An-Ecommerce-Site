@@ -34,6 +34,7 @@ urlpatterns = [
     path('resend-verification-email/', views.resend_verification_email, name='resend_verification_email'),
     path('verify-phone/', views.verify_phone, name='verify_phone'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),
+    path('sellers/documents/<int:doc_id>/', views.serve_seller_document, name='seller_document'),
 
     path('password-reset/', _password_reset.as_view(
         template_name='accounts/password_reset_form.html',

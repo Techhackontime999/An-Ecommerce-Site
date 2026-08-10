@@ -3,12 +3,14 @@ import time
 from unittest import mock
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.signing import TimestampSigner
-from django.test import Client, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 
 import django.core.signing as django_signing
 
+from payments.models import Payment
 from shop.models import Category, Product
 
 from order.models import Order
@@ -19,6 +21,7 @@ from order.access import make_guest_access_token, order_id_from_guest_token
 
 class GuestCheckoutTests(TestCase):
     def setUp(self):
+        cache.clear()
         self.category = Category.objects.create(name='Audio', slug='audio')
         self.product = Product.objects.create(
             category=self.category,
@@ -134,6 +137,7 @@ class GuestEmailLinkTests(TestCase):
     """
 
     def setUp(self):
+        cache.clear()
         self.category = Category.objects.create(name='Audio', slug='audio')
         self.product = Product.objects.create(
             category=self.category,
@@ -267,3 +271,142 @@ class GuestEmailLinkTests(TestCase):
         self.assertIn('?token=', url)
         token = url.split('?token=', 1)[1]
         self.assertEqual(order_id_from_guest_token(token), (order.id, 'ada@example.com'))
+
+
+class GuestAbuseProtectionTests(TestCase):
+    """Loss-protection rules for guest orders (no account to trace)."""
+
+    def setUp(self):
+        cache.clear()
+        self.category = Category.objects.create(name='Audio', slug='audio')
+        self.product = Product.objects.create(
+            category=self.category,
+            name='Earbuds',
+            slug='earbuds',
+            price=Decimal('100.00'),
+            stock=10,
+        )
+        self.client = Client(SERVER_NAME='localhost')
+
+    def _seed_session_cart(self):
+        session = self.client.session
+        session['cart'] = {
+            str(self.product.id): {'quantity': 1, 'price': '100.00', 'variant_id': None},
+        }
+        session.save()
+
+    def _order_post(self, token):
+        return self.client.post(reverse('order:order_create'), {
+            'checkout_token': token,
+            'first_name': 'Ada',
+            'last_name': 'Lovelace',
+            'email': 'ada@example.com',
+            'address': '5 Analytical Way',
+            'postal_code': '560001',
+            'city': 'Bangalore',
+            'phone': '9999999999',
+            'state': 'Karnataka',
+            'country': 'India',
+        })
+
+    def test_paid_guest_order_cannot_be_cancelled(self):
+        self._seed_session_cart()
+        self._order_post('token-paid-guest')
+        order = Order.objects.get(checkout_token='token-paid-guest')
+        Payment.objects.create(
+            order=order, razorpay_order_id='ord_guest_paid',
+            amount=Decimal('236.00'), status='captured',
+        )
+        response = self.client.post(
+            reverse('order:order_cancel', args=[order.id]), follow=True,
+        )
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PENDING)
+        self.assertFalse(order.refunds.exists())
+        self.assertContains(response, 'Paid guest orders cannot be cancelled online')
+
+    def test_unpaid_guest_order_can_be_cancelled(self):
+        self._seed_session_cart()
+        self._order_post('token-unpaid-guest')
+        order = Order.objects.get(checkout_token='token-unpaid-guest')
+        response = self.client.post(reverse('order:order_cancel', args=[order.id]))
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.CANCELLED)
+        self.assertRedirects(response, reverse('order:order_detail', args=[order.id]))
+
+    def test_customer_cancel_allowed_matches_guard(self):
+        self._seed_session_cart()
+        self._order_post('token-flag-guest')
+        order = Order.objects.get(checkout_token='token-flag-guest')
+        self.assertTrue(order.customer_cancel_allowed)
+        Payment.objects.create(
+            order=order, razorpay_order_id='ord_guest_flag',
+            amount=Decimal('100.00'), status='captured',
+        )
+        order.refresh_from_db()
+        self.assertFalse(order.customer_cancel_allowed)
+
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.create_user(username='acctowner', password='pass1234')
+        acct = Order.objects.create(
+            user=user, first_name='Ada', last_name='Lovelace', email='ada@example.com',
+            address='5 Way', postal_code='560001', city='Bangalore', phone='9999999999',
+        )
+        self.assertTrue(acct.customer_cancel_allowed)
+        Payment.objects.create(
+            order=acct, razorpay_order_id='ord_acct_flag',
+            amount=Decimal('100.00'), status='captured',
+        )
+        acct.refresh_from_db()
+        self.assertTrue(acct.customer_cancel_allowed)
+
+    def test_throttle_blocks_after_five_guest_orders(self):
+        from core.throttle import throttle_allows
+        request = RequestFactory().post('/order/create/')
+        request.META['REMOTE_ADDR'] = '203.0.113.99'
+        for _ in range(5):
+            self.assertTrue(throttle_allows(
+                'guest-order-create', request, max_requests=5, window_seconds=3600,
+            ))
+        self.assertFalse(throttle_allows(
+            'guest-order-create', request, max_requests=5, window_seconds=3600,
+        ))
+        get_request = RequestFactory().get('/order/create/')
+        get_request.META['REMOTE_ADDR'] = '203.0.113.99'
+        self.assertTrue(throttle_allows(
+            'guest-order-create', get_request, max_requests=5, window_seconds=3600,
+        ))
+
+    def test_guest_order_create_view_throttled_per_ip(self):
+        ip = '203.0.113.9'
+        for i in range(5):
+            self._seed_session_cart()
+            response = self.client.post(
+                reverse('order:order_create'),
+                {
+                    'checkout_token': f'throttle-{i}',
+                    'first_name': 'Ada', 'last_name': 'Lovelace',
+                    'email': 'ada@example.com', 'address': '5 Way',
+                    'postal_code': '560001', 'city': 'Bangalore',
+                    'phone': '9999999999', 'state': 'Karnataka', 'country': 'India',
+                },
+                HTTP_X_FORWARDED_FOR=ip,
+            )
+            self.assertEqual(response.status_code, 302)
+            self.assertTrue(Order.objects.filter(checkout_token=f'throttle-{i}').exists())
+
+        self._seed_session_cart()
+        response = self.client.post(
+            reverse('order:order_create'),
+            {
+                'checkout_token': 'throttle-over',
+                'first_name': 'Ada', 'last_name': 'Lovelace',
+                'email': 'ada@example.com', 'address': '5 Way',
+                'postal_code': '560001', 'city': 'Bangalore',
+                'phone': '9999999999', 'state': 'Karnataka', 'country': 'India',
+            },
+            HTTP_X_FORWARDED_FOR=ip,
+            follow=True,
+        )
+        self.assertFalse(Order.objects.filter(checkout_token='throttle-over').exists())
+        self.assertContains(response, 'Too many guest orders')

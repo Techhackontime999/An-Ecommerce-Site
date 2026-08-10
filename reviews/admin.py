@@ -1,5 +1,8 @@
 from django.contrib import admin
+from django.urls import reverse
+
 from core.admin_actions import export_as_csv_action
+from notifications.services import notify
 from .models import SellerReview, ProductReview, ProductReviewImage, ReviewReport
 
 
@@ -29,13 +32,27 @@ class ProductReviewAdmin(admin.ModelAdmin):
 
     @admin.action(description='Approve selected reviews')
     def approve_reviews(self, request, queryset):
-        updated = queryset.update(status=ProductReview.Status.APPROVED)
-        self.message_user(request, f'{updated} review(s) approved.')
+        for review in queryset.select_related('product__seller__user'):
+            review.status = ProductReview.Status.APPROVED
+            review.save(update_fields=['status', 'updated'])
+            seller = getattr(review.product, 'seller', None)
+            if seller and seller.user_id and seller.user != review.reviewer:
+                notify(
+                    seller.user,
+                    'review',
+                    f'New {review.overall_rating}-star review for {review.product.name}',
+                    f'{review.reviewer.username} reviewed your product. See what they said.',
+                    link=reverse('reviews:product_review_detail', args=[review.pk]),
+                    icon='star',
+                )
+        self.message_user(request, f'{queryset.count()} review(s) approved.')
 
     @admin.action(description='Reject selected reviews')
     def reject_reviews(self, request, queryset):
-        updated = queryset.update(status=ProductReview.Status.REJECTED)
-        self.message_user(request, f'{updated} review(s) rejected.')
+        for review in queryset:
+            review.status = ProductReview.Status.REJECTED
+            review.save(update_fields=['status', 'updated'])
+        self.message_user(request, f'{queryset.count()} review(s) rejected.')
 
     @admin.action(description='Mark selected reviewers as verified')
     def mark_verified_reviewer(self, request, queryset):

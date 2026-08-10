@@ -5,6 +5,7 @@ from unittest import mock
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
@@ -13,8 +14,10 @@ from shop.models import Category, Product
 
 from .models import Payment, PaymentAuditLog
 from .services import (
+    _fail_and_refund_captured,
     finalize_payment,
     gateway_charge,
+    refund_captured_payment,
     verify_callback_signature,
     verify_webhook_signature,
 )
@@ -489,37 +492,39 @@ class CodCheckoutTests(TestCase):
         self.assertNotContains(response, 'checkout.razorpay.com/v1/checkout.js')
         self.assertIsNone(response.context.get('razorpay_order_id'))
 
-    def test_confirming_cod_places_order_and_starts_fulfilment(self):
+    def test_confirming_cod_places_order_and_queues_fulfilment(self):
         self.order.payment_method = Order.PaymentMethod.COD
         self.order.save()
-        with mock.patch('payments.services.trigger_fulfilment') as tf:
-            with self.captureOnCommitCallbacks(execute=True):
-                response = self.client.post(reverse('payments:checkout', args=[self.order.id]), {
-                    'payment_method': 'cod',
-                    'confirm': '1',
-                })
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(reverse('payments:checkout', args=[self.order.id]), {
+                'payment_method': 'cod',
+                'confirm': '1',
+            })
         self.assertRedirects(response, reverse('payments:success', args=[self.order.id]), fetch_redirect_response=False)
         self.order.refresh_from_db()
         self.assertFalse(self.order.paid)
         self.assertEqual(self.order.payment_method, Order.PaymentMethod.COD)
         self.assertEqual(self.order.status, Order.Status.PROCESSING)
-        tf.assert_called_once()
+        from jobs.models import Job
+        job = Job.objects.filter(kind='fulfil_order').first()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.payload['order_id'], self.order.pk)
 
     def test_cod_confirm_is_idempotent(self):
         self.order.payment_method = Order.PaymentMethod.COD
         self.order.save()
-        with mock.patch('payments.services.trigger_fulfilment') as tf:
-            with self.captureOnCommitCallbacks(execute=True):
-                self.client.post(reverse('payments:checkout', args=[self.order.id]), {
-                    'payment_method': 'cod', 'confirm': '1',
-                })
-                # Already processing → no-op, no second fulfilment kick.
-                self.order.status = Order.Status.PROCESSING
-                self.order.save()
-                self.client.post(reverse('payments:checkout', args=[self.order.id]), {
-                    'payment_method': 'cod', 'confirm': '1',
-                })
-        self.assertEqual(tf.call_count, 1)
+        from jobs.models import Job
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(reverse('payments:checkout', args=[self.order.id]), {
+                'payment_method': 'cod', 'confirm': '1',
+            })
+            # Already processing → no-op, no second fulfilment kick.
+            self.order.status = Order.Status.PROCESSING
+            self.order.save()
+            self.client.post(reverse('payments:checkout', args=[self.order.id]), {
+                'payment_method': 'cod', 'confirm': '1',
+            })
+        self.assertEqual(Job.objects.filter(kind='fulfil_order').count(), 1)
 
     def test_switching_from_cod_back_to_online(self):
         self.order.payment_method = Order.PaymentMethod.COD
@@ -605,3 +610,151 @@ class PaymentLinkCallbackTests(TestCase):
             'razorpay_signature': _link_sig('plink_missing', 'ref_cb1', 'paid', 'pay_link1'),
         })
         self.assertEqual(response.status_code, 400)
+
+
+class RefundDurabilityTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='refundee', password='pass1234')
+        category = Category.objects.create(name='Audio', slug='audio')
+        self.product = Product.objects.create(
+            category=category, name='Pod', slug='pod', price=Decimal('50.00'), stock=5,
+        )
+        self.order = Order.objects.create(
+            user=self.user, first_name='Ada', last_name='Lovelace', email='ada@example.com',
+            address='5 Analytical Way', postal_code='560001', city='Bangalore',
+        )
+        OrderItem.objects.create(order=self.order, product=self.product, price=Decimal('50.00'), quantity=1)
+        self.payment = Payment.objects.create(
+            order=self.order, razorpay_order_id='ord_ref', razorpay_payment_id='pay_ref1',
+            amount=Decimal('59.00'), currency='INR', status='captured',
+        )
+
+    @mock.patch('payments.services.refund_payment', return_value=(False, 'gateway down'))
+    def test_refund_captured_payment_enqueues_retry_job_on_failure(self, refund):
+        from jobs.models import Job
+        ok, detail = refund_captured_payment(self.payment, note='test')
+        self.assertFalse(ok)
+        self.assertEqual(detail, 'gateway down')
+        job = Job.objects.filter(kind='refund_payment').first()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.payload['payment_id'], self.payment.pk)
+        self.assertEqual(job.dedupe_key, f'refund-payment:{self.payment.pk}')
+
+    @mock.patch('payments.services.refund_payment', return_value=(True, 'rfnd_ok'))
+    def test_refund_captured_payment_skips_enqueue_on_success(self, refund):
+        from jobs.models import Job
+        ok, detail = refund_captured_payment(self.payment, note='test')
+        self.assertTrue(ok)
+        self.assertEqual(detail, 'rfnd_ok')
+        self.assertFalse(Job.objects.filter(kind='refund_payment').exists())
+
+    @mock.patch('payments.services.refund_payment', return_value=(False, 'gateway down'))
+    def test_fail_and_refund_captured_queues_retry(self, refund):
+        from jobs.models import Job
+        self.payment.status = 'failed'
+        self.payment.save()
+        _fail_and_refund_captured(self.payment, 'pay_ref1', 'out of stock')
+        job = Job.objects.filter(kind='refund_payment').first()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.payload['payment_id'], self.payment.pk)
+        self.assertIn('out of stock', job.payload['note'])
+
+    @mock.patch('payments.services.refund_payment')
+    def test_refund_job_handler_refunds_and_succeeds(self, refund):
+        refund.return_value = (True, 'rfnd_job')
+        from jobs.models import Job
+        from jobs.services import enqueue
+        job = enqueue('refund_payment', {'payment_id': self.payment.pk, 'note': 'reconcile'})
+        from jobs.management.commands.run_worker import Command
+        Command(stdout=__import__('io').StringIO()).handle(once=True, poll=0, limit=10, max_runtime=0)
+        job.refresh_from_db()
+        self.assertEqual(job.status, Job.Status.SUCCEEDED)
+        refund.assert_called_once()
+
+
+class ReconcileRefundTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='recon', password='pass1234')
+        category = Category.objects.create(name='Audio', slug='audio')
+        self.product = Product.objects.create(
+            category=category, name='Pod', slug='pod', price=Decimal('50.00'), stock=5,
+        )
+
+    def _order_and_payment(self, **payment_overrides):
+        order = Order.objects.create(
+            user=self.user, first_name='Ada', last_name='Lovelace', email='ada@example.com',
+            address='5 Analytical Way', postal_code='560001', city='Bangalore',
+        )
+        OrderItem.objects.create(order=order, product=self.product, price=Decimal('50.00'), quantity=1)
+        defaults = dict(
+            order=order, razorpay_order_id=f'ord_{order.id}', razorpay_payment_id='pay_recon1',
+            amount=Decimal('59.00'), currency='INR', status='captured',
+        )
+        defaults.update(payment_overrides)
+        return order, Payment.objects.create(**defaults)
+
+    def test_captured_cancelled_order_is_reconciled(self):
+        from jobs.models import Job
+        order, _ = self._order_and_payment()
+        order.status = Order.Status.CANCELLED
+        order.save()
+        call_command('reconcile_refunds')
+        job = Job.objects.filter(kind='refund_payment').first()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.payload['payment_id'], Payment.objects.get(order=order).pk)
+
+    def test_failed_payment_with_gateway_id_is_reconciled(self):
+        from jobs.models import Job
+        _, payment = self._order_and_payment(status='failed')
+        call_command('reconcile_refunds')
+        job = Job.objects.filter(kind='refund_payment').first()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.payload['payment_id'], payment.pk)
+
+    def test_already_refunded_is_skipped(self):
+        from jobs.models import Job
+        self._order_and_payment(status='refunded')
+        call_command('reconcile_refunds')
+        self.assertFalse(Job.objects.filter(kind='refund_payment').exists())
+
+    def test_cod_reference_is_skipped(self):
+        from jobs.models import Job
+        order, _ = self._order_and_payment(
+            razorpay_payment_id='cod-SSD-1', status='captured',
+        )
+        order.status = Order.Status.CANCELLED
+        order.save()
+        call_command('reconcile_refunds')
+        self.assertFalse(Job.objects.filter(kind='refund_payment').exists())
+
+    def test_order_with_admin_refund_row_is_skipped(self):
+        from jobs.models import Job
+        from order.models import Refund
+        order, _ = self._order_and_payment()
+        order.status = Order.Status.CANCELLED
+        order.save()
+        Refund.objects.create(
+            order=order, amount=Decimal('59.00'),
+            method=Refund.Method.ORIGINAL_PAYMENT, status=Refund.Status.COMPLETED,
+        )
+        call_command('reconcile_refunds')
+        self.assertFalse(Job.objects.filter(kind='refund_payment').exists())
+
+    def test_dry_run_does_not_enqueue(self):
+        from jobs.models import Job
+        order, _ = self._order_and_payment()
+        order.status = Order.Status.CANCELLED
+        order.save()
+        call_command('reconcile_refunds', dry_run=True)
+        self.assertFalse(Job.objects.filter(kind='refund_payment').exists())
+
+    def test_enqueued_refund_job_is_deduped(self):
+        from jobs.models import Job
+        from payments.services import refund_captured_payment
+        order, payment = self._order_and_payment()
+        order.status = Order.Status.CANCELLED
+        order.save()
+        with mock.patch('payments.services.refund_payment', return_value=(False, 'down')):
+            refund_captured_payment(payment, note='inline retry')
+        call_command('reconcile_refunds')
+        self.assertEqual(Job.objects.filter(kind='refund_payment').count(), 1)

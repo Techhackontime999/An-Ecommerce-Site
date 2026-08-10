@@ -1,0 +1,194 @@
+{% extends 'shop/base/base.html' %}
+{% load static %}
+{% load preference_extras %}
+
+{% block title %}Payouts & Earnings — Shop-Seed{% endblock %}
+
+{% block content %}
+<div class="seller-dash">
+  <div class="seller-dash-inner">
+
+    {% if messages %}
+    <div class="seller-dash-messages">
+      {% for message in messages %}
+      <div class="seller-dash-message seller-dash-message-{{ message.tags }}">
+        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="seller-dash-header">
+      <h1 class="seller-dash-title"><i class="fas fa-wallet" style="color: var(--aq-accent);"></i> Earnings & Payouts</h1>
+    </div>
+
+    <div class="seller-dash-stats">
+      <div class="seller-dash-stat-card">
+        <div class="seller-dash-stat-icon" style="background: rgba(34, 197, 94, 0.12); color: #16A34A;">
+          <i class="fas fa-hand-holding-usd"></i>
+        </div>
+        <div class="seller-dash-stat-body">
+          <span class="seller-dash-stat-value">{% price available %}</span>
+          <span class="seller-dash-stat-label">Available Balance</span>
+        </div>
+      </div>
+      <div class="seller-dash-stat-card">
+        <div class="seller-dash-stat-icon" style="background: var(--aq-accent-subtle); color: var(--aq-accent);">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="seller-dash-stat-body">
+          <span class="seller-dash-stat-value">{% price total_earned %}</span>
+          <span class="seller-dash-stat-label">Lifetime Earnings</span>
+        </div>
+      </div>
+      <div class="seller-dash-stat-card">
+        <div class="seller-dash-stat-icon" style="background: rgba(59, 130, 246, 0.12); color: #3B82F6;">
+          <i class="fas fa-percentage"></i>
+        </div>
+        <div class="seller-dash-stat-body">
+          <span class="seller-dash-stat-value">{{ profile.commission_rate|default:"Marketplace" }}</span>
+          <span class="seller-dash-stat-label">Commission</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="seller-dash-actions">
+      <form method="post" action="{% url 'seller:request_payout' %}">
+        {% csrf_token %}
+        <button type="submit" class="seller-dash-action-card seller-dash-btn-primary"
+                {% if available < payout_min or available <= 0 %}disabled{% endif %}>
+          <i class="fas fa-money-bill-wave"></i>
+          <span>Request Payout</span>
+        </button>
+      </form>
+      <div class="seller-dash-note">
+        <i class="fas fa-info-circle"></i>
+        Earnings appear once an order is <strong>paid and delivered</strong> and a
+        commission of the marketplace rate is deducted. Minimum payout: {% price payout_min %}.
+        Funds are transferred to your registered bank account after admin confirmation.
+      </div>
+    </div>
+
+    <div class="seller-dash-table-section">
+      <div class="seller-dash-table-header">
+        <h2><i class="fas fa-paper-plane"></i> Payout History</h2>
+        {% if payouts %}
+          <span class="seller-dash-count-badge">{{ payouts|length }} total</span>
+        {% endif %}
+      </div>
+
+      {% if payouts %}
+      <div class="seller-dash-table-wrap">
+        <table class="seller-dash-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Reference</th>
+              <th>Requested</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for payout in payouts %}
+            <tr>
+              <td>#{{ payout.pk }}</td>
+              <td class="seller-dash-price">{% price payout.amount %}</td>
+              <td>
+                {% if payout.status == 'paid' %}
+                  <span class="seller-dash-badge seller-dash-badge-active">Paid</span>
+                {% elif payout.status == 'processing' %}
+                  <span class="seller-dash-badge seller-dash-badge-inactive">Processing</span>
+                {% elif payout.status == 'failed' %}
+                  <span class="seller-dash-badge seller-dash-badge-inactive">Failed</span>
+                {% else %}
+                  <span class="seller-dash-badge seller-dash-badge-inactive">{{ payout.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td>{{ payout.reference|default:"—" }}</td>
+              <td class="seller-dash-date">{{ payout.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="seller-dash-empty">
+        <i class="fas fa-paper-plane"></i>
+        <p>No payouts yet</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="seller-dash-table-section">
+      <div class="seller-dash-table-header">
+        <h2><i class="fas fa-book"></i> Earnings Ledger</h2>
+        {% if ledger %}
+          <span class="seller-dash-count-badge">{{ ledger|length }} recent</span>
+        {% endif %}
+      </div>
+
+      {% if ledger %}
+      <div class="seller-dash-table-wrap">
+        <table class="seller-dash-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Product</th>
+              <th>Order</th>
+              <th>Gross</th>
+              <th>Commission</th>
+              <th>Net</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in ledger %}
+            <tr>
+              <td>
+                {% if entry.entry_type == 'refund' %}
+                  <span class="seller-dash-badge seller-dash-badge-inactive">Refund</span>
+                {% elif entry.entry_type == 'sale' %}
+                  <span class="seller-dash-badge seller-dash-badge-active">Sale</span>
+                {% else %}
+                  <span class="seller-dash-badge seller-dash-badge-inactive">{{ entry.get_entry_type_display }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if entry.order_item %}{{ entry.order_item.product.name }}{% else %}{{ entry.reference|default:"—" }}{% endif %}
+              </td>
+              <td class="seller-dash-date">
+                {% if entry.order_item %}{{ entry.order_item.order.order_number }}{% else %}—{% endif %}
+              </td>
+              <td class="seller-dash-price">{% price entry.gross_amount %}</td>
+              <td class="seller-dash-price">{% price entry.commission_amount %}</td>
+              <td class="seller-dash-price">{% price entry.net_amount %}</td>
+              <td>
+                {% if entry.status == 'available' %}
+                  <span class="seller-dash-badge seller-dash-badge-active">Available</span>
+                {% elif entry.status == 'payout_pending' %}
+                  <span class="seller-dash-badge seller-dash-badge-inactive">In payout</span>
+                {% else %}
+                  <span class="seller-dash-badge seller-dash-badge-active">Paid</span>
+                {% endif %}
+              </td>
+              <td class="seller-dash-date">{{ entry.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="seller-dash-empty">
+        <i class="fas fa-book-open"></i>
+        <p>No earnings yet — they appear once an order is paid and delivered.</p>
+        <a href="{% url 'seller:orders' %}" class="seller-dash-btn-primary">View Orders</a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

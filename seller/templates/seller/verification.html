@@ -13,7 +13,7 @@
         <ul class="list-group">
             {% for doc in profile.documents.all %}
                 <li class="list-group-item">
-                    {{ doc.get_document_type_display }} — <a href="{{ doc.file.url }}">{{ doc.file.name }}</a>
+                    {{ doc.get_document_type_display }} — <a href="{% url 'accounts:seller_document' doc.pk %}" target="_blank" rel="noopener">{{ doc.file.name }}</a>
                 </li>
             {% empty %}
                 <li class="list-group-item">No documents uploaded.</li>
@@ -58,7 +58,7 @@
         <ul class="list-group mb-3">
             {% for doc in profile.documents.all %}
                 <li class="list-group-item">
-                    {{ doc.get_document_type_display }} — <a href="{{ doc.file.url }}">{{ doc.file.name }}</a>
+                    {{ doc.get_document_type_display }} — <a href="{% url 'accounts:seller_document' doc.pk %}" target="_blank" rel="noopener">{{ doc.file.name }}</a>
                 </li>
             {% empty %}
                 <li class="list-group-item">No documents uploaded yet.</li>

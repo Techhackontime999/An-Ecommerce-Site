@@ -1,13 +1,28 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import format_html
 
 from core.admin_actions import export_as_csv_action
 from accounts.verification import approve_verification, reject_verification, suspend_verification
 from .models import SellerProfile, CustomerProfile, SellerDocument
+
+
+class SellerDocumentAdminForm(forms.ModelForm):
+    """Plain FileInput so admin forms never expose the raw public media URL for
+    a KYC document — access always goes through the authenticated view."""
+
+    class Meta:
+        model = SellerDocument
+        fields = '__all__'
+        widgets = {
+            'file': forms.FileInput(attrs={'accept': '.pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.txt'}),
+        }
 
 
 admin.site.unregister(User)
@@ -24,8 +39,16 @@ class UserAdmin(BaseUserAdmin):
 
 class SellerDocumentInline(admin.TabularInline):
     model = SellerDocument
+    form = SellerDocumentAdminForm
     extra = 0
-    readonly_fields = ['uploaded_at']
+    readonly_fields = ['uploaded_at', 'view_link']
+
+    @admin.display(description='File')
+    def view_link(self, obj):
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener">View</a>',
+            reverse('accounts:seller_document', args=[obj.pk]),
+        )
 
 
 @admin.register(SellerProfile)
@@ -105,7 +128,15 @@ class CustomerProfileAdmin(admin.ModelAdmin):
 
 @admin.register(SellerDocument)
 class SellerDocumentAdmin(admin.ModelAdmin):
-    list_display = ['seller_profile', 'document_type', 'file', 'uploaded_at']
+    form = SellerDocumentAdminForm
+    list_display = ['seller_profile', 'document_type', 'view_link', 'uploaded_at']
     list_filter = ['document_type', 'uploaded_at']
     search_fields = ['seller_profile__shop_name', 'seller_profile__user__username', 'description']
     list_select_related = ['seller_profile']
+
+    @admin.display(description='File')
+    def view_link(self, obj):
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener">View</a>',
+            reverse('accounts:seller_document', args=[obj.pk]),
+        )

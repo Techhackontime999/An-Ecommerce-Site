@@ -295,6 +295,55 @@ class SellerVerificationTests(TestCase):
         self.assertFalse(profile.is_verified)
 
 
+class KYCMediaProtectionTests(TestCase):
+    """KYC documents are private: never served from the raw media URL, and only
+    readable through the authenticated view by the owner or staff."""
+
+    def setUp(self):
+        cache.clear()
+        self.seller = make_seller()
+        self.buyer = get_user_model().objects.create_user(username='buyer_kyc', password='pass1234')
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        self.doc = SellerDocument.objects.create(
+            seller_profile=self.seller,
+            document_type=SellerDocument.DocumentType.GST_CERTIFICATE,
+            file=SimpleUploadedFile('gst.pdf', b'%PDF-1.4 test', content_type='application/pdf'),
+            description='GST cert',
+        )
+
+    def test_direct_media_url_is_blocked(self):
+        response = self.client.get(self.doc.file.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_document_requires_authentication(self):
+        url = reverse('accounts:seller_document', args=[self.doc.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_other_users_cannot_read_document(self):
+        self.client.force_login(self.buyer)
+        url = reverse('accounts:seller_document', args=[self.doc.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_owner_can_read_own_document(self):
+        self.client.force_login(self.seller.user)
+        url = reverse('accounts:seller_document', args=[self.doc.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('nosniff', response['X-Content-Type-Options'].lower())
+        self.assertIn('no-store', response['Cache-Control'].lower())
+
+    def test_staff_can_read_any_document(self):
+        staff = get_user_model().objects.create_user(
+            username='staff_kyc', password='pass1234', is_staff=True,
+        )
+        self.client.force_login(staff)
+        url = reverse('accounts:seller_document', args=[self.doc.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+
 class TemplateI18nTests(TestCase):
     def test_login_page_renders_translated_strings(self):
         response = self.client.get(reverse('accounts:login'))

@@ -1,8 +1,12 @@
+import re
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
-from django.urls import path, include
+from django.http import HttpResponseForbidden
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
+from django.views.static import serve as static_serve
 
 from blogs.urls import sitemaps as blog_sitemaps
 from shop.sitemaps import CategorySitemap, ProductSitemap
@@ -12,6 +16,18 @@ sitemaps = {
     'products': ProductSitemap,
     'categories': CategorySitemap,
 }
+
+# KYC / business documents are never served from the public media URL. Direct
+# hits on these prefixes get a 403; the only way to read them is the
+# authenticated ``accounts:seller_document`` view. In production the web
+# server / S3 policy must enforce the same rule (see README).
+PROTECTED_MEDIA_PREFIXES = ('protected/', 'seller_documents/')
+
+
+def protected_media_serve(request, path, document_root=None, show_indexes=False):
+    if any(path.startswith(prefix) for prefix in PROTECTED_MEDIA_PREFIXES):
+        return HttpResponseForbidden('Forbidden', content_type='text/plain')
+    return static_serve(request, path, document_root=document_root, show_indexes=show_indexes)
 
 urlpatterns = [
     path('', include('core.urls')),
@@ -44,12 +60,22 @@ urlpatterns = [
     path('', include('shop.urls', namespace='shop')),
 ]
 
+# ``django.conf.urls.static.static`` only registers patterns while DEBUG is on,
+# so build the media pattern explicitly — it must also exist for the non-debug
+# fallback so the 403 guard below keeps protecting KYC folders there too.
+MEDIA_PATTERN = re_path(
+    r'^%s(?P<path>.*)$' % re.escape(settings.MEDIA_URL.lstrip('/')),
+    protected_media_serve,
+    kwargs={'document_root': settings.MEDIA_ROOT},
+)
+
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [MEDIA_PATTERN]
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Production media fallback: when no S3 bucket is configured MEDIA_URL stays on
-# the local origin, so serve the (ephemeral) filesystem media directly.
+# the local origin, so serve the (ephemeral) filesystem media directly — except
+# protected KYC folders, which go through the authenticated view only.
 # When AWS_STORAGE_BUCKET_NAME is set, MEDIA_URL points at S3 and this is a no-op.
-if not settings.DEBUG and settings.MEDIA_URL.startswith('/'):
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+elif settings.MEDIA_URL.startswith('/'):
+    urlpatterns += [MEDIA_PATTERN]

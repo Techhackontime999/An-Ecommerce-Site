@@ -54,6 +54,11 @@ class SellerProfile(models.Model):
 
     is_email_verified = models.BooleanField(default=False)
     is_phone_verified = models.BooleanField(default=False)
+    commission_rate = models.DecimalField(
+        max_digits=5, decimal_places=4, null=True, blank=True,
+        help_text='Platform commission for this seller (e.g. 0.10 = 10%). '
+                  'Leave empty to use the marketplace default.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     profile_picture = models.ImageField(upload_to='seller_profiles/', null=True, blank=True, validators=[validate_image_file])
     slug = models.SlugField(unique=True, blank=True, null=True)

@@ -216,17 +216,19 @@ class OrderAdmin(admin.ModelAdmin):
             return
         if payment.status == 'captured':
             from order.stock import release_stock
-            from payments.services import refund_payment
+            from payments.services import refund_captured_payment
             release_stock(order)
-            try:
-                refund_payment(
-                    payment,
-                    note=f'Order {order.order_number} {order_status}',
-                )
+            refunded, _detail = refund_captured_payment(
+                payment,
+                note=f'Order {order.order_number} {order_status}',
+            )
+            if refunded:
                 return
-            except Exception as exc:
-                logger.exception('Gateway refund failed for order %s during admin %s: %s',
-                                 order.id, order_status, exc)
+            # Gateway refund failed — a retry job was queued. Only the explicit
+            # mark_as_refunded action below may record a local "refunded" state,
+            # otherwise the reconcile sweep would skip a payment still owed money.
+            logger.error('Gateway refund failed for order %s during admin %s.',
+                         order.id, order_status)
         if order_status == 'refunded' and payment.status != 'refunded':
             payment.status = 'refunded'
             payment.save(update_fields=['status', 'updated_at'])

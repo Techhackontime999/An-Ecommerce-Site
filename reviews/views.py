@@ -3,15 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from core.throttle import throttle
 from shop.models import Product
 
 from .forms import ProductReviewForm, ReviewReportForm
 from .models import ProductReview, ProductReviewImage, ReviewReport, has_paid_order
-from notifications.models import Notification
-from notifications.services import notify
 
 
 def create_review(request, product_id):
@@ -68,6 +66,7 @@ def _save_review_images(review, files):
 
 
 @login_required
+@throttle('review_create', max_requests=5, window_seconds=3600)
 def create_product_review(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -88,17 +87,11 @@ def create_product_review(request, product_id):
             review.reviewer = request.user
             review.save()
             _save_review_images(review, request.FILES.getlist('image'))
-            seller = product.seller
-            if seller and seller.user_id and seller.user != request.user:
-                notify(
-                    seller.user,
-                    Notification.Category.REVIEW,
-                    f'New {review.overall_rating}-star review for {product.name}',
-                    f'{request.user.username} reviewed your product. See what they said.',
-                    link=reverse('reviews:product_review_detail', args=[review.pk]),
-                    icon='star',
-                )
-            messages.success(request, 'Thanks for your detailed review!')
+            messages.success(
+                request,
+                'Thanks for your detailed review! It is now pending moderation '
+                'and will appear once an admin approves it.',
+            )
             return redirect('reviews:product_review_detail', review_id=review.pk)
         messages.error(request, 'Please fix the errors below.')
     else:

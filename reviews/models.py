@@ -17,30 +17,39 @@ def has_paid_order(user, product):
     ).exists()
 
 
-def sync_seller_review(user, product, rating):
+def sync_seller_review(review):
     """Keep the seller's SellerReview + overall rating in sync with a product
     review.
 
+    Only *approved* reviews influence the seller's rating — pending/rejected
+    reviews are withheld and, if they were previously counted, their
+    SellerReview is removed so a moderation reversal is reflected immediately.
     Safe for every edge case: no-ops when the product has no seller or the
     reviewer has no CustomerProfile, so platform-owned products can never
     crash the review flow. ``SellerReview.save()`` recomputes the seller's
     aggregate rating after each create/update.
     """
-    if rating is None:
+    if review.overall_rating is None:
         return
-    seller = getattr(product, 'seller', None)
+    seller = getattr(review.product, 'seller', None)
     if seller is None:
         return
     from accounts.models import CustomerProfile
     try:
-        customer = CustomerProfile.objects.get(user=user)
+        customer = CustomerProfile.objects.get(user=review.reviewer)
     except CustomerProfile.DoesNotExist:
         return
-    SellerReview.objects.update_or_create(
-        seller_profile=seller,
-        customer=customer,
-        defaults={'rating': rating},
-    )
+    if review.status == ProductReview.Status.APPROVED:
+        SellerReview.objects.update_or_create(
+            seller_profile=seller,
+            customer=customer,
+            defaults={'rating': review.overall_rating},
+        )
+    else:
+        SellerReview.objects.filter(
+            seller_profile=seller, customer=customer,
+        ).delete()
+        seller.update_rating()
 
 class SellerReview(models.Model):
         seller_profile=models.ForeignKey(SellerProfile, related_name='seller_reviews', on_delete=models.CASCADE)
@@ -103,8 +112,9 @@ class ProductReview(models.Model):
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
-        default=Status.APPROVED,
+        default=Status.PENDING,
         db_index=True,
+        help_text='New reviews start pending admin moderation; only approved reviews are public.',
     )
     image = models.ImageField(upload_to='reviews/%Y/%m/%d', blank=True, validators=[validate_image_file])
     video_url = models.URLField(blank=True)
@@ -137,7 +147,7 @@ class ProductReview(models.Model):
         self.verified_purchase = self._has_paid_order()
         self.is_verified_reviewer = self._is_verified_reviewer()
         super().save(*args, **kwargs)
-        sync_seller_review(self.reviewer, self.product, self.overall_rating)
+        sync_seller_review(self)
 
     def _has_paid_order(self):
         return has_paid_order(self.reviewer, self.product)

@@ -66,6 +66,38 @@ Or visit My [Website]
   review images, courier labels) is stored on the server's ephemeral disk
   otherwise and would be lost on every redeploy.
 
+### Async worker (DB-backed job queue)
+Transactional emails, fulfilment runs and gateway refunds are queued as durable
+`jobs.Job` rows instead of blocking the checkout/payment-webhook request path,
+and drained by a worker process with retries + timeouts (crash-safe leases,
+exponential backoff). Run the worker as a long-lived process (Render `worker`
+service / `Procfile` worker), or from cron with `--once`:
+
+```sh
+python manage.py run_worker --poll 5 --limit 25
+python manage.py run_worker --once --limit 200   # cron-friendly batch
+```
+
+Handlers are idempotent (at-least-once delivery) and retries are capped at
+`JOB_MAX_ATTEMPTS`, after which a job is marked `dead` and reviewable in the
+admin (Job model). A `reconcile_jobs` cron re-arms crashed/stuck jobs even when
+no worker was alive:
+
+```sh
+python manage.py reconcile_jobs
+```
+
+### Refund reconciliation
+Auto-refunds (customer cancellation, insufficient stock, capture-after-cancel)
+are attempted inline and, on any gateway failure, enqueued as a durable
+`refund_payment` job. A `reconcile_refunds` cron sweeps every payment where the
+gateway took the customer's money but it hasn't been returned yet and re-enqueues
+a refund, so a transient Razorpay outage can never strand funds:
+
+```sh
+python manage.py reconcile_refunds --dry-run   # preview first
+```
+
 ### Scheduled jobs (Render cron / Celery beat)
 - **Tracking sync** — poll courier APIs for in-flight shipments and advance the
   timeline:

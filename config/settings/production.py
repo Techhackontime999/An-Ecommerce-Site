@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'legal.apps.LegalConfig',
     'notifications.apps.NotificationsConfig',
     'newsletter.apps.NewsletterConfig',
+    'jobs.apps.JobsConfig',
 ]
 
 MIDDLEWARE = [
@@ -256,6 +257,10 @@ CART_SESSION_ID = 'cart'
 # Order tax rate (decimal fraction, e.g. 0.18 = 18% GST) applied to items + shipping.
 ORDER_TAX_RATE = os.getenv('ORDER_TAX_RATE', '0.18')
 
+# Marketplace commissions & seller payouts.
+MARKETPLACE_COMMISSION_RATE = os.getenv('MARKETPLACE_COMMISSION_RATE', '0.10')
+MARKETPLACE_PAYOUT_MIN_AMOUNT = os.getenv('MARKETPLACE_PAYOUT_MIN_AMOUNT', '100')
+
 # Email — SMTP/SES via env (EMAIL_BACKEND override for SES)
 EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend'
@@ -267,6 +272,16 @@ EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Shop-Seed <no-reply@shop-seed.com>')
+
+# ---------------------------------------------------------------------------
+# Async worker (DB-backed job queue)
+# ---------------------------------------------------------------------------
+# Timeout for the SMTP connection itself so a dead relay can never hang a
+# worker. Job retries/leases drive the worker in jobs/services.py.
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '15'))
+JOB_MAX_ATTEMPTS = int(os.getenv('JOB_MAX_ATTEMPTS', '5'))
+JOB_LEASE_SECONDS = int(os.getenv('JOB_LEASE_SECONDS', '300'))
+JOB_BACKOFF_SECONDS = int(os.getenv('JOB_BACKOFF_SECONDS', '30'))
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'

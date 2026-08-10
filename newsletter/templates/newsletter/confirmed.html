@@ -1,0 +1,54 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}{{ title|default:"Subscription confirmed" }} — Shop-Seed{% endblock %}
+
+{% block content %}
+<section class="nl-page">
+  <div class="nl-wrap">
+    <div class="nl-card">
+      <div class="nl-icon {% if error %}nl-icon-error{% else %}nl-icon-ok{% endif %}">
+        {% if error %}<i class="fas fa-link-slash"></i>{% else %}<i class="fas fa-envelope-open-text"></i>{% endif %}
+      </div>
+      <h1 class="nl-title">{{ title|default:"Subscription confirmed" }}</h1>
+      <p class="nl-message">{{ message }}</p>
+
+      <div class="nl-actions">
+        <a class="nl-btn nl-btn-primary" href="{% url 'shop:home' %}">
+          <i class="fas fa-store" aria-hidden="true"></i> Continue to Shop-Seed
+        </a>
+        <a class="nl-btn nl-btn-ghost" href="{% url 'contact:contact' %}">
+          <i class="fas fa-headset" aria-hidden="true"></i> Contact support
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .nl-page { padding: 5rem 1.25rem; min-height: 60vh; display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(800px 420px at 12% 0%, var(--aq-accent-glow), transparent 60%),
+      radial-gradient(720px 420px at 88% 0%, rgba(30, 64, 175, 0.06), transparent 60%); }
+  .nl-wrap { width: 100%; max-width: 520px; }
+  .nl-card { background: var(--aq-surface); border: 1px solid var(--aq-border);
+    border-radius: var(--aq-radius-lg); padding: 3rem 2.25rem; text-align: center;
+    box-shadow: 0 16px 40px var(--aq-shadow); }
+  .nl-icon { width: 72px; height: 72px; margin: 0 auto 1.5rem; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #fff; }
+  .nl-icon-ok { background: linear-gradient(135deg, #16A34A, #22C55E); box-shadow: 0 12px 28px rgba(22, 163, 74, 0.35); }
+  .nl-icon-error { background: linear-gradient(135deg, #DC2626, #F87171); box-shadow: 0 12px 28px rgba(220, 38, 38, 0.35); }
+  .nl-title { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; color: var(--aq-ink); margin: 0; letter-spacing: -.02em; }
+  .nl-message { margin: 1rem auto 0; max-width: 38ch; color: var(--aq-tertiary); font-size: 1rem; line-height: 1.6; }
+  .nl-actions { display: flex; flex-direction: column; gap: .75rem; margin-top: 2rem; }
+  .nl-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    padding: .8rem 1.5rem; border-radius: 999px; font-weight: 700; font-size: .95rem;
+    text-decoration: none; transition: var(--aq-transition); }
+  .nl-btn-primary { background: linear-gradient(135deg, var(--aq-accent), var(--aq-accent-light)); color: #fff;
+    box-shadow: 0 8px 20px var(--aq-accent-glow); }
+  .nl-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 26px var(--aq-accent-glow); }
+  .nl-btn-ghost { border: 1px solid var(--aq-border); color: var(--aq-ink); background: var(--aq-canvas); }
+  .nl-btn-ghost:hover { border-color: var(--aq-accent-glow); color: var(--aq-accent); }
+</style>
+{% endblock %}

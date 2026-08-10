@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 
@@ -12,6 +13,9 @@ from .models import ProductReview, ReviewReport, SellerReview
 
 class ReviewBaseTestCase(TestCase):
     def setUp(self):
+        # Throttle counters live in the Django cache, which is NOT cleared
+        # between tests; reset it so a POST in one test can never 429 another.
+        cache.clear()
         self.buyer = User.objects.create_user(username='buyer1', password='pass1234')
         self.other = User.objects.create_user(username='other1', password='pass1234')
         category = Category.objects.create(name='Audio', slug='audio')
@@ -168,6 +172,7 @@ class SellerRatingSyncTests(ReviewBaseTestCase):
         ProductReview.objects.create(
             product=self.seller_product, reviewer=self.buyer,
             overall_rating=3, recommendation_rating=50,
+            status=ProductReview.Status.APPROVED,
         )
         sr = SellerReview.objects.get(seller_profile=self.seller, customer__user=self.buyer)
         self.assertEqual(sr.rating, 3)
@@ -178,6 +183,7 @@ class SellerRatingSyncTests(ReviewBaseTestCase):
         review = ProductReview.objects.create(
             product=self.seller_product, reviewer=self.buyer,
             overall_rating=2, recommendation_rating=40,
+            status=ProductReview.Status.APPROVED,
         )
         review.overall_rating = 5
         review.save()
@@ -194,10 +200,12 @@ class SellerRatingSyncTests(ReviewBaseTestCase):
         ProductReview.objects.create(
             product=self.seller_product, reviewer=self.buyer,
             overall_rating=4, recommendation_rating=80,
+            status=ProductReview.Status.APPROVED,
         )
         ProductReview.objects.create(
             product=self.seller_product, reviewer=other_buyer,
             overall_rating=2, recommendation_rating=30,
+            status=ProductReview.Status.APPROVED,
         )
         self.seller.refresh_from_db()
         self.assertEqual(float(self.seller.rating), 3.0)
@@ -207,6 +215,7 @@ class SellerRatingSyncTests(ReviewBaseTestCase):
         ProductReview.objects.create(
             product=self.product, reviewer=self.buyer,
             overall_rating=4, recommendation_rating=80,
+            status=ProductReview.Status.APPROVED,
         )
         self.assertEqual(SellerReview.objects.count(), 0)
 
@@ -215,6 +224,7 @@ class SellerRatingSyncTests(ReviewBaseTestCase):
         ProductReview.objects.create(
             product=self.seller_product, reviewer=self.buyer,
             overall_rating=4, recommendation_rating=80,
+            status=ProductReview.Status.APPROVED,
         )
         self.assertEqual(SellerReview.objects.count(), 0)
         self.seller.refresh_from_db()
@@ -224,6 +234,7 @@ class SellerRatingSyncTests(ReviewBaseTestCase):
         ProductReview.objects.create(
             product=self.seller_product, reviewer=self.buyer,
             overall_rating=5, recommendation_rating=90,
+            status=ProductReview.Status.APPROVED,
         )
         sr = SellerReview.objects.get(seller_profile=self.seller, customer__user=self.buyer)
         self.assertEqual(sr.rating, 5)
@@ -234,8 +245,92 @@ class SellerRatingSyncTests(ReviewBaseTestCase):
         ProductReview.objects.create(
             product=self.product, reviewer=self.buyer,
             overall_rating=4, recommendation_rating=70,
+            status=ProductReview.Status.APPROVED,
         )
         self.assertEqual(SellerReview.objects.count(), 0)
+
+
+class ProductReviewModerationTests(ReviewBaseTestCase):
+    """Compliance: new reviews start PENDING and only approved reviews are public."""
+
+    def setUp(self):
+        super().setUp()
+        self.seller_user = User.objects.create_user(username='seller2', password='pass1234')
+        self.seller = SellerProfile.objects.create(
+            user=self.seller_user,
+            shop_name='Acme Moderation',
+            bank_account='1234567890',
+            phone='9876543210',
+            address='1 Shop St',
+        )
+        self.seller_product = Product.objects.create(
+            category=self.product.category,
+            name='Moderated Headphones',
+            slug='moderated-headphones',
+            price=Decimal('99.99'),
+            seller=self.seller,
+        )
+        CustomerProfile.objects.create(
+            user=self.buyer, phone='9999999999', address='5 Test St',
+        )
+
+    def test_new_reviews_default_to_pending(self):
+        review = ProductReview.objects.create(
+            product=self.product, reviewer=self.buyer,
+            overall_rating=4, recommendation_rating=70,
+        )
+        self.assertEqual(review.status, ProductReview.Status.PENDING)
+        self.assertFalse(review.is_approved)
+
+    def test_pending_review_does_not_update_seller_rating(self):
+        ProductReview.objects.create(
+            product=self.seller_product, reviewer=self.buyer,
+            overall_rating=1, recommendation_rating=10,
+        )
+        self.assertEqual(SellerReview.objects.count(), 0)
+        self.seller.refresh_from_db()
+        self.assertEqual(float(self.seller.rating), 0.0)
+
+    def test_pending_review_hidden_from_public_list(self):
+        review = ProductReview.objects.create(
+            product=self.product, reviewer=self.buyer,
+            overall_rating=4, recommendation_rating=70,
+            review_text='Pending review should stay hidden.',
+        )
+        self.assertFalse(review.is_approved)
+        url = reverse('reviews:product_review_list', args=[self.product.pk])
+        response = self.client.get(url)
+        self.assertNotContains(response, 'Pending review should stay hidden.')
+
+    def test_rejecting_approved_review_removes_seller_rating(self):
+        review = ProductReview.objects.create(
+            product=self.seller_product, reviewer=self.buyer,
+            overall_rating=4, recommendation_rating=70,
+            status=ProductReview.Status.APPROVED,
+        )
+        self.assertEqual(SellerReview.objects.count(), 1)
+        review.status = ProductReview.Status.REJECTED
+        review.save()
+        self.assertEqual(SellerReview.objects.count(), 0)
+        self.seller.refresh_from_db()
+        self.assertEqual(float(self.seller.rating), 0.0)
+
+    def test_create_review_is_throttled(self):
+        from django.core.cache import cache
+        cache.clear()
+        self._make_paid_purchase()
+        self.client.login(username='buyer1', password='pass1234')
+        url = reverse('reviews:create_product_review', args=[self.product.pk])
+        payload = {
+            'overall_rating': 4,
+            'recommendation_rating': 70,
+            'review_text': 'Throttle test.',
+        }
+        for _ in range(5):
+            response = self.client.post(url, payload)
+            self.assertNotEqual(response.status_code, 429)
+        response = self.client.post(url, payload)
+        self.assertEqual(response.status_code, 429)
 
 
 class ProductRatingPropertyTests(ReviewBaseTestCase):

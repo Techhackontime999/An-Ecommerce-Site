@@ -69,6 +69,15 @@
           <span class="seller-dash-stat-label">Pending Orders</span>
         </div>
       </div>
+      <div class="seller-dash-stat-card">
+        <div class="seller-dash-stat-icon" style="background: rgba(34, 197, 94, 0.12); color: #16A34A;">
+          <i class="fas fa-hand-holding-usd"></i>
+        </div>
+        <div class="seller-dash-stat-body">
+          <span class="seller-dash-stat-value">{% price payout_balance %}</span>
+          <span class="seller-dash-stat-label">Available Balance</span>
+        </div>
+      </div>
     </div>
 
     <div class="seller-dash-actions">
@@ -79,6 +88,10 @@
       <a href="{% url 'seller:orders' %}" class="seller-dash-action-card">
         <i class="fas fa-clipboard-list"></i>
         <span>Manage Orders</span>
+      </a>
+      <a href="{% url 'seller:payouts' %}" class="seller-dash-action-card">
+        <i class="fas fa-wallet"></i>
+        <span>Earnings & Payouts</span>
       </a>
       <a href="{% url 'seller:private_profile' %}" class="seller-dash-action-card">
         <i class="fas fa-store-alt"></i>
