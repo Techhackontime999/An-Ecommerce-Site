@@ -23,6 +23,8 @@ you agree to follow it.
 - [Code style](#code-style)
 - [Security](#security)
 - [Reporting issues](#reporting-issues)
+- [License and contributions](#license-and-contributions)
+- [Contributor recognition](#contributor-recognition)
 
 ## Code of Conduct
 
@@ -195,12 +197,26 @@ public issue for a live security bug.
 
 ## License and contributions
 
-Shop-Seed is commercially licensed (see [LICENSE](./LICENSE)). Because the
-platform is sold to end customers, please note:
+Shop-Seed is a **commercial product** (see [LICENSE](./LICENSE)). To keep the
+project saleable while accepting community help, every contribution must be
+covered by the [Contributor License Agreement](./CLA.md):
 
 - Only open pull requests for **your own original work**; do not paste code
   from third-party projects unless it is compatible with a commercial license.
-- By submitting a pull request you agree that your contribution becomes part
-  of the commercial Shop-Seed codebase and may be licensed, sold, and
-  distributed under the Shop-Seed Commercial License with no separate
-  attribution requirement.
+- By opening a pull request (or checking the CLA box in the PR template), you
+  agree to the [CLA](./CLA.md). It grants the project owner a perpetual,
+  irrevocable, sublicensable license to use, modify, and **relicense** your
+  contribution as part of the commercial Shop-Seed product.
+- Read the full terms in [CLA.md](./CLA.md) before contributing.
+
+## Contributor recognition
+
+You can list your work on this project on your resume, portfolio, or social
+profiles, and you will be credited in [CONTRIBUTORS.md](./CONTRIBUTORS.md):
+
+- Mention the name/handle you want credited in your PR description.
+- Or open a follow-up PR titled `docs: add <your name> to CONTRIBUTORS.md`
+  after your change is merged.
+
+What is **not** allowed: claiming to be a maintainer/owner of the project or
+implying ownership of the codebase.

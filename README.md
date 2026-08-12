@@ -420,6 +420,12 @@ Contributions are welcome — bug fixes, features and documentation. Please read
 how to run the checks and open a pull request) and follow our
 [Code of Conduct](./CODE_OF_CONDUCT.md).
 
+Because Shop-Seed is a **commercial product**, contributors must agree to the
+[Contributor License Agreement](./CLA.md) (the PR template includes the
+acknowledgement checkbox). Contributors are credited in
+[CONTRIBUTORS.md](./CONTRIBUTORS.md) and may list their work on this project on
+their own portfolios — but must not claim ownership of the project.
+
 ---
 
 ## License
