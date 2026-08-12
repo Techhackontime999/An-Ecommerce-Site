@@ -534,7 +534,6 @@ def refund_payment(payment, amount=None, note='Refund requested via Shop-Seed ad
         return True, 'already_refunded'
 
     old_status = payment.status
-    client = get_razorpay_client()
     payment_id = payment.razorpay_payment_id
     if not payment_id:
         payment.status = 'refunded'
@@ -542,6 +541,8 @@ def refund_payment(payment, amount=None, note='Refund requested via Shop-Seed ad
         record_audit(payment, old_status, 'refunded', source=source, actor=actor,
                      message='Marked refunded — no gateway transaction id to refund.')
         return True, 'marked_refunded_no_gateway_id'
+
+    client = get_razorpay_client()
 
     try:
         response = client.payment.refund(
