@@ -26,7 +26,9 @@ from faq.models import FAQ, Story
 from about.models import AboutSection, TeamMember
 from contact.models import ContactMessage
 from documentation.models import DocumentationSection
-from shipping.models import ShippingAddress, ShippingMethod, Shipment
+from shipping.models import ShippingAddress, ShippingMethod
+from logistics.models import Shipment
+from logistics.constants import ShipmentStatus, PaymentMode
 from newsletter.models import Subscriber
 from preferences.models import UserPreference
 from notifications.models import Notification as AppNotification, NotificationPreference
@@ -863,19 +865,23 @@ class Command(BaseCommand):
                 for item in order.items.all():
                     self.paid_combos.add((user.id, item.product_id))
 
-                status = random.choice(['shipped', 'in_transit', 'delivered', 'delivered'])
+                status = random.choice([
+                    ShipmentStatus.PICKED_UP,
+                    ShipmentStatus.IN_TRANSIT,
+                    ShipmentStatus.DELIVERED,
+                ])
                 shipment, _ = Shipment.objects.get_or_create(
                     order=order,
                     defaults={
-                        'shipping_address': address,
-                        'shipping_method': method,
+                        'destination_pincode': order.postal_code or address.postal_code,
                         'tracking_number': f'SS{random.randint(10**9, 10**10 - 1)}',
                         'status': status,
+                        'payment_mode': PaymentMode.PREPAID,
                     },
                 )
-                if status in ('shipped', 'in_transit', 'delivered') and not shipment.shipped_at:
-                    shipment.shipped_at = timezone.now() - timedelta(days=1)
-                if status == 'delivered' and not shipment.delivered_at:
+                if status != ShipmentStatus.ORDER_CONFIRMED and not shipment.picked_up_at:
+                    shipment.picked_up_at = timezone.now() - timedelta(days=1)
+                if status == ShipmentStatus.DELIVERED and not shipment.delivered_at:
                     shipment.delivered_at = timezone.now()
                 shipment.save()
             created += 1
