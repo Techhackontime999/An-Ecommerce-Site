@@ -1,7 +1,7 @@
 # Shop-Seed Invoice Template
 
-Fill in the placeholders and send as PDF. Number invoices sequentially
-(`SS-0001`, `SS-0002`, ...). Include GST/tax line if applicable.
+For the simple model: **one-time payment → source code delivered.** Fill in the
+placeholders and send as PDF. Number invoices sequentially (`SS-0001`, ...).
 
 ---
 
@@ -9,7 +9,7 @@ Fill in the placeholders and send as PDF. Number invoices sequentially
 
 **Invoice No:** SS-______
 **Date:** ____________
-**Payment due:** within [ 7 ] days
+**Payment due:** upon receipt
 
 **From (Licensor):**
 Techhackontime999 (AMIT KUMAR)
@@ -26,31 +26,27 @@ amitkumarkh01012006@gmail.com
 
 | # | Description | Qty | Unit Price | Amount |
 |---|---|---|---|---|
-| 1 | Shop-Seed license — [ Standard / Pro / White-label ] | 1 | [ e.g. USD 199 ] | [ USD 199 ] |
-| 2 | Annual maintenance & support | 1 | [ e.g. USD 49 ] | [ USD 49 ] |
-| 3 | Custom development: [ description ] | [ h ] | [ rate ] | [ total ] |
+| 1 | Shop-Seed source code license — one-time, for own business use (modify/rebrand allowed; resale not allowed) | 1 | [ e.g. USD 199 ] | [ USD 199 ] |
+| 2 | Optional: installation/setup assistance | 1 | [ e.g. USD 30 ] | [ USD 30 ] |
 | | **Subtotal** | | | **[ total ]** |
 | | Tax (GST/VAT) @ [ 18 ]% | | | **[ tax ]** |
 | | **Total due** | | | **[ grand total ]** |
 
 **Payment details**
 
-- Bank: [ Bank name, branch, account name, account no., IFSC/SWIFT ]
-- UPI: [ UPI ID ] (if applicable)
-- Razorpay/Stripe invoice link: [ link ]
-- Cryptocurrency: [ optional ]
+- Bank: [ Bank name, account name, account no., IFSC/SWIFT ]
+- UPI: [ UPI ID ]
+- Gumroad/Paddle payment link: [ link ]
 
-**License reference**
+**Delivery**
 
-- License key / order ID: [ ______ ]
-- Licensed to: [ Licensee name ]
-- Deployment(s) covered: [ domain(s) ]
+- Source code delivered: [ via zip / private GitHub repo — link ] once payment confirms.
+- Licensee: [ name ] — may use for their own store(s) only; may not resell.
 
 ---
 
-**Terms:** Payment due within 7 days. Late payment may suspend the license until
-received. License is granted upon full payment. See the Customer License
-Agreement for full terms.
+**Terms:** Payment due upon receipt. Source code is delivered after full
+payment. See the Source Code License for full terms.
 
 Thanks for your business!
 
