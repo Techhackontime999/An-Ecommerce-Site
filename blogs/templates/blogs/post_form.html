@@ -130,7 +130,7 @@
             <div class="blog-product-picker">
               <div class="blog-product-add">
                 <i class="fas fa-link"></i>
-                <input type="url" id="product-url" placeholder="Paste a product link, e.g. shop-seed.com/shop/12/name" autocomplete="off">
+                <input type="url" id="product-url" placeholder="Paste a product link, e.g. your-domain.com/shop/12/name" autocomplete="off">
                 <button type="button" class="btn-aq btn-aq-primary btn-aq-sm" id="product-add-btn"><i class="fas fa-plus"></i> Add</button>
               </div>
               <p class="blog-product-status" id="product-status" hidden></p>
@@ -535,7 +535,7 @@
     if (seoCount) seoCount.textContent = Math.min(d.length, 160);
     if (seoUrl) {
       var slug = slugify(titleInput ? titleInput.value : '') || 'your-post-slug';
-      seoUrl.textContent = 'shop-seed.com/blog/post/' + (postId || '#') + '/' + slug + '/';
+      seoUrl.textContent = window.location.origin + '/blog/post/' + (postId || '#') + '/' + slug + '/';
     }
   }
 

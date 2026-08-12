@@ -27,9 +27,13 @@ PAYMENTS_CURRENCY = os.getenv("PAYMENTS_CURRENCY", "INR")
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'shop-seed.onrender.com']
-
-CSRF_TRUSTED_ORIGINS = ['https://shop-seed.onrender.com','https://localhost']
+# Keep the dev allow-list tight. Override via env when developing against a
+# LAN IP or a tunneled domain (e.g. ngrok) — your production host belongs in
+# .env / platform env vars, never hardcoded here.
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()]
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()] or [
+    'http://localhost:8000', 'http://127.0.0.1:8000',
+]
 
 INSTALLED_APPS = [
     'core',

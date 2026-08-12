@@ -4,7 +4,16 @@
 # 1. Push this repo to GitHub
 # 2. Go to https://dashboard.render.com/blueprints
 # 3. Connect your repo — Render auto-detects this file
-# 4. Set the missing SECRET_KEY, RAZORPAY_*, and SUPERUSER vars manually
+# 4. Set the missing SECRET_KEY, FIELD_ENCRYPTION_KEY, RAZORPAY_*, and
+#    SUPERUSER vars manually (marked `sync: false`)
+#
+# Python version is pinned in runtime.txt (python-3.13.3).
+#
+# Plan note: the free tier only includes ONE web service + ONE PostgreSQL
+# database. The background worker and the cron services below require a paid
+# plan (Starter or above). On a purely free deployment, delete the `worker`
+# and `cron` blocks: the site will still run, but background jobs (emails,
+# fulfilment, refund retries) will not drain until a worker process exists.
 # =============================================================================
 databases:
   - name: ecommerce-db
@@ -34,10 +43,12 @@ services:
     # the start command must stay a pure gunicorn so they never run twice.
     startCommand: gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers=2 --access-logfile=-
     preDeployCommand: bash setup.sh
-    healthCheckPath: /
+    healthCheckPath: /healthz
     envVars:
       - key: DJANGO_ENV
         value: production
+      - key: PYTHONUNBUFFERED
+        value: "true"
       - key: SECRET_KEY
         sync: false
       - key: FIELD_ENCRYPTION_KEY
@@ -77,6 +88,8 @@ services:
     envVars:
       - key: DJANGO_ENV
         value: production
+      - key: PYTHONUNBUFFERED
+        value: "true"
       - key: SECRET_KEY
         sync: false
       - key: FIELD_ENCRYPTION_KEY
@@ -105,6 +118,8 @@ cron:
     envVars:
       - key: DJANGO_ENV
         value: production
+      - key: PYTHONUNBUFFERED
+        value: "true"
       - key: SECRET_KEY
         sync: false
       - key: FIELD_ENCRYPTION_KEY
@@ -129,6 +144,8 @@ cron:
     envVars:
       - key: DJANGO_ENV
         value: production
+      - key: PYTHONUNBUFFERED
+        value: "true"
       - key: SECRET_KEY
         sync: false
       - key: FIELD_ENCRYPTION_KEY
@@ -147,6 +164,8 @@ cron:
     envVars:
       - key: DJANGO_ENV
         value: production
+      - key: PYTHONUNBUFFERED
+        value: "true"
       - key: SECRET_KEY
         sync: false
       - key: FIELD_ENCRYPTION_KEY
@@ -165,6 +184,8 @@ cron:
     envVars:
       - key: DJANGO_ENV
         value: production
+      - key: PYTHONUNBUFFERED
+        value: "true"
       - key: SECRET_KEY
         sync: false
       - key: FIELD_ENCRYPTION_KEY

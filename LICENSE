@@ -1,10 +1,115 @@
-Copyright (c) 2025 Techhackontime999 (AMIT KUMAR)
+Shop-Seed Commercial License
 
-This software is provided with permission to use and modify for personal or internal project purposes only.
+Copyright (c) 2025-2026 Techhackontime999 (AMIT KUMAR)
+All rights reserved.
 
-Redistribution, resale, or publishing (including modified versions) of the source code or binaries derived from this software is strictly prohibited without prior written permission from the author.
+This is a commercial license agreement between you ("Licensee") and the
+licensor ("Licensor": Techhackontime999 / AMIT KUMAR) governing your use of
+the Shop-Seed e-commerce platform software, its source code, and its
+accompanying documentation (collectively, the "Software").
 
-This software is provided "as is", without warranty of any kind, express or implied.
+Paying the applicable license fee (or otherwise acquiring a valid license) and
+using the Software constitutes acceptance of these terms.
 
-For inquiries or commercial licensing, contact [amitkumarkh01012006@gmail.com , mrtechhackontime999@gmail.com].
+-----------------------------------------------------------------------------
+1. GRANT OF LICENSE
+-----------------------------------------------------------------------------
 
+Subject to the terms of this license, the Licensor grants the Licensee a
+non-exclusive, non-transferable, revocable right to:
+
+  a. Use, copy, modify, and adapt the Software;
+  b. Install and deploy the Software on the Licensee's own servers, virtual
+     machines, or cloud infrastructure;
+  c. Operate the Software to run the Licensee's own e-commerce business,
+     including selling products and services through any storefront built
+     with it; and
+  d. Develop and operate derivative works of the Software for the Licensee's
+     own internal business use, provided those derivative works remain
+     subject to this license.
+
+-----------------------------------------------------------------------------
+2. PERMITTED USE
+-----------------------------------------------------------------------------
+
+The Licensee may:
+
+  - Operate any number of storefronts for the Licensee's own business(es);
+  - Customize the Software's features, design, integrations, and branding;
+  - Engage employees, contractors, and service providers to work on the
+    Licensee's deployment, provided they are bound by the terms of this
+    license.
+
+-----------------------------------------------------------------------------
+3. RESTRICTIONS
+-----------------------------------------------------------------------------
+
+The Licensee may NOT, without prior written consent from the Licensor:
+
+  a. Sell, resell, sublicense, rent, lease, or redistribute the Software — in
+     whole or in part, or any derivative work of it — to any third party as a
+     software product, as source code, or as part of a bundle offered for
+     sale;
+  b. Offer the Software (or a derivative work) to third parties as a hosted,
+     multi-tenant, or subscription platform, marketplace, or SaaS service;
+  c. Remove, obscure, or alter any copyright, trademark, or license notices
+     present in the Software; or
+  d. Use the Software in any way that violates applicable law.
+
+Nothing in this license grants the Licensee ownership of the Software or of
+any trademark associated with it. All rights not expressly granted above are
+reserved by the Licensor.
+
+-----------------------------------------------------------------------------
+4. FEES AND COMMERCIAL USE
+-----------------------------------------------------------------------------
+
+The right to use the Software is granted in exchange for the applicable
+license fee or commercial agreement agreed between the parties. The Licensor
+may license the Software to other parties on the same or different terms,
+including through resellers, marketplaces, or direct sales, without any
+obligation to the Licensee.
+
+-----------------------------------------------------------------------------
+5. NO WARRANTY
+-----------------------------------------------------------------------------
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. THE ENTIRE RISK AS TO
+THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH THE LICENSEE.
+
+-----------------------------------------------------------------------------
+6. LIMITATION OF LIABILITY
+-----------------------------------------------------------------------------
+
+IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
+OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------------------------------------------------------------------------
+7. TERMINATION
+-----------------------------------------------------------------------------
+
+This license is effective until terminated. It terminates automatically
+without notice if the Licensee fails to comply with any term of this license.
+Upon termination, the Licensee must cease all use of the Software and destroy
+all copies in the Licensee's possession or control.
+
+-----------------------------------------------------------------------------
+8. GOVERNING LAW
+-----------------------------------------------------------------------------
+
+This license shall be governed by and construed in accordance with the laws
+of India, without regard to its conflict-of-law provisions.
+
+-----------------------------------------------------------------------------
+9. CONTACT
+-----------------------------------------------------------------------------
+
+For commercial licensing, reseller or marketplace inquiries, white-label
+agreements, or permission for any use not expressly granted above, contact:
+
+  - amitkumarkh01012006@gmail.com
+  - mrtechhackontime999@gmail.com
