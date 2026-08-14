@@ -21,6 +21,7 @@
 
   var enabled = document.getElementById('id_enabled');
   var initialType = document.getElementById('id_initial_type');
+  var skeletonEnabled = document.getElementById('id_skeleton_enabled');
   var exitAnim = document.getElementById('id_exit_animation');
   var bg = document.getElementById('id_background_color');
   var accent = document.getElementById('id_accent_color');
@@ -34,6 +35,7 @@
     var cfg = {
       enabled: enabled ? enabled.checked : true,
       initial_type: initialType ? initialType.value : (base.initial_type || 'seed'),
+      skeleton_enabled: skeletonEnabled ? skeletonEnabled.checked : true,
       exit_animation: exitAnim ? exitAnim.value : (base.exit_animation || 'fade'),
       background_color: bg ? bg.value : (base.background_color || '#0c1017'),
       accent_color: accent ? accent.value : (base.accent_color || '#ff7a2f'),
@@ -66,6 +68,10 @@
       setNote('Initial loader is off. Choose an animation to preview.');
       return;
     }
+    if (cfg.initial_type === 'skeleton' && !cfg.skeleton_enabled) {
+      setNote('Skeleton screen is disabled — enable it to preview.');
+      return;
+    }
     var ctrl = window.ShopSeedLoader.preview(cfg, mount);
     if (ctrl && ctrl.play) ctrl.play();
   }
@@ -75,6 +81,7 @@
   }
 
   bindChange(initialType, renderPreview);
+  bindChange(skeletonEnabled, renderPreview);
   bindChange(exitAnim, renderPreview);
   bindChange(bg, renderPreview);
   bindChange(accent, renderPreview);

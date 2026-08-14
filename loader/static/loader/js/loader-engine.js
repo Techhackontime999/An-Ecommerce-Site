@@ -260,6 +260,7 @@
   function decideInitial(cfg) {
     if (!cfg || !cfg.enabled) return 'off';
     if (cfg.initial_type === 'none') return 'off';
+    if (cfg.initial_type === 'skeleton' && !cfg.skeleton_enabled) return 'off';
     if (!cfg['device_' + deviceType()]) return 'device';
     if (cfg.respect_reduced_motion && reducedMotion()) return 'motion';
     if (cfg.show_on === 'first_visit') {

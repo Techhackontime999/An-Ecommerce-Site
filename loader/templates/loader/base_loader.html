@@ -1,7 +1,7 @@
 {% load i18n %}
 {% if loader_config %}
 {{ loader_config|json_script:"ss-loader-config" }}
-{% if loader_config.initial_type != 'none' %}
+{% if loader_config.initial_type != 'none' and loader_config.initial_type != 'skeleton' or loader_config.initial_type == 'skeleton' and loader_config.skeleton_enabled %}
 <div id="ss-loader"
      class="ss-loader ss-loader--{{ loader_config.initial_type }}"
      data-type="{{ loader_config.initial_type }}"
