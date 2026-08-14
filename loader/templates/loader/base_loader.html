@@ -1,0 +1,69 @@
+{% load i18n %}
+{% if loader_config %}
+{{ loader_config|json_script:"ss-loader-config" }}
+{% if loader_config.initial_type != 'none' %}
+<div id="ss-loader"
+     class="ss-loader ss-loader--{{ loader_config.initial_type }}"
+     data-type="{{ loader_config.initial_type }}"
+     data-mark="{{ platform_settings.logo_mark|default:'S' }}"
+     data-site-name="{{ platform_settings.site_name|default:'Shop-Seed' }}"
+     style="--ss-bg: {{ loader_config.background_color }}; --ss-accent: {{ loader_config.accent_color }};"
+     role="status" aria-live="polite" aria-label="{% trans 'Loading Shop-Seed' %}">
+  <div class="ss-loader__scene">
+    {% if loader_config.initial_type == 'seed' %}
+    <div class="ss-seed">
+      <span class="ss-seed__soil"></span>
+      <span class="ss-seed__grain"></span>
+      <span class="ss-seed__sprout">
+        <span class="ss-seed__leaf-wrap--l"><span class="ss-seed__leaf"></span></span>
+        <span class="ss-seed__leaf-wrap--r"><span class="ss-seed__leaf"></span></span>
+      </span>
+    </div>
+    <span class="ss-brand">
+      {% if loader_config.logo_image %}
+      <img class="ss-brand__img" src="{{ loader_config.logo_image }}" alt="">
+      {% else %}
+      <span class="ss-brand__mark is-pulse">{{ platform_settings.logo_mark|default:'S' }}</span>
+      {% endif %}
+      <span class="ss-brand__name">{{ loader_config.logo_text|default:platform_settings.site_name|default:'Shop-Seed' }}</span>
+    </span>
+    {% elif loader_config.initial_type == 'logo' %}
+    <span class="ss-brand">
+      <span class="ss-brand__mark">
+        <span class="ss-ring"></span>
+        {% if loader_config.logo_image %}
+        <img class="ss-brand__img" src="{{ loader_config.logo_image }}" alt="">
+        {% else %}
+        {{ platform_settings.logo_mark|default:'S' }}
+        {% endif %}
+      </span>
+      <span class="ss-brand__name">{{ loader_config.logo_text|default:platform_settings.site_name|default:'Shop-Seed' }}</span>
+    </span>
+    {% elif loader_config.initial_type == 'spinner' %}
+    <span class="ss-spinner"></span>
+    {% elif loader_config.initial_type == 'progress' %}
+    <div class="ss-progress">
+      <div class="ss-progress__bar"></div>
+      <div class="ss-progress__hint">{% trans 'Loading experience' %}</div>
+    </div>
+    {% elif loader_config.initial_type == 'skeleton' %}
+    <div class="ss-skeleton">
+      <div class="ss-skeleton__bar"></div>
+      <div class="ss-skeleton__hero"></div>
+      <div class="ss-skeleton__section">
+        <div class="ss-skeleton__title"></div>
+        <div class="ss-skeleton__grid">
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+<span id="ss-navbar" class="ss-navbar" aria-hidden="true" style="--ss-accent: {{ loader_config.accent_color }};"></span>
+<noscript><style>#ss-loader{display:none !important}</style></noscript>
+{% endif %}

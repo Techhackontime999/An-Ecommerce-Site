@@ -100,13 +100,14 @@
       </a>
 
       <div class="aq-nav-group">
-        <button type="button" id="aq-nav-group-studio" class="aq-nav-item aq-nav-group-toggle{% if '/admin/platform-studio/' in request.path %} is-active{% endif %}" aria-expanded="false">
+        <button type="button" id="aq-nav-group-studio" class="aq-nav-item aq-nav-group-toggle{% if '/admin/platform-studio/' in request.path or '/admin/loader-studio/' in request.path %} is-active{% endif %}" aria-expanded="false">
           <span class="aq-nav-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
           <span class="aq-nav-lbl">{% translate 'Platform Studio' %}</span>
           <svg class="aq-nav-group-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="aq-nav-sub">
           <div class="aq-nav-label">{% translate 'Customize Site' %}</div>
+          <a href="{% url 'admin:loader_studio' %}" class="aq-nav-subitem{% if '/admin/loader-studio/' in request.path %} is-active{% endif %}">{% translate 'Loader Studio' %}</a>
           <a href="{% url 'admin:platform_studio' %}?group=brand" class="aq-nav-subitem">{% translate 'Brand & Identity' %}</a>
           <a href="{% url 'admin:platform_studio' %}?group=appearance" class="aq-nav-subitem">{% translate 'Appearance' %}</a>
           <a href="{% url 'admin:platform_studio' %}?group=homepage" class="aq-nav-subitem">{% translate 'Homepage' %}</a>
@@ -205,7 +206,7 @@
   if (studioBtn) {
     var studioGroup = studioBtn.closest('.aq-nav-group');
     var studioStored = localStorage.getItem('django.admin.aqNavStudioOpen');
-    var onStudio = window.location.pathname.indexOf('/admin/platform-studio/') !== -1;
+    var onStudio = window.location.pathname.indexOf('/admin/platform-studio/') !== -1 || window.location.pathname.indexOf('/admin/loader-studio/') !== -1;
     if (studioStored === 'true' || onStudio) {
       studioGroup.classList.add('is-open');
       studioBtn.setAttribute('aria-expanded', 'true');

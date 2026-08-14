@@ -34,6 +34,7 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'), name='robots'),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('', include('reviews.urls', namespace='reviews')),
+    path('', include('loader.urls')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path(settings.ADMIN_URL, include('core.admin_urls')),
     path('todays-deals/', include('deals.urls', namespace='deals')),

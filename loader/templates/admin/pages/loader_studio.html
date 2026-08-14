@@ -1,0 +1,255 @@
+{% extends "admin/pages/base_page.html" %}
+{% load static %}
+
+{% block page_title %}Loader Studio{% endblock %}
+{% block page_subtitle %}Design the Shop-Seed Loader Experience — the brand intro, page-transition loader, and how it behaves on every device.{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'loader/css/loader.css' %}">
+<style>
+  .ls-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  .ls-card { background: var(--aq-card, #fff); border: 1px solid var(--aq-border, #e5e7eb); border-radius: 16px; padding: 22px; }
+  .ls-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .ls-card-head h3 { margin: 0; font-size: 16px; font-weight: 700; }
+  .ls-card-head p { margin: 4px 0 0; font-size: 12.5px; color: var(--aq-muted, #6b7280); }
+  .ls-section { margin-bottom: 22px; }
+  .ls-section:last-child { margin-bottom: 0; }
+  .ls-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--aq-accent, #f59e0b); margin: 0 0 12px; }
+  .ls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+  .ls-field { display: flex; flex-direction: column; gap: 6px; }
+  .ls-field--full { grid-column: 1 / -1; }
+  .ls-field label { font-size: 12.5px; font-weight: 600; }
+  .ls-field input[type="text"], .ls-field input[type="number"], .ls-field select, .ls-field input[type="file"] {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--aq-border, #d1d5db); border-radius: 8px;
+    background: var(--aq-input-bg, #fff); font-size: 13px;
+  }
+  .ls-field input[type="color"] { width: 100%; height: 38px; padding: 3px; border: 1px solid var(--aq-border, #d1d5db); border-radius: 8px; background: #fff; cursor: pointer; }
+  .ls-field input[type="file"] { padding: 6px; }
+  .ls-help { font-size: 11.5px; color: var(--aq-muted, #6b7280); }
+  .ls-check { display: flex; align-items: flex-start; gap: 8px; }
+  .ls-check input { margin-top: 2px; }
+  .ls-check .ls-check-body { display: flex; flex-direction: column; gap: 2px; }
+  .ls-check .ls-check-label { font-weight: 600; font-size: 13px; }
+  .ls-check .ls-help { font-size: 11.5px; }
+  .ls-error { color: #dc2626; font-size: 12px; margin: 4px 0 0; }
+
+  /* Preview panel */
+  .ls-preview-sticky { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .ls-preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .ls-devices { display: inline-flex; gap: 4px; background: rgba(0,0,0,.05); border-radius: 9px; padding: 4px; }
+  .ls-device-btn { border: 0; background: transparent; padding: 6px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; color: var(--aq-muted, #6b7280); cursor: pointer; }
+  .ls-device-btn.is-active { background: #fff; color: #111827; box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+  .ls-replay-btn { border: 0; background: var(--aq-accent, #f59e0b); color: #fff; font-weight: 700; font-size: 12.5px; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+  .ls-preview-stage { position: relative; border-radius: 18px; overflow: hidden; background: linear-gradient(145deg, #141b24, #0b0e14); min-height: 420px; display: flex; align-items: center; justify-content: center; }
+  .ls-preview-frame { width: 100%; height: 420px; position: relative; transition: width .3s ease; }
+  .ls-preview-frame.is-tablet { width: 620px; margin: 0 auto; }
+  .ls-preview-frame.is-mobile { width: 320px; margin: 0 auto; }
+  .ls-preview-note { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: rgba(255,255,255,.7); font-size: 13px; padding: 20px; }
+  .ls-meta { display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--aq-muted, #6b7280); flex-wrap: wrap; }
+  .ls-live { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: #16a34a; }
+  .ls-live::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 0 rgba(34,197,94,.5); animation: ls-blink 1.6s infinite; }
+  @keyframes ls-blink { 70% { box-shadow: 0 0 0 7px rgba(34,197,94,0); } }
+  .ls-version { background: rgba(0,0,0,.06); padding: 3px 9px; border-radius: 99px; font-weight: 600; }
+  .ls-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .ls-actions .dash-btn { min-width: 120px; justify-content: center; }
+
+  @media (max-width: 1100px) {
+    .ls-layout { grid-template-columns: 1fr; }
+    .ls-preview-sticky { position: static; }
+    .ls-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block page_actions %}
+<a href="/" target="_blank" rel="noopener" class="dash-btn dash-btn-outline">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+  View Site
+</a>
+<a href="{% url 'admin:loader_loaderconfig_changelist' %}" class="dash-btn dash-btn-outline">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+  Advanced: Raw Configuration
+</a>
+{% endblock %}
+
+{% block page_content %}
+{{ config_dict|json_script:"ss-loader-studio-config" }}
+<div class="ls-layout">
+  <div class="ls-card">
+    <form method="post" enctype="multipart/form-data" id="ls-form" novalidate>
+      {% csrf_token %}
+
+      <div class="ls-section">
+        <div class="ls-field ls-check" style="margin-bottom: 16px;">
+          {{ form.enabled }}
+          <div class="ls-check-body">
+            <label class="ls-check-label" for="{{ form.enabled.id_for_label }}">Enable the Loader Experience System</label>
+            <span class="ls-help">{{ form.enabled.help_text }}</span>
+          </div>
+        </div>
+
+        <div class="ls-section-title">Initial loader</div>
+        <div class="ls-grid">
+          <div class="ls-field">
+            <label for="{{ form.initial_type.id_for_label }}">Animation</label>
+            {{ form.initial_type }}
+            <span class="ls-help">{{ form.initial_type.help_text }}</span>
+          </div>
+          <div class="ls-field">
+            <label for="{{ form.exit_animation.id_for_label }}">Exit animation</label>
+            {{ form.exit_animation }}
+            <span class="ls-help">{{ form.exit_animation.help_text }}</span>
+          </div>
+          <div class="ls-field">
+            <label for="{{ form.duration_ms.id_for_label }}">Duration (ms)</label>
+            {{ form.duration_ms }}
+            <span class="ls-help">{{ form.duration_ms.help_text }}</span>
+          </div>
+          <div class="ls-field">
+            <label for="{{ form.show_on.id_for_label }}">When to show</label>
+            {{ form.show_on }}
+            <span class="ls-help">{{ form.show_on.help_text }}</span>
+          </div>
+          <div class="ls-field">
+            <label for="{{ form.background_color.id_for_label }}">Background</label>
+            {{ form.background_color }}
+          </div>
+          <div class="ls-field">
+            <label for="{{ form.accent_color.id_for_label }}">Accent</label>
+            {{ form.accent_color }}
+          </div>
+          <div class="ls-field">
+            <label for="{{ form.logo_text.id_for_label }}">Logo text</label>
+            {{ form.logo_text }}
+            <span class="ls-help">{{ form.logo_text.help_text }}</span>
+          </div>
+          <div class="ls-field">
+            <label for="{{ form.logo_image.id_for_label }}">Logo image</label>
+            {{ form.logo_image }}
+            <span class="ls-help">{{ form.logo_image.help_text }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ls-section">
+        <div class="ls-section-title">Skeleton screen</div>
+        <div class="ls-grid">
+          <div class="ls-field ls-check">
+            {{ form.skeleton_enabled }}
+            <div class="ls-check-body">
+              <label class="ls-check-label" for="{{ form.skeleton_enabled.id_for_label }}">Show page skeleton while content loads</label>
+              <span class="ls-help">{{ form.skeleton_enabled.help_text }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ls-section">
+        <div class="ls-section-title">Navigation loader</div>
+        <div class="ls-grid">
+          <div class="ls-field">
+            <label for="{{ form.navigation_type.id_for_label }}">Style</label>
+            {{ form.navigation_type }}
+            <span class="ls-help">{{ form.navigation_type.help_text }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ls-section">
+        <div class="ls-section-title">Display</div>
+        <div class="ls-grid">
+          <div class="ls-field ls-check">
+            {{ form.device_desktop }}
+            <div class="ls-check-body">
+              <label class="ls-check-label" for="{{ form.device_desktop.id_for_label }}">Desktop</label>
+              <span class="ls-help">{{ form.device_desktop.help_text }}</span>
+            </div>
+          </div>
+          <div class="ls-field ls-check">
+            {{ form.device_tablet }}
+            <div class="ls-check-body">
+              <label class="ls-check-label" for="{{ form.device_tablet.id_for_label }}">Tablet</label>
+              <span class="ls-help">{{ form.device_tablet.help_text }}</span>
+            </div>
+          </div>
+          <div class="ls-field ls-check">
+            {{ form.device_mobile }}
+            <div class="ls-check-body">
+              <label class="ls-check-label" for="{{ form.device_mobile.id_for_label }}">Mobile</label>
+              <span class="ls-help">{{ form.device_mobile.help_text }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ls-section">
+        <div class="ls-section-title">Performance</div>
+        <div class="ls-grid">
+          <div class="ls-field ls-check">
+            {{ form.lightweight_mobile }}
+            <div class="ls-check-body">
+              <label class="ls-check-label" for="{{ form.lightweight_mobile.id_for_label }}">Lightweight on phones</label>
+              <span class="ls-help">{{ form.lightweight_mobile.help_text }}</span>
+            </div>
+          </div>
+          <div class="ls-field ls-check">
+            {{ form.respect_reduced_motion }}
+            <div class="ls-check-body">
+              <label class="ls-check-label" for="{{ form.respect_reduced_motion.id_for_label }}">Respect reduced motion</label>
+              <span class="ls-help">{{ form.respect_reduced_motion.help_text }}</span>
+            </div>
+          </div>
+          <div class="ls-field ls-check">
+            {{ form.network_fallback }}
+            <div class="ls-check-body">
+              <label class="ls-check-label" for="{{ form.network_fallback.id_for_label }}">Slow-network fallback</label>
+              <span class="ls-help">{{ form.network_fallback.help_text }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% for field in form %}
+        {% for error in field.errors %}
+          <p class="ls-error">{{ error }}</p>
+        {% endfor %}
+      {% endfor %}
+
+      <div class="ls-actions">
+        <button type="submit" class="dash-btn dash-btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save &amp; publish
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="ls-preview-sticky">
+    <div class="ls-card">
+      <div class="ls-preview-toolbar">
+        <div class="ls-devices" role="group" aria-label="Preview device">
+          <button type="button" class="ls-device-btn is-active" data-ls-device="desktop">Desktop</button>
+          <button type="button" class="ls-device-btn" data-ls-device="tablet">Tablet</button>
+          <button type="button" class="ls-device-btn" data-ls-device="mobile">Mobile</button>
+        </div>
+        <button type="button" class="ls-replay-btn" id="ls-replay">Replay</button>
+      </div>
+      <div class="ls-preview-stage">
+        <div class="ls-preview-frame is-desktop" id="ls-preview-frame">
+          <div id="ls-preview-mount"></div>
+        </div>
+        <div class="ls-preview-note" id="ls-preview-note"></div>
+      </div>
+      <div class="ls-meta" style="margin-top:14px;">
+        <span class="ls-live">Live preview</span>
+        <span class="ls-version">version {{ config_dict.version }}</span>
+        {% if config.updated_at %}<span>last saved {{ config.updated_at|timesince }} ago</span>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'loader/js/loader-engine.js' %}"></script>
+<script src="{% static 'loader/js/loader-studio.js' %}"></script>
+{% endblock %}

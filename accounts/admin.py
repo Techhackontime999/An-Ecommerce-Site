@@ -45,6 +45,8 @@ class SellerDocumentInline(admin.TabularInline):
 
     @admin.display(description='File')
     def view_link(self, obj):
+        if obj is None or obj.pk is None:
+            return ''
         return format_html(
             '<a href="{}" target="_blank" rel="noopener">View</a>',
             reverse('accounts:seller_document', args=[obj.pk]),
@@ -136,6 +138,8 @@ class SellerDocumentAdmin(admin.ModelAdmin):
 
     @admin.display(description='File')
     def view_link(self, obj):
+        if obj is None or obj.pk is None:
+            return ''
         return format_html(
             '<a href="{}" target="_blank" rel="noopener">View</a>',
             reverse('accounts:seller_document', args=[obj.pk]),

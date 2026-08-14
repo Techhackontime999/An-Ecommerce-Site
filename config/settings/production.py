@@ -45,6 +45,7 @@ SITE_URL = os.getenv("SITE_URL", RENDER_EXTERNAL_URL or "")
 INSTALLED_APPS = [
     'core',
     'platform_studio.apps.PlatformStudioConfig',
+    'loader.apps.LoaderConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -114,6 +115,7 @@ TEMPLATES = [
                 'wishlist.context_processors.wishlist',
                 'shop.context_processors.search_action_context',
                 'platform_studio.context_processors.platform_settings_context',
+                'loader.context_processors.loader_context',
                 'seller.context_processors.seller_context',
                 'logistics.context_processors.logistics_admin_context',
                 'blogs.context_processors.blog_nav',

@@ -8,6 +8,7 @@ from .admin_views import (
     marketing_view,
 )
 from platform_studio.views import platform_studio_view, superuser_required
+from loader.views import loader_studio_view
 
 app_name = 'admin'
 
@@ -18,6 +19,7 @@ urlpatterns = [
     path('analytics/', admin.site.admin_view(analytics_view), name='analytics'),
     path('marketing/', admin.site.admin_view(marketing_view), name='marketing'),
     path('platform-studio/', admin.site.admin_view(superuser_required(platform_studio_view)), name='platform_studio'),
+    path('loader-studio/', admin.site.admin_view(superuser_required(loader_studio_view)), name='loader_studio'),
 ]
 
 urlpatterns += admin.site.urls[0]

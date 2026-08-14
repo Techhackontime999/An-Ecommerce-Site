@@ -63,6 +63,7 @@
     <link rel="stylesheet" href="{% static "css/design-system.css" %}">
     <link rel="stylesheet" href="{% static "css/rtl.css" %}">
     <link rel="stylesheet" href="{% static "css/product-loader.css" %}?v=2">
+    <link rel="stylesheet" href="{% static "loader/css/loader.css" %}?v={{ loader_version }}">
     {% block extra_css %}{% endblock %}
     <style>
       html { margin: 0; padding: 0; box-sizing: border-box; }
@@ -75,6 +76,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% if news_ticker_items %}has-news-ticker{% endif %}{% endblock %}">
+    {% include 'loader/base_loader.html' %}
     {{ platform_settings.custom_body_top|safe }}
     <a class="ds-skip-link" href="#main-content">{% trans "Skip to content" %}</a>
     <div class="aq-scroll-progress" id="aq-scroll-progress" aria-hidden="true"></div>
@@ -97,6 +99,7 @@
     <script src="{% static "js/responsive.js" %}"></script>
     <script src="{% static "notifications/js/notifications.js" %}"></script>
     <script src="{% static "js/product-loader.js" %}?v=2"></script>
+    <script src="{% static "loader/js/loader-engine.js" %}?v={{ loader_version }}"></script>
     <script>
         AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true });
     </script>
