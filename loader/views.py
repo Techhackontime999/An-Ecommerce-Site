@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.views.decorators.cache import cache_control
 
 from .forms import LoaderConfigForm
-from .models import LoaderConfig
+from .models import LoaderConfig, SKELETON_PAGE_TYPES
 from .services import config_to_dict, get_config_dict
 
 
@@ -41,6 +41,11 @@ def loader_studio_view(request):
         form = LoaderConfigForm(request.POST, request.FILES, instance=config)
         if form.is_valid():
             form.save()
+            pages = {}
+            for key, _label in SKELETON_PAGE_TYPES:
+                pages[key] = request.POST.get('skeleton_page_%s' % key) == 'on'
+            config.skeleton_pages = pages
+            config.save(update_fields=['skeleton_pages'])
             LogEntry = _get_log_entry_model()
             LogEntry.objects.log_action(
                 user_id=request.user.pk,
@@ -66,11 +71,14 @@ def loader_studio_view(request):
     except Exception:
         studio_config['site_name'] = 'Shop-Seed'
         studio_config['logo_mark'] = 'S'
+    pages = config.skeleton_pages or {}
+    skeleton_page_checks = [(key, label, pages.get(key, True)) for key, label in SKELETON_PAGE_TYPES]
     ctx.update({
         'page': 'loader_studio',
         'form': form,
         'config': config,
         'config_dict': studio_config,
+        'skeleton_page_checks': skeleton_page_checks,
     })
     return render(request, 'admin/pages/loader_studio.html', ctx)
 

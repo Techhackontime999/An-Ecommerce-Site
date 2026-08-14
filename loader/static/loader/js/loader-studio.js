@@ -121,5 +121,167 @@
   var replay = document.getElementById('ls-replay');
   if (replay) replay.addEventListener('click', renderPreview);
 
+  var LS_PRESETS = [
+    {
+      key: 'recommended',
+      label: 'Recommended',
+      desc: 'Balanced UX: brand intro, skeleton everywhere, slim nav bar.',
+      fields: {
+        'id_enabled': true,
+        'id_initial_type': 'seed',
+        'id_navigation_type': 'progress',
+        'id_show_on': 'first_visit',
+        'id_duration_ms': '1600',
+        'id_exit_animation': 'fade',
+        'id_background_color': '#0c1017',
+        'id_accent_color': '#ff7a2f',
+        'id_skeleton_enabled': true,
+        'id_lightweight_mobile': true,
+        'id_respect_reduced_motion': true,
+        'id_network_fallback': true,
+        'id_device_desktop': true,
+        'id_device_tablet': true,
+        'id_device_mobile': true,
+        'skeleton_all': true
+      }
+    },
+    {
+      key: 'minimal',
+      label: 'Minimal & Fast',
+      desc: 'Lightweight spinner, short intro, skeleton everywhere.',
+      fields: {
+        'id_enabled': true,
+        'id_initial_type': 'spinner',
+        'id_navigation_type': 'progress',
+        'id_show_on': 'every_visit',
+        'id_duration_ms': '900',
+        'id_exit_animation': 'fade',
+        'id_background_color': '#0c1017',
+        'id_accent_color': '#ff7a2f',
+        'id_skeleton_enabled': true,
+        'id_lightweight_mobile': true,
+        'id_respect_reduced_motion': true,
+        'id_network_fallback': true,
+        'id_device_desktop': true,
+        'id_device_tablet': true,
+        'id_device_mobile': true,
+        'skeleton_all': true
+      }
+    },
+    {
+      key: 'brand',
+      label: 'Brand Hero',
+      desc: 'Logo reveal intro, logo nav, no skeleton — pure branding.',
+      fields: {
+        'id_enabled': true,
+        'id_initial_type': 'logo',
+        'id_navigation_type': 'logo',
+        'id_show_on': 'first_visit',
+        'id_duration_ms': '2200',
+        'id_exit_animation': 'zoom',
+        'id_background_color': '#0c1017',
+        'id_accent_color': '#ff7a2f',
+        'id_skeleton_enabled': false,
+        'id_lightweight_mobile': false,
+        'id_respect_reduced_motion': true,
+        'id_network_fallback': true,
+        'id_device_desktop': true,
+        'id_device_tablet': true,
+        'id_device_mobile': true,
+        'skeleton_all': false
+      }
+    },
+    {
+      key: 'performance',
+      label: 'Performance',
+      desc: 'Fast progress bar, skeleton on, lightweight everywhere.',
+      fields: {
+        'id_enabled': true,
+        'id_initial_type': 'progress',
+        'id_navigation_type': 'progress',
+        'id_show_on': 'once_per_session',
+        'id_duration_ms': '700',
+        'id_exit_animation': 'fade',
+        'id_background_color': '#0c1017',
+        'id_accent_color': '#ff7a2f',
+        'id_skeleton_enabled': true,
+        'id_lightweight_mobile': true,
+        'id_respect_reduced_motion': true,
+        'id_network_fallback': true,
+        'id_device_desktop': true,
+        'id_device_tablet': true,
+        'id_device_mobile': true,
+        'skeleton_all': true
+      }
+    },
+    {
+      key: 'skeleton_first',
+      label: 'Skeleton First',
+      desc: 'Straight to the page: skeleton only, no intro, no nav bar.',
+      fields: {
+        'id_enabled': true,
+        'id_initial_type': 'skeleton',
+        'id_navigation_type': 'none',
+        'id_show_on': 'every_visit',
+        'id_duration_ms': '1200',
+        'id_exit_animation': 'fade',
+        'id_background_color': '#0c1017',
+        'id_accent_color': '#ff7a2f',
+        'id_skeleton_enabled': true,
+        'id_lightweight_mobile': false,
+        'id_respect_reduced_motion': true,
+        'id_network_fallback': false,
+        'id_device_desktop': true,
+        'id_device_tablet': true,
+        'id_device_mobile': true,
+        'skeleton_all': true
+      }
+    }
+  ];
+
+  function setFieldValue(input, value) {
+    if (!input) return;
+    if (input.type === 'checkbox') {
+      input.checked = !!value;
+    } else {
+      input.value = value;
+    }
+  }
+
+  function applyPreset(preset) {
+    var fields = preset.fields;
+    Object.keys(fields).forEach(function (key) {
+      if (key === 'skeleton_all') return;
+      setFieldValue(document.getElementById(key), fields[key]);
+    });
+    var skeletonAll = fields.skeleton_all;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('input[name^="skeleton_page_"]'),
+      function (cb) { cb.checked = !!skeletonAll; }
+    );
+    renderPreview();
+  }
+
+  function renderPresets() {
+    var container = document.getElementById('ls-presets');
+    if (!container) return;
+    LS_PRESETS.forEach(function (preset) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ls-preset' + (preset.key === 'recommended' ? ' ls-preset--recommended' : '');
+      var label = document.createElement('span');
+      label.className = 'ls-preset__label';
+      label.textContent = preset.key === 'recommended' ? preset.label + ' (default)' : preset.label;
+      var desc = document.createElement('span');
+      desc.className = 'ls-preset__desc';
+      desc.textContent = preset.desc;
+      btn.appendChild(label);
+      btn.appendChild(desc);
+      btn.addEventListener('click', function () { applyPreset(preset); });
+      container.appendChild(btn);
+    });
+  }
+
+  renderPresets();
   renderPreview();
 })(window, document);

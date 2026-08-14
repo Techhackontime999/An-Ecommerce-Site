@@ -80,7 +80,15 @@
   }
 
   /* ---- Skeleton layout (shared by scene + layer) ------------------------- */
-  function skeletonLayout() {
+  function currentPageType() {
+    var doc = document.documentElement;
+    if (doc && doc.getAttribute('data-skeleton')) return doc.getAttribute('data-skeleton');
+    var body = document.body;
+    if (body && body.getAttribute('data-skeleton')) return body.getAttribute('data-skeleton');
+    return 'default';
+  }
+
+  function genericSkeleton() {
     var sk = el('div', 'ss-skeleton');
     sk.appendChild(el('div', 'ss-skeleton__bar'));
     sk.appendChild(el('div', 'ss-skeleton__hero'));
@@ -98,6 +106,20 @@
     section.appendChild(grid);
     sk.appendChild(section);
     return sk;
+  }
+
+  function skeletonLayout(type) {
+    var root = document.getElementById('ss-skeleton-tpl');
+    if (root) {
+      var tpl = root.querySelector('template[data-skeleton-type="' + (type || 'default') + '"]');
+      if (!tpl) tpl = root.querySelector('template[data-skeleton-type="default"]');
+      if (tpl && tpl.content && tpl.content.firstChild) {
+        var wrapper = el('div', 'ss-skeleton');
+        wrapper.appendChild(document.importNode(tpl.content, true));
+        return wrapper;
+      }
+    }
+    return genericSkeleton();
   }
 
   function buildScene(cfg, type) {
@@ -145,7 +167,7 @@
         break;
       }
       case 'skeleton':
-        scene.appendChild(skeletonLayout());
+        scene.appendChild(skeletonLayout(currentPageType()));
         break;
       default:
         scene.appendChild(el('span', 'ss-spinner'));
@@ -203,7 +225,7 @@
     if (cfg.network_fallback && slowNetwork() && (type === 'seed' || type === 'logo')) type = 'spinner';
     if (cfg.lightweight_mobile && deviceType() === 'mobile' && (type === 'seed' || type === 'logo')) type = 'spinner';
 
-    if (overlay.getAttribute('data-type') !== type) {
+    if (overlay.getAttribute('data-type') !== type || type === 'skeleton') {
       overlay.innerHTML = '';
       overlay.appendChild(buildScene(cfg, type));
     }
@@ -215,6 +237,8 @@
   /* ---- Skeleton screen (post-intro, while content loads) ----------------- */
   function skeletonEligible(cfg) {
     if (!cfg || !cfg.enabled || !cfg.skeleton_enabled) return false;
+    var pageType = currentPageType();
+    if (cfg.skeleton_pages && cfg.skeleton_pages[pageType] === false) return false;
     if (cfg.respect_reduced_motion && reducedMotion()) return false;
     return !!cfg['device_' + deviceType()];
   }
@@ -225,7 +249,7 @@
     layer.style.setProperty('--ss-bg', cfg.background_color || '#0c1017');
     layer.setAttribute('role', 'status');
     layer.setAttribute('aria-label', 'Loading content');
-    layer.appendChild(skeletonLayout());
+    layer.appendChild(skeletonLayout(currentPageType()));
     document.body.appendChild(layer);
 
     var start = Date.now();
@@ -260,7 +284,8 @@
   function decideInitial(cfg) {
     if (!cfg || !cfg.enabled) return 'off';
     if (cfg.initial_type === 'none') return 'off';
-    if (cfg.initial_type === 'skeleton' && !cfg.skeleton_enabled) return 'off';
+    if (cfg.initial_type === 'skeleton' &&
+        (!cfg.skeleton_enabled || (cfg.skeleton_pages && cfg.skeleton_pages[currentPageType()] === false))) return 'off';
     if (!cfg['device_' + deviceType()]) return 'device';
     if (cfg.respect_reduced_motion && reducedMotion()) return 'motion';
     if (cfg.show_on === 'first_visit') {

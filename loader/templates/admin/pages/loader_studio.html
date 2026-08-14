@@ -54,6 +54,14 @@
   .ls-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
   .ls-actions .dash-btn { min-width: 120px; justify-content: center; }
 
+  .ls-presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .ls-preset { display: flex; flex-direction: column; gap: 4px; padding: 14px; text-align: left; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); color: inherit; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease; }
+  .ls-preset:hover { border-color: var(--accent, #ff7a2f); background: rgba(255, 122, 47, 0.08); transform: translateY(-1px); }
+  .ls-preset--recommended { border-color: var(--accent, #ff7a2f); background: rgba(255, 122, 47, 0.06); }
+  .ls-preset__label { font-weight: 700; font-size: 13px; }
+  .ls-preset--recommended .ls-preset__label { color: var(--accent, #ff7a2f); }
+  .ls-preset__desc { font-size: 12px; line-height: 1.45; opacity: 0.65; }
+
   @media (max-width: 1100px) {
     .ls-layout { grid-template-columns: 1fr; }
     .ls-preview-sticky { position: static; }
@@ -79,6 +87,12 @@
   <div class="ls-card">
     <form method="post" enctype="multipart/form-data" id="ls-form" novalidate>
       {% csrf_token %}
+
+      <div class="ls-section">
+        <div class="ls-section-title">Quick setup</div>
+        <p class="ls-help" style="margin:0 0 12px;">Ek click me poora loader experience set karein. <strong>Recommended</strong> sabse balanced UX deta hai. Ye values form par apply karta hai — publish hone ke liye <strong>Save Changes</strong> dabayen.</p>
+        <div class="ls-presets" id="ls-presets"></div>
+      </div>
 
       <div class="ls-section">
         <div class="ls-field ls-check" style="margin-bottom: 16px;">
@@ -142,6 +156,21 @@
               <span class="ls-help">{{ form.skeleton_enabled.help_text }}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="ls-section">
+        <div class="ls-section-title">Skeleton by page</div>
+        <p class="ls-help" style="margin:0 0 12px;">Har page type ka apna skeleton layout hai (page structure ke hisaab se). Yahan se har page type ka skeleton individually on/off karein. Global toggle upar wala master switch hai.</p>
+        <div class="ls-grid">
+          {% for key, label, checked in skeleton_page_checks %}
+          <div class="ls-field ls-check">
+            <input type="checkbox" name="skeleton_page_{{ key }}" id="skeleton_page_{{ key }}" {% if checked %}checked{% endif %}>
+            <div class="ls-check-body">
+              <label class="ls-check-label" for="skeleton_page_{{ key }}">{{ label }}</label>
+            </div>
+          </div>
+          {% endfor %}
         </div>
       </div>
 

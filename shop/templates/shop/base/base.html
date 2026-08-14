@@ -3,7 +3,7 @@
 {% get_current_language as CURRENT_LANGUAGE %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 <!DOCTYPE html>
-<html lang="{{ CURRENT_LANGUAGE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" data-theme="{{ user_prefs.theme|default:'light' }}" data-font="{{ user_prefs.font_style|default:'default' }}" data-accent="{{ user_prefs.accent|default:'orange' }}" data-size="{{ user_prefs.text_size|default:'regular' }}">
+<html lang="{{ CURRENT_LANGUAGE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" data-theme="{{ user_prefs.theme|default:'light' }}" data-font="{{ user_prefs.font_style|default:'default' }}" data-accent="{{ user_prefs.accent|default:'orange' }}" data-size="{{ user_prefs.text_size|default:'regular' }}" data-skeleton="{{ loader_skeleton_type }}">
 <head>
     <title>{% block title %}{{ platform_settings.site_name }} — {{ platform_settings.site_tagline }}{% endblock %}</title>
     <meta charset="utf-8">

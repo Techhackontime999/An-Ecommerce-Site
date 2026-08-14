@@ -12,7 +12,7 @@ class LoaderConfigForm(forms.ModelForm):
 
     class Meta:
         model = LoaderConfig
-        exclude = ('version', 'updated_at')
+        exclude = ('version', 'updated_at', 'skeleton_pages')
         widgets = {
             'background_color': forms.TextInput(attrs={'type': 'color', 'class': 'ls-color'}),
             'accent_color': forms.TextInput(attrs={'type': 'color', 'class': 'ls-color'}),

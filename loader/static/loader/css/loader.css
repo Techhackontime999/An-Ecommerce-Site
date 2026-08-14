@@ -317,7 +317,14 @@
 .ss-skeleton__hero,
 .ss-skeleton__title,
 .ss-skeleton__img,
-.ss-skeleton__line {
+.ss-skeleton__line,
+.ss-skeleton__chip,
+.ss-skeleton__filter-title,
+.ss-skeleton__toolbar,
+.ss-skeleton__gallery,
+.ss-skeleton__price,
+.ss-skeleton__thumb,
+.ss-skeleton__logo {
   position: relative;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
@@ -326,7 +333,14 @@
 .ss-skeleton__hero::after,
 .ss-skeleton__title::after,
 .ss-skeleton__img::after,
-.ss-skeleton__line::after {
+.ss-skeleton__line::after,
+.ss-skeleton__chip::after,
+.ss-skeleton__filter-title::after,
+.ss-skeleton__toolbar::after,
+.ss-skeleton__gallery::after,
+.ss-skeleton__price::after,
+.ss-skeleton__thumb::after,
+.ss-skeleton__logo::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -356,6 +370,36 @@
 .ss-skeleton__line--short { width: 60%; }
 .ss-skeleton__line--btn { height: 34px; border-radius: 9px; margin-top: 4px; }
 
+/* Page-specific layouts */
+.ss-skeleton__chips { display: flex; gap: 12px; flex-wrap: wrap; }
+.ss-skeleton__chip { width: 110px; height: 36px; border-radius: 99px; }
+.ss-skeleton__grid--3 { grid-template-columns: repeat(3, 1fr); }
+.ss-skeleton__shop { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; align-items: start; }
+.ss-skeleton__filters { display: flex; flex-direction: column; gap: 16px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; background: rgba(255, 255, 255, 0.03); }
+.ss-skeleton__filter-title { width: 60%; height: 18px; border-radius: 8px; }
+.ss-skeleton__main { display: flex; flex-direction: column; gap: 16px; }
+.ss-skeleton__toolbar { height: 48px; border-radius: 12px; }
+.ss-skeleton__product { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+.ss-skeleton__gallery { aspect-ratio: 1 / 1; border-radius: 20px; }
+.ss-skeleton__info { display: flex; flex-direction: column; gap: 18px; padding-top: 8px; }
+.ss-skeleton__info .ss-skeleton__title { width: 70%; height: 26px; }
+.ss-skeleton__price { width: 40%; height: 30px; border-radius: 9px; }
+.ss-skeleton__rows { display: flex; flex-direction: column; gap: 16px; }
+.ss-skeleton__row { display: flex; gap: 16px; align-items: center; padding: 14px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 14px; background: rgba(255, 255, 255, 0.03); }
+.ss-skeleton__thumb { width: 72px; height: 72px; border-radius: 12px; flex-shrink: 0; }
+.ss-skeleton__col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.ss-skeleton__split { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.ss-skeleton__form, .ss-skeleton__summary { display: flex; flex-direction: column; gap: 16px; }
+.ss-skeleton__form .ss-skeleton__line { height: 46px; border-radius: 10px; }
+.ss-skeleton__summary { padding: 18px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; background: rgba(255, 255, 255, 0.03); }
+.ss-skeleton__auth { min-height: 60vh; display: flex; align-items: center; justify-content: center; }
+.ss-skeleton__card { width: min(92vw, 400px); display: flex; flex-direction: column; gap: 18px; align-items: center; padding: 28px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; background: rgba(255, 255, 255, 0.03); }
+.ss-skeleton__logo { width: 64px; height: 64px; border-radius: 18px; }
+.ss-skeleton__card .ss-skeleton__line { width: 100%; height: 44px; border-radius: 10px; }
+.ss-skeleton__posts { display: flex; flex-direction: column; gap: 16px; }
+.ss-skeleton__post { display: flex; gap: 16px; align-items: center; padding: 14px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 14px; background: rgba(255, 255, 255, 0.03); }
+.ss-skeleton__post .ss-skeleton__thumb { width: 120px; height: 80px; }
+
 .ss-loader--skeleton { padding: 0; }
 .ss-loader--skeleton .ss-loader__scene { width: 100%; gap: 0; align-items: stretch; }
 
@@ -380,6 +424,12 @@
   .ss-skeleton { padding: 16px; gap: 18px; }
   .ss-skeleton__grid { grid-template-columns: repeat(2, 1fr); }
   .ss-skeleton__hero { height: 140px; }
+  .ss-skeleton__shop { grid-template-columns: 1fr; }
+  .ss-skeleton__filters { display: none; }
+  .ss-skeleton__product { grid-template-columns: 1fr; gap: 20px; }
+  .ss-skeleton__split { grid-template-columns: 1fr; }
+  .ss-skeleton__summary { order: -1; }
+  .ss-skeleton__chip { width: 84px; }
 }
 
 /* --- Reduced motion ------------------------------------------------------ */

@@ -36,6 +36,7 @@ def config_to_dict(config=None):
         'respect_reduced_motion': config.respect_reduced_motion,
         'network_fallback': config.network_fallback,
         'skeleton_enabled': config.skeleton_enabled,
+        'skeleton_pages': config.skeleton_pages or {},
     }
 
 

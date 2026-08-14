@@ -29,7 +29,7 @@ class LoaderConfigModelTests(TestCase):
                     'duration_ms', 'exit_animation', 'show_on',
                     'device_desktop', 'device_tablet', 'device_mobile',
                     'lightweight_mobile', 'respect_reduced_motion',
-                    'network_fallback', 'skeleton_enabled'):
+                    'network_fallback', 'skeleton_enabled', 'skeleton_pages'):
             self.assertIn(key, data)
 
 

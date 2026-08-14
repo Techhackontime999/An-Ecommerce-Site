@@ -37,6 +37,17 @@ SHOW_ON_CHOICES = [
     ('once_per_session', 'Once per session'),
 ]
 
+SKELETON_PAGE_TYPES = [
+    ('home', 'Home'),
+    ('shop', 'Shop / Category / Search'),
+    ('product', 'Product detail'),
+    ('cart', 'Cart & Wishlist'),
+    ('checkout', 'Checkout & Orders'),
+    ('auth', 'Login / Signup / Account'),
+    ('blog', 'Blog'),
+    ('default', 'Other pages'),
+]
+
 
 class LoaderConfig(models.Model):
     """The single, site-wide loader configuration (singleton, pk=1)."""
@@ -118,6 +129,11 @@ class LoaderConfig(models.Model):
     skeleton_enabled = models.BooleanField(
         default=True,
         help_text='After the intro, show a page skeleton while content loads — makes the site feel faster.',
+    )
+    skeleton_pages = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Per-page skeleton toggles. Keys are page types, values enable/disable.',
     )
 
     version = models.PositiveIntegerField(default=1, editable=False)

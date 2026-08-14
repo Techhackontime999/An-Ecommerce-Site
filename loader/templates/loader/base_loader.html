@@ -66,4 +66,131 @@
 {% endif %}
 <span id="ss-navbar" class="ss-navbar" aria-hidden="true" style="--ss-accent: {{ loader_config.accent_color }};"></span>
 <noscript><style>#ss-loader{display:none !important}</style></noscript>
+<template id="ss-skeleton-tpl">
+  <template data-skeleton-type="home">
+    <div class="ss-skeleton__bar"></div>
+    <div class="ss-skeleton__hero"></div>
+    <div class="ss-skeleton__chips"><span class="ss-skeleton__chip"></span><span class="ss-skeleton__chip"></span><span class="ss-skeleton__chip"></span><span class="ss-skeleton__chip"></span><span class="ss-skeleton__chip"></span></div>
+    <div class="ss-skeleton__section">
+      <div class="ss-skeleton__title"></div>
+      <div class="ss-skeleton__grid">
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+      </div>
+    </div>
+    <div class="ss-skeleton__section">
+      <div class="ss-skeleton__title"></div>
+      <div class="ss-skeleton__grid">
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+      </div>
+    </div>
+  </template>
+  <template data-skeleton-type="shop">
+    <div class="ss-skeleton__bar"></div>
+    <div class="ss-skeleton__shop">
+      <div class="ss-skeleton__filters">
+        <div class="ss-skeleton__filter-title"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+      </div>
+      <div class="ss-skeleton__main">
+        <div class="ss-skeleton__toolbar"></div>
+        <div class="ss-skeleton__grid ss-skeleton__grid--3">
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+          <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        </div>
+      </div>
+    </div>
+  </template>
+  <template data-skeleton-type="product">
+    <div class="ss-skeleton__bar"></div>
+    <div class="ss-skeleton__product">
+      <div class="ss-skeleton__gallery"></div>
+      <div class="ss-skeleton__info">
+        <div class="ss-skeleton__title"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__price"></div>
+        <div class="ss-skeleton__line ss-skeleton__line--btn"></div>
+        <div class="ss-skeleton__line ss-skeleton__line--btn"></div>
+      </div>
+    </div>
+  </template>
+  <template data-skeleton-type="cart">
+    <div class="ss-skeleton__bar"></div>
+    <div class="ss-skeleton__rows">
+      <div class="ss-skeleton__row"><div class="ss-skeleton__thumb"></div><div class="ss-skeleton__col"><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div></div></div>
+      <div class="ss-skeleton__row"><div class="ss-skeleton__thumb"></div><div class="ss-skeleton__col"><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div></div></div>
+      <div class="ss-skeleton__row"><div class="ss-skeleton__thumb"></div><div class="ss-skeleton__col"><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div></div></div>
+    </div>
+  </template>
+  <template data-skeleton-type="checkout">
+    <div class="ss-skeleton__bar"></div>
+    <div class="ss-skeleton__split">
+      <div class="ss-skeleton__form">
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+      </div>
+      <div class="ss-skeleton__summary">
+        <div class="ss-skeleton__title"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line ss-skeleton__line--btn"></div>
+      </div>
+    </div>
+  </template>
+  <template data-skeleton-type="auth">
+    <div class="ss-skeleton__auth">
+      <div class="ss-skeleton__card">
+        <div class="ss-skeleton__logo"></div>
+        <div class="ss-skeleton__title"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line"></div>
+        <div class="ss-skeleton__line ss-skeleton__line--btn"></div>
+      </div>
+    </div>
+  </template>
+  <template data-skeleton-type="blog">
+    <div class="ss-skeleton__bar"></div>
+    <div class="ss-skeleton__section">
+      <div class="ss-skeleton__title"></div>
+      <div class="ss-skeleton__posts">
+        <div class="ss-skeleton__post"><div class="ss-skeleton__thumb"></div><div class="ss-skeleton__col"><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div></div></div>
+        <div class="ss-skeleton__post"><div class="ss-skeleton__thumb"></div><div class="ss-skeleton__col"><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div></div></div>
+        <div class="ss-skeleton__post"><div class="ss-skeleton__thumb"></div><div class="ss-skeleton__col"><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div></div></div>
+      </div>
+    </div>
+  </template>
+  <template data-skeleton-type="default">
+    <div class="ss-skeleton__bar"></div>
+    <div class="ss-skeleton__hero"></div>
+    <div class="ss-skeleton__section">
+      <div class="ss-skeleton__title"></div>
+      <div class="ss-skeleton__grid">
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+        <div class="ss-skeleton__card"><div class="ss-skeleton__img"></div><div class="ss-skeleton__line"></div><div class="ss-skeleton__line ss-skeleton__line--short"></div><div class="ss-skeleton__line ss-skeleton__line--btn"></div></div>
+      </div>
+    </div>
+  </template>
+</template>
 {% endif %}
