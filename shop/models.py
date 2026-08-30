@@ -99,11 +99,6 @@ class Product(models.Model):
     brand = models.CharField(max_length=100 , blank=True)
     seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
 
-    # class Meta:
-    #     ordering = ('name',)
-    #     index_together = (('id', 'slug'),)
-    
-
     class Meta:
         ordering = ('name',)
         indexes = [
