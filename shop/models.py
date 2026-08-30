@@ -91,7 +91,6 @@ class Product(models.Model):
     slug = models.SlugField(max_length=200, db_index=True)
     image = models.ImageField(upload_to='products/%Y/%m/%d', blank=True, validators=[validate_image_file])
     description = RichTextField(blank=True) 
-    # remove below price if you mapped not with actual shop.product price make with seller assossiated price in  seller.models called seller_product model
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0, help_text='Inventory for products without variants.')
     available = models.BooleanField(default=True)
@@ -99,7 +98,6 @@ class Product(models.Model):
     updated = models.DateTimeField(auto_now=True)
     brand = models.CharField(max_length=100 , blank=True)
     seller = models.ForeignKey(SellerProfile, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
-    # add this field
 
     # class Meta:
     #     ordering = ('name',)
