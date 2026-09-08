@@ -298,7 +298,7 @@ class OrderItem(models.Model):
     deal_applied = models.BooleanField(default=False)  # ✅ New field
     
     def __str__(self):
-        return '{}'.format(self.id)
+        return f'{self.product.name} x{self.quantity}'
 
     def get_cost(self):
         return self.price * self.quantity
