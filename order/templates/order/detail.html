@@ -144,15 +144,6 @@
       </div>
     </header>
 
-    {% if messages %}
-    {% for message in messages %}
-    <div class="od-alert od-alert--{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">
-      <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
-      <span>{{ message }}</span>
-    </div>
-    {% endfor %}
-    {% endif %}
-
     <div class="od-grid">
       <div style="display:flex;flex-direction:column;gap:1.5rem;">
         <article class="od-card">

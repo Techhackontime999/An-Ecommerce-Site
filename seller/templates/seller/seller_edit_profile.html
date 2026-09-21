@@ -7,17 +7,6 @@
 <div class="ap-page">
   <div class="ap-page-inner">
 
-    {% if messages %}
-    <div class="seller-pro-messages">
-      {% for message in messages %}
-      <div class="seller-pro-message seller-pro-message-{{ message.tags }}">
-        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
-        {{ message }}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
     <div class="ap-header">
       <h1 class="ap-title"><i class="fas fa-store-alt"></i> Edit Store Profile</h1>
       <p class="body-small" style="margin-top: 0.25rem;">Keep your store details up to date so buyers can find and trust you.</p>

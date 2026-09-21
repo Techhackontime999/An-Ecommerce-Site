@@ -20,18 +20,6 @@
       </p>
     </header>
 
-    {% if messages %}
-      {% for message in messages %}
-      <div class="contact-alert {% if message.tags == 'error' %}contact-alert--error{% endif %} fade-up">
-        <i class="{% if message.tags == 'error' %}fas fa-exclamation-circle{% else %}fas fa-check-circle{% endif %}"></i>
-        <div>
-          <strong>{% if message.tags == 'error' %}Action required{% else %}Message sent!{% endif %}</strong>
-          <span>{{ message }}</span>
-        </div>
-      </div>
-      {% endfor %}
-    {% endif %}
-
     <div class="contact-grid">
       <div class="contact-info">
         <div class="contact-info-card fade-up">

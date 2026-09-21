@@ -35,16 +35,6 @@
 
 <section class="ord-body">
   <div class="container-aq">
-    {% if messages %}
-    <div class="shp-messages">
-      {% for message in messages %}
-      <div class="shp-alert shp-alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
-        <i class="fas fa-{% if message.tags == 'error' %}triangle-exclamation{% else %}circle-check{% endif %}"></i>
-        <span>{{ message }}</span>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
 
     <form method="post" class="ord-form" id="shp-form" novalidate>
       {% csrf_token %}

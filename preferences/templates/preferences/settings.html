@@ -23,18 +23,6 @@
       </p>
     </header>
 
-    {% if messages %}
-      {% for message in messages %}
-      <div class="settings-alert fade-up">
-        <i class="fas fa-check-circle"></i>
-        <div>
-          <strong>{% trans "Saved!" %}</strong>
-          <span>{{ message }}</span>
-        </div>
-      </div>
-      {% endfor %}
-    {% endif %}
-
     <div class="settings-preview fade-up" id="settings-preview" aria-live="polite">
       <div class="settings-preview-copy">
         <span class="settings-preview-tag">{% trans "Live preview" %}</span>

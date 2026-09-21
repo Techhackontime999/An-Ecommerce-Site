@@ -8,17 +8,6 @@
 <div class="seller-dash">
   <div class="seller-dash-inner">
 
-    {% if messages %}
-    <div class="seller-dash-messages">
-      {% for message in messages %}
-      <div class="seller-dash-message seller-dash-message-{{ message.tags }}">
-        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
-        {{ message }}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
     <div class="seller-dash-header">
       <h1 class="seller-dash-title"><i class="fas fa-wallet" style="color: var(--aq-accent);"></i> Earnings & Payouts</h1>
     </div>

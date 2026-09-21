@@ -33,15 +33,6 @@
       </div>
     </div>
 
-    {% if messages %}
-      {% for message in messages %}
-      <div class="settings-alert fade-up">
-        <i class="fas fa-check-circle"></i>
-        <div><strong>{% trans "Saved!" %}</strong><span>{{ message }}</span></div>
-      </div>
-      {% endfor %}
-    {% endif %}
-
     <form method="post" class="aq-notif-settings-form" novalidate>
       {% csrf_token %}
       <div class="aq-notif-settings-grid">

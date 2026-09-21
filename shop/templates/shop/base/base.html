@@ -82,6 +82,21 @@
     <div class="aq-scroll-progress" id="aq-scroll-progress" aria-hidden="true"></div>
     {% block news_ticker %}{% include 'news/ticker.html' %}{% endblock %}
     {% include 'shop/base/navbar.html' %}
+    {% if messages %}
+    <div class="aq-messages" id="aq-messages" role="status" aria-live="polite">
+      {% for message in messages %}
+      {% with tag=message.level_tag %}
+      <div class="aq-message
+        {% if tag == 'error' %}aq-message-error{% elif tag == 'warning' %}aq-message-warning{% elif tag == 'success' %}aq-message-success{% else %}aq-message-info{% endif %}"
+        role="alert">
+        <i class="fas fa-{% if tag == 'error' or tag == 'warning' %}triangle-exclamation{% elif tag == 'success' %}circle-check{% else %}info-circle{% endif %}"></i>
+        <span>{{ message }}</span>
+        <button type="button" class="aq-message-close" title="{% trans 'Dismiss' %}" aria-label="{% trans 'Dismiss' %}"><i class="fas fa-times"></i></button>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+    {% endif %}
     <main id="main-content" tabindex="-1">
         {% block content %}{% endblock %}
     </main>
@@ -114,6 +129,25 @@
             onScroll();
             btn.addEventListener('click', function () {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
+    </script>
+    <script>
+        (function () {
+            var box = document.getElementById('aq-messages');
+            if (!box) return;
+            function close(el) {
+                if (!el) return;
+                el.classList.add('aq-message-out');
+                setTimeout(function () {
+                    el.remove();
+                    if (!box.querySelectorAll('.aq-message').length) box.remove();
+                }, 260);
+            }
+            Array.prototype.forEach.call(box.querySelectorAll('.aq-message'), function (el) {
+                var btn = el.querySelector('.aq-message-close');
+                if (btn) btn.addEventListener('click', function (e) { e.preventDefault(); close(el); });
+                setTimeout(function () { if (document.body.contains(el)) close(el); }, 5000);
             });
         })();
     </script>

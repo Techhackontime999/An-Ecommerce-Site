@@ -36,15 +36,6 @@
       </div>
     </header>
 
-    {% if messages %}
-      {% for message in messages %}
-      <div class="settings-alert fade-up">
-        <i class="fas fa-check-circle"></i>
-        <div><strong>{% trans "Saved!" %}</strong><span>{{ message }}</span></div>
-      </div>
-      {% endfor %}
-    {% endif %}
-
     <nav class="aq-notif-filters" aria-label="{% trans 'Filter notifications' %}">
       <a href="{% url 'notifications:list' %}" class="{% if not category %}active{% endif %}">{% trans "All" %}</a>
       {% for value, label in categories.items %}

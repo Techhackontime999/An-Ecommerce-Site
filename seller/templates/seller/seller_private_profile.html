@@ -7,17 +7,6 @@
 <div class="seller-pro">
   <div class="seller-pro-inner">
 
-    {% if messages %}
-    <div class="seller-pro-messages">
-      {% for message in messages %}
-      <div class="seller-pro-message seller-pro-message-{{ message.tags }}">
-        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
-        {{ message }}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
     <div class="seller-pro-hero">
       <div class="seller-pro-hero-inner">
       <div class="seller-pro-avatar-wrap">
