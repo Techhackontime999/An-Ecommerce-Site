@@ -40,6 +40,7 @@
   .ls-devices { display: inline-flex; gap: 4px; background: rgba(0,0,0,.05); border-radius: 9px; padding: 4px; }
   .ls-device-btn { border: 0; background: transparent; padding: 6px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; color: var(--aq-muted, #6b7280); cursor: pointer; }
   .ls-device-btn.is-active { background: #fff; color: #111827; box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+  .ls-page-select { padding: 7px 10px; border: 1px solid var(--aq-border, #d1d5db); border-radius: 8px; background: var(--aq-input-bg, #fff); font-size: 12.5px; font-weight: 600; cursor: pointer; }
   .ls-replay-btn { border: 0; background: var(--aq-accent, #f59e0b); color: #fff; font-weight: 700; font-size: 12.5px; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
   .ls-preview-stage { position: relative; border-radius: 18px; overflow: hidden; background: linear-gradient(145deg, #141b24, #0b0e14); min-height: 420px; display: flex; align-items: center; justify-content: center; }
   .ls-preview-frame { width: 100%; height: 420px; position: relative; transition: width .3s ease; }
@@ -266,6 +267,16 @@
           <button type="button" class="ls-device-btn" data-ls-device="tablet">Tablet</button>
           <button type="button" class="ls-device-btn" data-ls-device="mobile">Mobile</button>
         </div>
+        <select class="ls-page-select" id="ls-page-type" aria-label="Preview page type">
+          <option value="home">Home</option>
+          <option value="shop">Shop / Category / Search</option>
+          <option value="product">Product detail</option>
+          <option value="cart">Cart &amp; Wishlist</option>
+          <option value="checkout">Checkout &amp; Orders</option>
+          <option value="auth">Login / Signup / Account</option>
+          <option value="blog">Blog</option>
+          <option value="default">Other pages</option>
+        </select>
         <button type="button" class="ls-replay-btn" id="ls-replay">Replay</button>
       </div>
       <div class="ls-preview-stage">

@@ -18,6 +18,7 @@
   var note = document.getElementById('ls-preview-note');
   var frame = document.getElementById('ls-preview-frame');
   var form = document.getElementById('ls-form');
+  var pageTypeSelect = document.getElementById('ls-page-type');
 
   var enabled = document.getElementById('id_enabled');
   var initialType = document.getElementById('id_initial_type');
@@ -72,7 +73,8 @@
       setNote('Skeleton screen is disabled — enable it to preview.');
       return;
     }
-    var ctrl = window.ShopSeedLoader.preview(cfg, mount);
+    var pageType = pageTypeSelect ? pageTypeSelect.value : 'default';
+    var ctrl = window.ShopSeedLoader.preview(cfg, mount, pageType);
     if (ctrl && ctrl.play) ctrl.play();
   }
 
@@ -82,6 +84,7 @@
 
   bindChange(initialType, renderPreview);
   bindChange(skeletonEnabled, renderPreview);
+  bindChange(pageTypeSelect, renderPreview);
   bindChange(exitAnim, renderPreview);
   bindChange(bg, renderPreview);
   bindChange(accent, renderPreview);

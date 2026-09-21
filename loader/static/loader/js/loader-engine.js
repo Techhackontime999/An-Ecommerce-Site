@@ -123,7 +123,7 @@
     return genericSkeleton();
   }
 
-  function buildScene(cfg, type) {
+  function buildScene(cfg, type, pageType) {
     var scene = el('div', 'ss-loader__scene');
     var parts, brand;
     switch (type) {
@@ -168,7 +168,7 @@
         break;
       }
       case 'skeleton':
-        scene.appendChild(skeletonLayout(currentPageType()));
+        scene.appendChild(skeletonLayout(pageType || currentPageType()));
         break;
       default:
         scene.appendChild(el('span', 'ss-spinner'));
@@ -365,13 +365,13 @@
   }
 
   /* ---- Public preview API (used by Loader Studio) ------------------------ */
-  function preview(config, container) {
+  function preview(config, container, pageType) {
     if (!container) return null;
     var overlay = document.createElement('div');
     overlay.className = 'ss-loader is-preview ss-loader--' + (config.initial_type || 'spinner');
     overlay.style.setProperty('--ss-bg', config.background_color || '#0c1017');
     overlay.style.setProperty('--ss-accent', config.accent_color || '#ff7a2f');
-    overlay.appendChild(buildScene(config, config.initial_type || 'spinner'));
+    overlay.appendChild(buildScene(config, config.initial_type || 'spinner', pageType));
     container.innerHTML = '';
     container.appendChild(overlay);
     return {
