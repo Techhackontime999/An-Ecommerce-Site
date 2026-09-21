@@ -59,7 +59,11 @@ def cart_remove(request, product_id, variant_id=None):
 
 def cart_detail(request):
     cart = Cart(request)
-    for item in cart:
+    # Materialise the items once: ``Cart.__iter__`` yields fresh copies on every
+    # iteration, so building the quantity form on the template's own loop would
+    # be lost. The same list is rendered below.
+    items = list(cart)
+    for item in items:
         item['update_quantity_form'] = CartAddProductForm(initial={'quantity': item['quantity'], 'update': True})
     coupon_apply_form = CouponApplyForm()
     coupon = None
@@ -67,4 +71,9 @@ def cart_detail(request):
         coupon = cart.coupon
     except Exception:
         coupon = None
-    return render(request, 'cart/detail.html', {'cart': cart, 'coupon_apply_form': coupon_apply_form, 'coupon': coupon})
+    return render(request, 'cart/detail.html', {
+        'cart': cart,
+        'cart_items': items,
+        'coupon_apply_form': coupon_apply_form,
+        'coupon': coupon,
+    })

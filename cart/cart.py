@@ -23,8 +23,54 @@ class Cart():
 
         user = getattr(request, 'user', None)
         self.user = user if (user is not None and user.is_authenticated) else None
+        self._prune_stale()
         if self.user:
             self._hydrate_from_db()
+
+    def _prune_stale(self):
+        """Drop session entries whose product or variant no longer exists.
+
+        A seed/reset (or an admin delete) can remove a product while a shopper
+        still has it saved in their session cart. Left in place those keys make
+        ``_persist_to_db`` create a ``CartItem`` pointing at a missing row, which
+        raises a FOREIGN KEY constraint error. Pruning keeps carts self-healing
+        and stops stale keys inflating the cart badge count.
+        """
+        if not self.cart:
+            return
+
+        product_ids = set()
+        variant_ids = set()
+        for key in self.cart:
+            try:
+                pid, vid = self._parse_key(key)
+            except (TypeError, ValueError):
+                continue
+            product_ids.add(pid)
+            if vid:
+                variant_ids.add(vid)
+
+        valid_products = set(
+            Product.objects.filter(id__in=product_ids).values_list('id', flat=True)
+        )
+        valid_variants = set(
+            ProductVariant.objects.filter(id__in=variant_ids).values_list('id', flat=True)
+        )
+
+        stale = []
+        for key in self.cart:
+            try:
+                pid, vid = self._parse_key(key)
+            except (TypeError, ValueError):
+                stale.append(key)
+                continue
+            if pid not in valid_products or (vid and vid not in valid_variants):
+                stale.append(key)
+
+        for key in stale:
+            del self.cart[key]
+        if stale:
+            self.session.modified = True
 
     @staticmethod
     def _key(product_id, variant_id=None):

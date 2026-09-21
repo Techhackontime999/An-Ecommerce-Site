@@ -76,7 +76,7 @@
         </div>
 
         <div class="crt-list">
-          {% for item in cart %}
+          {% for item in cart_items %}
           {% with product=item.product %}
           <article class="crt-item fade-up" style="transition-delay:{% widthratio forloop.counter0 1 60 %}ms">
             <a class="crt-thumb" href="{{ product.get_absolute_url }}" aria-label="{{ product.name }}">
@@ -187,7 +187,7 @@
               <button type="submit" class="crt-btn-ghost">{% trans 'Apply' %}</button>
             </div>
             {% if cart.coupon %}
-            <p class="crt-coupon-applied"><i class="fas fa-circle-check"></i> {% blocktranslate %}{{ coupon.code }} applied — {{ coupon.discount }}% off{% endblocktranslate %}</p>
+            <p class="crt-coupon-applied"><i class="fas fa-circle-check"></i> {% blocktranslate with code=coupon.code pct=coupon.discount %}{{ code }} applied — {{ pct }}% off{% endblocktranslate %}</p>
             {% endif %}
           </form>
 
