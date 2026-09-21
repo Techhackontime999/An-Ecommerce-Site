@@ -105,9 +105,17 @@ services:
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
 
-# Scheduled jobs — keep tracking timelines and live FX rates fresh.
+# Scheduled jobs — keep tracking timelines and live FX rates fresh, and keep
+# the free web service warm: `job-reconcile` (every 5 min < the 15-min free
+# spin-down window) also pings KEEPALIVE_URL via `manage.py keepalive`.
 # Free-plan cron services spin up on schedule; upgrade to a worker + Celery
 # beat (with Redis) if the store grows.
+#
+# Note: Render cron jobs today carry a $1/month minimum each, so the keep-alive
+# intentionally rides the existing job-reconcile cron instead of adding a new
+# one. The 750 free instance-hours/month per workspace (~one always-on service)
+# mean the always-on async-worker plus an always-awake web will exceed the cap
+# and trigger suspension; the guaranteed no-spin-down option is a Starter web.
 cron:
   - type: cron
     name: refund-reconcile
@@ -140,7 +148,10 @@ cron:
     schedule: "*/5 * * * *"
     runtime: python
     buildCommand: bash build.sh
-    startCommand: python manage.py reconcile_jobs
+    # Reconcile the queue, then (re)warm the free web service. `;` keeps the
+    # keep-alive running even if reconciliation errors; keepalive exits
+    # non-zero on a failed ping so the run shows red in the Render dashboard.
+    startCommand: python manage.py reconcile_jobs; python manage.py keepalive
     envVars:
       - key: DJANGO_ENV
         value: production
@@ -154,6 +165,10 @@ cron:
         fromDatabase:
           name: ecommerce-db
           property: connectionString
+      # The web service's public URL with the /healthz probe, e.g.
+      #   https://<your-app>.onrender.com/healthz
+      - key: KEEPALIVE_URL
+        sync: false
 
   - type: cron
     name: tracking-sync
