@@ -111,8 +111,9 @@
   function skeletonLayout(type) {
     var root = document.getElementById('ss-skeleton-tpl');
     if (root) {
-      var tpl = root.querySelector('template[data-skeleton-type="' + (type || 'default') + '"]');
-      if (!tpl) tpl = root.querySelector('template[data-skeleton-type="default"]');
+      var scope = root.content || root;
+      var tpl = scope.querySelector('template[data-skeleton-type="' + (type || 'default') + '"]');
+      if (!tpl) tpl = scope.querySelector('template[data-skeleton-type="default"]');
       if (tpl && tpl.content && tpl.content.firstChild) {
         var wrapper = el('div', 'ss-skeleton');
         wrapper.appendChild(document.importNode(tpl.content, true));
