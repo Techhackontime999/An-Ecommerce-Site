@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.wishlist_detail, name='wishlist_detail'),
     path('toggle/<int:product_id>/', views.toggle_wishlist, name='toggle'),
     path('remove/<int:product_id>/', views.remove_wishlist, name='remove'),
+    path('bulk-remove/', views.bulk_remove_wishlist, name='bulk_remove'),
 ]

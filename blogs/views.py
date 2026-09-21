@@ -678,6 +678,20 @@ def post_delete(request, pk, slug):
 
 @login_required
 @require_POST
+def bulk_post_archive(request):
+    ids = request.POST.getlist('selected')
+    posts = Post.objects.filter(author=request.user, pk__in=ids).exclude(
+        status=Post.Status.ARCHIVED)
+    count = posts.update(status=Post.Status.ARCHIVED)
+    if count:
+        messages.success(request, f'{count} post{"s" if count != 1 else ""} archived.')
+    else:
+        messages.warning(request, 'No posts selected.')
+    return redirect('blogs:author_dashboard')
+
+
+@login_required
+@require_POST
 def post_like(request, pk, slug):
     post = get_object_or_404(Post, pk=pk, slug=slug)
     like = Like.objects.filter(user=request.user, post=post).first()
@@ -733,7 +747,8 @@ def my_bookmarks(request):
 @login_required
 def author_dashboard(request):
     since_28 = timezone.now() - timezone.timedelta(days=28)
-    posts = list(
+    query = request.GET.get('q', '').strip()
+    post_qs = (
         Post.objects.filter(author=request.user)
         .annotate(
             comments_count=Count('comments', filter=Q(comments__is_approved=True)),
@@ -743,6 +758,9 @@ def author_dashboard(request):
         )
         .order_by('-publish_at')
     )
+    if query:
+        post_qs = post_qs.filter(Q(title__icontains=query) | Q(excerpt__icontains=query))
+    posts = list(post_qs)
     published = [p for p in posts if p.is_published]
     drafts = [p for p in posts if p.status == Post.Status.DRAFT]
 
@@ -791,6 +809,7 @@ def author_dashboard(request):
 
     context = {
         'posts': posts,
+        'query': query,
         'published_count': len(published),
         'draft_count': len(drafts),
         'total_views': total_views,

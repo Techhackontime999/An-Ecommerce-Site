@@ -1,4 +1,5 @@
 {% extends "shop/base/base.html" %}
+{% load static %}
 
 {% block title %}My Wishlist{% endblock %}
 
@@ -15,27 +16,55 @@
     </div>
 
     {% if items %}
-    <div class="products-aq-grid" id="wishlist-grid" data-layout="4col">
-      {% for item in items %}
-      {% with product=item.product %}
-      <div class="product-aq-card fade-up">
-        <a href="{{ product.get_absolute_url }}" style="text-decoration:none;color:inherit;">
-          <div class="product-aq-image">
-            {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}">
-            {% elif product.images.all %}
-            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
-            {% else %}
-            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:2.5rem;">
-              <i class="fas fa-box-open"></i>
+    <div class="list-toolbar wishlist-toolbar">
+      <form method="get" class="list-search" role="search">
+        <i class="fas fa-search"></i>
+        <input type="search" name="q" value="{{ query }}" placeholder="Search your wishlist…" aria-label="Search your wishlist">
+        {% if query %}
+          <a href="{% url 'wishlist:wishlist_detail' %}" class="list-search-clear" title="Clear search" aria-label="Clear search"><i class="fas fa-times"></i></a>
+        {% endif %}
+      </form>
+      <span class="seller-dash-count-badge">{{ items|length }} saved</span>
+    </div>
+
+    <form method="post" action="{% url 'wishlist:bulk_remove' %}" data-bulk-form>
+      {% csrf_token %}
+      <div class="list-bulkbar list-bulkbar-card">
+        <label class="list-check">
+          <input type="checkbox" data-bulk-toggle>
+          <span>Select all</span>
+        </label>
+        <button type="submit" class="seller-dash-btn-danger" data-bulk-submit disabled
+                onclick="return confirm('Remove the selected items from your wishlist?')">
+          <i class="fas fa-trash-alt"></i> Remove selected
+        </button>
+      </div>
+
+      <div class="products-aq-grid" id="wishlist-grid" data-layout="4col">
+        {% for item in items %}
+        {% with product=item.product %}
+        <div class="product-aq-card fade-up wishlist-card">
+          <label class="wishlist-card-check" title="Select {{ product.name }}">
+            <input type="checkbox" name="selected" value="{{ product.id }}" data-bulk-item aria-label="Select {{ product.name }}">
+          </label>
+          <a href="{{ product.get_absolute_url }}" style="text-decoration:none;color:inherit;">
+            <div class="product-aq-image">
+              {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}">
+              {% elif product.images.all %}
+              <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+              {% else %}
+              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--aq-accent);font-size:2.5rem;">
+                <i class="fas fa-box-open"></i>
+              </div>
+              {% endif %}
+              {% if product.current_price and product.current_price < product.price %}
+              <span class="product-aq-tag sale">Sale</span>
+              {% endif %}
             </div>
-            {% endif %}
-            {% if product.current_price and product.current_price < product.price %}
-            <span class="product-aq-tag sale">Sale</span>
-            {% endif %}
-          </div>
+          </a>
           <div class="product-aq-body">
-            <h3>{{ product.name }}</h3>
+            <h3><a href="{{ product.get_absolute_url }}" style="color:inherit;text-decoration:none;">{{ product.name }}</a></h3>
             <p class="desc">{{ product.description|truncatewords:12|richtext }}</p>
             <div class="product-aq-price">
               {% if product.current_price and product.current_price != product.price %}
@@ -45,35 +74,45 @@
               <span>{% load preference_extras %}{% price product.price %}</span>
               {% endif %}
             </div>
-            <div class="product-aq-actions" style="gap:0.5rem;">
+            <div class="product-aq-actions" style="gap:0.5rem;display:flex;">
               <a href="{{ product.get_absolute_url }}" class="btn-aq btn-aq-primary" style="padding:0.5rem 1rem;font-size:0.8125rem;flex:1;justify-content:center;">
                 View Details
               </a>
-              <form action="{% url 'wishlist:remove' product.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn-aq btn-aq-outline" title="Remove from wishlist"
-                        style="padding:0.5rem 0.9rem;font-size:0.8125rem;">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
-              </form>
+              <button type="submit" formaction="{% url 'wishlist:remove' product.id %}" class="btn-aq btn-aq-outline" title="Remove from wishlist"
+                      style="padding:0.5rem 0.9rem;font-size:0.8125rem;">
+                <i class="fas fa-trash-alt"></i>
+              </button>
             </div>
           </div>
-        </a>
+        </div>
+        {% endwith %}
+        {% endfor %}
       </div>
-      {% endwith %}
-      {% endfor %}
-    </div>
+    </form>
     {% else %}
     <div class="empty-aq" style="padding:4rem 0;">
       <div class="empty-aq-icon"><i class="fas fa-heart"></i></div>
+      {% if query %}
+      <h3>No saved items match “{{ query }}”</h3>
+      <p>Try a different product name.</p>
+      <a href="{% url 'wishlist:wishlist_detail' %}" class="btn-aq btn-aq-primary">
+        <i class="fas fa-times"></i>
+        Clear search
+      </a>
+      {% else %}
       <h3>Your wishlist is empty</h3>
       <p>Tap the heart on any product to save it here for later.</p>
       <a href="{% url 'shop:product_list' %}" class="btn-aq btn-aq-primary">
         <i class="fas fa-arrow-left"></i>
         Start Shopping
       </a>
+      {% endif %}
     </div>
     {% endif %}
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/list-toolbar.js' %}"></script>
 {% endblock %}

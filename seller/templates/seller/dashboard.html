@@ -102,74 +102,109 @@
     <div class="seller-dash-table-section">
       <div class="seller-dash-table-header">
         <h2><i class="fas fa-cube"></i> Your Products</h2>
-        {% if products %}
-          <span class="seller-dash-count-badge">{{ products|length }} total</span>
-        {% endif %}
+        <div class="list-toolbar">
+          <form method="get" class="list-search" role="search">
+            <i class="fas fa-search"></i>
+            <input type="search" name="q" value="{{ query }}" placeholder="Search products…" aria-label="Search products">
+            {% if query %}
+              <a href="{% url 'seller:seller_dashboard' %}" class="list-search-clear" title="Clear search" aria-label="Clear search"><i class="fas fa-times"></i></a>
+            {% endif %}
+          </form>
+          {% if products %}
+            <span class="seller-dash-count-badge">{{ products|length }} total</span>
+          {% endif %}
+        </div>
       </div>
 
       {% if products %}
-      <div class="seller-dash-table-wrap">
-        <table class="seller-dash-table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for product in products %}
-            <tr>
-              <td>
-                <div class="seller-dash-product-cell">
-                  {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="seller-dash-product-thumb">
-                  {% else %}
-                    <div class="seller-dash-product-thumb seller-dash-product-thumb-placeholder">
-                      <i class="fas fa-box"></i>
+      <form method="post" action="{% url 'seller:bulk_delete_products' %}" data-bulk-form>
+        {% csrf_token %}
+        <div class="list-bulkbar">
+          <label class="list-check">
+            <input type="checkbox" data-bulk-toggle>
+            <span>Select all</span>
+          </label>
+          <button type="submit" class="seller-dash-btn-danger" data-bulk-submit disabled
+                  onclick="return confirm('Delete the selected products? This cannot be undone.')">
+            <i class="fas fa-trash"></i> Delete selected
+          </button>
+        </div>
+        <div class="seller-dash-table-wrap">
+          <table class="seller-dash-table">
+            <thead>
+              <tr>
+                <th class="list-check-col"></th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for product in products %}
+              <tr>
+                <td class="list-check-col">
+                  <input type="checkbox" name="selected" value="{{ product.pk }}" data-bulk-item aria-label="Select {{ product.name }}">
+                </td>
+                <td>
+                  <div class="seller-dash-product-cell">
+                    {% if product.image %}
+                      <img src="{{ product.image.url }}" alt="{{ product.name }}" class="seller-dash-product-thumb">
+                    {% else %}
+                      <div class="seller-dash-product-thumb seller-dash-product-thumb-placeholder">
+                        <i class="fas fa-box"></i>
+                      </div>
+                    {% endif %}
+                    <div>
+                      <div class="seller-dash-product-name">{{ product.name }}</div>
+                      <div class="seller-dash-product-sku">{{ product.brand|default:"No brand" }}</div>
                     </div>
-                  {% endif %}
-                  <div>
-                    <div class="seller-dash-product-name">{{ product.name }}</div>
-                    <div class="seller-dash-product-sku">{{ product.brand|default:"No brand" }}</div>
                   </div>
-                </div>
-              </td>
-              <td class="seller-dash-price">{% price product.price %}</td>
-              <td>
-                {% if product.available %}
-                  <span class="seller-dash-badge seller-dash-badge-active">Active</span>
-                {% else %}
-                  <span class="seller-dash-badge seller-dash-badge-inactive">Inactive</span>
-                {% endif %}
-              </td>
-              <td class="seller-dash-date">{{ product.created|date:"M d, Y" }}</td>
-              <td>
-                <div class="seller-dash-action-btns">
-                  <a href="{% url 'seller:edit_product' product.pk %}" class="seller-dash-btn-icon" title="Edit">
-                    <i class="fas fa-pen"></i>
-                  </a>
-                  <a href="{% url 'seller:delete_product' product.pk %}" class="seller-dash-btn-icon seller-dash-btn-icon-danger" title="Delete" onclick="return confirm('Delete this product?')">
-                    <i class="fas fa-trash"></i>
-                  </a>
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+                </td>
+                <td class="seller-dash-price">{% price product.price %}</td>
+                <td>
+                  {% if product.available %}
+                    <span class="seller-dash-badge seller-dash-badge-active">Active</span>
+                  {% else %}
+                    <span class="seller-dash-badge seller-dash-badge-inactive">Inactive</span>
+                  {% endif %}
+                </td>
+                <td class="seller-dash-date">{{ product.created|date:"M d, Y" }}</td>
+                <td>
+                  <div class="seller-dash-action-btns">
+                    <a href="{% url 'seller:edit_product' product.pk %}" class="seller-dash-btn-icon" title="Edit">
+                      <i class="fas fa-pen"></i>
+                    </a>
+                    <a href="{% url 'seller:delete_product' product.pk %}" class="seller-dash-btn-icon seller-dash-btn-icon-danger" title="Delete" onclick="return confirm('Delete this product?')">
+                      <i class="fas fa-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </form>
       {% else %}
       <div class="seller-dash-empty">
         <i class="fas fa-box-open"></i>
-        <p>No products yet</p>
-        <a href="{% url 'seller:add_product' %}" class="seller-dash-btn-primary">Add Your First Product</a>
+        {% if query %}
+          <p>No products match “{{ query }}”</p>
+          <a href="{% url 'seller:seller_dashboard' %}" class="seller-dash-btn-primary">Clear search</a>
+        {% else %}
+          <p>No products yet</p>
+          <a href="{% url 'seller:add_product' %}" class="seller-dash-btn-primary">Add Your First Product</a>
+        {% endif %}
       </div>
       {% endif %}
     </div>
 
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/list-toolbar.js' %}"></script>
 {% endblock %}

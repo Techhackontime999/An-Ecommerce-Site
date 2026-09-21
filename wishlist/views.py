@@ -27,10 +27,16 @@ def wishlist_detail(request):
         .select_related('product__category', 'product__seller')
         .prefetch_related('product__images')
     )
+    total = items.count()
+    query = request.GET.get('q', '').strip()
+    if query:
+        items = items.filter(product__name__icontains=query)
     wished = {item.product_id for item in items}
     return render(request, 'wishlist/wishlist.html', {
         'items': items,
         'wished': wished,
+        'query': query,
+        'total_items': total,
     })
 
 
@@ -60,4 +66,17 @@ def remove_wishlist(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     WishlistItem.objects.filter(user=request.user, product=product).delete()
     messages.success(request, f'Removed "{product.name}" from your wishlist.')
+    return redirect('wishlist:wishlist_detail')
+
+
+@login_required
+@require_POST
+def bulk_remove_wishlist(request):
+    ids = request.POST.getlist('selected')
+    removed, _ = WishlistItem.objects.filter(
+        user=request.user, product_id__in=ids).delete()
+    if removed:
+        messages.success(request, f'{removed} item{"s" if removed != 1 else ""} removed from your wishlist.')
+    else:
+        messages.warning(request, 'No items selected.')
     return redirect('wishlist:wishlist_detail')

@@ -31,13 +31,21 @@ def seller_dashboard(request):
 
     products = Product.objects.filter(seller=profile)
     order_items = OrderItem.objects.filter(product__in=products)
+    total_products = products.count()
+
+    query = request.GET.get('q', '').strip()
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) | Q(brand__icontains=query)
+        )
 
     context = {
         'profile': profile,
-        'total_products': products.count(),
+        'total_products': total_products,
         'total_orders': order_items.count(),
         'pending_orders': order_items.filter(order__paid=False).count(),
         'products': products,
+        'query': query,
         'payout_balance': available_balance(profile),
     }
     return render(request, 'seller/dashboard.html', context)
@@ -210,19 +218,52 @@ def delete_product(request, pk):
     messages.success(request, 'Product deleted successfully!')
     return redirect('seller:seller_dashboard')
 
+
+@login_required
+@require_POST
+def bulk_delete_products(request):
+    try:
+        profile = request.user.sellerprofile
+    except SellerProfile.DoesNotExist:
+        return redirect('accounts:become_seller')
+
+    ids = request.POST.getlist('selected')
+    products = Product.objects.filter(seller=profile, pk__in=ids)
+    count = products.count()
+    products.delete()
+    if count:
+        messages.success(request, f'{count} product{"s" if count != 1 else ""} deleted.')
+    else:
+        messages.warning(request, 'No products selected.')
+    return redirect('seller:seller_dashboard')
+
 @login_required
 def seller_orders(request):
     profile = request.user.sellerprofile
     order_items = (
         OrderItem.objects.filter(product__seller=profile)
-        .select_related('order')
+        .select_related('order', 'product')
         .prefetch_related('order__logistics_shipments__courier')
     )
+    total_orders = order_items.count()
+    pending_orders = order_items.filter(order__paid=False).count()
+    completed_orders = order_items.filter(order__paid=True).count()
+
+    query = request.GET.get('q', '').strip()
+    if query:
+        order_items = order_items.filter(
+            Q(order__order_number__icontains=query)
+            | Q(order__first_name__icontains=query)
+            | Q(order__last_name__icontains=query)
+            | Q(product__name__icontains=query)
+        )
+
     context = {
         'order_items': order_items,
-        'total_orders': order_items.count(),
-        'pending_orders': order_items.filter(order__paid=False).count(),
-        'completed_orders': order_items.filter(order__paid=True).count(),
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'completed_orders': completed_orders,
+        'query': query,
     }
     return render(request, 'seller/orders.html', context)
 

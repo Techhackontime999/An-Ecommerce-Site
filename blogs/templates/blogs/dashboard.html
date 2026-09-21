@@ -33,48 +33,86 @@
         </div>
 
         {% if posts %}
-        <div class="blog-dash-table-wrap">
-          <table class="blog-dash-table">
-            <thead>
-              <tr>
-                <th>Post</th>
-                <th>Status</th>
-                <th>Views</th>
-                <th>28d</th>
-                <th>Likes</th>
-                <th>Saved</th>
-                <th>Comments</th>
-                <th>Read</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for p in posts %}
-              <tr>
-                <td class="blog-dash-title">
-                  <a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
-                  <span class="blog-dash-type">{{ p.get_post_type_display }}</span>
-                </td>
-                <td><span class="blog-dash-status blog-dash-status--{{ p.status }}">{{ p.get_status_display }}</span></td>
-                <td>{{ p.view_count }}</td>
-                <td>{{ p.views_28d }}</td>
-                <td>{{ p.likes_count }}</td>
-                <td>{{ p.bookmarks_count }}</td>
-                <td>{{ p.comments_count }}</td>
-                <td>{{ p.reading_time }}m</td>
-                <td><a href="{% url 'blogs:post_update' p.pk p.slug %}" class="blog-dash-edit" title="Edit"><i class="fas fa-edit"></i></a></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div class="list-toolbar" style="justify-content:flex-end;margin-bottom:0.75rem;">
+          <form method="get" class="list-search" role="search">
+            <i class="fas fa-search"></i>
+            <input type="search" name="q" value="{{ query }}" placeholder="Search your posts…" aria-label="Search your posts">
+            {% if query %}
+              <a href="{% url 'blogs:author_dashboard' %}" class="list-search-clear" title="Clear search" aria-label="Clear search"><i class="fas fa-times"></i></a>
+            {% endif %}
+          </form>
         </div>
+        <form method="post" action="{% url 'blogs:bulk_post_archive' %}" data-bulk-form>
+          {% csrf_token %}
+          <div class="list-bulkbar">
+            <label class="list-check">
+              <input type="checkbox" data-bulk-toggle>
+              <span>Select all</span>
+            </label>
+            <button type="submit" class="seller-dash-btn-danger" data-bulk-submit disabled
+                    onclick="return confirm('Archive the selected posts? They will be hidden from readers.')">
+              <i class="fas fa-box-archive"></i> Archive selected
+            </button>
+          </div>
+          <div class="blog-dash-table-wrap">
+            <table class="blog-dash-table">
+              <thead>
+                <tr>
+                  <th class="list-check-col"></th>
+                  <th>Post</th>
+                  <th>Status</th>
+                  <th>Views</th>
+                  <th>28d</th>
+                  <th>Likes</th>
+                  <th>Saved</th>
+                  <th>Comments</th>
+                  <th>Read</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in posts %}
+                <tr>
+                  <td class="list-check-col">
+                    <input type="checkbox" name="selected" value="{{ p.pk }}" data-bulk-item aria-label="Select {{ p.title }}">
+                  </td>
+                  <td class="blog-dash-title">
+                    <a href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+                    <span class="blog-dash-type">{{ p.get_post_type_display }}</span>
+                  </td>
+                  <td><span class="blog-dash-status blog-dash-status--{{ p.status }}">{{ p.get_status_display }}</span></td>
+                  <td>{{ p.view_count }}</td>
+                  <td>{{ p.views_28d }}</td>
+                  <td>{{ p.likes_count }}</td>
+                  <td>{{ p.bookmarks_count }}</td>
+                  <td>{{ p.comments_count }}</td>
+                  <td>{{ p.reading_time }}m</td>
+                  <td>
+                    <div class="seller-dash-action-btns">
+                      <a href="{% url 'blogs:post_update' p.pk p.slug %}" class="blog-dash-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                      <button type="submit" formaction="{% url 'blogs:post_delete' p.pk p.slug %}" class="blog-dash-edit" title="Archive"
+                              style="border:none;background:none;cursor:pointer;" onclick="return confirm('Archive this post?')"><i class="fas fa-box-archive"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </form>
         <p class="blog-field-hint" style="margin-top:0.5rem;">Views are deduplicated per visit; 28d counts the last four weeks.</p>
         {% else %}
         <div class="blog-empty">
           <i class="fas fa-chart-pie"></i>
-          <h3>No posts yet</h3>
-          <p>Write your first post and this dashboard will track how readers find it.</p>
-          <a href="{% url 'blogs:post_create' %}" class="btn-aq btn-aq-primary"><i class="fas fa-feather-alt"></i> Write a post</a>
+          {% if query %}
+            <h3>No posts match “{{ query }}”</h3>
+            <p>Try a different title or keyword.</p>
+            <a href="{% url 'blogs:author_dashboard' %}" class="btn-aq btn-aq-primary"><i class="fas fa-times"></i> Clear search</a>
+          {% else %}
+            <h3>No posts yet</h3>
+            <p>Write your first post and this dashboard will track how readers find it.</p>
+            <a href="{% url 'blogs:post_create' %}" class="btn-aq btn-aq-primary"><i class="fas fa-feather-alt"></i> Write a post</a>
+          {% endif %}
         </div>
         {% endif %}
       </div>
@@ -83,4 +121,8 @@
     </div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/list-toolbar.js' %}"></script>
 {% endblock %}

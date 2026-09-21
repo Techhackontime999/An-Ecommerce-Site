@@ -185,6 +185,19 @@
     </div>
     {% endif %}
 
+    <div class="list-toolbar myo-toolbar">
+      <form method="get" class="list-search" role="search">
+        <i class="fas fa-search"></i>
+        <input type="search" name="q" value="{{ query }}" placeholder="Search your orders…" aria-label="Search your orders">
+        {% if query %}
+          <a href="{% url 'order:my_orders' %}" class="list-search-clear" title="Clear search" aria-label="Clear search"><i class="fas fa-times"></i></a>
+        {% endif %}
+      </form>
+      {% if orders %}
+        <span class="seller-dash-count-badge">{{ stats.total }} total</span>
+      {% endif %}
+    </div>
+
     {% if orders %}
     <div class="myo-stats">
       <div class="myo-stat">
@@ -330,9 +343,15 @@
     {% else %}
     <div class="myo-empty">
       <div class="myo-empty-icon"><i class="fas fa-bag-shopping"></i></div>
-      <h3>{% trans 'No orders yet' %}</h3>
-      <p>{% trans "You haven't placed any orders yet. Start exploring and find something you love." %}</p>
-      <a href="{% url 'shop:product_list' %}" class="myo-btn"><i class="fas fa-store"></i> {% trans 'Browse Products' %}</a>
+      {% if query %}
+        <h3>{% trans 'No orders match your search' %}</h3>
+        <p>{% blocktrans %}Nothing found for “{{ query }}”. Try a different order number or product name.{% endblocktrans %}</p>
+        <a href="{% url 'order:my_orders' %}" class="myo-btn"><i class="fas fa-times"></i> {% trans 'Clear search' %}</a>
+      {% else %}
+        <h3>{% trans 'No orders yet' %}</h3>
+        <p>{% trans "You haven't placed any orders yet. Start exploring and find something you love." %}</p>
+        <a href="{% url 'shop:product_list' %}" class="myo-btn"><i class="fas fa-store"></i> {% trans 'Browse Products' %}</a>
+      {% endif %}
     </div>
     {% endif %}
   </div>

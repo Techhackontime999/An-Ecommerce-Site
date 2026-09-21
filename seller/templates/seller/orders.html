@@ -21,6 +21,13 @@
 
     <div class="seller-dash-header">
       <h1 class="seller-dash-title"><i class="fas fa-clipboard-list" style="color: var(--aq-accent);"></i> Your Orders</h1>
+      <form method="get" class="list-search" role="search">
+        <i class="fas fa-search"></i>
+        <input type="search" name="q" value="{{ query }}" placeholder="Search orders…" aria-label="Search orders">
+        {% if query %}
+          <a href="{% url 'seller:orders' %}" class="list-search-clear" title="Clear search" aria-label="Clear search"><i class="fas fa-times"></i></a>
+        {% endif %}
+      </form>
     </div>
 
     <div class="seller-dash-stats">
@@ -147,8 +154,13 @@
       {% else %}
       <div class="seller-dash-empty">
         <i class="fas fa-clipboard-list"></i>
-        <p>No orders yet</p>
-        <a href="{% url 'seller:seller_dashboard' %}" class="seller-dash-btn-primary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        {% if query %}
+          <p>No orders match “{{ query }}”</p>
+          <a href="{% url 'seller:orders' %}" class="seller-dash-btn-primary"><i class="fas fa-times"></i> Clear search</a>
+        {% else %}
+          <p>No orders yet</p>
+          <a href="{% url 'seller:seller_dashboard' %}" class="seller-dash-btn-primary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        {% endif %}
       </div>
       {% endif %}
     </div>

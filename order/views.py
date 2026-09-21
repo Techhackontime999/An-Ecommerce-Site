@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 import requests
@@ -198,6 +199,13 @@ def my_orders(request):
             )
         else:
             orders = Order.objects.none()
+
+    query = request.GET.get('q', '').strip()
+    if query:
+        orders = orders.filter(
+            Q(order_number__icontains=query) | Q(items__product__name__icontains=query)
+        ).distinct()
+
     statuses = []
     for o in orders:
         logistics = o.logistics_shipments.first()
@@ -224,6 +232,7 @@ def my_orders(request):
     return render(request, 'order/my_orders.html', {
         'orders': orders,
         'stats': stats,
+        'query': query,
         'is_guest_view': not request.user.is_authenticated,
     })
 

@@ -2544,6 +2544,169 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
 }
 
+/* ---- Shared list toolbar (search + bulk select) ---- */
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.list-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.list-search > i {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--aq-tertiary);
+  font-size: 0.8125rem;
+  pointer-events: none;
+}
+
+.list-search input[type="search"] {
+  width: 220px;
+  max-width: 100%;
+  padding: 0.5rem 2rem 0.5rem 2.1rem;
+  border: 1px solid var(--aq-border);
+  border-radius: 100px;
+  background: var(--aq-canvas);
+  color: var(--aq-ink);
+  font-size: 0.8125rem;
+  transition: var(--aq-transition);
+}
+
+.list-search input[type="search"]:focus {
+  outline: none;
+  border-color: var(--aq-accent);
+  background: var(--aq-surface);
+  box-shadow: 0 0 0 3px var(--aq-accent-glow);
+}
+
+.list-search-clear {
+  position: absolute;
+  right: 0.7rem;
+  color: var(--aq-tertiary);
+  font-size: 0.75rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.list-search-clear:hover {
+  color: var(--aq-accent);
+}
+
+.list-bulkbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1.5rem;
+  background: var(--aq-canvas);
+  border-bottom: 1px solid var(--aq-border);
+}
+
+.list-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--aq-body);
+  cursor: pointer;
+  user-select: none;
+}
+
+.list-check input[type="checkbox"],
+.list-check-col input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--aq-accent);
+  cursor: pointer;
+}
+
+.list-check-col {
+  width: 48px;
+  text-align: center;
+}
+
+.list-check-col input[type="checkbox"] {
+  vertical-align: middle;
+}
+
+.seller-dash-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--aq-radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: #DC2626;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--aq-transition);
+}
+
+.seller-dash-btn-danger:hover:not(:disabled) {
+  background: #DC2626;
+  color: #fff;
+  border-color: #DC2626;
+}
+
+.seller-dash-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.list-bulkbar-card {
+  border: 1px solid var(--aq-border);
+  border-radius: var(--aq-radius-md);
+  margin-bottom: 1rem;
+}
+
+.wishlist-toolbar {
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.wishlist-card {
+  position: relative;
+}
+
+.wishlist-card-check {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--aq-surface);
+  border: 1px solid var(--aq-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.wishlist-card-check input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--aq-accent);
+  cursor: pointer;
+}
+
+.myo-toolbar {
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
 @media (max-width: 768px) {
   .seller-dash {
     padding: 1.25rem 0.75rem;

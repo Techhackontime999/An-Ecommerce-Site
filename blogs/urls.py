@@ -16,6 +16,7 @@ urlpatterns = [
     path('search/api/', views.post_search_api, name='post_search_api'),
     path('products/lookup/', views.product_lookup, name='product_lookup'),
     path('dashboard/', views.author_dashboard, name='author_dashboard'),
+    path('dashboard/bulk-archive/', views.bulk_post_archive, name='bulk_post_archive'),
     path('bookmarks/', views.my_bookmarks, name='my_bookmarks'),
     path('trending/', views.trending, name='trending'),
     path('picks/', views.editors_picks, name='editors_picks'),

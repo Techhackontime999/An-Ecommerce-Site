@@ -11,6 +11,7 @@ urlpatterns = [
         path('product/add/', views.add_product, name='add_product'),
     path('product/edit/<int:pk>/', views.edit_product, name='edit_product'),
     path('product/delete/<int:pk>/', views.delete_product, name='delete_product'),
+    path('product/bulk-delete/', views.bulk_delete_products, name='bulk_delete_products'),
     path('product/image/delete/<int:pk>/<int:image_id>/', views.delete_product_image, name='delete_product_image'),
     path('product/image/main/<int:pk>/<int:image_id>/', views.set_product_main_image, name='set_product_main_image'),
     path('product/variant-image/delete/<int:pk>/<int:image_id>/', views.delete_variant_image, name='delete_variant_image'),
