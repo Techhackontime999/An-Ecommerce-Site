@@ -72,6 +72,72 @@ class LoaderStudioAdminTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Loader Studio')
 
+    def test_studio_page_disables_page_toggles_when_global_skeleton_off(self):
+        config = LoaderConfig.get_solo()
+        config.skeleton_enabled = False
+        config.save()
+        response = self.client.get(reverse('admin:loader_studio'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="skeleton_page_home" checked disabled>')
+        self.assertContains(response, 'ls-skeleton-pages-hint')
+
+    def test_studio_page_enables_page_toggles_when_global_skeleton_on(self):
+        config = LoaderConfig.get_solo()
+        config.skeleton_enabled = True
+        config.save()
+        response = self.client.get(reverse('admin:loader_studio'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="skeleton_page_home" checked>')
+
+    def test_studio_save_preserves_page_settings_when_global_skeleton_off(self):
+        config = LoaderConfig.get_solo()
+        config.skeleton_pages = {'home': True, 'shop': True, 'product': True}
+        config.save()
+        response = self.client.post(reverse('admin:loader_studio'), {
+            'enabled': 'on',
+            'initial_type': 'spinner',
+            'navigation_type': 'logo',
+            'logo_text': 'Shop-Seed',
+            'background_color': '#111111',
+            'accent_color': '#ff0000',
+            'duration_ms': '1200',
+            'exit_animation': 'zoom',
+            'show_on': 'every_visit',
+            'device_desktop': 'on',
+            'device_tablet': 'on',
+            'device_mobile': 'on',
+        })
+        self.assertEqual(response.status_code, 302)
+        config.refresh_from_db()
+        self.assertFalse(config.skeleton_enabled)
+        self.assertEqual(config.skeleton_pages, {'home': True, 'shop': True, 'product': True})
+
+    def test_studio_save_applies_page_toggles_when_global_skeleton_on(self):
+        response = self.client.post(reverse('admin:loader_studio'), {
+            'enabled': 'on',
+            'skeleton_enabled': 'on',
+            'initial_type': 'spinner',
+            'navigation_type': 'logo',
+            'logo_text': 'Shop-Seed',
+            'background_color': '#111111',
+            'accent_color': '#ff0000',
+            'duration_ms': '1200',
+            'exit_animation': 'zoom',
+            'show_on': 'every_visit',
+            'device_desktop': 'on',
+            'device_tablet': 'on',
+            'device_mobile': 'on',
+            'skeleton_page_home': 'on',
+        })
+        self.assertEqual(response.status_code, 302)
+        config = LoaderConfig.get_solo()
+        self.assertTrue(config.skeleton_enabled)
+        pages = config.skeleton_pages
+        self.assertTrue(pages['home'])
+        self.assertFalse(pages['shop'])
+        self.assertFalse(pages['product'])
+        self.assertFalse(pages['checkout'])
+
     def test_studio_save_updates_config(self):
         response = self.client.post(reverse('admin:loader_studio'), {
             'enabled': 'on',

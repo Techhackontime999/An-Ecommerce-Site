@@ -41,11 +41,12 @@ def loader_studio_view(request):
         form = LoaderConfigForm(request.POST, request.FILES, instance=config)
         if form.is_valid():
             form.save()
-            pages = {}
-            for key, _label in SKELETON_PAGE_TYPES:
-                pages[key] = request.POST.get('skeleton_page_%s' % key) == 'on'
-            config.skeleton_pages = pages
-            config.save(update_fields=['skeleton_pages'])
+            if form.cleaned_data.get('skeleton_enabled'):
+                pages = {}
+                for key, _label in SKELETON_PAGE_TYPES:
+                    pages[key] = request.POST.get('skeleton_page_%s' % key) == 'on'
+                config.skeleton_pages = pages
+                config.save(update_fields=['skeleton_pages'])
             LogEntry = _get_log_entry_model()
             LogEntry.objects.log_action(
                 user_id=request.user.pk,

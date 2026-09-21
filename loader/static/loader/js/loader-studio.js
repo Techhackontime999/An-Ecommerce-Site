@@ -29,6 +29,9 @@
   var duration = document.getElementById('id_duration_ms');
   var logoText = document.getElementById('id_logo_text');
   var logoImage = document.getElementById('id_logo_image');
+  var skeletonPagesBoxes = Array.prototype.slice.call(document.querySelectorAll('input[name^="skeleton_page_"]'));
+  var skeletonPagesSection = document.getElementById('ls-skeleton-pages');
+  var skeletonPagesHint = document.getElementById('ls-skeleton-pages-hint');
 
   var fileUrl = null;
 
@@ -44,9 +47,20 @@
       logo_text: logoText ? logoText.value : (base.logo_text || ''),
       siteName: base.site_name || 'Shop-Seed',
       logoMark: base.logo_mark || 'S',
-      logo_image: fileUrl || base.logo_image || ''
+      logo_image: fileUrl || base.logo_image || '',
+      skeleton_pages: {}
     };
+    skeletonPagesBoxes.forEach(function (box) {
+      cfg.skeleton_pages[box.id.replace('skeleton_page_', '')] = box.checked;
+    });
     return cfg;
+  }
+
+  function syncSkeletonPages() {
+    var active = skeletonEnabled ? skeletonEnabled.checked : true;
+    skeletonPagesBoxes.forEach(function (box) { box.disabled = !active; });
+    if (skeletonPagesSection) skeletonPagesSection.classList.toggle('is-disabled', !active);
+    if (skeletonPagesHint) skeletonPagesHint.hidden = active;
   }
 
   function setNote(message) {
@@ -74,6 +88,12 @@
       return;
     }
     var pageType = pageTypeSelect ? pageTypeSelect.value : 'default';
+    if (cfg.initial_type === 'skeleton' && cfg.skeleton_pages[pageType] === false) {
+      var pageLabel = pageTypeSelect && pageTypeSelect.selectedIndex >= 0
+        ? pageTypeSelect.options[pageTypeSelect.selectedIndex].text : 'This page';
+      setNote('Skeleton is off for "' + pageLabel + '" — enable it in the \u201cSkeleton by page\u201d list below.');
+      return;
+    }
     var ctrl = window.ShopSeedLoader.preview(cfg, mount, pageType);
     if (ctrl && ctrl.play) ctrl.play();
   }
@@ -83,7 +103,7 @@
   }
 
   bindChange(initialType, renderPreview);
-  bindChange(skeletonEnabled, renderPreview);
+  bindChange(skeletonEnabled, function () { syncSkeletonPages(); renderPreview(); });
   bindChange(pageTypeSelect, renderPreview);
   bindChange(exitAnim, renderPreview);
   bindChange(bg, renderPreview);
@@ -329,5 +349,6 @@
 
   renderPresets();
   highlightMatchingPreset();
+  syncSkeletonPages();
   renderPreview();
 })(window, document);

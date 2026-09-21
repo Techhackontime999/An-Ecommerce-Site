@@ -33,6 +33,8 @@
   .ls-check .ls-check-label { font-weight: 600; font-size: 13px; }
   .ls-check .ls-help { font-size: 11.5px; }
   .ls-error { color: #dc2626; font-size: 12px; margin: 4px 0 0; }
+  #ls-skeleton-pages.is-disabled .ls-field.ls-check { opacity: .45; }
+  #ls-skeleton-pages.is-disabled .ls-field.ls-check input { cursor: not-allowed; }
 
   /* Preview panel */
   .ls-preview-sticky { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; }
@@ -164,19 +166,20 @@
         </div>
       </div>
 
-      <div class="ls-section">
+      <div class="ls-section" id="ls-skeleton-pages">
         <div class="ls-section-title">Skeleton by page</div>
         <p class="ls-help" style="margin:0 0 12px;">Har page type ka apna skeleton layout hai (page structure ke hisaab se). Yahan se har page type ka skeleton individually on/off karein. Global toggle upar wala master switch hai.</p>
         <div class="ls-grid">
           {% for key, label, checked in skeleton_page_checks %}
           <div class="ls-field ls-check">
-            <input type="checkbox" name="skeleton_page_{{ key }}" id="skeleton_page_{{ key }}" {% if checked %}checked{% endif %}>
+            <input type="checkbox" name="skeleton_page_{{ key }}" id="skeleton_page_{{ key }}" {% if checked %}checked{% endif %}{% if not config.skeleton_enabled %} disabled{% endif %}>
             <div class="ls-check-body">
               <label class="ls-check-label" for="skeleton_page_{{ key }}">{{ label }}</label>
             </div>
           </div>
           {% endfor %}
         </div>
+        <p class="ls-help" id="ls-skeleton-pages-hint" {% if config.skeleton_enabled %}hidden{% endif %} style="margin:12px 0 0; color:var(--aq-muted, #6b7280);">Global skeleton OFF hai — page select karne ke liye pehle &ldquo;Show page skeleton while content loads&rdquo; enable karein.</p>
       </div>
 
       <div class="ls-section">
