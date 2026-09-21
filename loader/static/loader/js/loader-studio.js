@@ -262,12 +262,51 @@
     renderPreview();
   }
 
+  function markSelected(selectedBtn) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.ls-preset'),
+      function (btn) { btn.classList.toggle('is-selected', btn === selectedBtn); }
+    );
+  }
+
+  function fieldMatches(key, value) {
+    var input = document.getElementById(key);
+    if (!input) return true;
+    if (input.type === 'checkbox') return input.checked === !!value;
+    return String(input.value) === String(value);
+  }
+
+  function presetMatches(preset) {
+    var fields = preset.fields;
+    var ok = Object.keys(fields).every(function (key) {
+      if (key === 'skeleton_all') return true;
+      return fieldMatches(key, fields[key]);
+    });
+    if (!ok) return false;
+    var boxes = document.querySelectorAll('input[name^="skeleton_page_"]');
+    for (var i = 0; i < boxes.length; i++) {
+      if (boxes[i].checked !== !!fields.skeleton_all) return false;
+    }
+    return true;
+  }
+
+  function highlightMatchingPreset() {
+    for (var i = 0; i < LS_PRESETS.length; i++) {
+      if (presetMatches(LS_PRESETS[i])) {
+        markSelected(document.querySelector('.ls-preset[data-preset="' + LS_PRESETS[i].key + '"]'));
+        return;
+      }
+    }
+    markSelected(null);
+  }
+
   function renderPresets() {
     var container = document.getElementById('ls-presets');
     if (!container) return;
     LS_PRESETS.forEach(function (preset) {
       var btn = document.createElement('button');
       btn.type = 'button';
+      btn.setAttribute('data-preset', preset.key);
       btn.className = 'ls-preset' + (preset.key === 'recommended' ? ' ls-preset--recommended' : '');
       var label = document.createElement('span');
       label.className = 'ls-preset__label';
@@ -277,11 +316,15 @@
       desc.textContent = preset.desc;
       btn.appendChild(label);
       btn.appendChild(desc);
-      btn.addEventListener('click', function () { applyPreset(preset); });
+      btn.addEventListener('click', function () {
+        applyPreset(preset);
+        markSelected(btn);
+      });
       container.appendChild(btn);
     });
   }
 
   renderPresets();
+  highlightMatchingPreset();
   renderPreview();
 })(window, document);

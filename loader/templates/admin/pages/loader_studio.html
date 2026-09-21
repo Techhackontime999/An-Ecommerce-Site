@@ -61,6 +61,10 @@
   .ls-preset__label { font-weight: 700; font-size: 13px; }
   .ls-preset--recommended .ls-preset__label { color: var(--accent, #ff7a2f); }
   .ls-preset__desc { font-size: 12px; line-height: 1.45; opacity: 0.65; }
+  .ls-preset.is-selected { border-color: var(--accent, #ff7a2f); background: rgba(255, 122, 47, 0.14); box-shadow: inset 0 0 0 1px var(--accent, #ff7a2f); }
+  .ls-preset.is-selected .ls-preset__label { color: var(--accent, #ff7a2f); }
+  .ls-preset.is-selected::after { content: '\2713'; position: absolute; top: 10px; right: 12px; font-weight: 700; color: var(--accent, #ff7a2f); }
+  .ls-preset { position: relative; }
 
   @media (max-width: 1100px) {
     .ls-layout { grid-template-columns: 1fr; }
