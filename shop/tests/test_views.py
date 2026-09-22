@@ -119,3 +119,26 @@ class TestViews(TestCase):
         finally:
             SiteSetting.objects.filter(key__in=('hero_video_light', 'hero_video_dark')).delete()
             invalidate()
+
+    def test_home_renders_default_video_hero_when_settings_empty(self):
+        from platform_studio.models import SiteSetting
+        from platform_studio.utils import invalidate
+        SiteSetting.objects.update_or_create(
+            key='hero_video_light',
+            defaults={'label': 'hero_video_light', 'value': '', 'group': 'homepage'},
+        )
+        SiteSetting.objects.update_or_create(
+            key='hero_video_dark',
+            defaults={'label': 'hero_video_dark', 'value': '', 'group': 'homepage'},
+        )
+        invalidate()
+        try:
+            response = self.client.get(reverse('shop:home'))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'hero-video-aq--video')
+            self.assertContains(response, 'data-hero-video-element')
+            self.assertContains(response, 'data-light="/static/hero/light_hero.mp4"')
+            self.assertContains(response, 'data-dark="/static/hero/dark_hero.mp4"')
+        finally:
+            SiteSetting.objects.filter(key__in=('hero_video_light', 'hero_video_dark')).delete()
+            invalidate()

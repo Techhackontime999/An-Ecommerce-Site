@@ -44,7 +44,8 @@ def _load():
         merged[s['key']] = s['default']
     try:
         for obj in SiteSetting.objects.filter(is_active=True):
-            merged[obj.key] = obj.value
+            if obj.value != '':
+                merged[obj.key] = obj.value
     except Exception:
         pass
     return merged

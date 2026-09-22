@@ -1,5 +1,5 @@
 {% load i18n %}
-{% with v_light=platform_settings.hero_video_light|default:'' v_dark=platform_settings.hero_video_dark|default:'' v_enabled=platform_settings.hero_video_enabled|default:'1' %}
+{% with v_light=platform_settings.hero_video_light|default:'/static/hero/light_hero.mp4' v_dark=platform_settings.hero_video_dark|default:'/static/hero/dark_hero.mp4' v_enabled=platform_settings.hero_video_enabled|default:'1' %}
 {% if v_enabled != '0' and v_light|add:v_dark %}
 <!-- Video hero (configured in Platform Studio → Homepage).
      Autoplays the theme-matched video full-screen; content below scrolls normally. -->
