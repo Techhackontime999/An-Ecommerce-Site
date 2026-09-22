@@ -326,3 +326,6 @@ def search_suggestions(request):
         'categories': categories,
         'brands': brands,
     })
+
+
+search_suggest = search_suggestions

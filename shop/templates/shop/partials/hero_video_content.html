@@ -23,7 +23,7 @@
                aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"
                aria-controls="hero-video-suggestions" aria-label="{% trans 'Search products' %}"
                placeholder="{% trans 'Search products…' %}"
-               data-suggest-url="{% url 'shop:search_suggestions' %}?q=__query__">
+               data-suggest-url="{% url 'shop:search_suggest' %}?q=__query__">
       </div>
       <div class="hero-video-aq-suggestions" id="hero-video-suggestions" data-hero-suggestions role="listbox" hidden></div>
     </form>

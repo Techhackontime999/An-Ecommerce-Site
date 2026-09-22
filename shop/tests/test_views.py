@@ -76,6 +76,23 @@ class TestViews(TestCase):
         data = response.json()
         self.assertLessEqual(len(data['products']), 10)
 
+    def test_search_suggest_api_endpoint_returns_json(self):
+        response = self.client.get('/api/search/suggest/', {'q': 'testprod'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'].startswith('application/json'), True)
+        data = response.json()
+        self.assertEqual(data['query'], 'testprod')
+        self.assertTrue(any(p['name'] == 'testproduct' for p in data['products']))
+        self.assertIn('image', data['products'][0])
+        self.assertIn('price', data['products'][0])
+
+    def test_navbar_includes_autocomplete_markup(self):
+        response = self.client.get(reverse('shop:product_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-search-autocomplete')
+        self.assertContains(response, 'data-search-suggest-url')
+        self.assertContains(response, '/api/search/suggest/')
+
     def test_home_renders_scroll_hero(self):
         response = self.client.get(reverse('shop:home'))
         self.assertEqual(response.status_code, 200)

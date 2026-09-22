@@ -416,6 +416,126 @@ html[data-theme="dark"] .nav-aq {
   font-size: 0.875rem;
 }
 
+/* Autocomplete dropdown */
+.nav-aq-search .aq-search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 1100;
+  max-height: min(60vh, 460px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: var(--ds-radius-md, 16px);
+  border: 1px solid var(--aq-border);
+  border: 1px solid color-mix(in srgb, var(--aq-border) 80%, transparent);
+  background: var(--aq-surface);
+  background: color-mix(in srgb, var(--aq-surface) 86%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.35);
+  text-align: start;
+}
+
+.nav-aq-search .aq-search-suggestions[hidden] {
+  display: none;
+}
+
+.aq-search-sug-group {
+  padding: 0.4rem 0 0.35rem;
+}
+
+.aq-search-sug-group + .aq-search-sug-group {
+  border-top: 1px solid var(--aq-border);
+}
+
+.aq-search-sug-title {
+  padding: 0.3rem 1rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aq-tertiary);
+}
+
+.aq-search-sug-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  color: var(--aq-ink);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.aq-search-sug-item:hover,
+.aq-search-sug-item[aria-selected="true"] {
+  background: var(--aq-accent-subtle);
+}
+
+.aq-search-sug-item:focus-visible {
+  outline: 2px solid var(--aq-accent);
+  outline-offset: -2px;
+}
+
+.aq-search-sug-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--aq-canvas);
+  border: 1px solid var(--aq-border);
+  flex-shrink: 0;
+}
+
+.aq-search-sug-thumb-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--aq-accent);
+}
+
+.aq-search-sug-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.aq-search-sug-meta .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aq-search-sug-meta .price {
+  color: var(--aq-accent-dark);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.aq-search-sug-arrow {
+  color: var(--aq-accent);
+}
+
+.aq-search-sug-empty,
+.aq-search-sug-loading {
+  padding: 0.9rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--aq-tertiary);
+}
+
+.aq-search-sug-all {
+  color: var(--aq-accent);
+  font-weight: 600;
+}
+
 /* Action icons (cart, bell, user, theme) — uniform 40px circles */
 .nav-aq-cart,
 .nav-aq-user,
