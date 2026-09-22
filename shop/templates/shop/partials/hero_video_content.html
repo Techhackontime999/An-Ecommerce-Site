@@ -1,0 +1,41 @@
+{% load i18n %}
+<div class="hero-video-aq-content">
+  <span class="hero-aq-badge hero-video-aq-reveal">
+    <i class="fas fa-bolt"></i>
+    {{ platform_settings.hero_badge_text|default:'Everything you need in one place' }}
+  </span>
+
+  <h1 class="hero-video-aq-title display-hero hero-video-aq-reveal delay-1">
+    {{ platform_settings.hero_heading_1|default:'Everything You Need.' }}
+    <br>
+    <span class="accent-line">{{ platform_settings.hero_heading_2|default:'One Smarter Store.' }}</span>
+  </h1>
+
+  <p class="hero-video-aq-tagline hero-video-aq-reveal delay-2">
+    {{ platform_settings.hero_tagline|default:'Discover products, compare options, and shop smarter with Shop-Seed.' }}
+  </p>
+
+  <div class="hero-video-aq-search hero-video-aq-reveal delay-3" data-hero-search-container>
+    <form method="get" action="{% url 'shop:product_search' %}" role="search" aria-label="{% trans 'Search products' %}">
+      <div class="hero-video-aq-search-field">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="text" name="q" data-hero-search role="combobox" autocomplete="off"
+               aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"
+               aria-controls="hero-video-suggestions" aria-label="{% trans 'Search products' %}"
+               placeholder="{% trans 'Search products…' %}"
+               data-suggest-url="{% url 'shop:search_suggestions' %}?q=__query__">
+      </div>
+      <div class="hero-video-aq-suggestions" id="hero-video-suggestions" data-hero-suggestions role="listbox" hidden></div>
+    </form>
+  </div>
+
+  <div class="hero-video-aq-actions hero-video-aq-reveal delay-4">
+    <a href="{{ platform_settings.hero_cta_url|default:'/shop/' }}" class="btn-aq btn-aq-hero-cta">
+      {{ platform_settings.hero_cta_text|default:'Shop Now' }}
+      <span class="icon-wrapper"><i class="fas fa-arrow-right"></i></span>
+    </a>
+    <a href="{{ platform_settings.hero_ghost_url|default:'#collections' }}" class="btn-aq btn-aq-ghost">
+      {{ platform_settings.hero_ghost_text|default:'Explore Categories' }}
+    </a>
+  </div>
+</div>

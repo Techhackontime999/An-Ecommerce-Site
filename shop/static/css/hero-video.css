@@ -1,0 +1,470 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Shop-Seed — Theme-Aware Video Hero
+   -----------------------------------------------------------------------
+   Full-viewport hero that autoplays a theme-matched product video (light /
+   dark) then hands off normally to the page below. Sits inside the existing
+   aquastic design system (--aq-* tokens). Two states:
+     1. .hero-video-aq--video  — autoplaying background video
+     2. .hero-video-aq--static — no video configured, clean gradient hero
+   Reduced motion freezes the video on a single frame (no autoplay).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Hero shell ───────────────────────────────────────────────────── */
+.hero-video-aq {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 100dvh;
+  min-height: 560px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-video-aq--video {
+  position: relative;
+}
+
+/* Static (no video) variant scrolls away naturally. */
+.hero-video-aq--static {
+  height: auto;
+  min-height: 100dvh;
+  padding: calc(var(--ds-navbar-h) + var(--ds-news-ticker-h) + 2rem) 0 6rem;
+  background:
+    radial-gradient(55% 45% at 12% 12%, var(--aq-blue-glow, rgba(99, 102, 241, 0.18)) 0%, transparent 62%),
+    radial-gradient(48% 42% at 88% 18%, var(--aq-accent-subtle) 0%, transparent 60%),
+    linear-gradient(180deg, var(--aq-accent-subtle) 0%, var(--aq-canvas) 100%);
+}
+
+/* ─── Layered backgrounds ──────────────────────────────────────────── */
+.hero-video-aq-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background:
+    radial-gradient(60% 50% at 20% 15%, var(--aq-accent-subtle) 0%, transparent 60%),
+    linear-gradient(180deg, var(--aq-accent-subtle) 0%, var(--aq-canvas) 100%);
+}
+
+.hero-video-aq-video {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Legibility overlay adapts to the active theme so the light-mode video
+   pairs with dark text and the dark-mode video with light text. */
+.hero-video-aq-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+html[data-theme="light"] .hero-video-aq-overlay {
+  background:
+    radial-gradient(130% 90% at 50% 110%, var(--aq-canvas) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(250, 250, 250, 0.72) 0%, rgba(250, 250, 250, 0.08) 42%, rgba(250, 250, 250, 0.82) 100%);
+}
+
+html[data-theme="dark"] .hero-video-aq-overlay {
+  background:
+    radial-gradient(130% 90% at 50% 110%, rgba(11, 18, 32, 0.9) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(11, 18, 32, 0.78) 0%, rgba(11, 18, 32, 0.18) 42%, rgba(11, 18, 32, 0.88) 100%);
+}
+
+.hero-video-aq-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  box-shadow: inset 0 0 140px rgba(15, 23, 42, 0.22);
+}
+
+/* ─── Content ──────────────────────────────────────────────────────── */
+.hero-video-aq-content {
+  position: relative;
+  z-index: 4;
+  width: min(920px, 100%);
+  max-width: 920px;
+  margin: 0 auto;
+  padding: calc(var(--ds-navbar-h) + var(--ds-news-ticker-h, 0px)) 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-video-aq-title {
+  margin: 1.1rem 0 0.85rem;
+  font-size: clamp(2.4rem, 6.6vw, 4.6rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  color: var(--aq-ink);
+}
+
+.hero-video-aq-title .accent-line {
+  background: linear-gradient(
+    92deg,
+    var(--aq-accent) 0%,
+    var(--aq-accent-light, var(--aq-accent)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--aq-accent);
+}
+
+.hero-video-aq-tagline {
+  margin: 0 auto 1.6rem;
+  max-width: 52ch;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--aq-body);
+}
+
+/* ─── Entrance ─────────────────────────────────────────────────────── */
+.hero-video-aq-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: hero-aq-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-video-aq-reveal.delay-1 { animation-delay: 0.12s; }
+.hero-video-aq-reveal.delay-2 { animation-delay: 0.24s; }
+.hero-video-aq-reveal.delay-3 { animation-delay: 0.36s; }
+.hero-video-aq-reveal.delay-4 { animation-delay: 0.48s; }
+.hero-video-aq-reveal.delay-5 { animation-delay: 0.6s; }
+
+@keyframes hero-aq-rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Search ───────────────────────────────────────────────────────── */
+.hero-video-aq-search {
+  position: relative;
+  width: min(520px, 100%);
+  margin: 0 auto 1.5rem;
+}
+
+.hero-video-aq-search-field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.95rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--aq-border);
+  background: var(--aq-glass);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 28px -12px var(--aq-shadow);
+  color: var(--aq-ink);
+  transition: border-color var(--aq-transition, 0.2s ease), box-shadow var(--aq-transition, 0.2s ease);
+}
+
+.hero-video-aq-search-field i {
+  color: var(--aq-tertiary);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.hero-video-aq-search-field input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--aq-ink);
+  font-family: var(--aq-font);
+  font-size: 0.9375rem;
+}
+
+.hero-video-aq-search-field input::placeholder {
+  color: var(--aq-tertiary);
+}
+
+.hero-video-aq-search-field:focus-within {
+  border-color: var(--aq-accent);
+  box-shadow: 0 0 0 3px var(--aq-accent-glow), 0 8px 28px -12px var(--aq-shadow);
+}
+
+/* Autocomplete dropdown */
+.hero-video-aq-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: min(60vh, 460px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: var(--ds-radius-md, 16px);
+  border: 1px solid var(--aq-border);
+  border: 1px solid color-mix(in srgb, var(--aq-border) 80%, transparent);
+  background: var(--aq-surface);
+  background: color-mix(in srgb, var(--aq-surface) 86%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.35);
+  text-align: left;
+}
+
+.hero-video-aq-suggestions[hidden] {
+  display: none;
+}
+
+.hero-video-aq-sug-group {
+  padding: 0.4rem 0 0.35rem;
+}
+
+.hero-video-aq-sug-group + .hero-video-aq-sug-group {
+  border-top: 1px solid var(--aq-border);
+}
+
+.hero-video-aq-sug-title {
+  padding: 0.3rem 1rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aq-tertiary);
+}
+
+.hero-video-aq-sug-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1rem;
+  color: var(--aq-ink);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.hero-video-aq-sug-item:hover,
+.hero-video-aq-sug-item[aria-selected="true"] {
+  background: var(--aq-accent-subtle);
+}
+
+.hero-video-aq-sug-item:focus-visible {
+  outline: 2px solid var(--aq-accent);
+  outline-offset: -2px;
+}
+
+.hero-video-aq-sug-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--aq-canvas);
+  border: 1px solid var(--aq-border);
+  flex-shrink: 0;
+}
+
+.hero-video-aq-sug-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.hero-video-aq-sug-meta .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hero-video-aq-sug-meta .price {
+  color: var(--aq-accent-dark);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.hero-video-aq-sug-empty,
+.hero-video-aq-sug-loading {
+  padding: 0.9rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--aq-tertiary);
+}
+
+/* ─── Actions ──────────────────────────────────────────────────────── */
+.hero-video-aq-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-aq-hero-cta {
+  border-radius: 999px;
+  padding: 0.875rem 2rem;
+  background: var(--aq-accent);
+  color: #fff;
+  border: 1px solid transparent;
+  font-weight: 600;
+  box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--aq-accent) 55%, transparent);
+  transition: transform var(--aq-transition, 0.2s ease), box-shadow var(--aq-transition, 0.2s ease), background var(--aq-transition, 0.2s ease);
+}
+
+.btn-aq-hero-cta:hover {
+  background: var(--aq-accent-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px -12px color-mix(in srgb, var(--aq-accent) 65%, transparent);
+  color: #fff;
+}
+
+.btn-aq-hero-cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--aq-accent-glow), 0 0 0 6px var(--aq-canvas);
+}
+
+/* ─── Progress bar + scroll hint ───────────────────────────────────── */
+.hero-video-aq-progress {
+  position: absolute;
+  left: 50%;
+  bottom: 1.4rem;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: min(220px, 40%);
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--aq-ink) 18%, transparent);
+  overflow: hidden;
+}
+
+.hero-video-aq-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--aq-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.hero-video-aq-scrollhint {
+  position: absolute;
+  left: 50%;
+  bottom: 2.2rem;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--aq-tertiary);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.hero-video-aq-scrollhint .mouse {
+  width: 20px;
+  height: 32px;
+  border: 2px solid color-mix(in srgb, var(--aq-body) 70%, transparent);
+  border-radius: 999px;
+  position: relative;
+}
+
+.hero-video-aq-scrollhint .mouse::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 3px;
+  height: 7px;
+  margin-left: -1.5px;
+  border-radius: 999px;
+  background: var(--aq-accent);
+  animation: hero-aq-wheel 1.6s ease-in-out infinite;
+}
+
+@keyframes hero-aq-wheel {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+/* ─── Wave transition ──────────────────────────────────────────────── */
+.hero-video-aq-wave {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 60px;
+  pointer-events: none;
+}
+
+.hero-video-aq-wave path {
+  fill: var(--aq-canvas);
+}
+
+/* ─── Loading state ────────────────────────────────────────────────── */
+.hero-video-aq-bg.is-busy::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  animation: hero-aq-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes hero-aq-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.9; }
+}
+
+/* ─── Reduced motion ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-video-aq-reveal,
+  .hero-video-aq-reveal.delay-1,
+  .hero-video-aq-reveal.delay-2,
+  .hero-video-aq-reveal.delay-3,
+  .hero-video-aq-reveal.delay-4,
+  .hero-video-aq-reveal.delay-5 {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .hero-video-aq-scrollhint .mouse::after {
+    animation: none;
+  }
+
+  .hero-video-aq-scrollhint {
+    display: none;
+  }
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  .hero-video-aq-content {
+    padding: var(--ds-navbar-h) var(--ds-space-4) 5rem;
+  }
+
+  .hero-video-aq-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .hero-video-aq-actions .btn-aq,
+  .hero-video-aq-actions .btn-aq-hero-cta {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .hero-video-aq--static {
+    padding-top: calc(var(--ds-navbar-h) + var(--ds-news-ticker-h) + 1.5rem);
+  }
+}

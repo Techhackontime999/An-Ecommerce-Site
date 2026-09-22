@@ -5,59 +5,13 @@
 
 {% block title %}{{ platform_settings.site_name }} — {{ platform_settings.site_tagline }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/hero-video.css' %}?v=5">
+{% endblock %}
+
 {% block content %}
-{{ hero_layer_images|json_script:"hero-layer-images" }}
 <!-- ===== HERO ===== -->
-<section class="hero-aq" id="hero-aq">
-  <div class="hero-parallax-aq" id="hero-parallax-aq" aria-hidden="true"></div>
-  <div class="hero-parallax-aq-vignette" aria-hidden="true"></div>
-  <div class="hero-aq-content hero-aq-content--center">
-    <span class="hero-aq-badge fade-up">
-      <i class="fas fa-bolt"></i>
-      {{ platform_settings.hero_badge_text|default:'Big Sale — Up to 60% Off' }}
-    </span>
-    <h1 class="display-hero">
-      <span class="aq-word aq-word-1">{{ platform_settings.hero_title_1|default:'Shop' }}</span>
-      <span class="aq-word aq-word-2">{{ platform_settings.hero_title_2|default:'Smarter,' }}</span>
-      <br>
-      <span class="aq-word aq-word-3">{{ platform_settings.hero_title_3|default:'Live' }}</span>
-      <span class="aq-word aq-word-4">{{ platform_settings.hero_title_4|default:'Better' }}</span>
-    </h1>
-    <p class="body-large fade-up fade-up-delay-2">
-      {{ platform_settings.hero_subtitle|default:"India's most trusted online marketplace. From fashion to electronics, find everything you need with fast delivery, easy returns, and best prices." }}
-    </p>
-    <div class="hero-aq-actions fade-up fade-up-delay-3">
-      <a href="{{ platform_settings.hero_cta_url|default:'/shop/' }}" class="btn-aq btn-aq-hero-cta">
-        {{ platform_settings.hero_cta_text|default:'Shop Now' }}
-        <span class="icon-wrapper"><i class="fas fa-arrow-right"></i></span>
-      </a>
-      <a href="{{ platform_settings.hero_ghost_url|default:'/todays-deals/' }}" class="btn-aq btn-aq-ghost">
-        {{ platform_settings.hero_ghost_text|default:'View Deals' }}
-      </a>
-    </div>
-  </div>
-
-  {% if hero_products %}
-  <div class="hero-aq-marquee" aria-hidden="true">
-    <div class="hero-aq-marquee-track">
-      <div class="hero-aq-marquee-group">
-        {% for product in hero_products %}
-        <img src="{{ product.image.url }}" alt="" loading="lazy">
-        {% endfor %}
-      </div>
-      <div class="hero-aq-marquee-group">
-        {% for product in hero_products %}
-        <img src="{{ product.image.url }}" alt="" loading="lazy">
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  <svg class="hero-aq-wave" viewBox="0 0 1440 80" preserveAspectRatio="none">
-    <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#FAFAFA"/>
-  </svg>
-</section>
+{% include 'shop/partials/hero_video.html' %}
 
 <!-- ===== PARALLAX SHOWCASE ===== -->
 <section class="parallax-aq" id="parallax-aq" aria-label="Product showcase">
@@ -123,7 +77,7 @@
 </section>
 
 <!-- ===== COLLECTIONS ===== -->
-<section class="section-aq collections-aq">
+<section class="section-aq collections-aq" id="collections">
   <div class="container-aq">
     <div class="text-center mb-5 fade-up">
       <span class="hero-aq-badge mx-auto" style="justify-content:center">
@@ -383,4 +337,8 @@
     </div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/hero-video.js' %}?v=3"></script>
 {% endblock %}

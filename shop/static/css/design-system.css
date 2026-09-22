@@ -83,11 +83,13 @@ body.has-news-ticker {
 /* ─── 2. Global reset & stability ──────────────────────────────────── */
 html {
   overflow-x: hidden;
+  overflow-x: clip;
   scroll-padding-top: calc(var(--ds-navbar-h) + 12px);
 }
 
 body {
   overflow-x: hidden;
+  overflow-x: clip;
   overflow-wrap: break-word;
 }
 

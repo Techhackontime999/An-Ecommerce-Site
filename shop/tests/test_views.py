@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from shop.models import Category, Product
 
+
 class TestViews(TestCase):
 
     def setUp(self):
@@ -40,3 +41,64 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '/shop/20/testproduct/')
         self.assertContains(response, '/shop/fastfood1/')
+
+    def test_search_suggestions_returns_products_and_categories(self):
+        response = self.client.get(reverse('shop:search_suggestions'), {'q': 'testprod'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['query'], 'testprod')
+        self.assertTrue(any(p['name'] == 'testproduct' for p in data['products']))
+        product = next(p for p in data['products'] if p['name'] == 'testproduct')
+        self.assertIn('/shop/20/testproduct/', product['url'])
+        self.assertIn('price', product)
+
+        response = self.client.get(reverse('shop:search_suggestions'), {'q': 'fastfood'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(any(c['name'] == 'fastfood' for c in data['categories']))
+
+    def test_search_suggestions_empty_query_returns_empty(self):
+        response = self.client.get(reverse('shop:search_suggestions'), {'q': ''})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['products'], [])
+        self.assertEqual(data['categories'], [])
+
+    def test_search_suggestions_empty_results(self):
+        response = self.client.get(reverse('shop:search_suggestions'), {'q': 'zzzzznope'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['products'], [])
+
+    def test_search_suggestions_caps_limit(self):
+        response = self.client.get(reverse('shop:search_suggestions'), {'q': 'test', 'limit': '999'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertLessEqual(len(data['products']), 10)
+
+    def test_home_renders_scroll_hero(self):
+        response = self.client.get(reverse('shop:home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-hero-video')
+        self.assertContains(response, 'hero-video-suggestions')
+
+    def test_home_renders_scroll_video_hero_when_configured(self):
+        from platform_studio.models import SiteSetting
+        from platform_studio.utils import invalidate
+        for key, value in (('hero_video_light', '/media/hero/light.mp4'),
+                           ('hero_video_dark', '/media/hero/dark.mp4')):
+            SiteSetting.objects.update_or_create(
+                key=key,
+                defaults={'label': key, 'value': value, 'group': 'homepage'},
+            )
+        invalidate()
+        try:
+            response = self.client.get(reverse('shop:home'))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'hero-video-aq--video')
+            self.assertContains(response, 'data-hero-video-element')
+            self.assertContains(response, '/media/hero/light.mp4')
+            self.assertNotContains(response, 'hero-video-aq-stage')
+        finally:
+            SiteSetting.objects.filter(key__in=('hero_video_light', 'hero_video_dark')).delete()
+            invalidate()

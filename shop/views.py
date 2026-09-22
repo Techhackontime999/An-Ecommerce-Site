@@ -1,5 +1,8 @@
 import json
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+from django.views.decorators.http import require_GET
 from cart.forms import CartAddProductForm
 from .models import Category, Product
 from django.core.paginator import Paginator
@@ -13,10 +16,6 @@ from platform_studio.utils import get_setting
 
 def home(request):
     trending = Product.objects.with_rating().with_deal_price().filter(available=True)[:8]
-    hero_products = list(
-        Product.objects.with_deal_price().filter(available=True, image__isnull=False)
-        .exclude(image='')[:16]
-    )
     now = timezone.now()
     deals = Product.objects.with_rating().with_deal_price().filter(
         available=True,
@@ -27,8 +26,6 @@ def home(request):
         deals = Product.objects.with_rating().with_deal_price().filter(available=True)[:4]
     return render(request, 'shop/home.html', {
         'trending_products': trending,
-        'hero_products': hero_products,
-        'hero_layer_images': [p.image.url for p in hero_products],
         'deals': deals,
     })
 
@@ -254,4 +251,78 @@ def product_search(request):
         "product_categories": product_categories,
         "sort": active_sort,
         "search_action": "shop:product_search",
+    })
+
+
+@require_GET
+def search_suggestions(request):
+    """JSON autocomplete for the hero search box.
+
+    Returns matching products, categories and brands for a query. Keep it
+    lean: bounded result counts, prefix matches ranked first, no rendering.
+    Extend later with typo tolerance / ranking / semantic search.
+    """
+    from preferences.templatetags.preference_extras import _format
+    from preferences.context_processors import user_preferences
+
+    query = request.GET.get('q', '').strip()
+    try:
+        limit = max(1, min(int(request.GET.get('limit', 6)), 10))
+    except (TypeError, ValueError):
+        limit = 6
+
+    if not query:
+        return JsonResponse({'query': '', 'products': [], 'categories': [], 'brands': []})
+
+    currency_code = user_preferences(request).get('CURRENCY_CODE') or 'INR'
+    product_qs = (
+        Product.objects.filter(available=True, name__icontains=query)
+        .select_related('category')[:limit * 2]
+    )
+    product_qs = sorted(
+        product_qs,
+        key=lambda p: (0 if p.name.lower().startswith(query.lower()) else 1, p.name.lower()),
+    )[:limit]
+
+    products = []
+    for p in product_qs:
+        price = p.current_price
+        if price is None:
+            price = p.price
+        products.append({
+            'id': p.id,
+            'name': p.name,
+            'slug': p.slug,
+            'brand': p.brand or '',
+            'price': _format(price, currency_code),
+            'image': p.image.url if p.image else '',
+            'url': reverse('shop:product_detail', kwargs={'id': p.id, 'slug': p.slug}),
+        })
+
+    categories = [
+        {
+            'name': c.name,
+            'url': reverse('shop:product_list_by_category', kwargs={'category_slug': c.slug}),
+        }
+        for c in Category.objects.filter(name__icontains=query)[:4]
+    ]
+
+    brands = []
+    brand_rows = (
+        Product.objects.filter(available=True, brand__icontains=query)
+        .exclude(brand='')
+        .values('brand')
+        .distinct()[:4]
+    )
+    for row in brand_rows:
+        brands.append({
+            'name': row['brand'],
+            'url': f"{reverse('shop:product_search')}?q={row['brand']}",
+        })
+
+    return JsonResponse({
+        'query': query,
+        'products': products,
+        'categories': categories,
+        'brands': brands,
     })

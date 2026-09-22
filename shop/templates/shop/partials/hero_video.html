@@ -1,0 +1,40 @@
+{% load i18n %}
+{% with v_light=platform_settings.hero_video_light|default:'' v_dark=platform_settings.hero_video_dark|default:'' v_enabled=platform_settings.hero_video_enabled|default:'1' %}
+{% if v_enabled != '0' and v_light|add:v_dark %}
+<!-- Video hero (configured in Platform Studio → Homepage).
+     Autoplays the theme-matched video full-screen; content below scrolls normally. -->
+<section class="hero-video-aq hero-video-aq--video" id="hero-video-aq" data-hero-video aria-label="Shop-Seed — {% trans 'product discovery' %}">
+  <div class="hero-video-aq-bg" aria-hidden="true"></div>
+  <video class="hero-video-aq-video" muted loop playsinline preload="auto"
+         data-hero-video-element
+         data-light="{{ v_light }}" data-dark="{{ v_dark }}"
+         data-poster="{{ platform_settings.hero_video_poster|default:'' }}"
+         aria-hidden="true" tabindex="-1"></video>
+  <div class="hero-video-aq-overlay" aria-hidden="true"></div>
+  <div class="hero-video-aq-vignette" aria-hidden="true"></div>
+
+  {% include 'shop/partials/hero_video_content.html' %}
+
+  <div class="hero-video-aq-progress" aria-hidden="true"><span></span></div>
+  <div class="hero-video-aq-scrollhint" aria-hidden="true">
+    <span class="mouse"></span>
+    {{ platform_settings.hero_scroll_hint|default:'Scroll to explore' }}
+  </div>
+  <svg class="hero-video-aq-wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"/>
+  </svg>
+</section>
+{% else %}
+<!-- Static hero (shown until a hero video is configured in Platform Studio) -->
+<section class="hero-video-aq hero-video-aq--static" data-hero-video aria-label="Shop-Seed — {% trans 'product discovery' %}">
+  <div class="hero-video-aq-bg" aria-hidden="true"></div>
+  <div class="hero-video-aq-overlay" aria-hidden="true"></div>
+
+  {% include 'shop/partials/hero_video_content.html' %}
+
+  <svg class="hero-video-aq-wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"/>
+  </svg>
+</section>
+{% endif %}
+{% endwith %}
