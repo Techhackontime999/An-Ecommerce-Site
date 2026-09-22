@@ -9,7 +9,7 @@
 (function () {
   'use strict';
 
-  var SUGGEST_DEBOUNCE_MS = 180;
+  var SUGGEST_DEBOUNCE_MS = 300;
   var SUGGEST_MIN_CHARS = 2;
 
   var prefersReducedMotion = function () {

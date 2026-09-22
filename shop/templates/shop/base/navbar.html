@@ -31,10 +31,14 @@
         {% endif %}
       </ul>
 
-      <div class="nav-aq-search">
+      <div class="nav-aq-search" data-search-autocomplete>
         <span class="search-icon"><i class="fas fa-search"></i></span>
         <form method="GET" action="{% url 'shop:product_search' %}" role="search">
-          <input type="text" placeholder="{{ platform_settings.search_placeholder|default:'Search products...' }}" name="q" value="{{ query|default:'' }}" aria-label="{% trans 'Search products' %}">
+          <input type="text" placeholder="{{ platform_settings.search_placeholder|default:'Search products...' }}" name="q" value="{{ query|default:'' }}" autocomplete="off"
+                 role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"
+                 aria-controls="nav-search-suggestions-desktop" aria-label="{% trans 'Search products' %}"
+                 data-search-suggest-url="{% url 'shop:search_suggest' %}?q=__query__">
+          <div class="aq-search-suggestions" id="nav-search-suggestions-desktop" data-search-suggestions role="listbox" hidden></div>
         </form>
       </div>
 
@@ -177,10 +181,14 @@
         </div>
       </div>
 
-      <div class="nav-aq-search">
+      <div class="nav-aq-search" data-search-autocomplete>
         <span class="search-icon"><i class="fas fa-search"></i></span>
         <form method="GET" action="{% url 'shop:product_search' %}" role="search">
-          <input type="text" placeholder="{{ platform_settings.search_placeholder|default:'Search products...' }}" name="q" value="{{ query|default:'' }}" aria-label="{% trans 'Search products' %}">
+          <input type="text" placeholder="{{ platform_settings.search_placeholder|default:'Search products...' }}" name="q" value="{{ query|default:'' }}" autocomplete="off"
+                 role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"
+                 aria-controls="nav-search-suggestions-mobile" aria-label="{% trans 'Search products' %}"
+                 data-search-suggest-url="{% url 'shop:search_suggest' %}?q=__query__">
+          <div class="aq-search-suggestions" id="nav-search-suggestions-mobile" data-search-suggestions role="listbox" hidden></div>
         </form>
       </div>
     </div>
